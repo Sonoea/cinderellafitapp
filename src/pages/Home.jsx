@@ -1,7 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Globe, LogIn, Sparkles } from 'lucide-react';
+import { Plus, Globe, LogIn, Sparkles, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
@@ -24,9 +24,12 @@ const Home = () => {
                     </button>
                     <Link
                         to="/settings"
-                        className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center hover:bg-gray-100 transition-all"
+                        className="px-3 py-2 rounded-full bg-white shadow-sm flex items-center gap-1 hover:bg-gray-100 transition-all"
                     >
-                        <span style={{ fontSize: '12px' }}>⚙️</span>
+                        <Settings size={16} style={{ color: 'var(--primary)' }} />
+                        <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary)' }}>
+                            {language === 'jp' ? '設定' : 'Settings'}
+                        </span>
                     </Link>
                 </div>
             </header>

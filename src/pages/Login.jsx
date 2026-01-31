@@ -132,17 +132,16 @@ const Login = () => {
                     <form onSubmit={handleEmailAuth} className="space-y-4">
                         {/* Email */}
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-2">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
                                 {language === 'jp' ? 'メールアドレス' : 'Email'}
                             </label>
                             <div className="relative">
-                                <Mail size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
                                     placeholder={language === 'jp' ? 'example@email.com' : 'your@email.com'}
                                 />
                             </div>
@@ -150,17 +149,16 @@ const Login = () => {
 
                         {/* Password */}
                         <div>
-                            <label className="block text-xs font-bold text-gray-700 mb-2">
+                            <label className="block text-sm font-bold text-gray-700 mb-2">
                                 {language === 'jp' ? 'パスワード' : 'Password'}
                             </label>
                             <div className="relative">
-                                <Lock size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                 <input
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
+                                    className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
                                     placeholder={language === 'jp' ? '6文字以上' : 'At least 6 characters'}
                                 />
                             </div>
@@ -169,17 +167,16 @@ const Login = () => {
                         {/* Confirm Password (Sign Up Only) */}
                         {isSignup && (
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-gray-700 mb-2">
                                     {language === 'jp' ? 'パスワード確認' : 'Confirm Password'}
                                 </label>
                                 <div className="relative">
-                                    <Lock size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                                     <input
                                         type="password"
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
-                                        className="w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
+                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
                                         placeholder={language === 'jp' ? 'もう一度入力' : 'Re-enter password'}
                                     />
                                 </div>

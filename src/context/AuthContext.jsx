@@ -8,6 +8,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase/config';
+import { sendNewUserNotification } from '../utils/emailService';
 
 const AuthContext = createContext();
 
@@ -20,15 +21,20 @@ export const AuthProvider = ({ children }) => {
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
 
-            // Create user profile in Firestore
-            await setDoc(doc(db, 'users', result.user.uid), {
+            const userData = {
                 email: result.user.email,
                 displayName: result.user.displayName || email.split('@')[0],
                 createdAt: new Date().toISOString(),
                 plan: 'free',
                 plushieCount: 0,
                 lastLoginAt: new Date().toISOString()
-            });
+            };
+
+            // Create user profile in Firestore
+            await setDoc(doc(db, 'users', result.user.uid), userData);
+
+            // Send notification to admin
+            await sendNewUserNotification({ ...userData, uid: result.user.uid });
 
             return { success: true, user: result.user };
         } catch (error) {
@@ -61,8 +67,7 @@ export const AuthProvider = ({ children }) => {
             const userDoc = await getDoc(doc(db, 'users', result.user.uid));
 
             if (!userDoc.exists()) {
-                // Create new user profile
-                await setDoc(doc(db, 'users', result.user.uid), {
+                const userData = {
                     email: result.user.email,
                     displayName: result.user.displayName || 'User',
                     photoURL: result.user.photoURL || null,
@@ -70,7 +75,13 @@ export const AuthProvider = ({ children }) => {
                     plan: 'free',
                     plushieCount: 0,
                     lastLoginAt: new Date().toISOString()
-                });
+                };
+
+                // Create new user profile
+                await setDoc(doc(db, 'users', result.user.uid), userData);
+
+                // Send notification to admin
+                await sendNewUserNotification({ ...userData, uid: result.user.uid });
             } else {
                 // Update last login time
                 await setDoc(doc(db, 'users', result.user.uid), {

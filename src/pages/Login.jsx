@@ -141,7 +141,7 @@ const Login = () => {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
+                                    className="w-full px-4 py-4 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
                                     placeholder={language === 'jp' ? 'example@email.com' : 'your@email.com'}
                                 />
                             </div>
@@ -158,7 +158,7 @@ const Login = () => {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
+                                    className="w-full px-4 py-4 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
                                     placeholder={language === 'jp' ? '6文字以上' : 'At least 6 characters'}
                                 />
                             </div>
@@ -176,7 +176,7 @@ const Login = () => {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
-                                        className="w-full px-4 py-3 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
+                                        className="w-full px-4 py-4 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
                                         placeholder={language === 'jp' ? 'もう一度入力' : 'Re-enter password'}
                                     />
                                 </div>

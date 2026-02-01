@@ -5,7 +5,12 @@ import { useNavigate } from 'react-router-dom';
 
 const Measure = () => {
     const navigate = useNavigate();
-    const { addPlushie, plushies, t, plushieLimit, canAddPlushie } = useApp();
+    const { addPlushie, updatePlushie, plushies, t, plushieLimit, canAddPlushie, language } = useApp();
+
+    // Get URL query params to check for edit mode
+    const queryParameters = new URLSearchParams(window.location.search);
+    const editId = queryParameters.get("edit");
+    const isEditMode = !!editId;
 
     const [mainMode, setMainMode] = useState('plushie'); // 'plushie' (Friend) | 'item' (Store Item)
 
@@ -18,7 +23,7 @@ const Measure = () => {
     const [formData, setFormData] = useState({
         name: '',
         type: '',
-        image: null, // Add image field
+        image: null,
         height: '',
         waist: '',
         head: '',
@@ -29,6 +34,30 @@ const Measure = () => {
         armGirth: '',
         leg: '',
     });
+
+    // Load data for edit mode
+    useEffect(() => {
+        if (isEditMode && plushies.length > 0) {
+            const targetPlushie = plushies.find(p => String(p.id) === String(editId));
+            if (targetPlushie) {
+                setMainMode('plushie');
+                setFormData({
+                    name: targetPlushie.name,
+                    type: targetPlushie.type,
+                    image: targetPlushie.image,
+                    height: targetPlushie.measurements?.height || '',
+                    waist: targetPlushie.measurements?.waist || '',
+                    head: targetPlushie.measurements?.head || '',
+                    neck: targetPlushie.measurements?.neck || '',
+                    length: targetPlushie.measurements?.length || '',
+                    shoulder: targetPlushie.measurements?.shoulder || '',
+                    arm: targetPlushie.measurements?.arm || '',
+                    armGirth: targetPlushie.measurements?.armGirth || '',
+                    leg: targetPlushie.measurements?.leg || '',
+                });
+            }
+        }
+    }, [isEditMode, editId, plushies]);
 
     // Handle image upload
     const handleImageChange = (e) => {
@@ -46,28 +75,42 @@ const Measure = () => {
         e.preventDefault();
         if (!formData.name) return;
 
-        const success = addPlushie({
-            name: formData.name,
-            type: formData.type || 'Unknown',
-            image: formData.image || "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80", // User image or default
-            measurements: {
-                height: Number(formData.height),
-                waist: Number(formData.waist),
-                head: Number(formData.head),
-                neck: Number(formData.neck),
-                length: Number(formData.length),
-                shoulder: Number(formData.shoulder),
-                arm: Number(formData.arm),
-                armGirth: Number(formData.armGirth),
-                leg: Number(formData.leg),
-            }
-        });
+        const measurements = {
+            height: Number(formData.height),
+            waist: Number(formData.waist),
+            head: Number(formData.head),
+            neck: Number(formData.neck),
+            length: Number(formData.length),
+            shoulder: Number(formData.shoulder),
+            arm: Number(formData.arm),
+            armGirth: Number(formData.armGirth),
+            leg: Number(formData.leg),
+        };
 
-        if (success) {
-            navigate('/'); // Go back home
+        if (isEditMode) {
+            // Update existing
+            updatePlushie({
+                id: Number(editId),
+                name: formData.name,
+                type: formData.type || 'Unknown',
+                image: formData.image || "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80",
+                measurements
+            });
+            navigate('/');
         } else {
-            // Show limit reached message
-            alert(t('plushieLimitReached') || `You've reached the limit of ${plushieLimit} plushies. Upgrade to Premium for up to 20 plushies!`);
+            // Add new
+            const success = addPlushie({
+                name: formData.name,
+                type: formData.type || 'Unknown',
+                image: formData.image || "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80",
+                measurements
+            });
+
+            if (success) {
+                navigate('/');
+            } else {
+                alert(t('plushieLimitReached') || `You've reached the limit of ${plushieLimit} plushies.`);
+            }
         }
     };
 
@@ -139,7 +182,7 @@ const Measure = () => {
             {mainMode === 'plushie' ? (
                 /* PLUSHIE MEASUREMENT MODE - MANUAL ONLY */
                 <>
-                    <h2 className="mb-4">{t('newMeasurement')}</h2>
+                    <h2 className="mb-4">{isEditMode ? (language === 'jp' ? 'ぬいぐるみを編集' : 'Edit Plushie') : t('newMeasurement')}</h2>
                     <form onSubmit={handleManualSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm fade-in">
                         {/* Image Upload UI */}
                         <div className="flex flex-col items-center justify-center mb-4">
@@ -273,8 +316,18 @@ const Measure = () => {
                             className="mt-4 w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg hover-scale"
                             style={{ backgroundColor: 'var(--primary)' }}
                         >
-                            {t('saveProfile')}
+                            {isEditMode ? (language === 'jp' ? '更新する' : 'Update') : t('saveProfile')}
                         </button>
+
+                        {isEditMode && (
+                            <button
+                                type="button"
+                                onClick={() => navigate('/')}
+                                className="w-full py-2 rounded-xl text-gray-400 font-bold hover:bg-gray-100"
+                            >
+                                {language === 'jp' ? 'キャンセル' : 'Cancel'}
+                            </button>
+                        )}
                     </form>
                 </>
             ) : (

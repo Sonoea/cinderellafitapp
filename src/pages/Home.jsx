@@ -1,12 +1,13 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Globe, LogIn, Sparkles, Settings } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Plus, Globe, LogIn, Sparkles, Settings, Pencil } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Home = () => {
     const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie } = useApp();
     const { currentUser } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <div className="flex flex-col gap-4">
@@ -139,46 +140,46 @@ const Home = () => {
                                     <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '2px', color: 'var(--primary)' }}>
                                         {plushie.name}
                                     </h3>
-                                    <p style={{ fontSize: '12px', color: 'var(--text-light)', marginBottom: '12px' }}>
-                                        {plushie.type}
-                                    </p>
+                                    <p style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>{plushie.type}</p>
 
-                                    {/* Quick Stats */}
-                                    <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '4px' }}>
-                                                {language === 'jp' ? '身長' : 'Height'}
-                                            </p>
-                                            <p style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>
-                                                {plushie.measurements?.height || 0}cm
-                                            </p>
+                                    {/* Measurements Grid */}
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                                        <div>
+                                            <p style={{ fontSize: '10px', color: '#888', marginBottom: '2px' }}>{t('height')}</p>
+                                            <p style={{ fontSize: '16px', fontWeight: '800' }}>{plushie.measurements.height}cm</p>
                                         </div>
-                                        <div style={{ textAlign: 'center' }}>
-                                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '4px' }}>
-                                                {language === 'jp' ? '胴囲' : 'Waist'}
-                                            </p>
-                                            <p style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>
-                                                {plushie.measurements?.waist || 0}cm
-                                            </p>
+                                        <div>
+                                            <p style={{ fontSize: '10px', color: '#888', marginBottom: '2px' }}>{t('waist')}</p>
+                                            <p style={{ fontSize: '16px', fontWeight: '800' }}>{plushie.measurements.waist}cm</p>
                                         </div>
                                     </div>
-
-                                    {/* Action Button */}
-                                    <Link to={`/fitting-room?plushieId=${plushie.id}`}>
-                                        <button style={{
-                                            padding: '10px 16px',
-                                            backgroundColor: 'var(--primary)',
-                                            color: 'white',
-                                            borderRadius: 'var(--radius-sm)',
-                                            fontSize: '13px',
-                                            fontWeight: '600',
-                                            width: '100%'
-                                        }} className="hover-scale">
-                                            {t('checkClothingSize')}
-                                        </button>
-                                    </Link>
                                 </div>
+
+                                {/* Edit Button */}
+                                <Link to={`/measure?edit=${plushie.id}`} className="absolute top-0 right-0 p-2 bg-white/80 rounded-full hover:bg-white text-gray-400 hover:text-primary transition-colors z-20">
+                                    <Pencil size={16} />
+                                </Link>
                             </div>
+
+                            <button
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    navigate(`/shop?plushie=${plushie.id}`);
+                                }}
+                                style={{
+                                    width: '100%',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    background: '#548C8C',
+                                    color: 'white',
+                                    fontWeight: '600',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    marginTop: 'auto'
+                                }}
+                            >
+                                {t('findClothes')}
+                            </button>
                         </div>
                     ))}
 

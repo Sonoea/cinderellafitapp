@@ -131,6 +131,7 @@ const Home = () => {
                                         height: '100px',
                                         borderRadius: 'var(--radius-sm)',
                                         objectFit: 'cover',
+                                        objectPosition: 'top center',
                                         flexShrink: 0
                                     }}
                                 />

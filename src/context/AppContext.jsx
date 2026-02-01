@@ -32,6 +32,24 @@ export const AppProvider = ({ children }) => {
   const [plushies, setPlushies] = useState([]);
   const { currentUser } = useAuth(); // Get current user
 
+  const DEFAULT_PLUSHIE = {
+    id: 2,
+    name: 'うなえさん',
+    type: 'ウナギ',
+    image: '/unae-san.png',
+    measurements: {
+      height: 12,
+      waist: 15,
+      head: 14,
+      neck: 13,
+      length: 8,
+      shoulder: 0,
+      arm: 3,
+      armGirth: 3,
+      leg: 0,
+    }
+  };
+
   // Load from localStorage (Guest) or Firestore (User)
   useEffect(() => {
     const loadPlushies = async () => {
@@ -49,7 +67,9 @@ export const AppProvider = ({ children }) => {
             setPlushies(loadedPlushies.sort((a, b) => a.id - b.id));
           } else {
             // Initial seed for new user if empty
-            setPlushies([]);
+            setPlushies([DEFAULT_PLUSHIE]);
+            // Optional: Save this seed to Firestore immediately?
+            // Better to let user save it manually or on first edit to avoid clutter/cost if they abandon.
           }
         } catch (error) {
           console.error("Error loading loadedPlushies from Firestore:", error);
@@ -57,25 +77,7 @@ export const AppProvider = ({ children }) => {
       } else {
         // Guest: Load from localStorage
         const saved = localStorage.getItem('my_plushies_v2');
-        const parsed = saved ? JSON.parse(saved) : [
-          {
-            id: 2,
-            name: 'うなえさん',
-            type: 'ウナギ',
-            image: 'https://placehold.co/600x600/FFB7CB/ffffff?text=Unae-san+(12cm)',
-            measurements: {
-              height: 12,
-              waist: 15,
-              head: 14,
-              neck: 13,
-              length: 8,
-              shoulder: 0,
-              arm: 3,
-              armGirth: 3,
-              leg: 0,
-            }
-          }
-        ];
+        const parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
         setPlushies(parsed.filter(p => p.name !== 'Allan'));
       }
     };

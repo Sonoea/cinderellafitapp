@@ -3,9 +3,9 @@ import emailjs from '@emailjs/browser';
 // ⚠️ PLEASE REPLACE THESE WITH YOUR ACTUAL EMAILJS KEYS LATER
 // Get them from https://dashboard.emailjs.com/
 export const EMAILJS_CONFIG = {
-    SERVICE_ID: 'YOUR_SERVICE_ID',   // Example: 'service_xyz'
-    TEMPLATE_ID: 'YOUR_TEMPLATE_ID', // Example: 'template_abc'
-    PUBLIC_KEY: 'YOUR_PUBLIC_KEY',   // Example: 'user_123456789'
+    SERVICE_ID: 'service_ijnva55',
+    TEMPLATE_ID: 'template_mplx47v',
+    PUBLIC_KEY: 'BE87LsNbpUXBN4E5d',
 };
 
 export const sendNewUserNotification = async (userData) => {

@@ -4,7 +4,7 @@ export const translations = {
         navHome: "Home",
         navMeasure: "Measure",
         navCloset: "Closet",
-        navShop: "Shop",
+        navShop: "Size Checker",
 
         // Home
         appTitle: "CinderellaFit",
@@ -47,7 +47,7 @@ export const translations = {
         storageQuotaExceeded: "Storage full! The image is too large to save. We've tried to compress it, but it's still too big.",
 
         // Shop
-        boutique: "Boutique",
+        boutique: "Size Checker",
         showingItemsFor: "Showing items that fit",
         fitPerfect: "Fit: Perfect",
         buyNow: "Buy Now",
@@ -134,7 +134,7 @@ export const translations = {
         navHome: "ホーム",
         navMeasure: "計測",
         navCloset: "クローゼット",
-        navShop: "ショップ",
+        navShop: "サイズチェッカー",
 
         // Home
         appTitle: "CinderellaFit",
@@ -209,7 +209,7 @@ export const translations = {
         fitLabelsShort: ['きつすぎ', 'きつめ', '普通', 'ゆるめ', '最高'],
 
         // Shop
-        boutique: "ブティック",
+        boutique: "サイズチェッカー",
         showingItemsFor: "サイズが合う商品を提案中：",
         fitPerfect: "相性：ピッタリ",
         buyNow: "購入する",

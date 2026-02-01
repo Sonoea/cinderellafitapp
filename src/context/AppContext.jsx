@@ -77,7 +77,16 @@ export const AppProvider = ({ children }) => {
       } else {
         // Guest: Load from localStorage
         const saved = localStorage.getItem('my_plushies_v2');
-        const parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
+        let parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
+
+        // MIGRATION: Fix old placeholder image in localStorage
+        parsed = parsed.map(p => {
+          if (p.name === 'うなえさん' && p.image.includes('placehold.co')) {
+            return { ...p, image: '/unae-san.png' };
+          }
+          return p;
+        });
+
         setPlushies(parsed.filter(p => p.name !== 'Allan'));
       }
     };

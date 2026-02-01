@@ -18,6 +18,7 @@ const Measure = () => {
     const [formData, setFormData] = useState({
         name: '',
         type: '',
+        image: null, // Add image field
         height: '',
         waist: '',
         head: '',
@@ -29,6 +30,18 @@ const Measure = () => {
         leg: '',
     });
 
+    // Handle image upload
+    const handleImageChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFormData({ ...formData, image: reader.result });
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     const handleManualSubmit = (e) => {
         e.preventDefault();
         if (!formData.name) return;
@@ -36,7 +49,7 @@ const Measure = () => {
         const success = addPlushie({
             name: formData.name,
             type: formData.type || 'Unknown',
-            image: "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80", // Default placeholder
+            image: formData.image || "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80", // User image or default
             measurements: {
                 height: Number(formData.height),
                 waist: Number(formData.waist),
@@ -128,6 +141,29 @@ const Measure = () => {
                 <>
                     <h2 className="mb-4">{t('newMeasurement')}</h2>
                     <form onSubmit={handleManualSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm fade-in">
+                        {/* Image Upload UI */}
+                        <div className="flex flex-col items-center justify-center mb-4">
+                            <div className="relative w-32 h-32 mb-2">
+                                <div className={`w-full h-full rounded-full overflow-hidden border-4 border-gray-100 shadow-md ${!formData.image ? 'bg-gray-100 flex items-center justify-center' : ''}`}>
+                                    {formData.image ? (
+                                        <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                                    ) : (
+                                        <Camera size={32} className="text-gray-400" />
+                                    )}
+                                </div>
+                                <label htmlFor="image-upload" className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-primary-dark transition-colors">
+                                    <Camera size={16} />
+                                </label>
+                                <input
+                                    type="file"
+                                    id="image-upload"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageChange}
+                                />
+                            </div>
+                            <span className="text-xs font-bold text-gray-400">{t('uploadPhoto') || '写真をアップロード'}</span>
+                        </div>
                         <div>
                             <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">{t('nameLabel')}</label>
                             <input

@@ -116,7 +116,7 @@ const Home = () => {
                                 width: '100px',
                                 height: '100px',
                                 borderRadius: '50%',
-                                background: `linear-gradient(135deg, ${plushie.type === 'Unagi' ? '#FFB7CB' : '#FFD4A3'} 0%, ${plushie.type === 'Unagi' ? '#FFC7D6' : '#FFE7C3'} 100%)`,
+                                background: `linear-gradient(135deg, ${['Unagi', 'ウナギ'].includes(plushie.type) ? '#FFB7CB' : '#FFD4A3'} 0%, ${['Unagi', 'ウナギ'].includes(plushie.type) ? '#FFC7D6' : '#FFE7C3'} 100%)`,
                                 opacity: 0.3
                             }}></div>
 

@@ -164,7 +164,7 @@ export const translations = {
         nameLabel: "名前",
         namePlaceholder: "例：テディ",
         typeLabel: "種類",
-        typePlaceholder: "例：くま、うなぎ",
+        typePlaceholder: "例：クマ、ウナギ",
         saveProfile: "保存する",
         plushieLimitReached: "ぬいぐるみの登録が上限（5体、無料プラン）に達しました。プレミアムプランで20体まで登録可能です！",
         plushieCount: (current, limit) => `${current} / ${limit}体`,

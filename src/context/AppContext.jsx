@@ -32,7 +32,7 @@ export const AppProvider = ({ children }) => {
       {
         id: 2,
         name: 'うなえさん',
-        type: 'Unagi',
+        type: 'ウナギ',
         image: 'https://placehold.co/600x600/FFB7CB/ffffff?text=Unae-san+(12cm)', // Placeholder
         measurements: {
           height: 12,

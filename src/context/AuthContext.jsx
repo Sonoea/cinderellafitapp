@@ -19,6 +19,17 @@ export const AuthProvider = ({ children }) => {
     const signup = async (email, password) => {
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
+
+            // Create user profile in Firestore
+            await setDoc(doc(db, 'users', result.user.uid), {
+                email: result.user.email,
+                displayName: result.user.displayName || email.split('@')[0],
+                createdAt: new Date().toISOString(),
+                plan: 'free',
+                plushieCount: 0,
+                lastLoginAt: new Date().toISOString()
+            });
+
             return { success: true, user: result.user };
         } catch (error) {
             return { success: false, error: error.message };
@@ -29,6 +40,12 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
+
+            // Update last login time
+            await setDoc(doc(db, 'users', result.user.uid), {
+                lastLoginAt: new Date().toISOString()
+            }, { merge: true });
+
             return { success: true, user: result.user };
         } catch (error) {
             return { success: false, error: error.message };
@@ -39,6 +56,28 @@ export const AuthProvider = ({ children }) => {
     const loginWithGoogle = async () => {
         try {
             const result = await signInWithPopup(auth, googleProvider);
+
+            // Check if user profile exists
+            const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+
+            if (!userDoc.exists()) {
+                // Create new user profile
+                await setDoc(doc(db, 'users', result.user.uid), {
+                    email: result.user.email,
+                    displayName: result.user.displayName || 'User',
+                    photoURL: result.user.photoURL || null,
+                    createdAt: new Date().toISOString(),
+                    plan: 'free',
+                    plushieCount: 0,
+                    lastLoginAt: new Date().toISOString()
+                });
+            } else {
+                // Update last login time
+                await setDoc(doc(db, 'users', result.user.uid), {
+                    lastLoginAt: new Date().toISOString()
+                }, { merge: true });
+            }
+
             return { success: true, user: result.user };
         } catch (error) {
             return { success: false, error: error.message };

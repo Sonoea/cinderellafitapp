@@ -5,7 +5,7 @@ import { Plus, Globe, LogIn, Sparkles, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Home = () => {
-    const { plushies, t, toggleLanguage, language, plushieLimit } = useApp();
+    const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie } = useApp();
     const { currentUser } = useAuth();
 
     return (
@@ -95,19 +95,16 @@ const Home = () => {
 
                 <div style={{
                     display: 'flex',
-                    gap: '16px',
-                    overflowX: 'auto',
-                    paddingBottom: '8px',
-                    scrollSnapType: 'x mandatory'
-                }}>
+                    flexDirection: 'column',
+                    gap: '16px'
+                }} className="plushie-list">
                     {plushies.map(plushie => (
                         <div key={plushie.id} className="hover-scale" style={{
-                            minWidth: '260px',
+                            width: '100%',
                             backgroundColor: 'white',
                             borderRadius: 'var(--radius-md)',
                             padding: '16px',
                             boxShadow: 'var(--shadow-sm)',
-                            scrollSnapAlign: 'center',
                             position: 'relative',
                             overflow: 'hidden'
                         }}>
@@ -118,58 +115,91 @@ const Home = () => {
                                 right: '-20px',
                                 width: '100px',
                                 height: '100px',
-                                background: 'linear-gradient(135deg, var(--primary) 0%, rgba(255,255,255,0) 70%)',
-                                opacity: 0.2,
-                                borderRadius: '50%'
-                            }} />
+                                borderRadius: '50%',
+                                background: `linear-gradient(135deg, ${plushie.type === 'Unagi' ? '#FFB7CB' : '#FFD4A3'} 0%, ${plushie.type === 'Unagi' ? '#FFC7D6' : '#FFE7C3'} 100%)`,
+                                opacity: 0.3
+                            }}></div>
 
-                            <div className="flex items-center gap-4">
+                            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
+                                {/* Image */}
                                 <img
                                     src={plushie.image}
                                     alt={plushie.name}
                                     style={{
-                                        width: '80px',
-                                        height: '80px',
+                                        width: '100px',
+                                        height: '100px',
                                         borderRadius: 'var(--radius-sm)',
                                         objectFit: 'cover',
-                                        border: '2px solid white',
-                                        boxShadow: 'var(--shadow-lg)'
+                                        flexShrink: 0
                                     }}
                                 />
-                                <div>
-                                    <h2 style={{ fontSize: '20px' }}>{plushie.name}</h2>
-                                    <p style={{ color: 'var(--primary)', fontSize: '12px', fontWeight: 600 }}>{plushie.type}</p>
+
+                                {/* Info */}
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '2px', color: 'var(--primary)' }}>
+                                        {plushie.name}
+                                    </h3>
+                                    <p style={{ fontSize: '12px', color: 'var(--text-light)', marginBottom: '12px' }}>
+                                        {plushie.type}
+                                    </p>
+
+                                    {/* Quick Stats */}
+                                    <div style={{ display: 'flex', gap: '16px', marginBottom: '12px' }}>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '4px' }}>
+                                                {language === 'jp' ? '身長' : 'Height'}
+                                            </p>
+                                            <p style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>
+                                                {plushie.measurements?.height || 0}cm
+                                            </p>
+                                        </div>
+                                        <div style={{ textAlign: 'center' }}>
+                                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '4px' }}>
+                                                {language === 'jp' ? '胴囲' : 'Waist'}
+                                            </p>
+                                            <p style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-main)' }}>
+                                                {plushie.measurements?.waist || 0}cm
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Button */}
+                                    <Link to={`/fitting-room?plushieId=${plushie.id}`}>
+                                        <button style={{
+                                            padding: '10px 16px',
+                                            backgroundColor: 'var(--primary)',
+                                            color: 'white',
+                                            borderRadius: 'var(--radius-sm)',
+                                            fontSize: '13px',
+                                            fontWeight: '600',
+                                            width: '100%'
+                                        }} className="hover-scale">
+                                            {t('checkClothingSize')}
+                                        </button>
+                                    </Link>
                                 </div>
                             </div>
-
-                            <div className="mt-4 flex gap-2">
-                                <div style={{ flex: 1, background: 'var(--background)', padding: '8px', borderRadius: '8px' }}>
-                                    <p style={{ fontSize: '10px', color: 'var(--text-light)' }}>{t('height')}</p>
-                                    <p style={{ fontWeight: 700 }}>{plushie.measurements.height}cm</p>
-                                </div>
-                                <div style={{ flex: 1, background: 'var(--background)', padding: '8px', borderRadius: '8px' }}>
-                                    <p style={{ fontSize: '10px', color: 'var(--text-light)' }}>{t('waist')}</p>
-                                    <p style={{ fontWeight: 700 }}>{plushie.measurements.waist}cm</p>
-                                </div>
-                            </div>
-
-                            <Link to="/shop" className="mt-4 flex items-center justify-center w-full py-2 bg-black text-white rounded-xl" style={{ fontSize: '14px', background: 'var(--primary-dark)' }}>
-                                {t('findClothes')}
-                            </Link>
                         </div>
                     ))}
 
-                    {/* Add Card */}
-                    <Link to="/measure" className="hover-scale flex flex-col items-center justify-center gap-2" style={{
-                        minWidth: '100px',
-                        borderRadius: 'var(--radius-md)',
-                        border: '2px dashed var(--secondary)',
-                        color: 'var(--secondary)',
-                        scrollSnapAlign: 'center'
-                    }}>
-                        <Plus />
-                        <span style={{ fontSize: '12px', fontWeight: 600 }}>{t('newFriend')}</span>
-                    </Link>
+                    {/* Add New Plushie Card */}
+                    {canAddPlushie && (
+                        <Link to="/measure" style={{
+                            display: 'block',
+                            width: '100%',
+                            backgroundColor: 'white',
+                            border: '2px dashed var(--gray-200)',
+                            borderRadius: 'var(--radius-md)',
+                            padding: '32px',
+                            textAlign: 'center',
+                            transition: 'all 0.2s ease'
+                        }} className="hover-scale">
+                            <Plus size={32} style={{ margin: '0 auto 12px', color: 'var(--gray-300)' }} />
+                            <p style={{ fontSize: '14px', fontWeight: '600', color: 'var(--gray-400)' }}>
+                                {t('addNew')}
+                            </p>
+                        </Link>
+                    )}
                 </div>
             </section>
 

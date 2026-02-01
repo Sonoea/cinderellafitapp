@@ -13,9 +13,8 @@ const BottomNav = () => {
 
     const navItems = [
         { to: '/', icon: Home, label: t('navHome') },
-        { to: '/measure', icon: Camera, label: t('navMeasure') },
-        { to: '/closet', icon: Shirt, label: t('navCloset') },
         { to: '/shop', icon: ShoppingBag, label: t('navShop') },
+        { to: '/closet', icon: Shirt, label: t('navCloset') },
     ];
 
     return (

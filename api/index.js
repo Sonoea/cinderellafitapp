@@ -284,7 +284,10 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
     // Check target plushie size first
     if (sizeInfo.targetPlushieSize) {
         const diff = plushieHeight - sizeInfo.targetPlushieSize;
-        if (Math.abs(diff) <= 2) {
+        // Stricter tolerance for small plushies (< 15cm) to prevent "perfect" finding for 12cm plushie -> 10cm item
+        const tolerance = sizeInfo.targetPlushieSize < 15 ? 1 : 2;
+
+        if (Math.abs(diff) <= tolerance) {
             heightStatus = 'perfect';
             heightReason = `${sizeInfo.targetPlushieSize}cm用です。身長はぴったりです！`;
             confidence = 'high';
@@ -294,12 +297,12 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         } else if (diff < -5) {
             heightStatus = 'tooBig';
             heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり小さいです。身長に対しブカブカです。`;
-        } else if (diff > 2) {
+        } else if (diff > tolerance) {
             heightStatus = 'tight';
-            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より少し大きいです。少しキツいかもしれません。`;
-        } else if (diff < -2) {
+            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より身長が${diff.toFixed(1)}cm大きいです。少しキツいかもしれません。`;
+        } else if (diff < -tolerance) {
             heightStatus = 'loose';
-            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より少し小さいです。少し余裕があります。`;
+            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より身長が${Math.abs(diff).toFixed(1)}cm小さいです。少し余裕があります。`;
         }
     }
     // Check size ranges

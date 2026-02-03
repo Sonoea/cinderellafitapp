@@ -103,29 +103,25 @@ const FittingRoom = () => {
                 const productWidth = product?.width || null;
                 const productLength = product?.length || null;
 
-                let fitStatus = 'unknown';
+
                 let fitColor = 'gray';
                 let fitLabel = 'サイズ不明';
                 let fitIcon = '❓';
 
                 if (plushieHeight > 0) {
                     if (plushieHeight >= productMinH && plushieHeight <= productMaxH) {
-                        fitStatus = 'perfect';
                         fitColor = 'green';
                         fitLabel = 'ぴったり！';
                         fitIcon = '✓';
                     } else if (plushieHeight >= productMinH - 3 && plushieHeight <= productMaxH + 3) {
-                        fitStatus = 'marginal';
                         fitColor = 'yellow';
                         fitLabel = 'ギリギリ';
                         fitIcon = '△';
                     } else if (plushieHeight < productMinH) {
-                        fitStatus = 'tooSmall';
                         fitColor = 'red';
                         fitLabel = 'ブカブカ';
                         fitIcon = '↓';
                     } else {
-                        fitStatus = 'tooLarge';
                         fitColor = 'red';
                         fitLabel = 'キツイ';
                         fitIcon = '↑';

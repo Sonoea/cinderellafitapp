@@ -6,6 +6,24 @@ import { useAuth } from './AuthContext';
 
 const AppContext = createContext();
 
+const DEFAULT_PLUSHIE = {
+  id: 2,
+  name: 'うなえさん',
+  type: 'ウナギ',
+  image: '/unae-san.png',
+  measurements: {
+    height: 12,
+    waist: 15,
+    head: 14,
+    neck: 13,
+    length: 8,
+    shoulder: 0,
+    arm: 3,
+    armGirth: 3,
+    leg: 0,
+  }
+};
+
 export const AppProvider = ({ children }) => {
   // Language State
   const [language, setLanguage] = useState(() => {
@@ -16,13 +34,13 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('app_language', language);
   }, [language]);
 
-  const t = (key, ...args) => {
+  const t = React.useCallback((key, ...args) => {
     const value = translations[language][key];
     if (typeof value === 'function') {
       return value(...args);
     }
     return value || key;
-  };
+  }, [language]);
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'en' ? 'jp' : 'en');
@@ -31,24 +49,6 @@ export const AppProvider = ({ children }) => {
   // Plushie State
   const [plushies, setPlushies] = useState([]);
   const { currentUser } = useAuth(); // Get current user
-
-  const DEFAULT_PLUSHIE = {
-    id: 2,
-    name: 'うなえさん',
-    type: 'ウナギ',
-    image: '/unae-san.png',
-    measurements: {
-      height: 12,
-      waist: 15,
-      head: 14,
-      neck: 13,
-      length: 8,
-      shoulder: 0,
-      arm: 3,
-      armGirth: 3,
-      leg: 0,
-    }
-  };
 
   // Load from localStorage (Guest) or Firestore (User)
   useEffect(() => {
@@ -106,7 +106,7 @@ export const AppProvider = ({ children }) => {
         }
       }
     }
-  }, [plushies, currentUser]);
+  }, [plushies, currentUser, t]);
 
   // User Plan State (for future premium features)
   const [userPlan, setUserPlan] = useState(() => {

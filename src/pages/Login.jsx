@@ -46,7 +46,7 @@ const Login = () => {
             } else {
                 setError(result.error || (language === 'jp' ? '認証に失敗しました' : 'Authentication failed'));
             }
-        } catch (err) {
+        } catch {
             setError(language === 'jp' ? '予期しないエラーが発生しました' : 'An unexpected error occurred');
         }
 
@@ -64,7 +64,7 @@ const Login = () => {
             } else {
                 setError(result.error || (language === 'jp' ? 'Googleログインに失敗しました' : 'Google login failed'));
             }
-        } catch (err) {
+        } catch {
             setError(language === 'jp' ? '予期しないエラーが発生しました' : 'An unexpected error occurred');
         }
 

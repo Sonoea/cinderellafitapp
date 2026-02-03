@@ -29,7 +29,7 @@ const Home = () => {
                     >
                         <Settings size={16} style={{ color: 'var(--primary)' }} />
                         <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary)' }}>
-                            {language === 'jp' ? '設定' : 'Settings'}
+                            {language === 'jp' ? '設定・ガイド' : 'Settings/Guide'}
                         </span>
                     </Link>
                 </div>

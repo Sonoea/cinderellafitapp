@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Measure = () => {
     const navigate = useNavigate();
-    const { addPlushie, updatePlushie, plushies, t, plushieLimit, canAddPlushie, language } = useApp();
+    const { addPlushie, updatePlushie, plushies, t, plushieLimit, language } = useApp();
 
     // Get URL query params to check for edit mode
     const queryParameters = new URLSearchParams(window.location.search);
@@ -40,7 +40,8 @@ const Measure = () => {
         if (isEditMode && plushies.length > 0) {
             const targetPlushie = plushies.find(p => String(p.id) === String(editId));
             if (targetPlushie) {
-                setMainMode('plushie');
+                // eslint-disable-next-line react-hooks/set-state-in-effect
+                setMainMode(prev => prev !== 'plushie' ? 'plushie' : prev);
                 setFormData({
                     name: targetPlushie.name,
                     type: targetPlushie.type,
@@ -337,7 +338,7 @@ const Measure = () => {
 
                     {/* Plushie Select */}
                     <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-2">
-                        <span className="text-sm font-bold whitespace-nowrap">{t('selectModel')}</span>
+                        <span className="text-sm font-bold whitespace-nowrap">{t('selectModelLabel')}</span>
                         {plushies.map(p => (
                             <button
                                 key={p.id}

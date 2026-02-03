@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 
 const Legal = () => {
     const navigate = useNavigate();
-    const { t, language } = useApp();
+    const { language } = useApp();
     const [expandedSection, setExpandedSection] = useState('privacy');
 
     const toggleSection = (section) => {

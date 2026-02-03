@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
-import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 
 // Mock Data for Community Gallery
@@ -10,6 +11,8 @@ const MOCK_GALLERY = [
     userName: 'KumaLover',
     userIcon: 'https://placehold.co/100/orange/white?text=K',
     plushieName: 'Kumakichi',
+    plushieHeight: 15,
+    location: 'Tokyo, Japan',
     imageUrl: 'https://placehold.co/600x600/FFB7CB/ffffff?text=Cute+Dress',
     itemName: 'Floral Spring Dress',
     shopName: 'PlushieStyle',
@@ -23,6 +26,8 @@ const MOCK_GALLERY = [
     userName: 'NuiLife',
     userIcon: 'https://placehold.co/100/blue/white?text=N',
     plushieName: 'Blue',
+    plushieHeight: 20,
+    location: 'Osaka, Japan',
     imageUrl: 'https://placehold.co/600x600/AFEeee/ffffff?text=Denim+Set',
     itemName: 'Cool Denim Overalls',
     shopName: 'Rakuten Shop',
@@ -30,6 +35,21 @@ const MOCK_GALLERY = [
     comment: 'A bit tight around the tummy but looks adorable.',
     date: '2025-05-10',
     likes: 15,
+  },
+  {
+    id: 'g3',
+    userName: 'KumaLover',
+    userIcon: 'https://placehold.co/100/orange/white?text=K',
+    plushieName: 'Kumakichi',
+    plushieHeight: 15,
+    location: 'Tokyo, Japan',
+    imageUrl: 'https://placehold.co/600x600/FFB7CB/ffffff?text=Hat',
+    itemName: 'Straw Hat',
+    shopName: '100yen Shop',
+    fitRating: 5,
+    comment: 'Perfect for summer!',
+    date: '2025-06-01',
+    likes: 10,
   }
 ];
 
@@ -38,6 +58,56 @@ const Closet = () => {
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // For viewing details
+
+  // Advanced Gallery Filters
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterMySize, setFilterMySize] = useState(false);
+
+  const getFilteredGallery = () => {
+    // 1. Merge Local Public Items + Mock Gallery
+    const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
+      id: `local-${item.id}`,
+      userName: 'Me',
+      userIcon: 'https://placehold.co/100/purple/white?text=Me', // Placeholder for current user
+      plushieName: item.plushieName || 'My Plushie',
+      plushieHeight: item.plushieHeight || 0,
+      location: item.location,
+      imageUrl: item.image,
+      itemName: item.name,
+      shopName: item.url ? new URL(item.url || 'http://b').hostname : '',
+      fitRating: item.fitRating,
+      comment: item.comment,
+      date: new Date(item.createdAt).toISOString().split('T')[0],
+      likes: 0
+    }));
+
+    const allItems = [...localPublicItems, ...MOCK_GALLERY];
+
+    return allItems.filter(item => {
+      // Text Filter
+      const matchesSearch = searchTerm === '' ||
+        (item.location && item.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.itemName && item.itemName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.plushieName && item.plushieName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // Size Filter (Filter items where height is within +/- 2cm of ANY of my plushies, or just the main one?)
+      // Let's use "ANY of my plushies" for broader matching, or the first one.
+      // Assuming user wants to find matches for *their* plushies.
+      let matchesSize = true;
+      if (filterMySize) {
+        // Find if ANY of my plushies matches this item's plushieHeight (+/- 2cm)
+        if (!item.plushieHeight) matchesSize = false;
+        else {
+          matchesSize = plushies.some(myPlushie => {
+            const myHeight = myPlushie.measurements?.height || 0;
+            return Math.abs(myHeight - item.plushieHeight) <= 2;
+          });
+        }
+      }
+
+      return matchesSearch && matchesSize;
+    });
+  };
 
   // Plushie Edit Logic
   const fileInputRef = useRef(null);
@@ -104,11 +174,19 @@ const Closet = () => {
         {/* === ITEMS TAB === */}
         {activeTab === 'items' && (
           <div className="fade-in">
+            <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
+              <span className="text-lg">💡</span>
+              <p>{t('closetTabHelp')}</p>
+            </div>
+
             {closetItems.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-2xl mb-4 border-2 border-dashed border-gray-100">
-                <Shirt size={48} className="mx-auto mb-3 opacity-20" />
-                <p className="font-bold">{t('noItems')}</p>
-                <p className="text-xs">{t('noItemsSub')}</p>
+              <div className="mb-24">
+                <ClosetItemForm
+                  plushies={plushies}
+                  t={t}
+                  fitLabels={fitLabels}
+                  onSave={(item) => addClosetItem(item)}
+                />
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-3 mb-20">
@@ -139,22 +217,50 @@ const Closet = () => {
                     </div>
                   </div>
                 ))}
+                {/* Fab Button to Add Item (Only show when not empty) */}
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-20"
+                >
+                  <Plus size={28} />
+                </button>
               </div>
             )}
-
-            {/* Fab Button to Add Item */}
-            <button
-              onClick={() => setShowAddModal(true)}
-              className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-20"
-            >
-              <Plus size={28} />
-            </button>
           </div>
         )}
 
         {/* === GALLERY TAB === */}
         {activeTab === 'gallery' && (
           <div className="space-y-4 fade-in pb-20">
+            <div className="bg-gray-50 px-4 py-2 rounded-lg text-xs text-gray-500 flex items-start gap-2">
+              <span className="text-lg">💡</span>
+              <p>{t('galleryTabHelp')}</p>
+            </div>
+
+            {/* Filter Controls */}
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-3 text-gray-400" size={16} />
+                <input
+                  type="text"
+                  className="w-full bg-gray-50 pl-10 pr-4 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder={`${t('filterLocation')} / Item Name...`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <button
+                onClick={() => setFilterMySize(!filterMySize)}
+                className={`w-full py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all border ${filterMySize
+                  ? 'bg-primary text-white border-primary shadow-md'
+                  : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
+                  }`}
+              >
+                <Ruler size={16} />
+                {t('filterSize')} {filterMySize && <span className="text-[10px] bg-white/20 px-2 rounded-full ml-1">±2cm</span>}
+              </button>
+            </div>
+
             <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
               <div className="bg-white p-2 rounded-full shadow-sm">
                 <Users className="text-blue-500" size={20} />
@@ -167,52 +273,74 @@ const Closet = () => {
               </div>
             </div>
 
-            {MOCK_GALLERY.map(post => (
-              <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <img src={post.userIcon} className="w-8 h-8 rounded-full bg-gray-200" alt="" />
-                    <div>
-                      <p className="text-xs font-bold text-gray-800">{post.userName}</p>
-                      <p className="text-[10px] text-gray-400">Plushie: {post.plushieName}</p>
-                    </div>
-                  </div>
-                  <span className="text-[10px] text-gray-400">{post.date}</span>
-                </div>
-
-                <div className="aspect-square bg-gray-50 relative">
-                  <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
-                  <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
-                    <Heart size={12} fill="currentColor" /> {post.likes}
-                  </div>
-                </div>
-
-                <div className="p-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
-                    <div className="flex gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={12} className={i < post.fitRating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"} />
-                      ))}
-                    </div>
-                  </div>
-                  <p className="text-xs text-gray-600 mb-2">{post.comment}</p>
-
-                  {post.shopName && (
-                    <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
-                      <Shirt size={10} />
-                      {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
-                    </div>
-                  )}
-                </div>
+            {getFilteredGallery().length === 0 ? (
+              <div className="text-center py-10 text-gray-400">
+                <p>No items found matching your filters.</p>
               </div>
-            ))}
+            ) : (
+              getFilteredGallery().map(post => (
+                <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                  <div className="p-3 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <img src={post.userIcon} className="w-8 h-8 rounded-full bg-gray-200 object-cover" alt="" />
+                      <div>
+                        <p className="text-xs font-bold text-gray-800">{post.userName}</p>
+                        <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                          <span>{post.plushieName}</span>
+                          {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500">{post.plushieHeight}cm</span>}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] text-gray-400 block">{post.date}</span>
+                      {post.location && (
+                        <div className="flex items-center justify-end gap-0.5 text-[10px] text-blue-400 mt-0.5">
+                          <MapPin size={10} />
+                          <span className="truncate max-w-[80px]">{post.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="aspect-square bg-gray-50 relative">
+                    <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
+                    <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
+                      <Heart size={12} fill="currentColor" /> {post.likes}
+                    </div>
+                  </div>
+
+                  <div className="p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
+                      <div className="flex gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} size={12} className={i < post.fitRating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"} />
+                        ))}
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-600 mb-2">{post.comment}</p>
+
+                    {post.shopName && (
+                      <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
+                        <Shirt size={10} />
+                        {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         )}
 
         {/* === PLUSHIES TAB (Original Functionality) === */}
         {activeTab === 'plushies' && (
           <div className="fade-in pb-20">
+            <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
+              <span className="text-lg">💡</span>
+              <p>{t('plushiesTabHelp')}</p>
+            </div>
+
             {/* Hidden File Input for Image Update */}
             <input
               type="file"
@@ -257,10 +385,14 @@ const Closet = () => {
                 </div>
               ))}
 
-              <div className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-gray-200 text-gray-300" style={{ minHeight: '200px' }}>
+              <Link
+                to="/measure"
+                className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-gray-200 text-gray-300 hover:border-primary hover:text-primary hover:bg-gray-50 transition-colors"
+                style={{ minHeight: '200px' }}
+              >
                 <Plus size={32} className="mb-2" />
                 <span className="text-xs font-bold">{t('addFriend')}</span>
-              </div>
+              </Link>
             </div>
           </div>
         )}
@@ -282,7 +414,7 @@ const Closet = () => {
 
       {/* === ITEM DETAIL MODAL === */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-y-auto relative no-scrollbar shadow-2xl">
             <button
               onClick={() => setSelectedItem(null)}
@@ -373,10 +505,8 @@ const Closet = () => {
   );
 };
 
-// --- SUB COMPONENTS ---
-
-const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
-  const [step, setStep] = useState(1);
+// --- REUSABLE FORM COMPONENT ---
+const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
   const [image, setImage] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -384,6 +514,9 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
     plushieId: plushies[0]?.id || '',
     fitRating: 3,
     comment: '',
+    fitRating: 3,
+    comment: '',
+    location: '',
     isPublic: true,
   });
 
@@ -393,24 +526,219 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
       try {
         const compressed = await compressImage(file);
         setImage(compressed);
-        setStep(2);
-      } catch (err) {
+      } catch {
         alert('Failed to load image');
       }
     }
   };
 
-  const handleSave = () => {
+  const handleSaveWrapper = () => {
     if (!image) return;
+
+    // Get selected plushie data to snapshot
+    const selectedPlushie = plushies.find(p => p.id === formData.plushieId);
+
     onSave({
       image,
-      ...formData
+      ...formData,
+      plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
+      plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
     });
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
+        <div className="p-4 space-y-6">
+
+          {/* 1. Photo Section */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-2">{t('uploadPhoto')}</label>
+            {!image ? (
+              <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary transition-colors cursor-pointer hover:bg-gray-100">
+                <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                <Camera size={32} className="text-gray-400 mb-2 group-hover:text-primary transition-colors" />
+                <p className="text-gray-400 font-bold text-xs">{t('tapToTakePhoto')}</p>
+              </div>
+            ) : (
+              <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden relative shadow-sm border border-gray-200">
+                <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                <label className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs font-bold px-3 backdrop-blur-sm cursor-pointer hover:bg-black/70 transition-colors">
+                  {t('retake')}
+                  <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Form Fields (Always Visible) */}
+          <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''}`}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
+                <input
+                  type="text"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder={t('itemNamePlaceholder')}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('productUrl')}</label>
+                <input
+                  type="url"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="https://..."
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('locationLabel')}</label>
+                <div className="relative">
+                  <div className="absolute top-3 left-3 text-gray-400">
+                    <MapPin size={16} /> {/* Reusing Share icon as Place icon isn't imported, or simple generic */}
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full p-3 pl-10 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder={t('locationPlaceholder')}
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModelTitle')}</label>
+                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                  {plushies.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => setFormData({ ...formData, plushieId: p.id })}
+                      className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
+                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                        : 'border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                      <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
+                      <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
+                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, fitRating: star })}
+                      className={`
+                          flex-1 p-2 rounded-lg transition-all duration-200
+                          ${star <= formData.fitRating
+                          ? 'bg-yellow-50 scale-105'
+                          : 'bg-white hover:bg-gray-100'
+                        }
+                          active:scale-95 active:bg-yellow-100
+                          border-2 
+                          ${star <= formData.fitRating
+                          ? 'border-yellow-300'
+                          : 'border-transparent hover:border-gray-200'
+                        }
+                        `}
+                    >
+                      <Star
+                        size={28}
+                        fill={star <= formData.fitRating ? "#FBBF24" : "none"}
+                        color={star <= formData.fitRating ? "#FBBF24" : "#D1D5DB"}
+                        className={`
+                            mx-auto transition-all duration-200
+                            ${star <= formData.fitRating
+                            ? "text-yellow-400 drop-shadow-md"
+                            : "text-gray-300"
+                          }
+                          `}
+                      />
+                      <p className={`
+                          text-[9px] text-center font-bold mt-1 transition-colors
+                          ${star <= formData.fitRating ? 'text-yellow-600' : 'text-gray-400'}
+                        `}>
+                        {fitLabels[star - 1]}
+                      </p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
+                <textarea
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                  placeholder={t('commentPlaceholder')}
+                  value={formData.comment}
+                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                ></textarea>
+              </div>
+
+              <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
+                    {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
+                  </div>
+                  <div className="text-xs">
+                    <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
+                    <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, paddingBottom: '120px', boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+        <button
+          onClick={handleSaveWrapper}
+          disabled={!image}
+          style={{
+            width: '100%',
+            backgroundColor: image ? '#FBBF24' : '#E5E7EB',
+            color: image ? '#000000' : '#9CA3AF',
+            fontWeight: 'bold',
+            padding: '16px',
+            borderRadius: '16px',
+            fontSize: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: image ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
+            cursor: image ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s'
+          }}
+        >
+          <span style={{ fontSize: '24px' }}>✨</span>
+          <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
+  return (
+    <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[70vh] mb-40">
         {/* Header */}
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
@@ -419,158 +747,16 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
           </button>
         </div>
 
-        {/* Content */}
-        <div className="max-h-[70vh] overflow-y-auto no-scrollbar">
-          {step === 1 ? (
-            <div className="p-8 flex flex-col items-center justify-center gap-4 min-h-[300px]">
-              <div className="w-full aspect-video bg-gray-100 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary transition-colors cursor-pointer">
-                <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
-                <Camera size={48} className="text-gray-300 mb-2 group-hover:text-primary transition-colors" />
-                <p className="text-gray-400 font-bold text-sm">{t('uploadPhoto')}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-gray-500 text-xs">{t('takePhotoMessage')}</p>
-              </div>
-            </div>
-          ) : (
-            <div className="p-6 space-y-5">
-              {/* Preview */}
-              <div className="w-full h-48 bg-gray-100 rounded-xl overflow-hidden relative">
-                <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                <button onClick={() => setStep(1)} className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs font-bold px-3 backdrop-blur-sm">{t('retake')}</button>
-              </div>
-
-              {/* Inputs */}
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
-                  <input
-                    type="text"
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder={t('itemNamePlaceholder')}
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">{t('productUrl')}</label>
-                  <input
-                    type="url"
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder="https://..."
-                    value={formData.url}
-                    onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModel')}</label>
-                  <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                    {plushies.map(p => (
-                      <button
-                        key={p.id}
-                        onClick={() => setFormData({ ...formData, plushieId: p.id })}
-                        className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
-                          ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                          : 'border-gray-200 hover:bg-gray-50'
-                          }`}
-                      >
-                        <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
-                        <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
-                  <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-1">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <button
-                        key={star}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, fitRating: star })}
-                        className={`
-                          flex-1 p-2 rounded-lg transition-all duration-200
-                          ${star <= formData.fitRating
-                            ? 'bg-yellow-50 scale-105'
-                            : 'bg-white hover:bg-gray-100'
-                          }
-                          active:scale-95 active:bg-yellow-100
-                          border-2 
-                          ${star <= formData.fitRating
-                            ? 'border-yellow-300'
-                            : 'border-transparent hover:border-gray-200'
-                          }
-                        `}
-                      >
-                        <Star
-                          size={28}
-                          className={`
-                            mx-auto transition-all duration-200
-                            ${star <= formData.fitRating
-                              ? "fill-yellow-400 text-yellow-400 drop-shadow-md"
-                              : "text-gray-300"
-                            }
-                          `}
-                        />
-                        <p className={`
-                          text-[9px] text-center font-bold mt-1 transition-colors
-                          ${star <= formData.fitRating ? 'text-yellow-600' : 'text-gray-400'}
-                        `}>
-                          {fitLabels[star - 1]}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
-                  <textarea
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                    placeholder={t('commentPlaceholder')}
-                    value={formData.comment}
-                    onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                  ></textarea>
-                </div>
-
-                <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
-                  <div className="flex items-center gap-2">
-                    <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
-                      {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
-                    </div>
-                    <div className="text-xs">
-                      <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
-                      <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
-                    </div>
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-100">
-          {step === 2 && (
-            <button
-              onClick={handleSave}
-              className="w-full bg-primary text-white font-bold py-3 rounded-xl shadow-lg shadow-primary/30 hover:bg-primary-dark transition-all active:scale-95"
-            >
-              {t('saveToCloset')}
-            </button>
-          )}
-          {step === 1 && (
-            <button disabled className="w-full bg-gray-200 text-gray-400 font-bold py-3 rounded-xl cursor-not-allowed">
-              {t('choosePhotoFirst')}
-            </button>
-          )}
-        </div>
+        {/* Reused Form */}
+        <ClosetItemForm
+          plushies={plushies}
+          t={t}
+          fitLabels={fitLabels}
+          onSave={(item) => {
+            onSave(item);
+            onClose();
+          }}
+        />
       </div>
     </div>
   );

@@ -11,6 +11,7 @@ import FittingRoom from './pages/FittingRoom';
 import Legal from './pages/Legal';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import Guide from './pages/Guide';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/fitting-room" element={<FittingRoom />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/guide" element={<Guide />} />
               </Routes>
             </main>
             <BottomNav />

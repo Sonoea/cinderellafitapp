@@ -1,9 +1,9 @@
-import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Html, useTexture, Cylinder, Cone, Sphere } from '@react-three/drei';
+import React from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Html, Cylinder, Cone, Sphere } from '@react-three/drei';
 import * as THREE from 'three';
 
-const BodyModel = ({ measurements, image }) => {
+const BodyModel = ({ measurements }) => {
     // Basic Shape Construction based on measurements
     // 1 unit = 1 cm
     const height = measurements.height || 20;
@@ -58,7 +58,7 @@ const ClothingModel = ({ width, length, bodyWaist }) => {
     const clothingRadius = clothingCircumference / (2 * Math.PI);
 
     const bodyCircumference = bodyWaist;
-    const bodyRadius = bodyCircumference / (2 * Math.PI);
+
 
     // Color logic
     let color = "#4ade80"; // Green (Good)

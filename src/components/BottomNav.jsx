@@ -30,12 +30,13 @@ const BottomNav = () => {
             borderTop: '1px solid rgba(0,0,0,0.05)',
             display: 'flex',
             justifyContent: 'space-around',
-            padding: '12px 0 20px', // Extra padding for safe area
-            zIndex: 100,
+            paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 20px))', // Robust safe area padding with fallback
+            paddingTop: '12px',
+            zIndex: 9999, // Ensure it's on top
             borderRadius: '24px 24px 0 0',
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.03)'
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.05)'
         }}>
-            {navItems.map(({ to, icon: Icon, label }) => (
+            {navItems.map(({ to, icon, label }) => (
                 <NavLink
                     key={to}
                     to={to}
@@ -50,8 +51,10 @@ const BottomNav = () => {
                         transition: 'color 0.2s'
                     })}
                 >
-                    <Icon size={24} strokeWidth={2} />
-                    <span>{label}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                        {React.createElement(icon, { size: 24, strokeWidth: 2 })}
+                        <span>{label}</span>
+                    </div>
                 </NavLink>
             ))}
         </nav>

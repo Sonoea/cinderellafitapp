@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Upload, Globe, Crown, FileJson, AlertCircle, CheckCircle, Shield, User, LogOut, LogIn } from 'lucide-react';
+import { ArrowLeft, Download, Upload, Globe, Crown, FileJson, AlertCircle, CheckCircle, Shield, User, LogOut, LogIn, BookOpen } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
     const navigate = useNavigate();
-    const { plushies, closetItems, language, toggleLanguage, t, userPlan, plushieLimit } = useApp();
+    const { plushies, closetItems, language, toggleLanguage, userPlan, plushieLimit } = useApp();
     const { currentUser, logout } = useAuth();
     const [importStatus, setImportStatus] = useState(null);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -430,8 +430,22 @@ const Settings = () => {
                 </button>
             </div>
 
-            {/* Legal */}
+            {/* Legal & Guide */}
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <button
+                    onClick={() => navigate('/guide')}
+                    className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors border-b border-gray-100"
+                >
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-orange-50 flex items-center justify-center">
+                            <BookOpen size={20} className="text-orange-600" />
+                        </div>
+                        <span className="font-bold text-sm">
+                            {language === 'jp' ? '使い方ガイド' : 'User Guide'}
+                        </span>
+                    </div>
+                    <ArrowLeft size={16} className="rotate-180 text-gray-400" />
+                </button>
                 <button
                     onClick={() => navigate('/legal')}
                     className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"

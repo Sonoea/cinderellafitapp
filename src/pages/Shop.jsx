@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy } from 'lucide-react';
 
 const Shop = () => {
-    const { plushies, t } = useApp();
+    const { plushies } = useApp();
     const [selectedId, setSelectedId] = useState(plushies[0]?.id || null);
     const [url, setUrl] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -54,11 +54,19 @@ const Shop = () => {
         setProductTargetSize('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/analyze-url', {
+            const response = await fetch('/api/analyze-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ url, plushieHeight }),
             });
+
+            if (!response.ok) {
+                console.error(`API Error: ${response.status} ${response.statusText}`);
+                if (response.status === 504) {
+                    throw new Error('タイムアウトしました（Amazonの応答が遅いため中断されました）');
+                }
+                throw new Error(`サーバーエラー: ${response.status}`);
+            }
 
             const data = await response.json();
             setIsAnalyzing(false);
@@ -160,7 +168,7 @@ const Shop = () => {
                 url: url,
                 name: '商品',
                 detectedSize: '',
-                error: 'サーバーに接続できませんでした。手動でサイズを入力してください。',
+                error: error.message || 'サーバーに接続できませんでした。手動でサイズを入力してください。',
             });
         }
     };
@@ -169,7 +177,7 @@ const Shop = () => {
         setProductTargetSize(value);
 
         // Parse input - support formats like "15", "15cm", "10-20", "10〜20cm"
-        const rangeMatch = value.match(/(\d{1,2})\s*(?:cm)?[\-〜~]?\s*(\d{1,2})?/);
+        const rangeMatch = value.match(/(\d{1,2})\s*(?:cm)?[-〜~]?\s*(\d{1,2})?/);
         if (rangeMatch) {
             const min = parseInt(rangeMatch[1]) || 0;
             const max = parseInt(rangeMatch[2]) || min;
@@ -189,7 +197,7 @@ const Shop = () => {
         setProductTargetSize('');
 
         try {
-            const response = await fetch('http://localhost:3001/api/analyze-text', {
+            const response = await fetch('/api/analyze-text', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -631,6 +639,22 @@ const Shop = () => {
                                     </div>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Judgment Criteria Guide */}
+                        <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                            <details className="text-xs text-gray-500">
+                                <summary className="cursor-pointer font-bold flex items-center gap-1 hover:text-gray-700">
+                                    <AlertTriangle size={12} />
+                                    判定基準について
+                                </summary>
+                                <div className="mt-2 space-y-1 pl-4 border-l-2 border-gray-200">
+                                    <p><span className="font-bold text-green-600">ぴったり (Perfect)</span>: 差が ±2cm 以内</p>
+                                    <p><span className="font-bold text-yellow-600">要確認 (Caution)</span>: 差が ±3〜5cm (少し緩い/少しキツい)</p>
+                                    <p><span className="font-bold text-red-600">NG (Too Big/Small)</span>: 差が ±5cm 以上</p>
+                                    <p className="mt-1 text-[10px] text-gray-400">※あくまで目安です。服のデザインや素材（伸縮性など）によって実際の着用感は異なります。</p>
+                                </div>
+                            </details>
                         </div>
                     </div>
                 )}

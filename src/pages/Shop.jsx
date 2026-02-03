@@ -7,6 +7,7 @@ const Shop = () => {
     const [selectedId, setSelectedId] = useState(plushies[0]?.id || null);
     const [url, setUrl] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [isEditingSize, setIsEditingSize] = useState(false); // Toggle to show manual input when result is present
 
     // Analyzed product state
     const [product, setProduct] = useState(null);
@@ -52,6 +53,7 @@ const Shop = () => {
         setProductSizeMin(0);
         setProductSizeMax(0);
         setProductTargetSize('');
+        setIsEditingSize(false);
 
         try {
             const response = await fetch('/api/analyze-url', {
@@ -555,105 +557,116 @@ const Shop = () => {
                                         </div>
                                     )
                                 )}
+
+                                <button
+                                    onClick={() => setIsEditingSize(!isEditingSize)}
+                                    className="text-xs text-gray-400 underline mt-4 hover:text-gray-600 w-full text-right"
+                                >
+                                    {isEditingSize ? '修正をキャンセル' : 'サイズが違う場合は修正する'}
+                                </button>
                             </div>
                         )}
 
-                        {/* Manual Size Input */}
-                        <div className="mb-4">
-                            <label className="text-xs text-gray-500 mb-1 block">
-                                {product.detectedSize ? 'サイズを修正する場合' : 'サイズを手動で入力'}
-                            </label>
-                            <div className="flex gap-2 items-center">
-                                <input
-                                    type="text"
-                                    value={productTargetSize}
-                                    onChange={(e) => handleSizeInput(e.target.value)}
-                                    placeholder="ぬいぐるみの身長 例: 15 または 10-20"
-                                    className="flex-1 px-4 py-3 text-lg font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                                />
-                                <span className="text-gray-500 font-bold">cm</span>
-                            </div>
-
-                            {/* Input Feedback */}
-                            {productSizeMin > 0 ? (
-                                <div className="mt-2 flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg fade-in">
-                                    <p className="text-xs text-blue-700 font-bold flex items-center gap-1">
-                                        <CheckCircle size={14} className="fill-blue-200" />
-                                        下に反映されました
-                                    </p>
-                                    <span className={`text-xs font-black px-2 py-0.5 rounded ${fitStatus.color === 'green' ? 'bg-green-100 text-green-700' :
-                                        fitStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
-                                            fitStatus.color === 'orange' ? 'bg-orange-100 text-orange-700' :
-                                                fitStatus.color === 'red' ? 'bg-red-100 text-red-700' :
-                                                    'bg-gray-100 text-gray-700'
-                                        }`}>
-                                        現在: {fitStatus.label}
-                                    </span>
-                                </div>
-                            ) : (
-                                product.detectedSize && (
-                                    <p className="text-xs text-green-600 mt-1">
-                                        ✓ 自動検出: {product.detectedSize}
-                                    </p>
-                                )
-                            )}
-                        </div>
-
-                        {/* Size Comparison Visual */}
-                        <div className={`p-4 rounded-xl border-2 transition-colors duration-500 ${colorClasses[fitStatus.color]}`}>
-                            <div className="flex items-center justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <fitStatus.icon size={24} />
-                                    <span className="text-xl font-black">{fitStatus.label}</span>
-                                </div>
-                            </div>
-
-                            {/* Visual Size Bar */}
-                            <div className="bg-white/80 rounded-lg p-3">
-                                <div className="flex justify-between text-xs text-gray-500 mb-1">
-                                    <span>0cm</span>
-                                    <span>25cm</span>
-                                    <span>50cm</span>
-                                </div>
-                                <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden">
-                                    {/* Product Range */}
-                                    {productSizeMin > 0 && (
-                                        <div
-                                            className="absolute h-full bg-blue-300 rounded-full"
-                                            style={{
-                                                left: `${(productSizeMin / 50) * 100}%`,
-                                                width: `${((productSizeMax - productSizeMin + 1) / 50) * 100}%`
-                                            }}
+                        {/* Manual Size Input (Hidden if perfect fit found, unless editing) */}
+                        {(!product.fit || isEditingSize) && (
+                            <>
+                                <div className="mb-4 fade-in">
+                                    <label className="text-xs text-gray-500 mb-1 block">
+                                        {product.detectedSize ? 'サイズを修正する場合' : 'サイズを手動で入力'}
+                                    </label>
+                                    <div className="flex gap-2 items-center">
+                                        <input
+                                            type="text"
+                                            value={productTargetSize}
+                                            onChange={(e) => handleSizeInput(e.target.value)}
+                                            placeholder="ぬいぐるみの身長 例: 15 または 10-20"
+                                            className="flex-1 px-4 py-3 text-lg font-bold border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
                                         />
+                                        <span className="text-gray-500 font-bold">cm</span>
+                                    </div>
+
+                                    {/* Input Feedback */}
+                                    {productSizeMin > 0 ? (
+                                        <div className="mt-2 flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg fade-in">
+                                            <p className="text-xs text-blue-700 font-bold flex items-center gap-1">
+                                                <CheckCircle size={14} className="fill-blue-200" />
+                                                下に反映されました
+                                            </p>
+                                            <span className={`text-xs font-black px-2 py-0.5 rounded ${fitStatus.color === 'green' ? 'bg-green-100 text-green-700' :
+                                                fitStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
+                                                    fitStatus.color === 'orange' ? 'bg-orange-100 text-orange-700' :
+                                                        fitStatus.color === 'red' ? 'bg-red-100 text-red-700' :
+                                                            'bg-gray-100 text-gray-700'
+                                                }`}>
+                                                現在: {fitStatus.label}
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        product.detectedSize && (
+                                            <p className="text-xs text-green-600 mt-1">
+                                                ✓ 自動検出: {product.detectedSize}
+                                            </p>
+                                        )
                                     )}
-                                    {/* Plushie Marker */}
-                                    <div
-                                        className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-lg ${fitStatus.color === 'green' ? 'bg-green-500' :
-                                            fitStatus.color === 'yellow' ? 'bg-yellow-500' :
-                                                fitStatus.color === 'orange' ? 'bg-orange-500' :
-                                                    fitStatus.color === 'red' ? 'bg-red-500' : 'bg-gray-500'
-                                            }`}
-                                        style={{
-                                            left: `calc(${Math.min(100, Math.max(0, (plushieHeight / 50) * 100))}% - 10px)`
-                                        }}
-                                    />
                                 </div>
-                                <div className="flex justify-between items-center mt-2 text-sm">
-                                    <div className="flex items-center gap-1">
-                                        <div className="w-3 h-3 rounded bg-blue-300"></div>
-                                        <span className="text-gray-600">商品対象: {productSizeMin}〜{productSizeMax}cm</span>
+
+                                {/* Size Comparison Visual */}
+                                <div className={`p-4 rounded-xl border-2 transition-colors duration-500 ${colorClasses[fitStatus.color]}`}>
+                                    <div className="flex items-center justify-between mb-3">
+                                        <div className="flex items-center gap-2">
+                                            <fitStatus.icon size={24} />
+                                            <span className="text-xl font-black">{fitStatus.label}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex items-center gap-1">
-                                        <div className={`w-3 h-3 rounded ${fitStatus.color === 'green' ? 'bg-green-500' :
-                                            fitStatus.color === 'yellow' ? 'bg-yellow-500' :
-                                                fitStatus.color === 'orange' ? 'bg-orange-500' :
-                                                    fitStatus.color === 'red' ? 'bg-red-500' : 'bg-gray-500'
-                                            }`}></div>
-                                        <span className="text-gray-600">{selectedPlushie?.name}: {plushieHeight}cm</span>
+
+                                    {/* Visual Size Bar */}
+                                    <div className="bg-white/80 rounded-lg p-3">
+                                        <div className="flex justify-between text-xs text-gray-500 mb-1">
+                                            <span>0cm</span>
+                                            <span>25cm</span>
+                                            <span>50cm</span>
+                                        </div>
+                                        <div className="relative h-6 bg-gray-200 rounded-full overflow-hidden">
+                                            {/* Product Range */}
+                                            {productSizeMin > 0 && (
+                                                <div
+                                                    className="absolute h-full bg-blue-300 rounded-full"
+                                                    style={{
+                                                        left: `${(productSizeMin / 50) * 100}%`,
+                                                        width: `${((productSizeMax - productSizeMin + 1) / 50) * 100}%`
+                                                    }}
+                                                />
+                                            )}
+                                            {/* Plushie Marker */}
+                                            <div
+                                                className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-lg ${fitStatus.color === 'green' ? 'bg-green-500' :
+                                                    fitStatus.color === 'yellow' ? 'bg-yellow-500' :
+                                                        fitStatus.color === 'orange' ? 'bg-orange-500' :
+                                                            fitStatus.color === 'red' ? 'bg-red-500' : 'bg-gray-500'
+                                                    }`}
+                                                style={{
+                                                    left: `calc(${Math.min(100, Math.max(0, (plushieHeight / 50) * 100))}% - 10px)`
+                                                }}
+                                            />
+                                        </div>
+                                        <div className="flex justify-between items-center mt-2 text-sm">
+                                            <div className="flex items-center gap-1">
+                                                <div className="w-3 h-3 rounded bg-blue-300"></div>
+                                                <span className="text-gray-600">商品対象: {productSizeMin}〜{productSizeMax}cm</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <div className={`w-3 h-3 rounded ${fitStatus.color === 'green' ? 'bg-green-500' :
+                                                    fitStatus.color === 'yellow' ? 'bg-yellow-500' :
+                                                        fitStatus.color === 'orange' ? 'bg-orange-500' :
+                                                            fitStatus.color === 'red' ? 'bg-red-500' : 'bg-gray-500'
+                                                    }`}></div>
+                                                <span className="text-gray-600">{selectedPlushie?.name}: {plushieHeight}cm</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
+                            </>
+                        )}
 
                         {/* Judgment Criteria Guide */}
                         <div className="mt-4 p-3 bg-gray-50 rounded-xl border border-gray-100">

@@ -220,11 +220,8 @@ function extractSizeInfo(text, title = '') {
     // 6. Target Plushie Size (Nui Size)
     // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用"
     // Prioritize range/multiple match over simple single match
-    // 6. Target Plushie Size (Nui Size)
-    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用"
-    // Prioritize range/multiple match over simple single match
     const targetMatch = cleanText.match(/(\d{1,2})(?:\s*cm)?\s*(?:[～~,\-−ー]|\s+と\s+|\s*,\s*)\s*(\d{1,2})\s*cm\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール)/i) ||
-        cleanTitle.match(/【?(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー](\d{1,2})\s*cm)?】?/i);
+        cleanTitle.match(/【\s*(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー]\s*(\d{1,2})\s*cm)?\s*】/i);
 
 
     if (targetMatch) {

@@ -193,21 +193,38 @@ function extractSizeInfo(text, title = '') {
     }
 
     // 5. Length / Height (Item dimensions)
-    const lengthRegex = new RegExp(`(着丈|身丈|丈|全長|高さ|タテ|縦|H)${sep}${num}${unit}`, 'i');
-    const lengthMatch = cleanText.match(lengthRegex);
-    if (lengthMatch) {
-        const val = parseFloat(lengthMatch[2]);
-        // Only treat as clothing length if it's likely a measurement, not the target plushie size
-        // If the value is very specific (e.g. 19) and context suggests item size.
-        results.measurements.length = val;
-        usedValues.add(Math.floor(val));
+    // Japanese keys: optional unit
+    const lengthRegexJP = new RegExp(`(着丈|身丈|丈|全長|高さ|タテ|縦)${sep}${num}${unit}`, 'i');
+    const lengthMatchJP = cleanText.match(lengthRegexJP);
+    if (lengthMatchJP) {
+        const val = parseFloat(lengthMatchJP[2]);
+        if (val < 60) { // Safety cap
+            results.measurements.length = val;
+            usedValues.add(Math.floor(val));
+        }
+    }
+
+    // English keys (H): mandatory unit to avoid "height: 100%"
+    if (!results.measurements.length) {
+        const lengthRegexEN = new RegExp(`(H)${sep}${num}\\s*(?:cm|センチ|mm)`, 'i'); // Mandatory unit
+        const lengthMatchEN = cleanText.match(lengthRegexEN);
+        if (lengthMatchEN) {
+            const val = parseFloat(lengthMatchEN[2]);
+            if (val < 60) {
+                results.measurements.length = val;
+                usedValues.add(Math.floor(val));
+            }
+        }
     }
 
     // 6. Target Plushie Size (Nui Size)
     // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用"
     // Prioritize range/multiple match over simple single match
-    const targetMatch = cleanText.match(/(\d{1,2})(?:\s*cm)?\s*(?:[～~,\-]|\s+と\s+|\s*,\s*)\s*(\d{1,2})\s*cm\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール)/i) ||
-        cleanTitle.match(/【?(\d{1,2})(?:\s*cm)?(?:[～~,\-](\d{1,2})\s*cm)?】?/i);
+    // 6. Target Plushie Size (Nui Size)
+    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用"
+    // Prioritize range/multiple match over simple single match
+    const targetMatch = cleanText.match(/(\d{1,2})(?:\s*cm)?\s*(?:[～~,\-−ー]|\s+と\s+|\s*,\s*)\s*(\d{1,2})\s*cm\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール)/i) ||
+        cleanTitle.match(/【?(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー](\d{1,2})\s*cm)?】?/i);
 
 
     if (targetMatch) {

@@ -246,8 +246,18 @@ function extractSizeInfo(text, title = '') {
             results.sizeRanges.push({ min: parseInt(rangeMatch[1]), max: parseInt(rangeMatch[2]) });
             // Do not set targetPlushieSize for ranges
         } else {
+            // 1. Keyword AFTER number (e.g. "10cm Nui")
             const singleMatch = cleanText.match(/(\d{1,2})\s*cm\s*(?:用|対応|向け|サイズ|ぬいぐるみ|ぬい|着せ替え)/i);
-            if (singleMatch) results.targetPlushieSize = parseInt(singleMatch[1]);
+            if (singleMatch) {
+                results.targetPlushieSize = parseInt(singleMatch[1]);
+            } else {
+                // 2. Keyword BEFORE number (e.g. "Nui... 20cm") - Common in titles like "Nui Parka 20cm"
+                // Must require 'cm' and rely on title/strong context to avoid false positives
+                const preMatch = cleanTitle.match(/(?:ぬいぐるみ|ぬい|ドール|サイズ).{0,30}(\d{1,2})\s*cm/i);
+                if (preMatch) {
+                    results.targetPlushieSize = parseInt(preMatch[1]);
+                }
+            }
         }
     }
 

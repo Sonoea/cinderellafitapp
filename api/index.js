@@ -276,97 +276,177 @@ function extractSizeInfo(text, title = '') {
 // Estimate fit logic
 function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
     let status = 'unknown';
-    let reason = 'サイズ情報が見つかりませんでした';
+    let reasons = [];
     let confidence = 'low';
+    let checkPoints = []; // List of specific checks { part: 'Head', status: 'ok'|'tight', msg: '' }
+
+    // --- 1. Height / Main Size Check ---
+    let heightStatus = 'unknown';
+    let heightReason = '';
 
     // Check target plushie size first
     if (sizeInfo.targetPlushieSize) {
         const diff = plushieHeight - sizeInfo.targetPlushieSize;
         if (Math.abs(diff) <= 2) {
-            status = 'perfect';
-            reason = `${sizeInfo.targetPlushieSize}cm用です。ぴったりです！`;
+            heightStatus = 'perfect';
+            heightReason = `${sizeInfo.targetPlushieSize}cm用です。身長はぴったりです！`;
             confidence = 'high';
         } else if (diff > 5) {
-            status = 'tooSmall';
-            reason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり大きいです。着られない可能性が高いです。`;
+            heightStatus = 'tooSmall';
+            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり大きいです。身長が入りません。`;
         } else if (diff < -5) {
-            status = 'tooBig';
-            reason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり小さいです。ブカブカです。`;
+            heightStatus = 'tooBig';
+            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり小さいです。身長に対しブカブカです。`;
         } else if (diff > 2) {
-            status = 'tight';
-            reason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より少し大きいです。キツい・入らない可能性があります。`;
+            heightStatus = 'tight';
+            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より少し大きいです。少しキツいかもしれません。`;
         } else if (diff < -2) {
-            status = 'loose';
-            reason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より少し小さいです。少しブカブカかもしれません。`;
-            // For 12cm plushie vs 15cm target: diff = -3 -> loose.
+            heightStatus = 'loose';
+            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より少し小さいです。少し余裕があります。`;
         }
     }
     // Check size ranges
     else if (sizeInfo.sizeRanges.length > 0) {
         const { min, max } = sizeInfo.sizeRanges[0];
         if (plushieHeight >= min && plushieHeight <= max) {
-            status = 'perfect';
-            reason = `${min}〜${max}cm対応です。範囲内です！`;
+            heightStatus = 'perfect';
+            heightReason = `${min}〜${max}cm対応です。身長は範囲内です！`;
             confidence = 'high';
         } else if (plushieHeight < min) {
-            status = 'loose';
-            reason = `${min}〜${max}cm対応です。ブカブカの可能性があります。`;
+            heightStatus = 'loose';
+            heightReason = `${min}〜${max}cm対応です。身長に対しブカブカの可能性があります。`;
         } else {
-            status = 'tight';
-            reason = `${min}〜${max}cm対応です。キツい可能性があります。`;
+            heightStatus = 'tight';
+            heightReason = `${min}〜${max}cm対応です。身長がキツい可能性があります。`;
         }
     }
     // Check estimated target from S/M/L labels
     else if (sizeInfo.estimatedTarget) {
         const { size, range } = sizeInfo.estimatedTarget;
         if (plushieHeight >= range[0] && plushieHeight <= range[1]) {
-            status = 'perfect';
-            reason = `サイズ表記から推測（${range[0]}〜${range[1]}cm程度）。合いそうです。`;
+            heightStatus = 'perfect';
+            heightReason = `サイズ表記から推測（${range[0]}〜${range[1]}cm程度）。身長は合いそうです。`;
             confidence = 'low';
         } else if (plushieHeight < range[0]) {
-            status = 'loose'; // Should be 'loose' if plushie is smaller than target
-            reason = `サイズ表記から推測（${size}cm前後）。ブカブカの可能性があります。`;
-            // Wait, if plushie is 12cm and target is 20cm (M), plushie is smaller -> loose/tooBig.
-            // Correct logic: If plushieHeight < min -> loose.
+            heightStatus = 'loose';
+            heightReason = `サイズ表記から推測（${size}cm前後）。身長に対しブカブカの可能性があります。`;
         } else {
-            status = 'tight';
-            reason = `サイズ表記から推測（${size}cm前後）。キツい可能性があります。`;
+            heightStatus = 'tight';
+            heightReason = `サイズ表記から推測（${size}cm前後）。身長がキツい可能性があります。`;
         }
     }
     // Check specific measurements (length proxy)
     else if (sizeInfo.measurements.length) {
         const diff = Math.abs(plushieHeight - sizeInfo.measurements.length);
         if (diff < 3) {
-            status = 'perfect';
-            reason = `着丈(${sizeInfo.measurements.length}cm)が身長に近いため、全身が入る可能性があります。`;
+            heightStatus = 'perfect';
+            heightReason = `着丈(${sizeInfo.measurements.length}cm)が身長に近いため、全身が入る可能性があります。`;
             confidence = 'low';
         } else if (sizeInfo.measurements.length > plushieHeight) {
-            status = 'loose';
-            reason = `着丈(${sizeInfo.measurements.length}cm)が身長より長いです。`;
-            confidence = 'low';
-        }
-    }
-    // Check raw matches
-    else if (sizeInfo.rawMatches.length) {
-        const bestMatch = sizeInfo.rawMatches.reduce((prev, curr) => Math.abs(curr - plushieHeight) < Math.abs(prev - plushieHeight) ? curr : prev);
-        if (Math.abs(bestMatch - plushieHeight) <= 3) {
-            status = 'perfect';
-            reason = `ページ内に${bestMatch}cmという表記があり、身長に近いです。`;
+            heightStatus = 'loose';
+            heightReason = `着丈(${sizeInfo.measurements.length}cm)が身長より長いです。`;
             confidence = 'low';
         }
     }
 
+    if (heightReason) reasons.push(heightReason);
+    status = heightStatus; // Base status often depends on height mainly
+
+    // --- 2. Detailed Body Part Checks ---
+
+    // Head Check (Essential for hoods/hats)
+    if (plushieInfo.headGirth && sizeInfo.measurements.head) {
+        const pHead = parseFloat(plushieInfo.headGirth);
+        const { min: mMin, max: mMax } = sizeInfo.measurements.head;
+
+        let msg = '';
+        let st = 'ok';
+        // Logic: Plushie Head must be <= Max Hat Size
+        // We assume 'head' measurement extracted is circumference.
+        if (pHead > mMax) {
+            st = 'tight';
+            msg = `頭囲(${pHead}cm)が商品サイズ(${mMax}cm)より大きいです。フードや帽子が入らない可能性が高いです。`;
+            if (status === 'perfect') status = 'tight'; // Downgrade perfect status
+        } else if (pHead < mMin - 5) {
+            st = 'loose';
+            msg = `頭囲(${pHead}cm)が商品サイズ(${mMin}cm)よりかなり小さいです。帽子がブカブカかもしれません。`;
+        } else {
+            msg = `頭囲は範囲内(${mMin}〜${mMax}cm)です。`;
+        }
+        checkPoints.push({ part: 'Head', status: st, msg });
+        if (st !== 'ok') reasons.push(msg);
+    }
+
+    // Chest/Waist Check
+    // Plushie 'waist' (usually girth) vs Item 'chest' (girth) OR Item 'bodyWidth' (flat width * 2)
+    if (plushieInfo.waist) {
+        const pWaist = parseFloat(plushieInfo.waist);
+        let itemGirth = null;
+        let source = '';
+
+        if (sizeInfo.measurements.chest) {
+            itemGirth = sizeInfo.measurements.chest;
+            source = '胸囲';
+        } else if (sizeInfo.measurements.bodyWidth) {
+            itemGirth = sizeInfo.measurements.bodyWidth * 2;
+            source = '身幅(x2)';
+        }
+
+        if (itemGirth) {
+            let msg = '';
+            let st = 'ok';
+            // Allow 2cm slack usually?
+            if (pWaist > itemGirth) {
+                st = 'tight';
+                msg = `胴囲(${pWaist}cm)が服の${source}(${itemGirth}cm)より大きいです。チャックが閉まらない可能性があります。`;
+                if (status === 'perfect') status = 'tight';
+            } else if (pWaist < itemGirth - 8) { // >8cm diff is quite loose
+                st = 'loose';
+                msg = `胴囲(${pWaist}cm)が服の${source}(${itemGirth}cm)より細いです。お腹周りがブカブカかもしれません。`;
+            } else {
+                msg = `胴囲は${source}に対して適正範囲です。`;
+            }
+            checkPoints.push({ part: 'Chest/Waist', status: st, msg });
+            if (st !== 'ok') reasons.push(msg);
+        }
+    }
+
+    // Neck Check
+    if (plushieInfo.neck && sizeInfo.measurements.neck) {
+        const pNeck = parseFloat(plushieInfo.neck);
+        const mNeck = sizeInfo.measurements.neck;
+
+        let msg = '';
+        let st = 'ok';
+        if (pNeck > mNeck) {
+            st = 'tight';
+            msg = `首周り(${pNeck}cm)が商品(${mNeck}cm)より太いです。ボタンが留まらない可能性があります。`;
+            if (status === 'perfect') status = 'tight';
+        } else {
+            msg = `首周りはOKです。`;
+        }
+        checkPoints.push({ part: 'Neck', status: st, msg });
+        if (st !== 'ok') reasons.push(msg);
+    }
+
+    // Final cleanup
+    if (status === 'unknown' && reasons.length === 0) {
+        reasons.push('サイズ情報が見つかりませんでした');
+    }
+
     return {
-        status, confidence, reason,
+        status,
+        confidence,
+        reason: reasons.join('\n'), // Join with newlines for display
         details: { targetSize: sizeInfo.targetPlushieSize || (sizeInfo.estimatedTarget?.size), measurements: sizeInfo.measurements },
-        warnings: [],
-        checkPoints: []
+        warnings: reasons.filter(r => r.includes('キツい') || r.includes('大きい') || r.includes('小さい') || r.includes('ブカブカ')), // Heuristic for warnings
+        checkPoints
     };
 }
 
 // API Routes
 app.post('/api/analyze-url', async (req, res) => {
-    const { url, plushieHeight } = req.body;
+    const { url, plushieHeight, plushieInfo } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
     // Specific check for Mercari Shops (SPA)
@@ -393,7 +473,7 @@ app.post('/api/analyze-url', async (req, res) => {
         const sizeInfo = extractSizeInfo(allText, ogTitle || title);
 
         let fit = null;
-        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight);
+        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo);
 
         res.json({
             success: true,
@@ -408,13 +488,13 @@ app.post('/api/analyze-url', async (req, res) => {
 });
 
 app.post('/api/analyze-text', async (req, res) => {
-    const { text, productName, plushieHeight } = req.body;
+    const { text, productName, plushieHeight, plushieInfo } = req.body;
     if (!text) return res.status(400).json({ error: 'Text required' });
 
     try {
         const sizeInfo = extractSizeInfo(text, productName || '');
         let fit = null;
-        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight);
+        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo);
 
         res.json({
             success: true,

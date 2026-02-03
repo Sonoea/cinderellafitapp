@@ -57,7 +57,11 @@ const Shop = () => {
             const response = await fetch('/api/analyze-url', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url, plushieHeight }),
+                body: JSON.stringify({
+                    url,
+                    plushieHeight,
+                    plushieInfo: selectedPlushie?.measurements || {} // Send full plushie details
+                }),
             });
 
             if (!response.ok) {
@@ -510,17 +514,19 @@ const Shop = () => {
                                     </div>
                                 )}
 
-                                {/* Check Points Section */}
+                                {/* Detailed Part Checks */}
                                 {product.fit.checkPoints && product.fit.checkPoints.length > 0 && (
                                     <div className="mt-3 pt-3 border-t border-gray-200">
-                                        <p className="text-xs font-bold text-blue-700 mb-1 flex items-center gap-1">
-                                            <Search size={12} /> 確認が必要な項目
+                                        <p className="text-xs font-bold text-gray-700 mb-1 flex items-center gap-1">
+                                            <Search size={12} /> 部位別判定
                                         </p>
                                         <ul className="text-xs text-gray-600 space-y-1">
                                             {product.fit.checkPoints.map((point, i) => (
                                                 <li key={i} className="flex items-start gap-1">
-                                                    <span className="text-blue-500">📋</span>
-                                                    <span>{point}</span>
+                                                    <span>{point.status === 'ok' ? '✅' : '⚠️'}</span>
+                                                    <span className={point.status === 'ok' ? 'text-green-700' : 'text-orange-700 font-bold'}>
+                                                        {point.msg}
+                                                    </span>
                                                 </li>
                                             ))}
                                         </ul>

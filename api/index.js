@@ -112,7 +112,7 @@ async function fetchWithRetry(url, maxRetries = 3) {
 }
 
 // Extract size information from text
-function extractSizeInfo(text, title = '') {
+function extractSizeInfo(text, title = '', extraData = {}) {
     const results = {
         dimensions: [],
         sizeRanges: [],
@@ -125,6 +125,31 @@ function extractSizeInfo(text, title = '') {
         clothingType: null,
         missingInfo: [],
     };
+
+    // Process Extra Data (e.g. WEGO/Shopify Metafields)
+    if (extraData.metafields && Array.isArray(extraData.metafields)) {
+        for (const meta of extraData.metafields) {
+            if (!meta) continue;
+            // Iterate all size values (F, S, M, etc.)
+            Object.values(meta).forEach(parts => {
+                if (Array.isArray(parts)) {
+                    parts.forEach(p => {
+                        if (p.partName && p.measuring) {
+                            const val = parseFloat(p.measuring);
+                            if (!isNaN(val)) {
+                                if (p.partName.includes('首周り')) results.measurements.neck = val;
+                                if (p.partName.includes('顔周り')) results.measurements.head = val; // Face girth or Hood opening
+                                if (p.partName.includes('胸囲') || p.partName.includes('バスト')) results.measurements.chest = val;
+                                if (p.partName.includes('身幅')) results.measurements.bodyWidth = val;
+                                if (p.partName.includes('着丈') || p.partName.includes('全長')) results.measurements.length = val;
+                                if (p.partName.includes('そで周り') || p.partName.includes('袖周り')) results.measurements.armhole = val; // Rough approx
+                            }
+                        }
+                    });
+                }
+            });
+        }
+    }
 
     const usedValues = new Set();
     const cleanText = text.replace(/\s+/g, ' ').trim();
@@ -479,8 +504,20 @@ app.post('/api/analyze-url', async (req, res) => {
         // Increase body text limit to catch tables lower down
         const bodyText = $('body').text().replace(/\s+/g, ' ').substring(0, 20000);
 
+        // Extract JSON Metafields (WEGO etc.)
+        let metafields = [];
+        $('[data-metafield]').each((i, el) => {
+            try {
+                const attr = $(el).attr('data-metafield');
+                if (attr) {
+                    const json = JSON.parse(attr);
+                    metafields.push(json);
+                }
+            } catch (e) { }
+        });
+
         const allText = [title, description, ogTitle, bodyText].join(' ');
-        const sizeInfo = extractSizeInfo(allText, ogTitle || title);
+        const sizeInfo = extractSizeInfo(allText, ogTitle || title, { metafields });
 
         let fit = null;
         if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo);

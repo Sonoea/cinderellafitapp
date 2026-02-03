@@ -352,6 +352,15 @@ app.post('/api/analyze-url', async (req, res) => {
     const { url, plushieHeight } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
+    // Specific check for Mercari Shops (SPA)
+    if (url.includes('mercari.com/shops/')) {
+        return res.status(422).json({
+            success: false,
+            error: 'MERCARI_SHOPS_NOT_SUPPORTED',
+            message: 'メルカリShopsは自動分析に対応していません。'
+        });
+    }
+
     try {
         const response = await fetchWithRetry(url);
         const $ = cheerio.load(response.data);

@@ -62,6 +62,14 @@ const Shop = () => {
 
             if (!response.ok) {
                 console.error(`API Error: ${response.status} ${response.statusText}`);
+
+                if (response.status === 422) {
+                    const errData = await response.json();
+                    if (errData.error === 'MERCARI_SHOPS_NOT_SUPPORTED') {
+                        throw new Error(errData.message + '商品説明をコピーして手動で入力してください。');
+                    }
+                }
+
                 if (response.status === 504) {
                     throw new Error('タイムアウトしました（Amazonの応答が遅いため中断されました）');
                 }

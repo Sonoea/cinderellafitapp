@@ -243,9 +243,9 @@ function extractSizeInfo(text, title = '', extraData = {}) {
     }
 
     // 6. Target Plushie Size (Nui Size)
-    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用"
+    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用", "身長17cm"
     // Prioritize range/multiple match over simple single match
-    const targetMatch = cleanText.match(/(\d{1,2})(?:\s*cm)?\s*(?:[～~,\-−ー]|\s+と\s+|\s*,\s*)\s*(\d{1,2})\s*cm\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール)/i) ||
+    const targetMatch = cleanText.match(/(\d{1,2})(?:\s*cm)?\s*(?:[～~,\-−ー]|\s+と\s+|\s*,\s*)\s*(\d{1,2})\s*cm\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール|身長)/i) ||
         cleanTitle.match(/【\s*(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー]\s*(\d{1,2})\s*cm)?\s*】/i);
 
 
@@ -272,13 +272,13 @@ function extractSizeInfo(text, title = '', extraData = {}) {
             // Do not set targetPlushieSize for ranges
         } else {
             // 1. Keyword AFTER number (e.g. "10cm Nui")
-            const singleMatch = cleanText.match(/(\d{1,2})\s*cm\s*(?:用|対応|向け|サイズ|ぬいぐるみ|ぬい|着せ替え)/i);
+            const singleMatch = cleanText.match(/(\d{1,2})\s*cm\s*(?:用|対応|向け|サイズ|ぬいぐるみ|ぬい|着せ替え|身長)/i); // Added 身長
             if (singleMatch) {
                 results.targetPlushieSize = parseInt(singleMatch[1]);
             } else {
                 // 2. Keyword BEFORE number (e.g. "Nui... 20cm") - Common in titles like "Nui Parka 20cm"
                 // Must require 'cm' and rely on title/strong context to avoid false positives
-                const preMatch = cleanTitle.match(/(?:ぬいぐるみ|ぬい|ドール|サイズ).{0,30}(\d{1,2})\s*cm/i);
+                const preMatch = cleanTitle.match(/(?:ぬいぐるみ|ぬい|ドール|サイズ|身長).{0,30}(\d{1,2})\s*cm/i); // Added 身長
                 if (preMatch) {
                     results.targetPlushieSize = parseInt(preMatch[1]);
                 }

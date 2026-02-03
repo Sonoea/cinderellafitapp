@@ -181,14 +181,30 @@ function extractSizeInfo(text, title = '', extraData = {}) {
     const sep = '[：:\\-→\\s]*約?\\s*'; // Added arrow and hyphen, allow space
     const num = '(\\d+\\.?\\d*)';
     const range = '(?:[～~\\-](\\d+\\.?\\d*))?';
-    const unit = '\\s*(?:cm|センチ|mm)?'; // Added mm just in case, though we assume cm usually
+    // Unit: Added inch variants. 'in' requires strict boundary to avoid substring matches.
+    const unit = '\\s*(?:cm|センチ|mm|inch|インチ|in|"|”)?';
+
+    const toCm = (val, matchStr) => {
+        if (!val) return null;
+        // Check if the MATCHED STRING contains inch keywords
+        if (/inch|インチ|in\b|"|”/i.test(matchStr)) {
+            return parseFloat((val * 2.54).toFixed(1));
+        }
+        if (/mm/i.test(matchStr)) {
+            return parseFloat((val * 0.1).toFixed(1));
+        }
+        // Default to cm if no unit (or explicit cm)
+        return val;
+    };
 
     // 1. Head / Hood
     const headRegex = new RegExp(`(頭|フード|カチューシャ)(?:囲|周り|まわり)?${sep}${num}${range}${unit}`, 'i');
     const headMatch = cleanText.match(headRegex);
     if (headMatch) {
-        const min = parseFloat(headMatch[3]);
-        const max = headMatch[4] ? parseFloat(headMatch[4]) : min;
+        const minRaw = parseFloat(headMatch[3]);
+        const maxRaw = headMatch[4] ? parseFloat(headMatch[4]) : minRaw;
+        const min = toCm(minRaw, headMatch[0]);
+        const max = toCm(maxRaw, headMatch[0]);
         results.measurements.head = { min, max };
         usedValues.add(Math.floor(min));
     }
@@ -197,24 +213,30 @@ function extractSizeInfo(text, title = '', extraData = {}) {
     const neckRegex = new RegExp(`(首)(?:周り|まわり|囲)?${sep}${num}${range}${unit}`, 'i');
     const neckMatch = cleanText.match(neckRegex);
     if (neckMatch) {
-        results.measurements.neck = parseFloat(neckMatch[3]);
-        usedValues.add(Math.floor(results.measurements.neck));
+        const raw = parseFloat(neckMatch[3]);
+        const val = toCm(raw, neckMatch[0]);
+        results.measurements.neck = val;
+        usedValues.add(Math.floor(val));
     }
 
     // 3. Chest / Bust
     const chestRegex = new RegExp(`(胴囲|胴回り|胴周り|バスト|胸囲)${sep}${num}${unit}`, 'i');
     const chestMatch = cleanText.match(chestRegex);
     if (chestMatch) {
-        results.measurements.chest = parseFloat(chestMatch[2]);
-        usedValues.add(Math.floor(results.measurements.chest));
+        const raw = parseFloat(chestMatch[2]);
+        const val = toCm(raw, chestMatch[0]);
+        results.measurements.chest = val;
+        usedValues.add(Math.floor(val));
     }
 
     // 4. Width / Hem
     const widthRegex = new RegExp(`(身幅|裾幅|横幅|幅)${sep}${num}${unit}`, 'i');
     const widthMatch = cleanText.match(widthRegex);
     if (widthMatch) {
-        results.measurements.bodyWidth = parseFloat(widthMatch[2]);
-        usedValues.add(Math.floor(results.measurements.bodyWidth));
+        const raw = parseFloat(widthMatch[2]);
+        const val = toCm(raw, widthMatch[0]);
+        results.measurements.bodyWidth = val;
+        usedValues.add(Math.floor(val));
     }
 
     // 5. Length / Height (Item dimensions)
@@ -222,8 +244,9 @@ function extractSizeInfo(text, title = '', extraData = {}) {
     const lengthRegexJP = new RegExp(`(着丈|身丈|丈|全長|高さ|タテ|縦)${sep}${num}${unit}`, 'i');
     const lengthMatchJP = cleanText.match(lengthRegexJP);
     if (lengthMatchJP) {
-        const val = parseFloat(lengthMatchJP[2]);
-        if (val < 60) { // Safety cap
+        const raw = parseFloat(lengthMatchJP[2]);
+        const val = toCm(raw, lengthMatchJP[0]);
+        if (val < 100) { // Safety cap (100cm covers big plushies)
             results.measurements.length = val;
             usedValues.add(Math.floor(val));
         }
@@ -231,11 +254,12 @@ function extractSizeInfo(text, title = '', extraData = {}) {
 
     // English keys (H): mandatory unit to avoid "height: 100%"
     if (!results.measurements.length) {
-        const lengthRegexEN = new RegExp(`(H)${sep}${num}\\s*(?:cm|センチ|mm)`, 'i'); // Mandatory unit
+        const lengthRegexEN = new RegExp(`(H)${sep}${num}\\s*(?:cm|センチ|mm|inch|インチ|in|"|”)`, 'i'); // Mandatory unit
         const lengthMatchEN = cleanText.match(lengthRegexEN);
         if (lengthMatchEN) {
-            const val = parseFloat(lengthMatchEN[2]);
-            if (val < 60) {
+            const raw = parseFloat(lengthMatchEN[2]);
+            const val = toCm(raw, lengthMatchEN[0]);
+            if (val < 100) {
                 results.measurements.length = val;
                 usedValues.add(Math.floor(val));
             }
@@ -243,44 +267,70 @@ function extractSizeInfo(text, title = '', extraData = {}) {
     }
 
     // 6. Target Plushie Size (Nui Size)
-    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用", "身長17cm"
-    // Prioritize range/multiple match over simple single match
-    const targetMatch = cleanText.match(/(\d{1,2})(?:\s*cm)?\s*(?:[～~,\-−ー]|\s+と\s+|\s*,\s*)\s*(\d{1,2})\s*cm\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール|身長)/i) ||
-        cleanTitle.match(/【\s*(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー]\s*(\d{1,2})\s*cm)?\s*】/i);
+    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用", "身長17cm", "12-16 Inch"
+    // Regex updated to allow unit variations in capture groups
+    // Regex 6 needs careful update since structure was (\d)(cm)? ... (\d)cm
+    // We generalize "cm" to non-capturing unit group
+    const u = '(?:\\s*(?:cm|センチ|mm|inch|インチ|in|"|”))?';
+    // Simplified Target Regex: (num)(unit)? ... (num)(unit) (keywords)
+    const targetRegex = new RegExp(`(\\d{1,2})${u}\\s*(?:[～~,\\-−ー]|\\s+と\\s+|\\s*,\\s*)\\s*(\\d{1,2})(${u})\\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール|身長|Bears|Bear|Plush|Stuffed|Toy)`, 'i');
+
+    const targetMatch = cleanText.match(targetRegex) ||
+        cleanTitle.match(/【\s*(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー]\s*(\d{1,2})\s*cm)?\s*】/i); // Keep Title regex strict for now (Minne etc)
 
 
     if (targetMatch) {
-        const v1 = parseInt(targetMatch[1]);
-        const v2 = targetMatch[2] ? parseInt(targetMatch[2]) : null;
+        // targetMatch[1] = num1, targetMatch[2] = num2, targetMatch[3] = unit2 (captured from new regex)
+        // Note: New regex groups: 1=num1, 2=num2, 3=unit2
+        // Wait, 'u' is non-capturing `(?:...)`.
+        // My manual targetRegex above needs adjusting to capture unit if needed for conversion.
+        // Or check match string.
+
+        let v1 = parseFloat(targetMatch[1]);
+        let v2 = targetMatch[2] ? parseFloat(targetMatch[2]) : null;
+
+        // Auto-convert if "inch" in full match or unit group.
+        // Since my constructed regex is simple, I'll use `toCm`.
+        // But `toCm` relies on the string having the unit.
+        // `targetMatch[0]` has the unit.
+        // If range "12-16 Inch", `12` is v1, `16` is v2. Match has "Inch".
+        // Both v1 and v2 should be converted.
+
+        v1 = toCm(v1, targetMatch[0]);
+        if (v2) v2 = toCm(v2, targetMatch[0]);
 
         if (v2) {
-            // Treat as range or multiple options
             const min = Math.min(v1, v2);
             const max = Math.max(v1, v2);
             results.sizeRanges.push({ min, max });
-            // Do NOT set targetPlushieSize so that frontend falls back to displaying the range
+            // For target size, use average or min? Usually Max for "fits up to".
+            // But usually range means "Fits 12 to 16".
+            // If user has 15cm -> Perfect.
+            // Logic handled later using sizeRanges.
         } else {
             results.targetPlushieSize = v1;
         }
+    } else {
+        // Fallback logic
     }
 
     if (!results.targetPlushieSize && results.sizeRanges.length === 0) {
         // Fallback lookups
-        const rangeMatch = cleanText.match(/(\d{1,2})[～~](\d{1,2})\s*cm\s*(?:用|対応|サイズ|ぬい)/i);
+        const rangeMatch = cleanText.match(/(\d{1,2})[～~](\d{1,2})\s*(?:cm|センチ|mm|inch|インチ|in|"|”)\s*(?:用|対応|サイズ|ぬい)/i);
         if (rangeMatch) {
-            results.sizeRanges.push({ min: parseInt(rangeMatch[1]), max: parseInt(rangeMatch[2]) });
-            // Do not set targetPlushieSize for ranges
+            const val1 = toCm(parseFloat(rangeMatch[1]), rangeMatch[0]);
+            const val2 = toCm(parseFloat(rangeMatch[2]), rangeMatch[0]);
+            results.sizeRanges.push({ min: Math.min(val1, val2), max: Math.max(val1, val2) });
         } else {
-            // 1. Keyword AFTER number (e.g. "10cm Nui")
-            const singleMatch = cleanText.match(/(\d{1,2})\s*cm\s*(?:用|対応|向け|サイズ|ぬいぐるみ|ぬい|着せ替え|身長)/i); // Added 身長
+            // 1. Keyword AFTER number
+            const singleMatch = cleanText.match(/(\d{1,2})\s*(?:cm|センチ|mm|inch|インチ|in|"|”)\s*(?:用|対応|向け|サイズ|ぬいぐるみ|ぬい|着せ替え|身長)/i); // Added keywords
             if (singleMatch) {
-                results.targetPlushieSize = parseInt(singleMatch[1]);
+                results.targetPlushieSize = toCm(parseFloat(singleMatch[1]), singleMatch[0]);
             } else {
-                // 2. Keyword BEFORE number (e.g. "Nui... 20cm") - Common in titles like "Nui Parka 20cm"
-                // Must require 'cm' and rely on title/strong context to avoid false positives
-                const preMatch = cleanTitle.match(/(?:ぬいぐるみ|ぬい|ドール|サイズ|身長).{0,30}(\d{1,2})\s*cm/i); // Added 身長
+                // 2. Keyword BEFORE number
+                const preMatch = cleanTitle.match(/(?:ぬいぐるみ|ぬい|ドール|サイズ|身長).{0,30}(\d{1,2})\s*(?:cm|センチ|mm|inch|インチ|in|"|”)/i);
                 if (preMatch) {
-                    results.targetPlushieSize = parseInt(preMatch[1]);
+                    results.targetPlushieSize = toCm(parseFloat(preMatch[1]), preMatch[0]);
                 }
             }
         }

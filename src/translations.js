@@ -177,7 +177,7 @@ export const translations = {
         findClothes: "服のサイズチェックする",
         discover: "お知らせ・更新情報",
         newArrival: "📢 CinderellaFitからのお知らせ",
-        newArrivalBody: (name) => `みんなのギャラリーに新しいコーディネートが追加されました！${name}ちゃんの最新コーデをチェック。`,
+        newArrivalBody: (name) => `みんなのギャラリーに新しいコーディネートが追加されました！${name}の最新コーデをチェック。`,
 
         // Measure
         newMeasurement: "サイズ計測",

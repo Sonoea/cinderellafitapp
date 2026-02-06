@@ -77,6 +77,56 @@ const Home = () => {
                 </div>
             )}
 
+            {/* How to Use - Quick Guide */}
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4">
+                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
+                    <span>📖</span>
+                    {language === 'jp' ? 'かんたん3ステップ' : 'Easy 3 Steps'}
+                </h3>
+                <div className="flex justify-between gap-2">
+                    {/* Step 1 */}
+                    <div className="flex-1 text-center">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center text-2xl">
+                            🧸
+                        </div>
+                        <p className="text-[10px] font-bold text-gray-600">
+                            {language === 'jp' ? '1. 採寸' : '1. Measure'}
+                        </p>
+                        <p className="text-[9px] text-gray-400">
+                            {language === 'jp' ? 'ぬいのサイズ登録' : 'Register size'}
+                        </p>
+                    </div>
+                    {/* Arrow */}
+                    <div className="flex items-center text-gray-300">→</div>
+                    {/* Step 2 */}
+                    <div className="flex-1 text-center">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-2xl">
+                            🔍
+                        </div>
+                        <p className="text-[10px] font-bold text-gray-600">
+                            {language === 'jp' ? '2. URL入力' : '2. Enter URL'}
+                        </p>
+                        <p className="text-[9px] text-gray-400">
+                            {language === 'jp' ? '服のURLを貼る' : 'Paste clothing URL'}
+                        </p>
+                    </div>
+                    {/* Arrow */}
+                    <div className="flex items-center text-gray-300">→</div>
+                    {/* Step 3 */}
+                    <div className="flex-1 text-center">
+                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-2xl">
+                            ✨
+                        </div>
+                        <p className="text-[10px] font-bold text-gray-600">
+                            {language === 'jp' ? '3. フィット確認' : '3. Check Fit'}
+                        </p>
+                        <p className="text-[9px] text-gray-400">
+                            {language === 'jp' ? 'サイズ判定表示' : 'See result'}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
             {/* Featured Plushie Card */}
             <section>
                 <div className="flex justify-between items-end mb-2">

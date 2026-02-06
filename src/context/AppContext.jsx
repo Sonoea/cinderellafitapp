@@ -122,15 +122,17 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('user_plan', userPlan);
   }, [userPlan]);
 
-  // Plan limits
+  // Plan limits (these are the limits for ADDITIONAL plushies beyond the default)
   const PLAN_LIMITS = {
-    free: 5,
-    premium: 20,
+    free: 5,      // うなえさん + 5体 = 合計6体
+    premium: 20,  // うなえさん + 20体 = 合計21体
     enterprise: Infinity
   };
 
+  // Count only user-added plushies (exclude default うなえさん with id=2)
+  const userAddedPlushieCount = plushies.filter(p => p.id !== 2).length;
   const plushieLimit = PLAN_LIMITS[userPlan];
-  const canAddPlushie = plushies.length < plushieLimit;
+  const canAddPlushie = userAddedPlushieCount < plushieLimit;
 
   const addPlushie = async (plushie) => {
     if (!canAddPlushie) {
@@ -205,7 +207,7 @@ export const AppProvider = ({ children }) => {
       plushies, addPlushie, updatePlushie,
       closetItems, addClosetItem, updateClosetItem, deleteClosetItem,
       language, setLanguage, toggleLanguage, t,
-      userPlan, setUserPlan, plushieLimit, canAddPlushie
+      userPlan, setUserPlan, plushieLimit, canAddPlushie, userAddedPlushieCount
     }}>
       {children}
     </AppContext.Provider>

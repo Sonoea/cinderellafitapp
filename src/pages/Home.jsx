@@ -5,7 +5,7 @@ import { Plus, Globe, LogIn, Sparkles, Settings, Pencil } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
 const Home = () => {
-    const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie } = useApp();
+    const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie, userAddedPlushieCount } = useApp();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
 
@@ -164,7 +164,7 @@ const Home = () => {
                     <div>
                         <h3>{t('myFriends')}</h3>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {t('plushieCount', plushies.length, plushieLimit)}
+                            {t('plushieCount', userAddedPlushieCount, plushieLimit)}
                             {plushieLimit !== Infinity && (
                                 <span style={{ marginLeft: '4px', color: 'var(--secondary)' }}>
                                     {language === 'jp' ? '（現状）' : '(Current)'}

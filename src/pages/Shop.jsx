@@ -379,7 +379,7 @@ const Shop = () => {
                                 🟢 対応サイト: Creema, minne, WEGO, BASE系, 楽天など
                             </p>
                             <p className="text-blue-400">
-                                ⚠️ Etsy, メルカリShopsは手動入力推奨
+                                ⚠️ Etsy, stores.jp, メルカリShopsは手動入力推奨
                             </p>
                         </div>
                     )}

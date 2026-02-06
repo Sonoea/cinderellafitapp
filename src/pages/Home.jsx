@@ -14,7 +14,9 @@ const Home = () => {
             <header className="flex justify-between items-center py-4">
                 <div>
                     <h1 style={{ color: 'var(--primary-dark)', fontSize: '24px' }}>{t('appTitle')}</h1>
-                    <p style={{ fontSize: '14px', color: 'var(--text-light)' }}>{t('appSubtitle')}</p>
+                    <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>
+                        {language === 'jp' ? 'サイズ失敗、もうしない。' : 'Never buy the wrong size again'}
+                    </p>
                 </div>
                 <div className="flex gap-2">
                     <button

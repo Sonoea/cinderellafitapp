@@ -79,12 +79,17 @@ export const AppProvider = ({ children }) => {
         const saved = localStorage.getItem('my_plushies_v2');
         let parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
 
-        // MIGRATION: Fix old placeholder image in localStorage
+        // MIGRATION: Fix old placeholder image and Unagi type in localStorage
         parsed = parsed.map(p => {
+          let updated = { ...p };
           if (p.name === 'うなえさん' && p.image.includes('placehold.co')) {
-            return { ...p, image: '/unae-san.png' };
+            updated.image = '/unae-san.png';
           }
-          return p;
+          // Fix Unagi -> ウナギ
+          if (p.type === 'Unagi') {
+            updated.type = 'ウナギ';
+          }
+          return updated;
         });
 
         setPlushies(parsed.filter(p => p.name !== 'Allan'));

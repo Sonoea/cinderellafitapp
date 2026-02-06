@@ -111,6 +111,62 @@ async function fetchWithRetry(url, maxRetries = 3) {
     throw lastError || new Error('All fetch attempts failed');
 }
 
+// Localization
+const MESSAGES = {
+    jp: {
+        TARGET_PERFECT: (v) => `${v}cm用です。身長はぴったりです！`,
+        TARGET_TOO_SMALL: (v) => `対象サイズ(${v}cm)よりかなり大きいです。身長が入りません。`,
+        TARGET_TOO_BIG: (v) => `対象サイズ(${v}cm)よりかなり小さいです。身長に対しブカブカです。`,
+        TARGET_TIGHT: (v, diff) => `対象サイズ(${v}cm)より身長が${diff}cm大きいです。少しキツいかもしれません。`,
+        TARGET_LOOSE: (v, diff) => `対象サイズ(${v}cm)より身長が${diff}cm小さいです。少し余裕があります。`,
+        RANGE_PERFECT: (min, max) => `${min}〜${max}cm対応です。身長は範囲内です！`,
+        RANGE_LOOSE: (min, max) => `${min}〜${max}cm対応です。身長に対しブカブカの可能性があります。`,
+        RANGE_TIGHT: (min, max) => `${min}〜${max}cm対応です。身長がキツい可能性があります。`,
+        EST_PERFECT: (min, max) => `サイズ表記から推測（${min}〜${max}cm程度）。身長は合いそうです。`,
+        EST_LOOSE: (v) => `サイズ表記から推測（${v}cm前後）。身長に対しブカブカの可能性があります。`,
+        EST_TIGHT: (v) => `サイズ表記から推測（${v}cm前後）。身長がキツい可能性があります。`,
+        LEN_PERFECT: (v) => `着丈(${v}cm)が身長に近いため、全身が入る可能性があります。`,
+        LEN_SHORT: (v) => `着丈(${v}cm)は身長より短いです。`,
+        LEN_LOOSE: (v) => `着丈(${v}cm)が身長より長いです。`,
+        HEAD_TIGHT: (p, m) => `頭囲(${p}cm)が帽子/フード(${m}cm)より大きいです。入りません。`,
+        HEAD_WARN_TIGHT: (p, m) => `頭囲(${p}cm)が帽子/フード(${m}cm)ギリギリです。`,
+        HEAD_LOOSE: (p, m) => `頭囲(${p}cm)が帽子/フード(${m}cm)よりかなり小さいです。帽子がブカブカかもしれません。`,
+        HEAD_OK: (p, m) => `頭囲(${p}cm)は帽子/フード(${m}cm)に入ります。`,
+        CHEST_TIGHT: (p, m) => `胴囲(${p}cm)が服の身幅(${m}cm)より大きいです。ジッパーが閉まらないかも。`,
+        CHEST_LOOSE: (p, m) => `胴囲(${p}cm)が服の身幅(${m}cm)より細いです。お腹周りがブカブカかもしれません。`,
+        CHEST_OK: (p, m) => `胴囲(${p}cm)は身幅(${m}cm)に収まります。`,
+        NECK_TIGHT: (p, m) => `首周り(${p}cm)が襟(${m}cm)より太いです。`,
+        NECK_LOOSE: (p, m) => `首周り(${p}cm)が襟(${m}cm)に対し細すぎます。`,
+        NECK_OK: (p, m) => `首周りOK。`,
+    },
+    en: {
+        TARGET_PERFECT: (v) => `Made for ${v}cm. Perfect height match!`,
+        TARGET_TOO_SMALL: (v) => `Your plushie is much larger than target size (${v}cm). Won't fit.`,
+        TARGET_TOO_BIG: (v) => `Your plushie is much smaller than target size (${v}cm). Too loose.`,
+        TARGET_TIGHT: (v, diff) => `Plushie is ${diff}cm taller than target (${v}cm). Might be tight.`,
+        TARGET_LOOSE: (v, diff) => `Plushie is ${diff}cm shorter than target (${v}cm). Might be loose.`,
+        RANGE_PERFECT: (min, max) => `Fits ${min}-${max}cm. Height is within range!`,
+        RANGE_LOOSE: (min, max) => `Fits ${min}-${max}cm. Might be loose for your plushie.`,
+        RANGE_TIGHT: (min, max) => `Fits ${min}-${max}cm. Might be tight for your plushie.`,
+        EST_PERFECT: (min, max) => `Inferred size (${min}-${max}cm). Seems to fit.`,
+        EST_LOOSE: (v) => `Inferred size (~${v}cm). Likely too loose.`,
+        EST_TIGHT: (v) => `Inferred size (~${v}cm). Likely too tight.`,
+        LEN_PERFECT: (v) => `Item length (${v}cm) is close to plushie height. Likely fits.`,
+        LEN_SHORT: (v) => `Item length (${v}cm) is shorter than plushie height.`,
+        LEN_LOOSE: (v) => `Item length (${v}cm) is longer than plushie.`,
+        HEAD_TIGHT: (p, m) => `Head girth (${p}cm) > Hood/Hat (${m}cm). Won't fit.`,
+        HEAD_WARN_TIGHT: (p, m) => `Head girth (${p}cm) is very close to Hood/Hat (${m}cm).`,
+        HEAD_LOOSE: (p, m) => `Head girth (${p}cm) is much smaller than Hood/Hat (${m}cm).`,
+        HEAD_OK: (p, m) => `Head girth (${p}cm) fits locally in Hood/Hat (${m}cm).`,
+        CHEST_TIGHT: (p, m) => `Waist (${p}cm) > Item Width (${m}cm). Zipper might not close.`,
+        CHEST_LOOSE: (p, m) => `Waist (${p}cm) < Item Width (${m}cm). Might be baggy.`,
+        CHEST_OK: (p, m) => `Waist (${p}cm) fits within Item Width (${m}cm).`,
+        NECK_TIGHT: (p, m) => `Neck (${p}cm) is thicker than Item Neck (${m}cm).`,
+        NECK_LOOSE: (p, m) => `Neck (${p}cm) is much thinner than Item Neck (${m}cm).`,
+        NECK_OK: (p, m) => `Neck fits OK.`,
+    }
+};
+
 // Extract size information from text
 function extractSizeInfo(text, title = '', extraData = {}) {
     const results = {
@@ -254,7 +310,7 @@ function extractSizeInfo(text, title = '', extraData = {}) {
 
     // English keys (H): mandatory unit to avoid "height: 100%"
     if (!results.measurements.length) {
-        const lengthRegexEN = new RegExp(`(H)${sep}${num}\\s*(?:cm|センチ|mm|inch|インチ|in|"|”)`, 'i'); // Mandatory unit
+        const lengthRegexEN = new RegExp(`(H|Height)${sep}${num}\\s*(?:cm|センチ|mm|inch|インチ|in|"|”)`, 'i'); // Mandatory unit
         const lengthMatchEN = cleanText.match(lengthRegexEN);
         if (lengthMatchEN) {
             const raw = parseFloat(lengthMatchEN[2]);
@@ -266,71 +322,98 @@ function extractSizeInfo(text, title = '', extraData = {}) {
         }
     }
 
-    // 6. Target Plushie Size (Nui Size)
-    // Supports: "15cm, 20cm", "10cm～12cm", "15cm-20cm用", "身長17cm", "12-16 Inch"
-    // Regex updated to allow unit variations in capture groups
-    // Regex 6 needs careful update since structure was (\d)(cm)? ... (\d)cm
-    // We generalize "cm" to non-capturing unit group
-    const u = '(?:\\s*(?:cm|センチ|mm|inch|インチ|in|"|”))?';
-    // Simplified Target Regex: (num)(unit)? ... (num)(unit) (keywords)
-    const targetRegex = new RegExp(`(\\d{1,2})${u}\\s*(?:[～~,\\-−ー]|\\s+と\\s+|\\s*,\\s*)\\s*(\\d{1,2})(${u})\\s*(?:サイズ|用|対応|ぬいぐるみ|ぬい|ドール|身長|Bears|Bear|Plush|Stuffed|Toy)`, 'i');
+    // 6. Target Plushie Size (Nui Size) - IMPROVED PATTERNS
+    // Supports many Japanese patterns:
+    // - "20cmぬい服", "15cmぬいぐるみ用", "12cm用"
+    // - "10/12cmぬい", "15,20cmぬい"
+    // - "10cm～12cm対応", "15~20cm用"
+    // - "【15cm】", "【10-20cm】" in titles
+    // - "身長17cmのぬいぐるみ用"
+    // - "12-16 Inch Bears"
 
-    const targetMatch = cleanText.match(targetRegex) ||
-        cleanTitle.match(/【\s*(\d{1,2})(?:\s*cm)?(?:[～~,\-−ー]\s*(\d{1,2})\s*cm)?\s*】/i); // Keep Title regex strict for now (Minne etc)
+    const unitPattern = '(?:\\s*(?:cm|センチ|ｃｍ|mm|inch|インチ|in|"|"))?';
 
+    // Pattern 1: Range with separator (10～20cm, 10-20cm, 10~20cm用, etc.)
+    const rangePatterns = [
+        // "10cm～20cm用" or "10～20cm用"
+        new RegExp(`(\\d{1,2})${unitPattern}\\s*[～~\\-−ー]\\s*(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)\\s*(?:ぬい(?:ぐるみ)?|用|対応|サイズ|服)`, 'i'),
+        // "10cm,20cm ぬい" or "10/20cm ぬい"
+        new RegExp(`(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)?\\s*[/,、]\\s*(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)\\s*(?:ぬい(?:ぐるみ)?|用|対応|サイズ|服)`, 'i'),
+        // Title pattern 【10-20cm】
+        new RegExp(`【\\s*(\\d{1,2})\\s*(?:cm)?\\s*[～~\\-−ー/,]?\\s*(\\d{1,2})?\\s*(?:cm)?\\s*】`, 'i'),
+        // "12-16 Inch Bears/Plush"
+        new RegExp(`(\\d{1,2})\\s*[～~\\-−ー]\\s*(\\d{1,2})\\s*(?:inch|インチ|in|"|")\\s*(?:Bears?|Plush(?:ies?)?|Stuffed|Dolls?|Toys?)`, 'i'),
+    ];
 
-    if (targetMatch) {
-        // targetMatch[1] = num1, targetMatch[2] = num2, targetMatch[3] = unit2 (captured from new regex)
-        // Note: New regex groups: 1=num1, 2=num2, 3=unit2
-        // Wait, 'u' is non-capturing `(?:...)`.
-        // My manual targetRegex above needs adjusting to capture unit if needed for conversion.
-        // Or check match string.
+    // Pattern 2: Single size with keywords
+    const singlePatterns = [
+        // "20cmぬい服", "15cmぬい", "12cmぬいぐるみ用"
+        new RegExp(`(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)\\s*(?:ぬい(?:ぐるみ)?(?:服|用)?|用|対応|サイズ|向け)`, 'i'),
+        // "身長15cmぬいぐるみ" or "ぬい身長15cm"
+        new RegExp(`身長\\s*(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)`, 'i'),
+        // "ぬい 15cm" or "ぬいぐるみ 20cm"
+        new RegExp(`(?:ぬい(?:ぐるみ)?|ドール)\\s*(?:用)?\\s*(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)`, 'i'),
+        // Title pattern 【15cm】 single size
+        new RegExp(`【\\s*(\\d{1,2})\\s*(?:cm|センチ)?\\s*】`, 'i'),
+        // "8 inch plush" or "8\" Bear"
+        new RegExp(`(\\d{1,2})\\s*(?:inch|インチ|in|"|")\\s*(?:Bears?|Plush(?:ies?)?|Stuffed|Dolls?|Toys?|ぬい)`, 'i'),
+        // "for 15cm plushie" pattern
+        new RegExp(`(?:for|fits?)\\s*(\\d{1,2})\\s*(?:cm|inch|in|"|")`, 'i'),
+    ];
 
-        let v1 = parseFloat(targetMatch[1]);
-        let v2 = targetMatch[2] ? parseFloat(targetMatch[2]) : null;
+    // Try range patterns first
+    let matched = false;
+    for (const regex of rangePatterns) {
+        const match = cleanText.match(regex) || cleanTitle.match(regex);
+        if (match) {
+            let v1 = parseFloat(match[1]);
+            let v2 = match[2] ? parseFloat(match[2]) : null;
 
-        // Auto-convert if "inch" in full match or unit group.
-        // Since my constructed regex is simple, I'll use `toCm`.
-        // But `toCm` relies on the string having the unit.
-        // `targetMatch[0]` has the unit.
-        // If range "12-16 Inch", `12` is v1, `16` is v2. Match has "Inch".
-        // Both v1 and v2 should be converted.
+            v1 = toCm(v1, match[0]);
+            if (v2) v2 = toCm(v2, match[0]);
 
-        v1 = toCm(v1, targetMatch[0]);
-        if (v2) v2 = toCm(v2, targetMatch[0]);
-
-        if (v2) {
-            const min = Math.min(v1, v2);
-            const max = Math.max(v1, v2);
-            results.sizeRanges.push({ min, max });
-            // For target size, use average or min? Usually Max for "fits up to".
-            // But usually range means "Fits 12 to 16".
-            // If user has 15cm -> Perfect.
-            // Logic handled later using sizeRanges.
-        } else {
-            results.targetPlushieSize = v1;
+            if (v2 && v2 !== v1) {
+                const min = Math.min(v1, v2);
+                const max = Math.max(v1, v2);
+                results.sizeRanges.push({ min, max });
+            } else {
+                results.targetPlushieSize = v1;
+            }
+            matched = true;
+            console.log(`[SIZE] Matched range pattern: "${match[0]}" -> ${v1}${v2 ? `-${v2}` : ''}cm`);
+            break;
         }
-    } else {
-        // Fallback logic
     }
 
+    // Try single patterns if no range found
+    if (!matched) {
+        for (const regex of singlePatterns) {
+            const match = cleanText.match(regex) || cleanTitle.match(regex);
+            if (match) {
+                let v = toCm(parseFloat(match[1]), match[0]);
+                results.targetPlushieSize = v;
+                matched = true;
+                console.log(`[SIZE] Matched single pattern: "${match[0]}" -> ${v}cm`);
+                break;
+            }
+        }
+    }
+
+    // Additional fallback patterns if still not matched
     if (!results.targetPlushieSize && results.sizeRanges.length === 0) {
-        // Fallback lookups
-        const rangeMatch = cleanText.match(/(\d{1,2})[～~](\d{1,2})\s*(?:cm|センチ|mm|inch|インチ|in|"|”)\s*(?:用|対応|サイズ|ぬい)/i);
-        if (rangeMatch) {
-            const val1 = toCm(parseFloat(rangeMatch[1]), rangeMatch[0]);
-            const val2 = toCm(parseFloat(rangeMatch[2]), rangeMatch[0]);
-            results.sizeRanges.push({ min: Math.min(val1, val2), max: Math.max(val1, val2) });
+        // Try to find any "XXcm用" or "XXcmぬい" pattern
+        const fallbackMatch = cleanText.match(/(\\d{1,2})\\s*(?:cm|センチ|ｃｍ)\\s*(?:用|対応|向け|着せ替え|ぬい)/i);
+        if (fallbackMatch) {
+            results.targetPlushieSize = toCm(parseFloat(fallbackMatch[1]), fallbackMatch[0]);
+            console.log(`[SIZE] Fallback match: "${fallbackMatch[0]}" -> ${results.targetPlushieSize}cm`);
         } else {
-            // 1. Keyword AFTER number
-            const singleMatch = cleanText.match(/(\d{1,2})\s*(?:cm|センチ|mm|inch|インチ|in|"|”)\s*(?:用|対応|向け|サイズ|ぬいぐるみ|ぬい|着せ替え|身長)/i); // Added keywords
-            if (singleMatch) {
-                results.targetPlushieSize = toCm(parseFloat(singleMatch[1]), singleMatch[0]);
-            } else {
-                // 2. Keyword BEFORE number
-                const preMatch = cleanTitle.match(/(?:ぬいぐるみ|ぬい|ドール|サイズ|身長).{0,30}(\d{1,2})\s*(?:cm|センチ|mm|inch|インチ|in|"|”)/i);
-                if (preMatch) {
-                    results.targetPlushieSize = toCm(parseFloat(preMatch[1]), preMatch[0]);
+            // Last resort: Look for prominent cm values in title
+            const titleCmMatch = cleanTitle.match(/(\d{1,2})\s*(?:cm|センチ|ｃｍ)/i);
+            if (titleCmMatch) {
+                const val = parseFloat(titleCmMatch[1]);
+                if (val >= 8 && val <= 40) { // Reasonable plushie size range
+                    results.targetPlushieSize = val;
+                    console.log(`[SIZE] Title fallback: "${titleCmMatch[0]}" -> ${val}cm`);
                 }
             }
         }
@@ -345,7 +428,7 @@ function extractSizeInfo(text, title = '', extraData = {}) {
 
     // S/M/L Estimations
     const sizeLabels = cleanText.match(/[SMLsml]サイズ/g);
-    if (sizeLabels && !results.targetPlushieSize) {
+    if (sizeLabels && !results.targetPlushieSize && results.sizeRanges.length === 0) {
         const label = sizeLabels[0].toUpperCase();
         if (label.includes('S')) results.estimatedTarget = { size: 12, range: [10, 15] };
         if (label.includes('M')) results.estimatedTarget = { size: 20, range: [15, 25] };
@@ -356,7 +439,10 @@ function extractSizeInfo(text, title = '', extraData = {}) {
 }
 
 // Estimate fit logic
-function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
+function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}, lang = 'jp') {
+    // Default to JP if invalid lang
+    const T = MESSAGES[lang] || MESSAGES['jp'];
+
     let status = 'unknown';
     let reasons = [];
     let confidence = 'low';
@@ -374,20 +460,20 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
 
         if (Math.abs(diff) <= tolerance) {
             heightStatus = 'perfect';
-            heightReason = `${sizeInfo.targetPlushieSize}cm用です。身長はぴったりです！`;
+            heightReason = T.TARGET_PERFECT(sizeInfo.targetPlushieSize);
             confidence = 'high';
         } else if (diff > 5) {
             heightStatus = 'tooSmall';
-            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり大きいです。身長が入りません。`;
+            heightReason = T.TARGET_TOO_SMALL(sizeInfo.targetPlushieSize);
         } else if (diff < -5) {
             heightStatus = 'tooBig';
-            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)よりかなり小さいです。身長に対しブカブカです。`;
+            heightReason = T.TARGET_TOO_BIG(sizeInfo.targetPlushieSize);
         } else if (diff > tolerance) {
             heightStatus = 'tight';
-            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より身長が${diff.toFixed(1)}cm大きいです。少しキツいかもしれません。`;
+            heightReason = T.TARGET_TIGHT(sizeInfo.targetPlushieSize, diff.toFixed(1));
         } else if (diff < -tolerance) {
             heightStatus = 'loose';
-            heightReason = `対象サイズ(${sizeInfo.targetPlushieSize}cm)より身長が${Math.abs(diff).toFixed(1)}cm小さいです。少し余裕があります。`;
+            heightReason = T.TARGET_LOOSE(sizeInfo.targetPlushieSize, Math.abs(diff).toFixed(1));
         }
     }
     // Check size ranges
@@ -395,14 +481,14 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         const { min, max } = sizeInfo.sizeRanges[0];
         if (plushieHeight >= min && plushieHeight <= max) {
             heightStatus = 'perfect';
-            heightReason = `${min}〜${max}cm対応です。身長は範囲内です！`;
+            heightReason = T.RANGE_PERFECT(min, max);
             confidence = 'high';
         } else if (plushieHeight < min) {
             heightStatus = 'loose';
-            heightReason = `${min}〜${max}cm対応です。身長に対しブカブカの可能性があります。`;
+            heightReason = T.RANGE_LOOSE(min, max);
         } else {
             heightStatus = 'tight';
-            heightReason = `${min}〜${max}cm対応です。身長がキツい可能性があります。`;
+            heightReason = T.RANGE_TIGHT(min, max);
         }
     }
     // Check estimated target from S/M/L labels
@@ -410,14 +496,14 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         const { size, range } = sizeInfo.estimatedTarget;
         if (plushieHeight >= range[0] && plushieHeight <= range[1]) {
             heightStatus = 'perfect';
-            heightReason = `サイズ表記から推測（${range[0]}〜${range[1]}cm程度）。身長は合いそうです。`;
+            heightReason = T.EST_PERFECT(range[0], range[1]);
             confidence = 'low';
         } else if (plushieHeight < range[0]) {
             heightStatus = 'loose';
-            heightReason = `サイズ表記から推測（${size}cm前後）。身長に対しブカブカの可能性があります。`;
+            heightReason = T.EST_LOOSE(size);
         } else {
             heightStatus = 'tight';
-            heightReason = `サイズ表記から推測（${size}cm前後）。身長がキツい可能性があります。`;
+            heightReason = T.EST_TIGHT(size);
         }
     }
     // Check specific measurements (length proxy)
@@ -425,11 +511,15 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         const diff = Math.abs(plushieHeight - sizeInfo.measurements.length);
         if (diff < 3) {
             heightStatus = 'perfect';
-            heightReason = `着丈(${sizeInfo.measurements.length}cm)が身長に近いため、全身が入る可能性があります。`;
+            heightReason = T.LEN_PERFECT(sizeInfo.measurements.length);
             confidence = 'low';
         } else if (sizeInfo.measurements.length > plushieHeight) {
             heightStatus = 'loose';
-            heightReason = `着丈(${sizeInfo.measurements.length}cm)が身長より長いです。`;
+            heightReason = T.LEN_LOOSE(sizeInfo.measurements.length);
+            confidence = 'low';
+        } else {
+            heightStatus = 'perfect'; // Short length (e.g. shirt) is acceptable
+            heightReason = T.LEN_SHORT(sizeInfo.measurements.length);
             confidence = 'low';
         }
     }
@@ -447,16 +537,16 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         let msg = '';
         let st = 'ok';
         // Logic: Plushie Head must be <= Max Hat Size
-        // We assume 'head' measurement extracted is circumference.
         if (pHead > mMax) {
             st = 'tight';
-            msg = `頭囲(${pHead}cm)が商品サイズ(${mMax}cm)より大きいです。フードや帽子が入らない可能性が高いです。`;
+            msg = T.HEAD_TIGHT(pHead, mMax);
             if (status === 'perfect') status = 'tight'; // Downgrade perfect status
         } else if (pHead < mMin - 5) {
             st = 'loose';
-            msg = `頭囲(${pHead}cm)が商品サイズ(${mMin}cm)よりかなり小さいです。帽子がブカブカかもしれません。`;
+            msg = T.HEAD_LOOSE(pHead, mMin);
         } else {
-            msg = `頭囲は範囲内(${mMin}〜${mMax}cm)です。`;
+            if (Math.abs(pHead - mMax) < 2) msg = T.HEAD_WARN_TIGHT(pHead, mMax);
+            else msg = T.HEAD_OK(pHead, mMax);
         }
         checkPoints.push({ part: 'Head', status: st, msg });
         if (st !== 'ok') reasons.push(msg);
@@ -467,14 +557,11 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
     if (plushieInfo.waist) {
         const pWaist = parseFloat(plushieInfo.waist);
         let itemGirth = null;
-        let source = '';
 
         if (sizeInfo.measurements.chest) {
             itemGirth = sizeInfo.measurements.chest;
-            source = '胸囲';
         } else if (sizeInfo.measurements.bodyWidth) {
             itemGirth = sizeInfo.measurements.bodyWidth * 2;
-            source = '身幅(x2)';
         }
 
         if (itemGirth) {
@@ -483,13 +570,13 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
             // Allow 2cm slack usually?
             if (pWaist > itemGirth) {
                 st = 'tight';
-                msg = `胴囲(${pWaist}cm)が服の${source}(${itemGirth}cm)より大きいです。チャックが閉まらない可能性があります。`;
+                msg = T.CHEST_TIGHT(pWaist, itemGirth);
                 if (status === 'perfect') status = 'tight';
             } else if (pWaist < itemGirth - 8) { // >8cm diff is quite loose
                 st = 'loose';
-                msg = `胴囲(${pWaist}cm)が服の${source}(${itemGirth}cm)より細いです。お腹周りがブカブカかもしれません。`;
+                msg = T.CHEST_LOOSE(pWaist, itemGirth);
             } else {
-                msg = `胴囲は${source}に対して適正範囲です。`;
+                msg = T.CHEST_OK(pWaist, itemGirth);
             }
             checkPoints.push({ part: 'Chest/Waist', status: st, msg });
             if (st !== 'ok') reasons.push(msg);
@@ -505,10 +592,10 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         let st = 'ok';
         if (pNeck > mNeck) {
             st = 'tight';
-            msg = `首周り(${pNeck}cm)が商品(${mNeck}cm)より太いです。ボタンが留まらない可能性があります。`;
+            msg = T.NECK_TIGHT(pNeck, mNeck);
             if (status === 'perfect') status = 'tight';
         } else {
-            msg = `首周りはOKです。`;
+            msg = T.NECK_OK(pNeck, mNeck);
         }
         checkPoints.push({ part: 'Neck', status: st, msg });
         if (st !== 'ok') reasons.push(msg);
@@ -516,7 +603,7 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
 
     // Final cleanup
     if (status === 'unknown' && reasons.length === 0) {
-        reasons.push('サイズ情報が見つかりませんでした');
+        reasons.push(lang === 'en' ? 'Could not find size info.' : 'サイズ情報が見つかりませんでした');
     }
 
     return {
@@ -524,14 +611,14 @@ function estimateFit(sizeInfo, plushieHeight, plushieInfo = {}) {
         confidence,
         reason: reasons.join('\n'), // Join with newlines for display
         details: { targetSize: sizeInfo.targetPlushieSize || (sizeInfo.estimatedTarget?.size), measurements: sizeInfo.measurements },
-        warnings: reasons.filter(r => r.includes('キツい') || r.includes('大きい') || r.includes('小さい') || r.includes('ブカブカ')), // Heuristic for warnings
+        warnings: reasons.filter(r => /tight|small|big|loose|won't fit|キツい|大きい|小さい|ブカブカ/i.test(r)), // Heuristic for warnings
         checkPoints
     };
 }
 
 // API Routes
 app.post('/api/analyze-url', async (req, res) => {
-    const { url, plushieHeight, plushieInfo } = req.body;
+    const { url, plushieHeight, plushieInfo, lang = 'jp' } = req.body;
     if (!url) return res.status(400).json({ error: 'URL is required' });
 
     // Specific check for Mercari Shops (SPA)
@@ -539,7 +626,7 @@ app.post('/api/analyze-url', async (req, res) => {
         return res.status(422).json({
             success: false,
             error: 'MERCARI_SHOPS_NOT_SUPPORTED',
-            message: 'メルカリShopsは自動分析に対応していません。'
+            message: lang === 'en' ? 'Mercari Shops is not supported yet.' : 'メルカリShopsは自動分析に対応していません。'
         });
     }
 
@@ -570,7 +657,7 @@ app.post('/api/analyze-url', async (req, res) => {
         const sizeInfo = extractSizeInfo(allText, ogTitle || title, { metafields });
 
         let fit = null;
-        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo);
+        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo, lang);
 
         res.json({
             success: true,
@@ -580,18 +667,18 @@ app.post('/api/analyze-url', async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.json({ success: false, error: 'ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）', suggestion: 'manual_input' });
+        res.json({ success: false, error: lang === 'en' ? 'Could not fetch page info (Limit/Timeout).' : 'ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）', suggestion: 'manual_input' });
     }
 });
 
 app.post('/api/analyze-text', async (req, res) => {
-    const { text, productName, plushieHeight, plushieInfo } = req.body;
+    const { text, productName, plushieHeight, plushieInfo, lang = 'jp' } = req.body;
     if (!text) return res.status(400).json({ error: 'Text required' });
 
     try {
         const sizeInfo = extractSizeInfo(text, productName || '');
         let fit = null;
-        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo);
+        if (plushieHeight) fit = estimateFit(sizeInfo, plushieHeight, plushieInfo, lang);
 
         res.json({
             success: true,

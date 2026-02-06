@@ -7,7 +7,6 @@ import Home from './pages/Home';
 import Measure from './pages/Measure';
 import Closet from './pages/Closet';
 import Shop from './pages/Shop';
-import FittingRoom from './pages/FittingRoom';
 import Legal from './pages/Legal';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
@@ -26,7 +25,6 @@ function App() {
                 <Route path="/measure" element={<Measure />} />
                 <Route path="/closet" element={<Closet />} />
                 <Route path="/shop" element={<Shop />} />
-                <Route path="/fitting-room" element={<FittingRoom />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/guide" element={<Guide />} />
@@ -41,4 +39,3 @@ function App() {
 }
 
 export default App;
-

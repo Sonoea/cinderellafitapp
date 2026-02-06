@@ -1,0 +1,1012 @@
+{
+  "summary": {
+    "total": 20,
+    "successful": 8,
+    "failed": 12,
+    "accuracyByStatus": {},
+    "bySite": {
+      "creema": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0
+      },
+      "minne": {
+        "total": 2,
+        "successful": 2,
+        "failed": 0
+      },
+      "rakuten": {
+        "total": 2,
+        "successful": 0,
+        "failed": 2
+      },
+      "amazon_jp": {
+        "total": 2,
+        "successful": 0,
+        "failed": 2
+      },
+      "okadaya": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0
+      },
+      "mercari": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0
+      },
+      "buildabear": {
+        "total": 2,
+        "successful": 1,
+        "failed": 1
+      },
+      "amazon_us": {
+        "total": 2,
+        "successful": 0,
+        "failed": 2
+      },
+      "etsy": {
+        "total": 3,
+        "successful": 0,
+        "failed": 3
+      },
+      "walmart": {
+        "total": 1,
+        "successful": 1,
+        "failed": 0
+      },
+      "ebay": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1
+      },
+      "target": {
+        "total": 1,
+        "successful": 0,
+        "failed": 1
+      }
+    },
+    "byPlushie": {
+      "unae": {
+        "total": 20,
+        "successful": 8,
+        "failed": 12
+      }
+    },
+    "statusAccuracy": "12.5%"
+  },
+  "details": [
+    {
+      "success": true,
+      "url": "https://www.creema.jp/item/16474163/detail",
+      "site": "creema",
+      "plushie": "unae",
+      "expected": {
+        "size": "20cm",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "シルバー925 フランス風 蝶結び ピアス 結婚式 プレゼント 贈り物  デート 二次会 送料無料",
+          "description": "素材：シルバー925　ゴールドメッキ　　#贈り物　#プレゼント#ピアス　#アクセサリー　#結婚式　#結婚式二次会　#クリスマス　#ウェディング　#二次会　#ゴ...",
+          "image": "https://c.p02.c4a.im/images/item/16474163/98d19fba6f6f630040def03e2704af08d49ead882eb8a4c23e69f81528411351?d=583x585",
+          "url": "https://www.creema.jp/item/16474163/detail"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": "dress",
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://www.creema.jp/item/16474163/detail",
+        "plushie": "unae",
+        "expectedSize": "20cm",
+        "expectedStatus": "loose",
+        "site": "creema",
+        "name": "20cmぬい服：うさ耳つきボーダーパーカー（白×黒）",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://www.creema.jp/item/14299696/detail",
+      "site": "creema",
+      "plushie": "unae",
+      "expected": {
+        "size": "10-12cm",
+        "status": "perfect"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "loose",
+        "confidence": "low",
+        "reason": "着丈(19cm)が身長より長いです。"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "リメイクミニボストンバッグ キーケースセット デニム×和柄 RD131",
+          "description": "・リメイクデニム生地使用・鮮やかな和柄を使用した個性的なバッグ・長財布もすっぽり入るサイズ・同じデザインのキーケース付きサイズ縦：19cm横：24cmマチ：1...",
+          "image": "https://c.p02.c4a.im/images/item/14299696/91578bec3935a97e871eed49e844de2123c5c187d36a628eb73bc11d6f8685e0?d=583x585",
+          "url": "https://www.creema.jp/item/14299696/detail"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [
+            24,
+            10,
+            20
+          ],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": 19,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": "dress",
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "loose",
+          "confidence": "low",
+          "reason": "着丈(19cm)が身長より長いです。",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": 19,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://www.creema.jp/item/14299696/detail",
+        "plushie": "unae",
+        "expectedSize": "10-12cm",
+        "expectedStatus": "perfect",
+        "site": "creema",
+        "name": "10cm/12cmぬい服：シンプルＴシャツ",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://minne.com/items/33947417",
+      "site": "minne",
+      "plushie": "unae",
+      "expected": {
+        "size": "15-20cm",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "メガネチェーン　送料込み　マスクチェーン　マスクコード　グラスコード　ビーズ　コードブレス　ネックレス　マスクチャーム　ますくちゃーむ　ますくチャーム　眼鏡チェーン　No.109",
+          "description": "ご覧いただきありがとうございます。アクセサリー感覚でつけられるマスクチェーンです。ネックレスのような華やかさで、いつものマスクがオシャレになります(*´ω｀*)外したマスクをケースにしまう手間が省け、置き忘れ防止にもなります。ファッションと実用性を兼ね備え、上...",
+          "image": "https://image.minne.com/minne/mobile_app_product/600x600cq85/f7b9b4c10fe4db5083dcc61ddec8d090fc043d66.jpeg/productimages/157972150/w1600xh1600/5e4521dc31dcc1da72cadbb006e3290d74bcdd6f.jpeg?1663755163",
+          "url": "https://minne.com/items/33947417"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": null,
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://minne.com/items/33947417",
+        "plushie": "unae",
+        "expectedSize": "15-20cm",
+        "expectedStatus": "loose",
+        "site": "minne",
+        "name": "15cm/20cmぬい用：たれ耳わんこのケープ",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://minne.com/items/29037805",
+      "site": "minne",
+      "plushie": "unae",
+      "expected": {
+        "size": "20cm",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "姫塚古墳のトレイ 手作りキット　【弥生島と古墳島 関連作品】",
+          "description": "こちらは【弥生島と古墳島 関連作品】です。９月１３日（月）までの限定販売となります。＊＊＊磯浜古墳群の姫塚古墳のトレイの手作りキットです。本体(穴あき)…1枚中敷き(穴あき)…1枚飾り(穴あき)…1枚糸…1束針…1枚以上のセットが入っており、革を貼り合わせて縫...",
+          "image": "https://image.minne.com/minne/mobile_app_product/600x600cq85/b327e7b48b57d6be9f907d48f02635e5833ee791.jpeg/productimages/126404461/w1600xh1600/ab515aa9800ef7a0e5d5c6235c3652c86905a9ab.jpeg?1629002787",
+          "url": "https://minne.com/items/29037805"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": null,
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://minne.com/items/29037805",
+        "plushie": "unae",
+        "expectedSize": "20cm",
+        "expectedStatus": "loose",
+        "site": "minne",
+        "name": "20cmぬい用：制服セット（ブレザー・シャツ・ズボン）",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://item.rakuten.co.jp/petitloup1969/801046/",
+      "site": "rakuten",
+      "plushie": "unae",
+      "expected": {
+        "size": "12cm",
+        "status": "perfect"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://item.rakuten.co.jp/petitloup1969/801046/",
+        "plushie": "unae",
+        "expectedSize": "12cm",
+        "expectedStatus": "perfect",
+        "site": "rakuten",
+        "name": "12cmぬい用：テディベア専用 袴セット",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://item.rakuten.co.jp/petitloup1969/700021/",
+      "site": "rakuten",
+      "plushie": "unae",
+      "expected": {
+        "size": "20cm",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://item.rakuten.co.jp/petitloup1969/700021/",
+        "plushie": "unae",
+        "expectedSize": "20cm",
+        "expectedStatus": "loose",
+        "site": "rakuten",
+        "name": "身長20cm用：サロペットパンツ",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.amazon.co.jp/dp/B0CBV28N4H",
+      "site": "amazon_jp",
+      "plushie": "unae",
+      "expected": {
+        "size": "20cm",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.amazon.co.jp/dp/B0CBV28N4H",
+        "plushie": "unae",
+        "expectedSize": "20cm",
+        "expectedStatus": "loose",
+        "site": "amazon_jp",
+        "name": "20cmぬい用：着ぐるみ風パジャマ（恐竜）",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.amazon.co.jp/dp/B0CFQ21CH7",
+      "site": "amazon_jp",
+      "plushie": "unae",
+      "expected": {
+        "size": "20cm",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.amazon.co.jp/dp/B0CFQ21CH7",
+        "plushie": "unae",
+        "expectedSize": "20cm",
+        "expectedStatus": "loose",
+        "site": "amazon_jp",
+        "name": "20cmぬい用：アイドル風ジャケット衣装",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://www.okadaya.co.jp/shop/g/g4582684803517/",
+      "site": "okadaya",
+      "plushie": "unae",
+      "expected": {
+        "size": "M",
+        "status": "unknown"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "",
+          "description": "",
+          "image": "",
+          "url": "https://www.okadaya.co.jp/shop/g/g4582684803517/"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": "hat",
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://www.okadaya.co.jp/shop/g/g4582684803517/",
+        "plushie": "unae",
+        "expectedSize": "M",
+        "expectedStatus": "unknown",
+        "site": "okadaya",
+        "name": "ぬい服：ぬいポニーケープ（Mサイズ用）",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://jp.mercari.com/item/m32515549721",
+      "site": "mercari",
+      "plushie": "unae",
+      "expected": {
+        "size": "10cm",
+        "status": "tight"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "メルカリXFacebook",
+          "description": "",
+          "image": "",
+          "url": "https://jp.mercari.com/item/m32515549721"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": null,
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://jp.mercari.com/item/m32515549721",
+        "plushie": "unae",
+        "expectedSize": "10cm",
+        "expectedStatus": "tight",
+        "site": "mercari",
+        "name": "10cmぬい服：ハンドメイド サロペット",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://www.buildabear.com/red-panda-hoodie/032488.html",
+      "site": "buildabear",
+      "plushie": "unae",
+      "expected": {
+        "size": "16-18inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "Witch Hat and Broom Set for Stuffed Animals | Build-A-Bear",
+          "description": "Shop the Witch Hat and Broom Plush Toy Gift Set today and make the perfect gift online or in a store near you. Find the stuff you love at Build-A-Bear®!",
+          "image": "https://www.buildabear.com/dw/image/v2/BBNG_PRD/on/demandware.static/-/Sites-buildabear-master/default/dwbf98cb0a/38230800532488~x20110120.jpg?sw=800&sh=800&sm=fit",
+          "url": "https://www.buildabear.com/red-panda-hoodie/032488.html"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": null,
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://www.buildabear.com/red-panda-hoodie/032488.html",
+        "plushie": "unae",
+        "expectedSize": "16-18inch",
+        "expectedStatus": "loose",
+        "site": "buildabear",
+        "name": "Red Panda Hoodie (Standard Plush size)",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.buildabear.com/denim-jeans/024669.html",
+      "site": "buildabear",
+      "plushie": "unae",
+      "expected": {
+        "size": "16-18inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.buildabear.com/denim-jeans/024669.html",
+        "plushie": "unae",
+        "expectedSize": "16-18inch",
+        "expectedStatus": "loose",
+        "site": "buildabear",
+        "name": "Denim Jeans (Standard Size)",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.amazon.com/dp/B07T9H3X2B",
+      "site": "amazon_us",
+      "plushie": "unae",
+      "expected": {
+        "size": "18inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.amazon.com/dp/B07T9H3X2B",
+        "plushie": "unae",
+        "expectedSize": "18inch",
+        "expectedStatus": "loose",
+        "site": "amazon_us",
+        "name": "18-inch Doll Clothes: 5 Sets Party Outfits",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.amazon.com/dp/B09ST9F3T1",
+      "site": "amazon_us",
+      "plushie": "unae",
+      "expected": {
+        "size": "14-18inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.amazon.com/dp/B09ST9F3T1",
+        "plushie": "unae",
+        "expectedSize": "14-18inch",
+        "expectedStatus": "loose",
+        "site": "amazon_us",
+        "name": "Outfit for 14-18 inch Stuffed Animals (Pink Hoodie)",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.etsy.com/listing/1329245133/outfit-for-8-inch-plush",
+      "site": "etsy",
+      "plushie": "unae",
+      "expected": {
+        "size": "8inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.etsy.com/listing/1329245133/outfit-for-8-inch-plush",
+        "plushie": "unae",
+        "expectedSize": "8inch",
+        "expectedStatus": "loose",
+        "site": "etsy",
+        "name": "Handmade Outfit for 8\" Plushies (Custom Dress)",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.etsy.com/listing/1126130325/tiny-knitted-sweater",
+      "site": "etsy",
+      "plushie": "unae",
+      "expected": {
+        "size": "4-6inch",
+        "status": "perfect"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.etsy.com/listing/1126130325/tiny-knitted-sweater",
+        "plushie": "unae",
+        "expectedSize": "4-6inch",
+        "expectedStatus": "perfect",
+        "site": "etsy",
+        "name": "Tiny Knitted Sweater for Stuffed Animal (approx 4-6 inches)",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.etsy.com/listing/741645318/wizard-witch-black-robe",
+      "site": "etsy",
+      "plushie": "unae",
+      "expected": {
+        "size": "16-18inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.etsy.com/listing/741645318/wizard-witch-black-robe",
+        "plushie": "unae",
+        "expectedSize": "16-18inch",
+        "expectedStatus": "loose",
+        "site": "etsy",
+        "name": "Wizard Robe for 16-18 inch Bears",
+        "enabled": true
+      }
+    },
+    {
+      "success": true,
+      "url": "https://www.walmart.com/ip/15-Stuffed-Animal-Clothes-Plaid-Pajamas/695844439",
+      "site": "walmart",
+      "plushie": "unae",
+      "expected": {
+        "size": "15inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "low",
+        "reason": "サイズ情報が見つかりませんでした"
+      },
+      "rawData": {
+        "success": true,
+        "product": {
+          "title": "Robot or human?",
+          "description": "",
+          "image": "",
+          "url": "https://www.walmart.com/ip/15-Stuffed-Animal-Clothes-Plaid-Pajamas/695844439"
+        },
+        "sizeInfo": {
+          "dimensions": [],
+          "sizeRanges": [],
+          "rawMatches": [],
+          "targetPlushieSize": null,
+          "measurements": {
+            "neck": null,
+            "chest": null,
+            "bodyWidth": null,
+            "length": null,
+            "armhole": null,
+            "head": null
+          },
+          "bodyType": {
+            "detected": null,
+            "keywords": []
+          },
+          "clothingType": null,
+          "missingInfo": []
+        },
+        "fit": {
+          "status": "unknown",
+          "confidence": "low",
+          "reason": "サイズ情報が見つかりませんでした",
+          "details": {
+            "measurements": {
+              "neck": null,
+              "chest": null,
+              "bodyWidth": null,
+              "length": null,
+              "armhole": null,
+              "head": null
+            }
+          },
+          "warnings": [],
+          "checkPoints": []
+        }
+      },
+      "testCase": {
+        "url": "https://www.walmart.com/ip/15-Stuffed-Animal-Clothes-Plaid-Pajamas/695844439",
+        "plushie": "unae",
+        "expectedSize": "15inch",
+        "expectedStatus": "loose",
+        "site": "walmart",
+        "name": "15\" Stuffed Animal Clothes: Plaid Pajamas",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.ebay.com/itm/386123456789",
+      "site": "ebay",
+      "plushie": "unae",
+      "expected": {
+        "size": "12-14inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.ebay.com/itm/386123456789",
+        "plushie": "unae",
+        "expectedSize": "12-14inch",
+        "expectedStatus": "loose",
+        "site": "ebay",
+        "name": "Vintage Teddy Bear Clothes: Overalls (Fits 12-14\" bears)",
+        "enabled": true
+      }
+    },
+    {
+      "success": false,
+      "url": "https://www.target.com/p/our-generation-regular-outfit-cat-s-pajamas-pjs/-/A-16406132",
+      "site": "target",
+      "plushie": "unae",
+      "expected": {
+        "size": "18inch",
+        "status": "loose"
+      },
+      "actual": {
+        "detectedSize": "unknown",
+        "status": "unknown",
+        "confidence": "n/a",
+        "reason": "no reason"
+      },
+      "rawData": {
+        "success": false,
+        "error": "ページ情報を取得できませんでした（タイムアウトまたはアクセス制限）",
+        "suggestion": "manual_input"
+      },
+      "testCase": {
+        "url": "https://www.target.com/p/our-generation-regular-outfit-cat-s-pajamas-pjs/-/A-16406132",
+        "plushie": "unae",
+        "expectedSize": "18inch",
+        "expectedStatus": "loose",
+        "site": "target",
+        "name": "Our Generation Doll Outfit: Regular Outfit (Fits 18\" Dolls)",
+        "enabled": true
+      }
+    }
+  ]
+}

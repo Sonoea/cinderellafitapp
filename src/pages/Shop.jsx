@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy } from 'lucide-react';
+import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy, HelpCircle, X } from 'lucide-react';
+
 
 const Shop = () => {
-    const { plushies } = useApp();
+    const { plushies, language } = useApp();
     const [selectedId, setSelectedId] = useState(plushies[0]?.id || null);
     const [url, setUrl] = useState('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -19,6 +20,8 @@ const Shop = () => {
     const [showManualInput, setShowManualInput] = useState(false);
     const [manualText, setManualText] = useState('');
     const [manualProductName, setManualProductName] = useState('');
+    const [showUrlHint, setShowUrlHint] = useState(false);
+
 
     const selectedPlushie = plushies.find(p => p.id === selectedId);
     const plushieHeight = selectedPlushie?.measurements?.height || 0;
@@ -62,7 +65,8 @@ const Shop = () => {
                 body: JSON.stringify({
                     url,
                     plushieHeight,
-                    plushieInfo: selectedPlushie?.measurements || {} // Send full plushie details
+                    plushieInfo: selectedPlushie?.measurements || {}, // Send full plushie details
+                    lang: language
                 }),
             });
 
@@ -217,7 +221,8 @@ const Shop = () => {
                 body: JSON.stringify({
                     text: manualText,
                     productName: manualProductName,
-                    plushieHeight
+                    plushieHeight,
+                    lang: language
                 }),
             });
 
@@ -346,7 +351,38 @@ const Shop = () => {
                     <div className="flex items-center gap-2 mb-3">
                         <div className="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">2</div>
                         <h2 className="font-bold text-gray-800">商品URLを入力</h2>
+                        <button
+                            onClick={() => setShowUrlHint(!showUrlHint)}
+                            className="ml-auto p-1 text-gray-400 hover:text-primary transition"
+                            title="URLの貼り方ガイド"
+                        >
+                            <HelpCircle size={18} />
+                        </button>
                     </div>
+
+                    {/* URL Hint Tooltip */}
+                    {showUrlHint && (
+                        <div className="mb-3 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs relative fade-in">
+                            <button
+                                onClick={() => setShowUrlHint(false)}
+                                className="absolute top-2 right-2 text-blue-400 hover:text-blue-600"
+                            >
+                                <X size={14} />
+                            </button>
+                            <p className="font-bold text-blue-700 mb-2">📌 成功率を上げるコツ</p>
+                            <ul className="text-blue-600 space-y-1">
+                                <li>✅ <strong>商品詳細ページ</strong>のURLを使用</li>
+                                <li>✅ URLは<strong>省略せず完全な形</strong>で貼り付け</li>
+                                <li>✅ <strong>サイズ表記がある</strong>商品ページ</li>
+                            </ul>
+                            <p className="mt-2 text-blue-500">
+                                🟢 対応サイト: Creema, minne, WEGO, BASE系, 楽天など
+                            </p>
+                            <p className="text-blue-400">
+                                ⚠️ Etsy, メルカリShopsは手動入力推奨
+                            </p>
+                        </div>
+                    )}
 
                     <div className="flex gap-2">
                         <input
@@ -372,6 +408,7 @@ const Shop = () => {
                     <p className="text-[10px] text-gray-400 mt-2">
                         ぬいぐるみ服ショップの商品ページURL
                     </p>
+
 
                     {/* Manual Input Toggle Button */}
                     <button
@@ -695,6 +732,7 @@ const Shop = () => {
                         </div>
 
                         <div className="flex flex-col gap-3">
+
                             <a
                                 href={url}
                                 target="_blank"
@@ -721,6 +759,8 @@ const Shop = () => {
                         </div>
                     </div>
                 )}
+
+
 
                 {/* Tips Section */}
                 {!product && (

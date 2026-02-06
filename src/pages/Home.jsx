@@ -127,6 +127,30 @@ const Home = () => {
                 </div>
             </div>
 
+            {/* My Closet Feature Highlight */}
+            <Link
+                to="/closet"
+                className="block bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 shadow-sm border border-purple-100 mb-4 hover:shadow-md transition-shadow"
+            >
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg">
+                        👗
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="text-sm font-bold text-purple-700 flex items-center gap-1">
+                            {language === 'jp' ? 'マイクローゼット' : 'My Closet'}
+                            <span className="text-[10px] bg-purple-200 text-purple-600 px-1.5 py-0.5 rounded-full">NEW</span>
+                        </h3>
+                        <p className="text-[11px] text-purple-500">
+                            {language === 'jp'
+                                ? 'お気に入りのコーデを登録してシェアしよう！'
+                                : 'Save & share your favorite outfits!'}
+                        </p>
+                    </div>
+                    <div className="text-purple-300">→</div>
+                </div>
+            </Link>
+
             {/* Featured Plushie Card */}
             <section>
                 <div className="flex justify-between items-end mb-2">

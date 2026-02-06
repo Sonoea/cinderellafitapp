@@ -17,6 +17,11 @@ const Home = () => {
                     <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>
                         {language === 'jp' ? 'サイズ失敗、もうしない。' : 'Never buy the wrong size again'}
                     </p>
+                    <p style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
+                        {language === 'jp'
+                            ? 'ぬいぐるみ服のサイズ比較・判断支援アプリ'
+                            : 'Size comparison tool for plushie clothing'}
+                    </p>
                 </div>
                 <div className="flex gap-2">
                     <button

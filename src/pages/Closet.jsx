@@ -10,7 +10,7 @@ const MOCK_GALLERY = [
   {
     id: 'g0',
     userName: 'うなえさん',
-    userIcon: 'https://placehold.co/100/333333/white?text=🐟',
+    userIcon: '/unae-san.png',
     plushieName: 'うなえさん',
     plushieHeight: 12,
     location: '東京',

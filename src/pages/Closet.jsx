@@ -336,11 +336,9 @@ const Closet = () => {
                   <div className="p-3">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
-                      <div className="flex gap-0.5">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} size={12} className={i < post.fitRating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"} />
-                        ))}
-                      </div>
+                      <span className="text-lg">
+                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
+                      </span>
                     </div>
                     <p className="text-xs text-gray-600 mb-2">{post.comment}</p>
 

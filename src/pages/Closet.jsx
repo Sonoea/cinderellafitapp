@@ -9,7 +9,7 @@ import { compressImage } from '../utils/imageUtils';
 const MOCK_GALLERY = [
   {
     id: 'g0',
-    userName: 'うなぎファン',
+    userName: 'うなえさん',
     userIcon: 'https://placehold.co/100/333333/white?text=🐟',
     plushieName: 'うなえさん',
     plushieHeight: 12,

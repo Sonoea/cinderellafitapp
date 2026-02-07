@@ -213,7 +213,7 @@ const Closet = () => {
 
                         {/* Fit Rating Badge */}
                         <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
-                            item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
+                          item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
                           }`}>
                           {['😣', '😊', '😌'][item.fitRating - 1] || '😊'} {fitLabels[item.fitRating - 1]?.replace(/^[^\s]+\s/, '') || ''}
                         </div>
@@ -651,14 +651,21 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
                         type="button"
                         onClick={() => setFormData({ ...formData, fitRating: rating })}
                         className={`
-                          flex-1 p-3 rounded-xl transition-all duration-200
-                          ${isSelected ? `${colors.selectedBg} scale-105 shadow-md` : 'bg-white hover:bg-gray-100'}
+                          flex-1 p-3 rounded-xl transition-all duration-200 relative
+                          ${isSelected
+                            ? `${colors.selectedBg} scale-110 shadow-lg ring-4 ${colors.border.replace('border-', 'ring-')}`
+                            : 'bg-white hover:bg-gray-100 opacity-60'}
                           active:scale-95
-                          border-2 
-                          ${isSelected ? colors.border : 'border-transparent hover:border-gray-200'}
+                          border-3 
+                          ${isSelected ? colors.border : 'border-gray-200'}
                         `}
                       >
-                        <span className="text-3xl block text-center mb-1">{emojis[rating - 1]}</span>
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <span className="text-xs">✓</span>
+                          </div>
+                        )}
+                        <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
                         <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
                           {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
                         </p>

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
@@ -55,9 +56,14 @@ const MOCK_GALLERY = [
 
 const Closet = () => {
   const { plushies, updatePlushie, closetItems, addClosetItem, deleteClosetItem, t } = useApp();
+  const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // For viewing details
+
+  // Get user display name and photo
+  const userDisplayName = currentUser?.displayName || 'Me';
+  const userPhoto = currentUser?.photoURL || 'https://placehold.co/100/purple/white?text=Me';
 
   // Advanced Gallery Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -67,8 +73,8 @@ const Closet = () => {
     // 1. Merge Local Public Items + Mock Gallery
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
       id: `local-${item.id}`,
-      userName: 'Me',
-      userIcon: 'https://placehold.co/100/purple/white?text=Me', // Placeholder for current user
+      userName: userDisplayName,
+      userIcon: userPhoto, // Use actual profile photo for my items
       plushieName: item.plushieName || 'My Plushie',
       plushieHeight: item.plushieHeight || 0,
       location: item.location,

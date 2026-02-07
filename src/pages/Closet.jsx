@@ -14,7 +14,7 @@ const MOCK_GALLERY = [
     plushieName: 'うなえさん',
     plushieHeight: 12,
     location: '東京',
-    imageUrl: '/unae-san.png',
+    imageUrl: '/sample-outfit.png',
     itemName: 'パンダのドレス',
     shopName: 'ダイソー',
     fitRating: 2,

@@ -189,42 +189,45 @@ const Closet = () => {
                 />
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3 mb-20">
-                {closetItems.map(item => (
-                  <div
-                    key={item.id}
-                    onClick={() => setSelectedItem(item)}
-                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
-                  >
-                    <div className="aspect-square bg-gray-100 relative">
-                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                      {item.isPublic && (
-                        <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
-                          <Share2 size={12} />
-                        </div>
-                      )}
+              <>
+                <div className="grid grid-cols-2 gap-3 mb-20">
+                  {closetItems.map(item => (
+                    <div
+                      key={item.id}
+                      onClick={() => setSelectedItem(item)}
+                      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
+                    >
+                      <div className="aspect-square bg-gray-100 relative">
+                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                        {item.isPublic && (
+                          <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
+                            <Share2 size={12} />
+                          </div>
+                        )}
 
-                      {/* Fit Rating Badge */}
-                      <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 5 ? 'bg-green-500' :
-                        item.fitRating === 1 ? 'bg-red-500' : 'bg-orange-400'
-                        }`}>
-                        {fitLabels[item.fitRating - 1] || 'Good'}
+                        {/* Fit Rating Badge */}
+                        <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 5 ? 'bg-green-500' :
+                          item.fitRating === 1 ? 'bg-red-500' : 'bg-orange-400'
+                          }`}>
+                          {fitLabels[item.fitRating - 1] || 'Good'}
+                        </div>
+                      </div>
+                      <div className="p-2">
+                        <h4 className="font-bold text-sm truncate">{item.name || 'Untitled Item'}</h4>
+                        <p className="text-xs text-gray-400 truncate">{new Date(item.createdAt).toLocaleDateString()}</p>
                       </div>
                     </div>
-                    <div className="p-2">
-                      <h4 className="font-bold text-sm truncate">{item.name || 'Untitled Item'}</h4>
-                      <p className="text-xs text-gray-400 truncate">{new Date(item.createdAt).toLocaleDateString()}</p>
-                    </div>
-                  </div>
-                ))}
-                {/* Fab Button to Add Item (Only show when not empty) */}
+                  ))}
+                </div>
+                {/* Fab Button to Add Item - OUTSIDE the grid */}
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-20"
+                  className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-50"
+                  style={{ touchAction: 'manipulation' }}
                 >
                   <Plus size={28} />
                 </button>
-              </div>
+              </>
             )}
           </div>
         )}

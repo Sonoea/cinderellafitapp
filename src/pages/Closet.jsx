@@ -212,10 +212,10 @@ const Closet = () => {
                         )}
 
                         {/* Fit Rating Badge */}
-                        <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 5 ? 'bg-green-500' :
-                          item.fitRating === 1 ? 'bg-red-500' : 'bg-orange-400'
+                        <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
+                            item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
                           }`}>
-                          {fitLabels[item.fitRating - 1] || 'Good'}
+                          {['😣', '😊', '😌'][item.fitRating - 1] || '😊'} {fitLabels[item.fitRating - 1]?.replace(/^[^\s]+\s/, '') || ''}
                         </div>
                       </div>
                       <div className="p-2">
@@ -483,18 +483,14 @@ const Closet = () => {
               {/* Fit Rating */}
               <div>
                 <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('fitRatingTitle')}</h4>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      size={24}
-                      className={star <= selectedItem.fitRating ? "fill-yellow-400 text-yellow-400" : "text-gray-200"}
-                    />
-                  ))}
+                <div className="flex gap-3 items-center">
+                  <span className="text-4xl">
+                    {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
+                  </span>
+                  <p className="text-lg font-bold text-gray-700">
+                    {fullFitLabels[selectedItem.fitRating - 1]}
+                  </p>
                 </div>
-                <p className="text-sm font-bold mt-1 text-gray-700">
-                  {fullFitLabels[selectedItem.fitRating - 1]}
-                </p>
               </div>
 
               {/* Comment */}
@@ -521,9 +517,7 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
     name: '',
     url: '',
     plushieId: plushies[0]?.id || '',
-    fitRating: 3,
-    comment: '',
-    fitRating: 3,
+    fitRating: 2,
     comment: '',
     location: '',
     isPublic: true,
@@ -641,46 +635,36 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
 
               <div>
                 <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
-                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, fitRating: star })}
-                      className={`
-                          flex-1 p-2 rounded-lg transition-all duration-200
-                          ${star <= formData.fitRating
-                          ? 'bg-yellow-50 scale-105'
-                          : 'bg-white hover:bg-gray-100'
-                        }
-                          active:scale-95 active:bg-yellow-100
-                          border-2 
-                          ${star <= formData.fitRating
-                          ? 'border-yellow-300'
-                          : 'border-transparent hover:border-gray-200'
-                        }
-                        `}
-                    >
-                      <Star
-                        size={28}
-                        fill={star <= formData.fitRating ? "#FBBF24" : "none"}
-                        color={star <= formData.fitRating ? "#FBBF24" : "#D1D5DB"}
+                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-2">
+                  {[1, 2, 3].map((rating) => {
+                    const colors = [
+                      { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600', selectedBg: 'bg-red-100' },
+                      { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', selectedBg: 'bg-green-100' },
+                      { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-600', selectedBg: 'bg-yellow-100' },
+                    ][rating - 1];
+                    const emojis = ['😣', '😊', '😌'];
+                    const isSelected = formData.fitRating === rating;
+
+                    return (
+                      <button
+                        key={rating}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, fitRating: rating })}
                         className={`
-                            mx-auto transition-all duration-200
-                            ${star <= formData.fitRating
-                            ? "text-yellow-400 drop-shadow-md"
-                            : "text-gray-300"
-                          }
-                          `}
-                      />
-                      <p className={`
-                          text-[9px] text-center font-bold mt-1 transition-colors
-                          ${star <= formData.fitRating ? 'text-yellow-600' : 'text-gray-400'}
-                        `}>
-                        {fitLabels[star - 1]}
-                      </p>
-                    </button>
-                  ))}
+                          flex-1 p-3 rounded-xl transition-all duration-200
+                          ${isSelected ? `${colors.selectedBg} scale-105 shadow-md` : 'bg-white hover:bg-gray-100'}
+                          active:scale-95
+                          border-2 
+                          ${isSelected ? colors.border : 'border-transparent hover:border-gray-200'}
+                        `}
+                      >
+                        <span className="text-3xl block text-center mb-1">{emojis[rating - 1]}</span>
+                        <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
+                          {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                        </p>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 

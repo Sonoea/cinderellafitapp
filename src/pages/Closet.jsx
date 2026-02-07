@@ -14,7 +14,7 @@ const MOCK_GALLERY = [
     plushieName: 'うなえさん',
     plushieHeight: 12,
     location: '東京',
-    imageUrl: '/sample-outfit.png',
+    imageUrl: '/sample-outfit.jpg',
     itemName: 'パンダのドレス',
     shopName: 'ダイソー',
     fitRating: 2,
@@ -462,8 +462,8 @@ const Closet = () => {
                     <button
                       onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
                       className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
-                          ? 'text-green-600 bg-green-100 border-2 border-green-400'
-                          : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
+                        ? 'text-green-600 bg-green-100 border-2 border-green-400'
+                        : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
                         }`}
                     >
                       {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}

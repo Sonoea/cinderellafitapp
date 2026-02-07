@@ -70,11 +70,13 @@ const MOCK_GALLERY = [
 ];
 
 const Closet = () => {
-  const { plushies, updatePlushie, closetItems, addClosetItem, deleteClosetItem, t } = useApp();
+  const { plushies, updatePlushie, closetItems, addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null); // For viewing details
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({});
 
   // Get user display name and photo
   const userDisplayName = currentUser?.displayName || 'Me';
@@ -439,7 +441,7 @@ const Closet = () => {
         <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
           <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-y-auto relative no-scrollbar shadow-2xl">
             <button
-              onClick={() => setSelectedItem(null)}
+              onClick={() => { setSelectedItem(null); setIsEditing(false); }}
               className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm"
             >
               <X size={20} />
@@ -456,26 +458,59 @@ const Closet = () => {
               {/* Status Section */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2 text-sm text-gray-500">
-                  {selectedItem.isPublic ? (
-                    <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg font-bold text-xs"><Share2 size={12} /> {t('publicGallery')}</span>
+                  {isEditing ? (
+                    <button
+                      onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
+                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
+                          ? 'text-green-600 bg-green-100 border-2 border-green-400'
+                          : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
+                        }`}
+                    >
+                      {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
+                      {editData.isPublic ? t('publicGallery') : t('privateOnly')}
+                    </button>
                   ) : (
-                    <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-1 rounded-lg font-bold text-xs"><Lock size={12} /> {t('privateOnly')}</span>
+                    <>
+                      {selectedItem.isPublic ? (
+                        <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg font-bold text-xs"><Share2 size={12} /> {t('publicGallery')}</span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-1 rounded-lg font-bold text-xs"><Lock size={12} /> {t('privateOnly')}</span>
+                      )}
+                      <span>•</span>
+                      <span>{new Date(selectedItem.createdAt).toLocaleDateString()}</span>
+                    </>
                   )}
-                  <span>•</span>
-                  <span>{new Date(selectedItem.createdAt).toLocaleDateString()}</span>
                 </div>
-                {/* Delete Button */}
-                <button
-                  onClick={() => {
-                    if (window.confirm(t('deleteConfirm'))) {
-                      deleteClosetItem(selectedItem.id);
-                      setSelectedItem(null);
-                    }
-                  }}
-                  className="text-red-400 hover:text-red-500 p-2"
-                >
-                  <Trash2 size={18} />
-                </button>
+                {/* Edit / Delete Buttons */}
+                <div className="flex gap-1">
+                  {!isEditing && (
+                    <button
+                      onClick={() => {
+                        setIsEditing(true);
+                        setEditData({
+                          fitRating: selectedItem.fitRating,
+                          comment: selectedItem.comment || '',
+                          isPublic: selectedItem.isPublic
+                        });
+                      }}
+                      className="text-blue-400 hover:text-blue-500 p-2"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      if (window.confirm(t('deleteConfirm'))) {
+                        deleteClosetItem(selectedItem.id);
+                        setSelectedItem(null);
+                        setIsEditing(false);
+                      }
+                    }}
+                    className="text-red-400 hover:text-red-500 p-2"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
               </div>
 
               {/* URL */}
@@ -496,23 +531,82 @@ const Closet = () => {
               {/* Fit Rating */}
               <div>
                 <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('fitRatingTitle')}</h4>
-                <div className="flex gap-3 items-center">
-                  <span className="text-4xl">
-                    {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
-                  </span>
-                  <p className="text-lg font-bold text-gray-700">
-                    {fullFitLabels[selectedItem.fitRating - 1]}
-                  </p>
-                </div>
+                {isEditing ? (
+                  <div className="flex justify-between gap-2">
+                    {[1, 2, 3].map((rating) => {
+                      const colors = [
+                        { bg: 'bg-red-100', border: 'border-red-400', text: 'text-red-600' },
+                        { bg: 'bg-green-100', border: 'border-green-400', text: 'text-green-600' },
+                        { bg: 'bg-yellow-100', border: 'border-yellow-400', text: 'text-yellow-600' },
+                      ][rating - 1];
+                      const emojis = ['😣', '😊', '😌'];
+                      const labels = [t('fitLabelsShort')?.[0] || 'きつい', t('fitLabelsShort')?.[1] || 'ぴったり', t('fitLabelsShort')?.[2] || '大きめ'];
+                      const isSelected = editData.fitRating === rating;
+                      return (
+                        <button
+                          key={rating}
+                          onClick={() => setEditData({ ...editData, fitRating: rating })}
+                          className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected ? `${colors.bg} ${colors.border} scale-105 shadow-md` : 'bg-white border-gray-200 opacity-60'
+                            }`}
+                        >
+                          <span className={`text-2xl block text-center ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
+                          <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? colors.text : 'text-gray-400'}`}>
+                            {labels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="flex gap-3 items-center">
+                    <span className="text-4xl">
+                      {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
+                    </span>
+                    <p className="text-lg font-bold text-gray-700">
+                      {fullFitLabels[selectedItem.fitRating - 1]}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Comment */}
-              {selectedItem.comment && (
-                <div>
-                  <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('notesTitle')}</h4>
-                  <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
-                    {selectedItem.comment}
-                  </p>
+              <div>
+                <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('notesTitle')}</h4>
+                {isEditing ? (
+                  <textarea
+                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                    placeholder={t('commentPlaceholder')}
+                    value={editData.comment}
+                    onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
+                  />
+                ) : (
+                  selectedItem.comment && (
+                    <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
+                      {selectedItem.comment}
+                    </p>
+                  )
+                )}
+              </div>
+
+              {/* Save / Cancel Buttons */}
+              {isEditing && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold"
+                  >
+                    {t('cancel') || 'キャンセル'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      updateClosetItem(selectedItem.id, editData);
+                      setSelectedItem({ ...selectedItem, ...editData });
+                      setIsEditing(false);
+                    }}
+                    className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-md"
+                  >
+                    {t('save') || '保存'}
+                  </button>
                 </div>
               )}
             </div>

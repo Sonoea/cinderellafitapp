@@ -310,7 +310,7 @@ function extractSizeInfo(text, title = '', extraData = {}) {
 
     // English keys (H): mandatory unit to avoid "height: 100%"
     if (!results.measurements.length) {
-        const lengthRegexEN = new RegExp(`(H|Height)${sep}${num}\\s*(?:cm|センチ|mm|inch|インチ|in|"|”)`, 'i'); // Mandatory unit
+        const lengthRegexEN = new RegExp(`(H|Height)${sep}${num}\\s*(?:cm|センチ|mm|inch|インチ|in|"|")`, 'i'); // Mandatory unit
         const lengthMatchEN = cleanText.match(lengthRegexEN);
         if (lengthMatchEN) {
             const raw = parseFloat(lengthMatchEN[2]);
@@ -318,6 +318,21 @@ function extractSizeInfo(text, title = '', extraData = {}) {
             if (val < 100) {
                 results.measurements.length = val;
                 usedValues.add(Math.floor(val));
+            }
+        }
+    }
+
+    // 5b. 本体サイズ format: "本体サイズ(約)：トップス/55×100mm" or "本体サイズ：40×65mm"
+    // Extract the larger dimension as approximate length/height
+    if (!results.measurements.length) {
+        const bodySize = cleanText.match(/本体サイズ[^:：]*[：:]\s*(?:[^/／]*[/／])?\s*(\d+)\s*[×xX]\s*(\d+)\s*mm/i);
+        if (bodySize) {
+            const dim1 = parseFloat(bodySize[1]) * 0.1; // mm to cm
+            const dim2 = parseFloat(bodySize[2]) * 0.1; // mm to cm
+            const maxDim = Math.max(dim1, dim2);
+            if (maxDim >= 5 && maxDim <= 30) { // Reasonable plushie clothing size
+                results.measurements.length = parseFloat(maxDim.toFixed(1));
+                console.log(`[SIZE] 本体サイズ detected: ${dim1}×${dim2}cm -> length ${maxDim}cm`);
             }
         }
     }

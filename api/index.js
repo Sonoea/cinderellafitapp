@@ -176,6 +176,7 @@ function extractSizeInfo(text, title = '', extraData = {}) {
         targetPlushieSize: null,
         measurements: {
             neck: null, chest: null, bodyWidth: null, length: null, armhole: null, head: null,
+            sleeveLength: null, shoulderWidth: null, hemWidth: null, inseam: null, hip: null,
         },
         bodyType: { detected: null, keywords: [] },
         clothingType: null,
@@ -265,34 +266,106 @@ function extractSizeInfo(text, title = '', extraData = {}) {
         usedValues.add(Math.floor(min));
     }
 
-    // 2. Neck
-    const neckRegex = new RegExp(`(首)(?:周り|まわり|囲)?${sep}${num}${range}${unit}`, 'i');
+    // 2. Neck - handles (首周り)約10～12cm format
+    const neckRegex = new RegExp(`[（(]?首(?:周り|まわり|囲)?[）)]?${sep}${num}${range}${unit}`, 'i');
     const neckMatch = cleanText.match(neckRegex);
     if (neckMatch) {
-        const raw = parseFloat(neckMatch[3]);
-        const val = toCm(raw, neckMatch[0]);
-        results.measurements.neck = val;
-        usedValues.add(Math.floor(val));
+        const minRaw = parseFloat(neckMatch[1]);
+        const maxRaw = neckMatch[2] ? parseFloat(neckMatch[2]) : minRaw;
+        const min = toCm(minRaw, neckMatch[0]);
+        const max = toCm(maxRaw, neckMatch[0]);
+        results.measurements.neck = { min, max };
+        usedValues.add(Math.floor(min));
     }
 
-    // 3. Chest / Bust
-    const chestRegex = new RegExp(`(胴囲|胴回り|胴周り|バスト|胸囲)${sep}${num}${unit}`, 'i');
+    // 3. Chest / Bust / Waist - handles (ウエスト)約11～14cm format
+    const chestRegex = new RegExp(`[（(]?(胴囲|胴回り|胴周り|バスト|胸囲|ウエスト|ウェスト|腹囲|おなか周り)[）)]?${sep}${num}${range}${unit}`, 'i');
     const chestMatch = cleanText.match(chestRegex);
     if (chestMatch) {
-        const raw = parseFloat(chestMatch[2]);
-        const val = toCm(raw, chestMatch[0]);
-        results.measurements.chest = val;
-        usedValues.add(Math.floor(val));
+        const minRaw = parseFloat(chestMatch[2]);
+        const maxRaw = chestMatch[3] ? parseFloat(chestMatch[3]) : minRaw;
+        const min = toCm(minRaw, chestMatch[0]);
+        const max = toCm(maxRaw, chestMatch[0]);
+        results.measurements.chest = { min, max };
+        usedValues.add(Math.floor(min));
     }
 
     // 4. Width / Hem
-    const widthRegex = new RegExp(`(身幅|裾幅|横幅|幅)${sep}${num}${unit}`, 'i');
+    const widthRegex = new RegExp(`[（(]?(身幅|横幅)[）)]?${sep}${num}${range}${unit}`, 'i');
     const widthMatch = cleanText.match(widthRegex);
     if (widthMatch) {
-        const raw = parseFloat(widthMatch[2]);
-        const val = toCm(raw, widthMatch[0]);
-        results.measurements.bodyWidth = val;
-        usedValues.add(Math.floor(val));
+        const minRaw = parseFloat(widthMatch[2]);
+        const maxRaw = widthMatch[3] ? parseFloat(widthMatch[3]) : minRaw;
+        const min = toCm(minRaw, widthMatch[0]);
+        const max = toCm(maxRaw, widthMatch[0]);
+        results.measurements.bodyWidth = { min, max };
+        usedValues.add(Math.floor(min));
+    }
+
+    // 4b. Hem Width (裾幅)
+    const hemRegex = new RegExp(`[（(]?(裾幅|裾周り)[）)]?${sep}${num}${range}${unit}`, 'i');
+    const hemMatch = cleanText.match(hemRegex);
+    if (hemMatch) {
+        const minRaw = parseFloat(hemMatch[2]);
+        const maxRaw = hemMatch[3] ? parseFloat(hemMatch[3]) : minRaw;
+        const min = toCm(minRaw, hemMatch[0]);
+        const max = toCm(maxRaw, hemMatch[0]);
+        results.measurements.hemWidth = { min, max };
+    }
+
+    // 4c. Shoulder Width (肩幅)
+    const shoulderRegex = new RegExp(`[（(]?(肩幅|肩巾)[）)]?${sep}${num}${range}${unit}`, 'i');
+    const shoulderMatch = cleanText.match(shoulderRegex);
+    if (shoulderMatch) {
+        const minRaw = parseFloat(shoulderMatch[2]);
+        const maxRaw = shoulderMatch[3] ? parseFloat(shoulderMatch[3]) : minRaw;
+        const min = toCm(minRaw, shoulderMatch[0]);
+        const max = toCm(maxRaw, shoulderMatch[0]);
+        results.measurements.shoulderWidth = { min, max };
+    }
+
+    // 4d. Sleeve Length (袖丈)
+    const sleeveRegex = new RegExp(`[（(]?(袖丈|そで丈)[）)]?${sep}${num}${range}${unit}`, 'i');
+    const sleeveMatch = cleanText.match(sleeveRegex);
+    if (sleeveMatch) {
+        const minRaw = parseFloat(sleeveMatch[2]);
+        const maxRaw = sleeveMatch[3] ? parseFloat(sleeveMatch[3]) : minRaw;
+        const min = toCm(minRaw, sleeveMatch[0]);
+        const max = toCm(maxRaw, sleeveMatch[0]);
+        results.measurements.sleeveLength = { min, max };
+    }
+
+    // 4e. Armhole / Sleeve Opening (袖口・そで周り)
+    const armholeRegex = new RegExp(`[（(]?(袖口|そで周り|袖周り|アームホール)[）)]?${sep}${num}${range}${unit}`, 'i');
+    const armholeMatch = cleanText.match(armholeRegex);
+    if (armholeMatch) {
+        const minRaw = parseFloat(armholeMatch[2]);
+        const maxRaw = armholeMatch[3] ? parseFloat(armholeMatch[3]) : minRaw;
+        const min = toCm(minRaw, armholeMatch[0]);
+        const max = toCm(maxRaw, armholeMatch[0]);
+        results.measurements.armhole = { min, max };
+    }
+
+    // 4f. Hip (ヒップ)
+    const hipRegex = new RegExp(`[（(]?(ヒップ|おしり周り|お尻周り)[）)]?${sep}${num}${range}${unit}`, 'i');
+    const hipMatch = cleanText.match(hipRegex);
+    if (hipMatch) {
+        const minRaw = parseFloat(hipMatch[2]);
+        const maxRaw = hipMatch[3] ? parseFloat(hipMatch[3]) : minRaw;
+        const min = toCm(minRaw, hipMatch[0]);
+        const max = toCm(maxRaw, hipMatch[0]);
+        results.measurements.hip = { min, max };
+    }
+
+    // 4g. Inseam (股下)
+    const inseamRegex = new RegExp(`[（(]?(股下|股上|またした)[）)]?${sep}${num}${range}${unit}`, 'i');
+    const inseamMatch = cleanText.match(inseamRegex);
+    if (inseamMatch) {
+        const minRaw = parseFloat(inseamMatch[2]);
+        const maxRaw = inseamMatch[3] ? parseFloat(inseamMatch[3]) : minRaw;
+        const min = toCm(minRaw, inseamMatch[0]);
+        const max = toCm(maxRaw, inseamMatch[0]);
+        results.measurements.inseam = { min, max };
     }
 
     // 5. Length / Height (Item dimensions)

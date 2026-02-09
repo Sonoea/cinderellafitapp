@@ -733,8 +733,8 @@ const Closet = () => {
       {/* FAB - Global (Visible unless Inline Form is active) */}
       {(activeTab === 'gallery' || (closetItems && closetItems.length > 0)) && (
         <Portal>
-          <div className="fixed inset-0 z-[20000] pointer-events-none flex justify-center">
-            <div className="w-full max-w-[480px] h-full relative">
+          <div className="fixed bottom-0 left-0 right-0 z-[20000] flex justify-center pointer-events-none">
+            <div className="w-full max-w-[480px] h-0 relative">
               <button
                 onClick={() => setShowAddModal(true)}
                 className="absolute bottom-28 right-6 pointer-events-auto bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors active:scale-95"

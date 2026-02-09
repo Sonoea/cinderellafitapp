@@ -427,18 +427,6 @@ const Closet = () => {
               )}
             </div>
 
-            {/* Fab Button - Moved to Portal for true Fixed positioning */}
-            {closetItems && closetItems.length > 0 && (
-              <Portal>
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="fixed bottom-36 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors z-[100] active:scale-95"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <Plus size={28} />
-                </button>
-              </Portal>
-            )}
           </>
         )}
 

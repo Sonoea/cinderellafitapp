@@ -265,7 +265,8 @@ const Closet = () => {
               {(() => {
                 // Filter Items based on Active Plushie AND Fit Rating
                 const filteredClosetItems = closetItems.filter(item => {
-                  const matchPlushie = activePlushieId === 'all' || item.plushieId === activePlushieId;
+                  // Robust comparison: Convert both to strings to handle mixed types (number vs string)
+                  const matchPlushie = activePlushieId === 'all' || String(item.plushieId) === String(activePlushieId);
                   const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
                   return matchPlushie && matchFit;
                 });

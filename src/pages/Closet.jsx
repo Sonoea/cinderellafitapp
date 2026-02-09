@@ -720,9 +720,11 @@ const Closet = () => {
                 </div>
               </div>
             </div>
+          </div>
         </Portal>
-      )}
-    </div>
+      )
+      }
+    </div >
   );
 };
 

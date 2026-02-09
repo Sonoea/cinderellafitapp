@@ -244,7 +244,7 @@ const Closet = () => {
                     : 'bg-white text-gray-500 border-gray-200'
                     }`}
                 >
-                  All Fits
+                  All
                 </button>
                 {[1, 2, 3].map(rating => (
                   <button
@@ -256,7 +256,10 @@ const Closet = () => {
                       }`}
                   >
                     <span>{['😣', '😊', '😌'][rating - 1]}</span>
-                    <span className="text-[10px] font-bold">{['Tight', 'Perfect', 'Loose'][rating - 1]}</span>
+                    <span className="text-[10px] font-bold">
+                      {/* Robustly get the label, removing emoji if present in the string to avoid duplication */}
+                      {(t('fitLabelsShort')?.[rating - 1] || ['Tight', 'Perfect', 'Loose'][rating - 1]).replace(/^[^\s]+\s/, '')}
+                    </span>
                   </button>
                 ))}
               </div>

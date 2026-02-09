@@ -92,6 +92,7 @@ const Closet = () => {
 
   // My Closet Filters
   const [activePlushieId, setActivePlushieId] = useState('all');
+  const [activeFitRating, setActiveFitRating] = useState('all'); // 'all', 1, 2, 3
 
   const getFilteredGallery = () => {
     // 1. Merge Local Public Items + Mock Gallery
@@ -234,12 +235,40 @@ const Closet = () => {
                 ))}
               </div>
 
+              {/* --- Fit Rating Filter Chips --- */}
+              <div className="flex gap-2 mb-2 overflow-x-auto pb-2 no-scrollbar px-1">
+                <button
+                  onClick={() => setActiveFitRating('all')}
+                  className={`flex-shrink-0 px-3 py-1 rounded-lg text-xs font-bold transition-all border ${activeFitRating === 'all'
+                    ? 'bg-gray-800 text-white border-gray-800'
+                    : 'bg-white text-gray-500 border-gray-200'
+                    }`}
+                >
+                  All Fits
+                </button>
+                {[1, 2, 3].map(rating => (
+                  <button
+                    key={rating}
+                    onClick={() => setActiveFitRating(rating)}
+                    className={`flex-shrink-0 px-3 py-1 rounded-lg border flex items-center gap-1 transition-all ${activeFitRating === rating
+                      ? 'bg-white text-gray-800 border-gray-300 ring-2 ring-gray-100 shadow-sm'
+                      : 'bg-white text-gray-500 border-gray-200 opacity-60'
+                      }`}
+                  >
+                    <span>{['😣', '😊', '😌'][rating - 1]}</span>
+                    <span className="text-[10px] font-bold">{['Tight', 'Perfect', 'Loose'][rating - 1]}</span>
+                  </button>
+                ))}
+              </div>
+
               {/* --- Timeline Grid --- */}
               {(() => {
-                // Filter Items based on Active Plushie
-                const filteredClosetItems = activePlushieId === 'all'
-                  ? closetItems
-                  : closetItems.filter(item => item.plushieId === activePlushieId);
+                // Filter Items based on Active Plushie AND Fit Rating
+                const filteredClosetItems = closetItems.filter(item => {
+                  const matchPlushie = activePlushieId === 'all' || item.plushieId === activePlushieId;
+                  const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
+                  return matchPlushie && matchFit;
+                });
 
                 if (filteredClosetItems.length === 0) {
                   return (

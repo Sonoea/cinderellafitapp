@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-
-// Helper for Portal
-const Portal = ({ children }) => {
-  return createPortal(children, document.body);
-};
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
+
+// Helper for Portal
+const Portal = ({ children }) => {
+  if (typeof document === 'undefined') return null;
+  return createPortal(children, document.body);
+};
 
 // Mock Data for Community Gallery
 const MOCK_GALLERY = [
@@ -30,6 +31,256 @@ const MOCK_GALLERY = [
   }
 ];
 
+// --- REUSABLE FORM COMPONENT ---
+// Moved to top to avoid ReferenceError
+const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
+  const [image, setImage] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    url: '',
+    plushieId: plushies[0]?.id || '',
+    fitRating: 2,
+    comment: '',
+    location: '',
+    isPublic: true,
+  });
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const compressed = await compressImage(file);
+        setImage(compressed);
+      } catch {
+        alert('Failed to load image');
+      }
+    }
+  };
+
+  const handleSaveWrapper = () => {
+    if (!image) return;
+
+    // Get selected plushie data to snapshot
+    // Ensure plushies is array
+    const safePlushies = Array.isArray(plushies) ? plushies : [];
+    const selectedPlushie = safePlushies.find(p => p.id === formData.plushieId);
+
+    onSave({
+      image,
+      ...formData,
+      plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
+      plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
+    });
+  };
+
+  // Safe check for fitLabels
+  const safeFitLabels = Array.isArray(fitLabels) ? fitLabels : ['Tight', 'Snug', 'Good', 'Loose', 'Perf'];
+
+  return (
+    <div className="flex flex-col h-full w-full">
+      <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
+        <div className="p-4 space-y-6">
+
+          {/* 1. Photo Section */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-2">{t('uploadPhoto')}</label>
+            {!image ? (
+              <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary transition-colors cursor-pointer hover:bg-gray-100">
+                <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                <Camera size={32} className="text-gray-400 mb-2 group-hover:text-primary transition-colors" />
+                <p className="text-gray-400 font-bold text-xs">{t('tapToTakePhoto')}</p>
+              </div>
+            ) : (
+              <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden relative shadow-sm border border-gray-200">
+                <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                <label className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs font-bold px-3 backdrop-blur-sm cursor-pointer hover:bg-black/70 transition-colors">
+                  {t('retake')}
+                  <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Form Fields (Always Visible) */}
+          <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''}`}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
+                <input
+                  type="text"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder={t('itemNamePlaceholder')}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('productUrl')}</label>
+                <input
+                  type="url"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="https://..."
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('locationLabel')}</label>
+                <div className="relative">
+                  <div className="absolute top-3 left-3 text-gray-400">
+                    <MapPin size={16} /> {/* MapPin is imported */}
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full p-3 pl-10 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder={t('locationPlaceholder')}
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModelTitle')}</label>
+                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                  {Array.isArray(plushies) && plushies.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => setFormData({ ...formData, plushieId: p.id })}
+                      className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
+                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                        : 'border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                      <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
+                      <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
+                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-2">
+                  {[1, 2, 3].map((rating) => {
+                    const colors = [
+                      { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600', selectedBg: 'bg-red-100' },
+                      { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', selectedBg: 'bg-green-100' },
+                      { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-600', selectedBg: 'bg-yellow-100' },
+                    ][rating - 1];
+                    const emojis = ['😣', '😊', '😌'];
+                    const isSelected = formData.fitRating === rating;
+
+                    return (
+                      <button
+                        key={rating}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, fitRating: rating })}
+                        className={`
+                          flex-1 p-3 rounded-xl transition-all duration-200 relative
+                          ${isSelected
+                            ? `${colors.selectedBg} scale-110 shadow-lg ring-4 ${colors.border.replace('border-', 'ring-')}`
+                            : 'bg-white hover:bg-gray-100 opacity-60'}
+                          active:scale-95
+                          border-3 
+                          ${isSelected ? colors.border : 'border-gray-200'}
+                        `}
+                      >
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <span className="text-xs">✓</span>
+                          </div>
+                        )}
+                        <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
+                        <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
+                          {safeFitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
+                <textarea
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                  placeholder={t('commentPlaceholder')}
+                  value={formData.comment}
+                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                ></textarea>
+              </div>
+
+              <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
+                    {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
+                  </div>
+                  <div className="text-xs">
+                    <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
+                    <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      {/* Footer - Pinned to bottom of container */}
+      <div className="p-4 border-t border-gray-100 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-10">
+        <button
+          onClick={handleSaveWrapper}
+          disabled={!image}
+          className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98] ${image
+            ? 'bg-[#FBBF24] text-black shadow-orange-100'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
+        >
+          <span className="text-2xl">✨</span>
+          <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Moved to top
+const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
+  return (
+    <div className="fixed inset-0 bg-black/80 z-[20000] flex items-end justify-center sm:items-center sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm overflow-hidden shadow-2xl flex flex-col h-[80vh] supports-[height:100dvh]:h-[80dvh] sm:h-auto sm:max-h-[85vh]">
+        {/* Header */}
+        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
+          <button onClick={onClose} className="p-2 bg-gray-200 rounded-full hover:bg-gray-300">
+            <X size={16} />
+          </button>
+        </div>
+
+        {/* Reused Form - Wrapped to handle height correctly */}
+        <div className="flex-1 w-full min-h-0 relative flex flex-col">
+          <ClosetItemForm
+            plushies={plushies}
+            t={t}
+            fitLabels={fitLabels}
+            onSave={(item) => {
+              onSave(item);
+              onClose();
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const Closet = () => {
   const { plushies, updatePlushie, closetItems, addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
@@ -49,7 +300,10 @@ const Closet = () => {
 
   const getFilteredGallery = () => {
     // 1. Merge Local Public Items + Mock Gallery
-    const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
+    // Ensure closetItems is array
+    const safeClosetItems = Array.isArray(closetItems) ? closetItems : [];
+
+    const localPublicItems = safeClosetItems.filter(item => item.isPublic).map(item => ({
       id: `local-${item.id}`,
       userName: userDisplayName,
       userIcon: userPhoto, // Use actual profile photo for my items
@@ -58,7 +312,7 @@ const Closet = () => {
       location: item.location,
       imageUrl: item.image,
       itemName: item.name,
-      shopName: item.url ? new URL(item.url || 'http://b').hostname : '',
+      shopName: item.url ? (() => { try { return new URL(item.url || 'http://b').hostname } catch { return '' } })() : '',
       fitRating: item.fitRating,
       comment: item.comment,
       date: new Date(item.createdAt).toISOString().split('T')[0],
@@ -93,9 +347,6 @@ const Closet = () => {
     });
   };
 
-  // Plushie Edit Logic - REMOVED (Moved to Home)
-
-
   const fitLabels = t('fitLabelsShort') || ['Tight', 'Snug', 'Good', 'Loose', 'Perf'];
   const fullFitLabels = t('fitLabels') || ['Too Tight', 'Tight', 'Good', 'Loose', 'Perfect'];
 
@@ -121,7 +372,6 @@ const Closet = () => {
           >
             <Users size={16} /> {t('gallery')}
           </button>
-
         </div>
       </div>
 
@@ -135,10 +385,10 @@ const Closet = () => {
                 <p>{t('closetTabHelp')}</p>
               </div>
 
-              {closetItems.length === 0 ? (
+              {(!closetItems || closetItems.length === 0) ? (
                 <div className="mb-24">
                   <ClosetItemForm
-                    plushies={plushies}
+                    plushies={plushies || []}
                     t={t}
                     fitLabels={fitLabels}
                     onSave={(item) => addClosetItem(item)}
@@ -178,7 +428,7 @@ const Closet = () => {
             </div>
 
             {/* Fab Button - Moved to Portal for true Fixed positioning */}
-            {closetItems.length > 0 && (
+            {closetItems && closetItems.length > 0 && (
               <Portal>
                 <button
                   onClick={() => setShowAddModal(true)}
@@ -495,248 +745,5 @@ const Closet = () => {
     </div>
   );
 };
-
-// --- REUSABLE FORM COMPONENT ---
-const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
-  const [image, setImage] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    url: '',
-    plushieId: plushies[0]?.id || '',
-    fitRating: 2,
-    comment: '',
-    location: '',
-    isPublic: true,
-  });
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        const compressed = await compressImage(file);
-        setImage(compressed);
-      } catch {
-        alert('Failed to load image');
-      }
-    }
-  };
-
-  const handleSaveWrapper = () => {
-    if (!image) return;
-
-    // Get selected plushie data to snapshot
-    const selectedPlushie = plushies.find(p => p.id === formData.plushieId);
-
-    onSave({
-      image,
-      ...formData,
-      plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
-      plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
-    });
-  };
-
-  return (
-    <div className="flex flex-col h-full w-full">
-      <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
-        <div className="p-4 space-y-6">
-
-          {/* 1. Photo Section */}
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-2">{t('uploadPhoto')}</label>
-            {!image ? (
-              <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary transition-colors cursor-pointer hover:bg-gray-100">
-                <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
-                <Camera size={32} className="text-gray-400 mb-2 group-hover:text-primary transition-colors" />
-                <p className="text-gray-400 font-bold text-xs">{t('tapToTakePhoto')}</p>
-              </div>
-            ) : (
-              <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden relative shadow-sm border border-gray-200">
-                <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                <label className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs font-bold px-3 backdrop-blur-sm cursor-pointer hover:bg-black/70 transition-colors">
-                  {t('retake')}
-                  <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
-                </label>
-              </div>
-            )}
-          </div>
-
-          {/* 2. Form Fields (Always Visible) */}
-          <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''}`}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
-                <input
-                  type="text"
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder={t('itemNamePlaceholder')}
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('productUrl')}</label>
-                <input
-                  type="url"
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="https://..."
-                  value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('locationLabel')}</label>
-                <div className="relative">
-                  <div className="absolute top-3 left-3 text-gray-400">
-                    <MapPin size={16} /> {/* Reusing Share icon as Place icon isn't imported, or simple generic */}
-                  </div>
-                  <input
-                    type="text"
-                    className="w-full p-3 pl-10 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder={t('locationPlaceholder')}
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModelTitle')}</label>
-                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                  {plushies.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => setFormData({ ...formData, plushieId: p.id })}
-                      className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
-                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                        : 'border-gray-200 hover:bg-gray-50'
-                        }`}
-                    >
-                      <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
-                      <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
-                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-2">
-                  {[1, 2, 3].map((rating) => {
-                    const colors = [
-                      { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600', selectedBg: 'bg-red-100' },
-                      { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', selectedBg: 'bg-green-100' },
-                      { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-600', selectedBg: 'bg-yellow-100' },
-                    ][rating - 1];
-                    const emojis = ['😣', '😊', '😌'];
-                    const isSelected = formData.fitRating === rating;
-
-                    return (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, fitRating: rating })}
-                        className={`
-                          flex-1 p-3 rounded-xl transition-all duration-200 relative
-                          ${isSelected
-                            ? `${colors.selectedBg} scale-110 shadow-lg ring-4 ${colors.border.replace('border-', 'ring-')}`
-                            : 'bg-white hover:bg-gray-100 opacity-60'}
-                          active:scale-95
-                          border-3 
-                          ${isSelected ? colors.border : 'border-gray-200'}
-                        `}
-                      >
-                        {isSelected && (
-                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
-                            <span className="text-xs">✓</span>
-                          </div>
-                        )}
-                        <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
-                        <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
-                          {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
-                <textarea
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                  placeholder={t('commentPlaceholder')}
-                  value={formData.comment}
-                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                ></textarea>
-              </div>
-
-              <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
-                    {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
-                  </div>
-                  <div className="text-xs">
-                    <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
-                    <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
-                  </div>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      {/* Footer - Pinned to bottom of container */}
-      <div className="p-4 border-t border-gray-100 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-10">
-        <button
-          onClick={handleSaveWrapper}
-          disabled={!image}
-          className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98] ${image
-            ? 'bg-[#FBBF24] text-black shadow-orange-100'
-            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-            }`}
-        >
-          <span className="text-2xl">✨</span>
-          <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
-  return (
-    <div className="fixed inset-0 bg-black/80 z-[20000] flex items-end justify-center sm:items-center sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm overflow-hidden shadow-2xl flex flex-col h-[80vh] supports-[height:100dvh]:h-[80dvh] sm:h-auto sm:max-h-[85vh]">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-          <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
-          <button onClick={onClose} className="p-2 bg-gray-200 rounded-full hover:bg-gray-300">
-            <X size={16} />
-          </button>
-        </div>
-
-        {/* Reused Form - Wrapped to handle height correctly */}
-        <div className="flex-1 w-full min-h-0 relative flex flex-col">
-          <ClosetItemForm
-            plushies={plushies}
-            t={t}
-            fitLabels={fitLabels}
-            onSave={(item) => {
-              onSave(item);
-              onClose();
-            }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export default Closet;

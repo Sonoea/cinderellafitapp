@@ -90,6 +90,9 @@ const Closet = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMySize, setFilterMySize] = useState(false);
 
+  // My Closet Filters
+  const [activePlushieId, setActivePlushieId] = useState('all');
+
   const getFilteredGallery = () => {
     // 1. Merge Local Public Items + Mock Gallery
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
@@ -206,8 +209,8 @@ const Closet = () => {
               {/* --- Plushie Filter Chips --- */}
               <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar px-1">
                 <button
-                  onClick={() => setFilterMySize(false)}
-                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${!filterMySize
+                  onClick={() => setActivePlushieId('all')}
+                  className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${activePlushieId === 'all'
                     ? 'bg-gray-800 text-white border-gray-800'
                     : 'bg-white text-gray-500 border-gray-200'
                     }`}
@@ -217,11 +220,9 @@ const Closet = () => {
                 {plushies.map(p => (
                   <button
                     key={p.id}
-                    onClick={() => {
-                      setFilterMySize(true);
-                    }}
-                    className={`flex-shrink-0 px-1 pr-3 py-1 rounded-full border flex items-center gap-2 transition-all ${filterMySize
-                      ? 'bg-white text-gray-800 border-gray-300'
+                    onClick={() => setActivePlushieId(p.id)}
+                    className={`flex-shrink-0 px-1 pr-3 py-1 rounded-full border flex items-center gap-2 transition-all ${activePlushieId === p.id
+                      ? 'bg-white text-gray-800 border-gray-300 ring-2 ring-gray-100'
                       : 'bg-white text-gray-500 border-gray-200 opacity-60'
                       }`}
                   >
@@ -235,8 +236,21 @@ const Closet = () => {
 
               {/* --- Timeline Grid --- */}
               {(() => {
+                // Filter Items based on Active Plushie
+                const filteredClosetItems = activePlushieId === 'all'
+                  ? closetItems
+                  : closetItems.filter(item => item.plushieId === activePlushieId);
+
+                if (filteredClosetItems.length === 0) {
+                  return (
+                    <div className="text-center py-10 text-gray-400">
+                      <p>{t('noItemsFound') || 'No items found.'}</p>
+                    </div>
+                  );
+                }
+
                 // Group items by Year-Month
-                const groupedItems = closetItems.reduce((acc, item) => {
+                const groupedItems = filteredClosetItems.reduce((acc, item) => {
                   const date = new Date(item.createdAt);
                   const key = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}`; // e.g., 2026.02
                   if (!acc[key]) acc[key] = [];

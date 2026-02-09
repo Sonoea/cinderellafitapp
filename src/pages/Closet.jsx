@@ -39,11 +39,11 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
   return (
     <Portal>
       <div
-        className="fixed inset-0 bg-black/50 z-[2147483647] flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
+        className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
         style={{ touchAction: 'none' }}
       >
         <div
-          className="bg-white w-full h-[100dvh] md:h-[85vh] md:max-w-[400px] md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300"
+          className="modal-responsive animate-in slide-in-from-bottom-10 fade-in duration-300"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}

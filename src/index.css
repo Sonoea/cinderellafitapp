@@ -587,3 +587,51 @@ input:focus {
   border-color: var(--secondary) !important;
   background-color: var(--surface) !important;
 }
+
+/* --- CRITICAL MISSING UTILITIES --- */
+.fixed {
+  position: fixed;
+}
+
+.z-50 {
+  z-index: 50;
+}
+
+.z-modal {
+  z-index: 2147483647;
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* Responsive Modal Class */
+/* Mobile First: Full Screen */
+.modal-responsive {
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  /* Dynamic viewport height for mobile */
+  background-color: var(--surface);
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+/* Desktop/Tablet: Card */
+@media (min-width: 768px) {
+  .modal-responsive {
+    width: 100%;
+    max-width: 420px;
+    height: auto;
+    max-height: 85vh;
+    border-radius: 24px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    /* Center in flex parent */
+    margin: auto;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+}

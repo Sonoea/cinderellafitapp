@@ -151,23 +151,23 @@ const Closet = () => {
       <div className="px-4 mt-4">
         {/* === ITEMS TAB === */}
         {activeTab === 'items' && (
-          <div className="fade-in">
-            <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
-              <span className="text-lg">💡</span>
-              <p>{t('closetTabHelp')}</p>
-            </div>
-
-            {closetItems.length === 0 ? (
-              <div className="mb-24">
-                <ClosetItemForm
-                  plushies={plushies}
-                  t={t}
-                  fitLabels={fitLabels}
-                  onSave={(item) => addClosetItem(item)}
-                />
+          <>
+            <div className="fade-in">
+              <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
+                <span className="text-lg">💡</span>
+                <p>{t('closetTabHelp')}</p>
               </div>
-            ) : (
-              <>
+
+              {closetItems.length === 0 ? (
+                <div className="mb-24">
+                  <ClosetItemForm
+                    plushies={plushies}
+                    t={t}
+                    fitLabels={fitLabels}
+                    onSave={(item) => addClosetItem(item)}
+                  />
+                </div>
+              ) : (
                 <div className="grid grid-cols-2 gap-3 mb-20">
                   {closetItems.map(item => (
                     <div
@@ -197,17 +197,20 @@ const Closet = () => {
                     </div>
                   ))}
                 </div>
-                {/* Fab Button to Add Item - OUTSIDE the grid */}
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="fixed bottom-36 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors z-[10000]"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <Plus size={28} />
-                </button>
-              </>
+              )}
+            </div>
+
+            {/* Fab Button - Moved outside fade-in to fix iOS fixed positioning */}
+            {closetItems.length > 0 && (
+              <button
+                onClick={() => setShowAddModal(true)}
+                className="fixed bottom-36 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors z-[100]"
+                style={{ touchAction: 'manipulation' }}
+              >
+                <Plus size={28} />
+              </button>
             )}
-          </div>
+          </>
         )}
 
         {/* === GALLERY TAB === */}
@@ -789,7 +792,7 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
 const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
   return (
     <div className="fixed inset-0 bg-black/80 z-[20000] flex items-end justify-center sm:items-center sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm overflow-hidden shadow-2xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh]">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm overflow-hidden shadow-2xl flex flex-col h-[80vh] supports-[height:100dvh]:h-[80dvh] sm:h-auto sm:max-h-[85vh]">
         {/* Header */}
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>

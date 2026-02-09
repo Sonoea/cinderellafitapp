@@ -798,16 +798,18 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
           </button>
         </div>
 
-        {/* Reused Form */}
-        <ClosetItemForm
-          plushies={plushies}
-          t={t}
-          fitLabels={fitLabels}
-          onSave={(item) => {
-            onSave(item);
-            onClose();
-          }}
-        />
+        {/* Reused Form - Wrapped to handle height correctly */}
+        <div className="flex-1 min-h-0 relative">
+          <ClosetItemForm
+            plushies={plushies}
+            t={t}
+            fitLabels={fitLabels}
+            onSave={(item) => {
+              onSave(item);
+              onClose();
+            }}
+          />
+        </div>
       </div>
     </div>
   );

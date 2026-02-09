@@ -432,9 +432,11 @@ const Closet = () => {
 
                   <div className="aspect-square bg-gray-50 relative">
                     <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
-                    <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
-                      <Heart size={12} fill="currentColor" /> {post.likes}
-                    </div>
+                    {post.likes > 0 && (
+                      <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
+                        <Heart size={12} fill="currentColor" /> {post.likes}
+                      </div>
+                    )}
                   </div>
 
                   <div className="p-3">

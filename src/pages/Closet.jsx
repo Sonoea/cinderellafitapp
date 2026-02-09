@@ -733,13 +733,10 @@ const Closet = () => {
       {/* FAB - Global (Visible unless Inline Form is active) */}
       {(activeTab === 'gallery' || (closetItems && closetItems.length > 0)) && (
         <Portal>
-          <div
-            className="fixed inset-x-0 bottom-0 mx-auto max-w-[480px] z-[20000] pointer-events-none"
-            style={{ height: '100dvh' }}
-          >
+          <div className="fixed bottom-0 left-0 right-0 z-[20000] mx-auto max-w-[480px] pointer-events-none flex justify-end px-6 pb-36">
             <button
               onClick={() => setShowAddModal(true)}
-              className="absolute bottom-36 right-6 pointer-events-auto bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors active:scale-95"
+              className="pointer-events-auto bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors active:scale-95"
               style={{ touchAction: 'manipulation' }}
             >
               <Plus size={28} />

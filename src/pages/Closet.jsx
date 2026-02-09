@@ -612,7 +612,7 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full w-full">
       <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
         <div className="p-4 space-y-6">
 
@@ -799,7 +799,7 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
         </div>
 
         {/* Reused Form - Wrapped to handle height correctly */}
-        <div className="flex-1 min-h-0 relative">
+        <div className="flex-1 w-full min-h-0 relative flex flex-col">
           <ClosetItemForm
             plushies={plushies}
             t={t}

@@ -494,8 +494,14 @@ const Closet = () => {
       {/* === ITEM DETAIL MODAL (Also Portaled for safety) === */}
       {selectedItem && (
         <Portal>
-          <div className="fixed inset-0 bg-black/60 z-[2147483647] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-            <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-y-auto relative no-scrollbar shadow-2xl">
+          <div
+            className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
+            style={{ touchAction: 'none' }}
+          >
+            <div
+              className="modal-responsive relative no-scrollbar shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
               <button
                 onClick={() => { setSelectedItem(null); setIsEditing(false); }}
                 className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm"

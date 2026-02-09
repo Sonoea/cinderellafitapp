@@ -170,22 +170,22 @@ const Closet = () => {
                 >
                   All
                 </button>
-                {plushies.map(p => (
-                  <button
-                    key={p.id}
-                    onClick={() => {
-                      setFilterMySize(true);
-                      // In a real app we'd filter by ID, but simplified here
-                    }}
-                    className={`flex-shrink-0 px-1 pr-3 py-1 rounded-full border flex items-center gap-2 transition-all ${filterMySize
-                      ? 'bg-white text-gray-800 border-gray-300'
-                      : 'bg-white text-gray-500 border-gray-200 opacity-60'
-                      }`}
-                  >
-                    <img src={p.image} className="w-6 h-6 rounded-full object-cover" alt="" />
-                    <span className="text-[10px] font-bold">{p.name}</span>
-                  </button>
-                ))}
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    setFilterMySize(true);
+                    // In a real app we'd filter by ID, but simplified here
+                  }}
+                  className={`flex-shrink-0 px-1 pr-3 py-1 rounded-full border flex items-center gap-2 transition-all ${filterMySize
+                    ? 'bg-white text-gray-800 border-gray-300'
+                    : 'bg-white text-gray-500 border-gray-200 opacity-60'
+                    }`}
+                >
+                  <div className="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+                    <img src={p.image} className="w-full h-full object-cover" alt="" />
+                  </div>
+                  <span className="text-[10px] font-bold">{p.name}</span>
+                </button>
               </div>
 
               {/* --- Timeline Grid --- */}

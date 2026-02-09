@@ -1,11 +1,17 @@
 import React, { useState, useRef } from 'react';
+import { createPortal } from 'react-dom'; // Hoisted import
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 
-// Mock Data for Community Gallery
+// --- PORTAL COMPONENT ---
+const Portal = ({ children }) => {
+  return createPortal(children, document.body);
+};
+
+// --- MOCK DATA ---
 const MOCK_GALLERY = [
   {
     id: 'g0',
@@ -24,6 +30,262 @@ const MOCK_GALLERY = [
   }
 ];
 
+// --- REUSABLE FORM COMPONENT ---
+const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
+  const [image, setImage] = useState(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    url: '',
+    plushieId: plushies[0]?.id || '',
+    fitRating: 2,
+    comment: '',
+    location: '',
+    isPublic: true,
+  });
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const compressed = await compressImage(file);
+        setImage(compressed);
+      } catch {
+        alert('Failed to load image');
+      }
+    }
+  };
+
+  const handleSaveWrapper = () => {
+    if (!image) return;
+
+    // Get selected plushie data to snapshot
+    const selectedPlushie = plushies.find(p => p.id === formData.plushieId);
+
+    onSave({
+      image,
+      ...formData,
+      plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
+      plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
+    });
+  };
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
+        <div className="p-4 space-y-6">
+
+          {/* 1. Photo Section */}
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-2">{t('uploadPhoto')}</label>
+            {!image ? (
+              <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary transition-colors cursor-pointer hover:bg-gray-100">
+                <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                <Camera size={32} className="text-gray-400 mb-2 group-hover:text-primary transition-colors" />
+                <p className="text-gray-400 font-bold text-xs">{t('tapToTakePhoto')}</p>
+              </div>
+            ) : (
+              <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden relative shadow-sm border border-gray-200">
+                <img src={image} alt="Preview" className="w-full h-full object-cover" />
+                <label className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs font-bold px-3 backdrop-blur-sm cursor-pointer hover:bg-black/70 transition-colors">
+                  {t('retake')}
+                  <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
+                </label>
+              </div>
+            )}
+          </div>
+
+          {/* 2. Form Fields (Always Visible) */}
+          <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''}`}>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
+                <input
+                  type="text"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder={t('itemNamePlaceholder')}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('productUrl')}</label>
+                <input
+                  type="url"
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  placeholder="https://..."
+                  value={formData.url}
+                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('locationLabel')}</label>
+                <div className="relative">
+                  <div className="absolute top-3 left-3 text-gray-400">
+                    <MapPin size={16} /> {/* Reusing Share icon as Place icon isn't imported, or simple generic */}
+                  </div>
+                  <input
+                    type="text"
+                    className="w-full p-3 pl-10 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                    placeholder={t('locationPlaceholder')}
+                    value={formData.location}
+                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModelTitle')}</label>
+                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
+                  {plushies.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => setFormData({ ...formData, plushieId: p.id })}
+                      className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
+                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
+                        : 'border-gray-200 hover:bg-gray-50'
+                        }`}
+                    >
+                      <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
+                      <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
+                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-2">
+                  {[1, 2, 3].map((rating) => {
+                    const colors = [
+                      { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600', selectedBg: 'bg-red-100' },
+                      { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', selectedBg: 'bg-green-100' },
+                      { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-600', selectedBg: 'bg-yellow-100' },
+                    ][rating - 1];
+                    const emojis = ['😣', '😊', '😌'];
+                    const isSelected = formData.fitRating === rating;
+
+                    return (
+                      <button
+                        key={rating}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, fitRating: rating })}
+                        className={`
+                          flex-1 p-3 rounded-xl transition-all duration-200 relative
+                          ${isSelected
+                            ? `${colors.selectedBg} scale-110 shadow-lg ring-4 ${colors.border.replace('border-', 'ring-')}`
+                            : 'bg-white hover:bg-gray-100 opacity-60'}
+                          active:scale-95
+                          border-3 
+                          ${isSelected ? colors.border : 'border-gray-200'}
+                        `}
+                      >
+                        {isSelected && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
+                            <span className="text-xs">✓</span>
+                          </div>
+                        )}
+                        <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
+                        <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
+                          {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
+                <textarea
+                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                  placeholder={t('commentPlaceholder')}
+                  value={formData.comment}
+                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
+                ></textarea>
+              </div>
+
+              <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
+                    {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
+                  </div>
+                  <div className="text-xs">
+                    <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
+                    <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
+                  </div>
+                </div>
+                <label className="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
+                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+        <button
+          onClick={handleSaveWrapper}
+          disabled={!image}
+          style={{
+            width: '100%',
+            backgroundColor: image ? '#FBBF24' : '#E5E7EB',
+            color: image ? '#000000' : '#9CA3AF',
+            fontWeight: 'bold',
+            padding: '16px',
+            borderRadius: '16px',
+            fontSize: '18px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px',
+            boxShadow: image ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
+            cursor: image ? 'pointer' : 'not-allowed',
+            transition: 'all 0.2s'
+          }}
+        >
+          <span style={{ fontSize: '24px' }}>✨</span>
+          <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- ADD ITEM MODAL ---
+const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
+  return (
+    <Portal>
+      <div className="fixed inset-0 bg-black/80 z-[2147483647] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ touchAction: 'none' }}>
+        <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[85vh] mb-0" onClick={e => e.stopPropagation()}>
+          {/* Header */}
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+            <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
+            <button onClick={onClose} className="p-2 bg-gray-200 rounded-full hover:bg-gray-300">
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Reused Form */}
+          <ClosetItemForm
+            plushies={plushies}
+            t={t}
+            fitLabels={fitLabels}
+            onSave={(item) => {
+              onSave(item);
+              onClose();
+            }}
+          />
+        </div>
+      </div>
+    </Portal>
+  );
+}
+
+// --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
   const { plushies, updatePlushie, closetItems, addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
@@ -46,7 +308,7 @@ const Closet = () => {
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
       id: `local-${item.id}`,
       userName: userDisplayName,
-      userIcon: userPhoto, // Use actual profile photo for my items
+      userIcon: userPhoto,
       plushieName: item.plushieName || 'My Plushie',
       plushieHeight: item.plushieHeight || 0,
       location: item.location,
@@ -68,12 +330,8 @@ const Closet = () => {
         (item.itemName && item.itemName.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (item.plushieName && item.plushieName.toLowerCase().includes(searchTerm.toLowerCase()));
 
-      // Size Filter (Filter items where height is within +/- 2cm of ANY of my plushies, or just the main one?)
-      // Let's use "ANY of my plushies" for broader matching, or the first one.
-      // Assuming user wants to find matches for *their* plushies.
       let matchesSize = true;
       if (filterMySize) {
-        // Find if ANY of my plushies matches this item's plushieHeight (+/- 2cm)
         if (!item.plushieHeight) matchesSize = false;
         else {
           matchesSize = plushies.some(myPlushie => {
@@ -158,7 +416,6 @@ const Closet = () => {
             </div>
 
             <div className="space-y-4">
-              {/* Item Grid */}
               {/* --- Plushie Filter Chips --- */}
               <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar px-1">
                 <button
@@ -175,7 +432,6 @@ const Closet = () => {
                     key={p.id}
                     onClick={() => {
                       setFilterMySize(true);
-                      // In a real app we'd filter by ID, but simplified here
                     }}
                     className={`flex-shrink-0 px-1 pr-3 py-1 rounded-full border flex items-center gap-2 transition-all ${filterMySize
                       ? 'bg-white text-gray-800 border-gray-300'
@@ -448,447 +704,187 @@ const Closet = () => {
         />
       )}
 
-      {/* === ITEM DETAIL MODAL === */}
+      {/* === ITEM DETAIL MODAL (Also Portaled for safety) === */}
       {selectedItem && (
-        <div className="fixed inset-0 bg-black/60 z-[110] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
-          <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-y-auto relative no-scrollbar shadow-2xl">
-            <button
-              onClick={() => { setSelectedItem(null); setIsEditing(false); }}
-              className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm"
-            >
-              <X size={20} />
-            </button>
+        <Portal>
+          <div className="fixed inset-0 bg-black/60 z-[2147483647] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-white rounded-3xl w-full max-w-sm max-h-[90vh] overflow-y-auto relative no-scrollbar shadow-2xl">
+              <button
+                onClick={() => { setSelectedItem(null); setIsEditing(false); }}
+                className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm"
+              >
+                <X size={20} />
+              </button>
 
-            <div className="relative">
-              <img src={selectedItem.image} alt="" className="w-full aspect-square object-cover" />
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
-                <h2 className="text-xl font-bold">{selectedItem.name}</h2>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Status Section */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  {isEditing ? (
-                    <button
-                      onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
-                      className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
-                        ? 'text-green-600 bg-green-100 border-2 border-green-400'
-                        : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
-                        }`}
-                    >
-                      {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
-                      {editData.isPublic ? t('publicGallery') : t('privateOnly')}
-                    </button>
-                  ) : (
-                    <>
-                      {selectedItem.isPublic ? (
-                        <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg font-bold text-xs"><Share2 size={12} /> {t('publicGallery')}</span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-1 rounded-lg font-bold text-xs"><Lock size={12} /> {t('privateOnly')}</span>
-                      )}
-                      <span>•</span>
-                      <span>{new Date(selectedItem.createdAt).toLocaleDateString()}</span>
-                    </>
-                  )}
+              <div className="relative">
+                <img src={selectedItem.image} alt="" className="w-full aspect-square object-cover" />
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
+                  <h2 className="text-xl font-bold">{selectedItem.name}</h2>
                 </div>
-                {/* Edit / Delete Buttons */}
-                <div className="flex gap-1">
-                  {!isEditing && (
+              </div>
+
+              <div className="p-6 space-y-6">
+                {/* Status Section */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    {isEditing ? (
+                      <button
+                        onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
+                          ? 'text-green-600 bg-green-100 border-2 border-green-400'
+                          : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
+                          }`}
+                      >
+                        {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
+                        {editData.isPublic ? t('publicGallery') : t('privateOnly')}
+                      </button>
+                    ) : (
+                      <>
+                        {selectedItem.isPublic ? (
+                          <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg font-bold text-xs"><Share2 size={12} /> {t('publicGallery')}</span>
+                        ) : (
+                          <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-1 rounded-lg font-bold text-xs"><Lock size={12} /> {t('privateOnly')}</span>
+                        )}
+                        <span>•</span>
+                        <span>{new Date(selectedItem.createdAt).toLocaleDateString()}</span>
+                      </>
+                    )}
+                  </div>
+                  {/* Edit / Delete Buttons */}
+                  <div className="flex gap-1">
+                    {!isEditing && (
+                      <button
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditData({
+                            fitRating: selectedItem.fitRating,
+                            comment: selectedItem.comment || '',
+                            isPublic: selectedItem.isPublic
+                          });
+                        }}
+                        className="text-blue-400 hover:text-blue-500 p-2"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                    )}
                     <button
                       onClick={() => {
-                        setIsEditing(true);
-                        setEditData({
-                          fitRating: selectedItem.fitRating,
-                          comment: selectedItem.comment || '',
-                          isPublic: selectedItem.isPublic
-                        });
+                        if (window.confirm(t('deleteConfirm'))) {
+                          deleteClosetItem(selectedItem.id);
+                          setSelectedItem(null);
+                          setIsEditing(false);
+                        }
                       }}
-                      className="text-blue-400 hover:text-blue-500 p-2"
+                      className="text-red-400 hover:text-red-500 p-2"
                     >
-                      <Edit2 size={18} />
+                      <Trash2 size={18} />
                     </button>
+                  </div>
+                </div>
+
+                {/* URL */}
+                {selectedItem.url && (
+                  <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500">
+                      <Shirt size={20} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-gray-400 font-bold uppercase">{t('boughtFrom')}</p>
+                      <a href={selectedItem.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary truncate block hover:underline">
+                        {selectedItem.url}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Fit Rating */}
+                <div>
+                  <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('fitRatingTitle')}</h4>
+                  {isEditing ? (
+                    <div className="flex justify-between gap-2">
+                      {[1, 2, 3].map((rating) => {
+                        const colors = [
+                          { bg: 'bg-red-100', border: 'border-red-400', text: 'text-red-600' },
+                          { bg: 'bg-green-100', border: 'border-green-400', text: 'text-green-600' },
+                          { bg: 'bg-yellow-100', border: 'border-yellow-400', text: 'text-yellow-600' },
+                        ][rating - 1];
+                        const emojis = ['😣', '😊', '😌'];
+                        const labels = [t('fitLabelsShort')?.[0] || 'きつい', t('fitLabelsShort')?.[1] || 'ぴったり', t('fitLabelsShort')?.[2] || '大きめ'];
+                        const isSelected = editData.fitRating === rating;
+                        return (
+                          <button
+                            key={rating}
+                            onClick={() => setEditData({ ...editData, fitRating: rating })}
+                            className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected ? `${colors.bg} ${colors.border} scale-105 shadow-md` : 'bg-white border-gray-200 opacity-60'
+                              }`}
+                          >
+                            <span className={`text-2xl block text-center ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
+                            <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? colors.text : 'text-gray-400'}`}>
+                              {labels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="flex gap-3 items-center">
+                      <span className="text-4xl">
+                        {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
+                      </span>
+                      <p className="text-lg font-bold text-gray-700">
+                        {fullFitLabels[selectedItem.fitRating - 1]}
+                      </p>
+                    </div>
                   )}
-                  <button
-                    onClick={() => {
-                      if (window.confirm(t('deleteConfirm'))) {
-                        deleteClosetItem(selectedItem.id);
-                        setSelectedItem(null);
+                </div>
+
+                {/* Comment */}
+                <div>
+                  <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('notesTitle')}</h4>
+                  {isEditing ? (
+                    <textarea
+                      className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                      placeholder={t('commentPlaceholder')}
+                      value={editData.comment}
+                      onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
+                    />
+                  ) : (
+                    selectedItem.comment && (
+                      <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
+                        {selectedItem.comment}
+                      </p>
+                    )
+                  )}
+                </div>
+
+                {/* Save / Cancel Buttons */}
+                {isEditing && (
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setIsEditing(false)}
+                      className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold"
+                    >
+                      {t('cancel') || 'キャンセル'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        updateClosetItem(selectedItem.id, editData);
+                        setSelectedItem({ ...selectedItem, ...editData });
                         setIsEditing(false);
-                      }
-                    }}
-                    className="text-red-400 hover:text-red-500 p-2"
-                  >
-                    <Trash2 size={18} />
-                  </button>
-                </div>
-              </div>
-
-              {/* URL */}
-              {selectedItem.url && (
-                <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
-                  <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500">
-                    <Shirt size={20} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-400 font-bold uppercase">{t('boughtFrom')}</p>
-                    <a href={selectedItem.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary truncate block hover:underline">
-                      {selectedItem.url}
-                    </a>
-                  </div>
-                </div>
-              )}
-
-              {/* Fit Rating */}
-              <div>
-                <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('fitRatingTitle')}</h4>
-                {isEditing ? (
-                  <div className="flex justify-between gap-2">
-                    {[1, 2, 3].map((rating) => {
-                      const colors = [
-                        { bg: 'bg-red-100', border: 'border-red-400', text: 'text-red-600' },
-                        { bg: 'bg-green-100', border: 'border-green-400', text: 'text-green-600' },
-                        { bg: 'bg-yellow-100', border: 'border-yellow-400', text: 'text-yellow-600' },
-                      ][rating - 1];
-                      const emojis = ['😣', '😊', '😌'];
-                      const labels = [t('fitLabelsShort')?.[0] || 'きつい', t('fitLabelsShort')?.[1] || 'ぴったり', t('fitLabelsShort')?.[2] || '大きめ'];
-                      const isSelected = editData.fitRating === rating;
-                      return (
-                        <button
-                          key={rating}
-                          onClick={() => setEditData({ ...editData, fitRating: rating })}
-                          className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected ? `${colors.bg} ${colors.border} scale-105 shadow-md` : 'bg-white border-gray-200 opacity-60'
-                            }`}
-                        >
-                          <span className={`text-2xl block text-center ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
-                          <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? colors.text : 'text-gray-400'}`}>
-                            {labels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="flex gap-3 items-center">
-                    <span className="text-4xl">
-                      {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
-                    </span>
-                    <p className="text-lg font-bold text-gray-700">
-                      {fullFitLabels[selectedItem.fitRating - 1]}
-                    </p>
+                      }}
+                      className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-md"
+                    >
+                      {t('save') || '保存'}
+                    </button>
                   </div>
                 )}
               </div>
-
-              {/* Comment */}
-              <div>
-                <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('notesTitle')}</h4>
-                {isEditing ? (
-                  <textarea
-                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                    placeholder={t('commentPlaceholder')}
-                    value={editData.comment}
-                    onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
-                  />
-                ) : (
-                  selectedItem.comment && (
-                    <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
-                      {selectedItem.comment}
-                    </p>
-                  )
-                )}
-              </div>
-
-              {/* Save / Cancel Buttons */}
-              {isEditing && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setIsEditing(false)}
-                    className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold"
-                  >
-                    {t('cancel') || 'キャンセル'}
-                  </button>
-                  <button
-                    onClick={() => {
-                      updateClosetItem(selectedItem.id, editData);
-                      setSelectedItem({ ...selectedItem, ...editData });
-                      setIsEditing(false);
-                    }}
-                    className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-md"
-                  >
-                    {t('save') || '保存'}
-                  </button>
-                </div>
-              )}
             </div>
           </div>
-        </div>
+        </Portal>
       )}
     </div>
   );
 };
-
-// --- REUSABLE FORM COMPONENT ---
-const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
-  const [image, setImage] = useState(null);
-  const [formData, setFormData] = useState({
-    name: '',
-    url: '',
-    plushieId: plushies[0]?.id || '',
-    fitRating: 2,
-    comment: '',
-    location: '',
-    isPublic: true,
-  });
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        const compressed = await compressImage(file);
-        setImage(compressed);
-      } catch {
-        alert('Failed to load image');
-      }
-    }
-  };
-
-  const handleSaveWrapper = () => {
-    if (!image) return;
-
-    // Get selected plushie data to snapshot
-    const selectedPlushie = plushies.find(p => p.id === formData.plushieId);
-
-    onSave({
-      image,
-      ...formData,
-      plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
-      plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
-    });
-  };
-
-  return (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
-        <div className="p-4 space-y-6">
-
-          {/* 1. Photo Section */}
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-2">{t('uploadPhoto')}</label>
-            {!image ? (
-              <div className="w-full aspect-video bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center relative overflow-hidden group hover:border-primary transition-colors cursor-pointer hover:bg-gray-100">
-                <input type="file" onChange={handleImageUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
-                <Camera size={32} className="text-gray-400 mb-2 group-hover:text-primary transition-colors" />
-                <p className="text-gray-400 font-bold text-xs">{t('tapToTakePhoto')}</p>
-              </div>
-            ) : (
-              <div className="w-full aspect-video bg-gray-100 rounded-xl overflow-hidden relative shadow-sm border border-gray-200">
-                <img src={image} alt="Preview" className="w-full h-full object-cover" />
-                <label className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full text-xs font-bold px-3 backdrop-blur-sm cursor-pointer hover:bg-black/70 transition-colors">
-                  {t('retake')}
-                  <input type="file" onChange={handleImageUpload} className="hidden" accept="image/*" />
-                </label>
-              </div>
-            )}
-          </div>
-
-          {/* 2. Form Fields (Always Visible) */}
-          <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''}`}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
-                <input
-                  type="text"
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder={t('itemNamePlaceholder')}
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('productUrl')}</label>
-                <input
-                  type="url"
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  placeholder="https://..."
-                  value={formData.url}
-                  onChange={(e) => setFormData({ ...formData, url: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('locationLabel')}</label>
-                <div className="relative">
-                  <div className="absolute top-3 left-3 text-gray-400">
-                    <MapPin size={16} /> {/* Reusing Share icon as Place icon isn't imported, or simple generic */}
-                  </div>
-                  <input
-                    type="text"
-                    className="w-full p-3 pl-10 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                    placeholder={t('locationPlaceholder')}
-                    value={formData.location}
-                    onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModelTitle')}</label>
-                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                  {plushies.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => setFormData({ ...formData, plushieId: p.id })}
-                      className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
-                        ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                        : 'border-gray-200 hover:bg-gray-50'
-                        }`}
-                    >
-                      <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
-                      <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
-                <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-2">
-                  {[1, 2, 3].map((rating) => {
-                    const colors = [
-                      { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600', selectedBg: 'bg-red-100' },
-                      { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', selectedBg: 'bg-green-100' },
-                      { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-600', selectedBg: 'bg-yellow-100' },
-                    ][rating - 1];
-                    const emojis = ['😣', '😊', '😌'];
-                    const isSelected = formData.fitRating === rating;
-
-                    return (
-                      <button
-                        key={rating}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, fitRating: rating })}
-                        className={`
-                          flex-1 p-3 rounded-xl transition-all duration-200 relative
-                          ${isSelected
-                            ? `${colors.selectedBg} scale-110 shadow-lg ring-4 ${colors.border.replace('border-', 'ring-')}`
-                            : 'bg-white hover:bg-gray-100 opacity-60'}
-                          active:scale-95
-                          border-3 
-                          ${isSelected ? colors.border : 'border-gray-200'}
-                        `}
-                      >
-                        {isSelected && (
-                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
-                            <span className="text-xs">✓</span>
-                          </div>
-                        )}
-                        <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
-                        <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
-                          {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
-                <textarea
-                  className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                  placeholder={t('commentPlaceholder')}
-                  value={formData.comment}
-                  onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
-                ></textarea>
-              </div>
-
-              <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
-                <div className="flex items-center gap-2">
-                  <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
-                    {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
-                  </div>
-                  <div className="text-xs">
-                    <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
-                    <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
-                  </div>
-                </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
-                  <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
-        <button
-          onClick={handleSaveWrapper}
-          disabled={!image}
-          style={{
-            width: '100%',
-            backgroundColor: image ? '#FBBF24' : '#E5E7EB',
-            color: image ? '#000000' : '#9CA3AF',
-            fontWeight: 'bold',
-            padding: '16px',
-            borderRadius: '16px',
-            fontSize: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            boxShadow: image ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
-            cursor: image ? 'pointer' : 'not-allowed',
-            transition: 'all 0.2s'
-          }}
-        >
-          <span style={{ fontSize: '24px' }}>✨</span>
-          <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// --- PORTAL COMPONENT ---
-import { createPortal } from 'react-dom';
-
-const Portal = ({ children }) => {
-  return createPortal(children, document.body);
-};
-
-
-const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
-  return (
-    <Portal>
-      <div className="fixed inset-0 bg-black/80 z-[2147483647] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ touchAction: 'none' }}>
-        <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[85vh] mb-0" onClick={e => e.stopPropagation()}>
-          {/* Header */}
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-            <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
-            <button onClick={onClose} className="p-2 bg-gray-200 rounded-full hover:bg-gray-300">
-              <X size={16} />
-            </button>
-          </div>
-
-          {/* Reused Form */}
-          <ClosetItemForm
-            plushies={plushies}
-            t={t}
-            fitLabels={fitLabels}
-            onSave={(item) => {
-              onSave(item);
-              onClose();
-            }}
-          />
-        </div>
-      </div>
-    </Portal>
-  );
-}
 
 export default Closet;

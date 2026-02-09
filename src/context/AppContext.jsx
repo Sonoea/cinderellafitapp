@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { translations } from '../translations';
 import { db } from '../firebase/config';
-import { collection, doc, setDoc, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 
 const AppContext = createContext();
@@ -175,31 +175,130 @@ export const AppProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Load Closet Items from Firestore
   useEffect(() => {
-    try {
-      localStorage.setItem('my_closet_v1', JSON.stringify(closetItems));
-    } catch (e) {
-      console.error("Failed to save closet to localStorage", e);
+    const loadClosetItems = async () => {
+      if (currentUser) {
+        try {
+          const q = collection(db, "users", currentUser.uid, "closetItems");
+          const querySnapshot = await getDocs(q);
+          const loadedItems = [];
+          querySnapshot.forEach((doc) => {
+            loadedItems.push(doc.data());
+          });
+
+          if (loadedItems.length > 0) {
+            // Sort by createdAt descending (newest first)
+            setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+          } else {
+            // Firestore is empty. Check if we have local data to migrate.
+            const saved = localStorage.getItem('my_closet_v1');
+            if (saved) {
+              const localItems = JSON.parse(saved);
+              if (localItems.length > 0) {
+                console.log("Migrating local items to Firestore...", localItems);
+                // Migrate items to Firestore
+                // We use a loop here to upload each item. 
+                // In production, batch write might be better but loop is fine for small number.
+                const migratedItems = [];
+                for (const item of localItems) {
+                  try {
+                    await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(item.id)), item);
+                    migratedItems.push(item);
+                  } catch (e) {
+                    console.error("Failed to migrate item:", item.id, e);
+                  }
+                }
+                setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                alert("以前のデータをクラウドに同期しました。");
+              } else {
+                setClosetItems([]);
+              }
+            } else {
+              setClosetItems([]);
+            }
+          }
+        } catch (error) {
+          console.error("Error loading closetItems from Firestore:", error);
+        }
+      } else {
+        // Fallback to local storage for guest
+        const saved = localStorage.getItem('my_closet_v1');
+        if (saved) {
+          setClosetItems(JSON.parse(saved));
+        }
+      }
+    };
+    loadClosetItems();
+  }, [currentUser]);
+
+  // Sync to LocalStorage (Backup/Guest)
+  useEffect(() => {
+    if (!currentUser) {
+      try {
+        localStorage.setItem('my_closet_v1', JSON.stringify(closetItems));
+      } catch (e) {
+        console.error("Failed to save closet to localStorage", e);
+      }
     }
-  }, [closetItems]);
+  }, [closetItems, currentUser]);
 
-  const addClosetItem = (item) => {
-    setClosetItems([
-      {
-        id: Date.now(),
-        createdAt: new Date().toISOString(),
-        ...item
-      },
-      ...closetItems
-    ]);
+  const addClosetItem = async (item) => {
+    const newItem = {
+      id: Date.now(),
+      createdAt: new Date().toISOString(),
+      ...item
+    };
+
+    // Optimistic Update
+    const newItems = [newItem, ...closetItems];
+    setClosetItems(newItems);
+
+    if (currentUser) {
+      try {
+        await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(newItem.id)), newItem);
+      } catch (e) {
+        console.error("Error adding closet item to Firestore: ", e);
+        // revert? or just alert
+        alert("クラウドへの保存に失敗しました。");
+      }
+    }
   };
 
-  const updateClosetItem = (id, updates) => {
-    setClosetItems(closetItems.map(item => item.id === id ? { ...item, ...updates } : item));
+  const updateClosetItem = async (id, updates) => {
+    // Optimistic Update
+    const newItems = closetItems.map(item => item.id === id ? { ...item, ...updates } : item);
+    setClosetItems(newItems);
+
+    if (currentUser) {
+      try {
+        // Need to merge updates with existing item logic or just send updates?
+        // setDoc with merge: true is safest if we just send the whole item again or specific fields
+        // Let's find the full updated object to be safe
+        const updatedItem = newItems.find(i => i.id === id);
+        if (updatedItem) {
+          await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(id)), updatedItem, { merge: true });
+        }
+      } catch (e) {
+        console.error("Error updating closet item in Firestore: ", e);
+        alert("クラウドへの保存に失敗しました。");
+      }
+    }
   };
 
-  const deleteClosetItem = (id) => {
-    setClosetItems(closetItems.filter(item => item.id !== id));
+  const deleteClosetItem = async (id) => {
+    // Optimistic Update
+    const newItems = closetItems.filter(item => item.id !== id);
+    setClosetItems(newItems);
+
+    if (currentUser) {
+      try {
+        await deleteDoc(doc(db, "users", currentUser.uid, "closetItems", String(id)));
+      } catch (e) {
+        console.error("Error deleting closet item from Firestore: ", e);
+        alert("削除の同期に失敗しました。");
+      }
+    }
   };
 
   return (

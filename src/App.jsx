@@ -18,7 +18,7 @@ function App() {
       <AppProvider>
         <Router>
           <div className="container">
-            <main className="p-4 fade-in">
+            <main className="p-4">
               <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Home />} />

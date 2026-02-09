@@ -157,17 +157,9 @@ const Closet = () => {
               <p>{t('closetTabHelp')}</p>
             </div>
 
-            {closetItems.length === 0 ? (
-              <div className="mb-24">
-                <ClosetItemForm
-                  plushies={plushies}
-                  t={t}
-                  fitLabels={fitLabels}
-                  onSave={(item) => addClosetItem(item)}
-                />
-              </div>
-            ) : (
-              <>
+            <div className="space-y-8">
+              {/* Item Grid */}
+              {closetItems.length > 0 && (
                 <div className="grid grid-cols-2 gap-3">
                   {closetItems.map(item => (
                     <div
@@ -197,16 +189,26 @@ const Closet = () => {
                     </div>
                   ))}
                 </div>
-                {/* Fab Button to Add Item - OUTSIDE the grid */}
-                <button
-                  onClick={() => setShowAddModal(true)}
-                  className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-[20000]"
-                  style={{ touchAction: 'manipulation' }}
-                >
-                  <Plus size={28} />
-                </button>
-              </>
-            )}
+              )}
+
+              {/* Persistent Add Form */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
+                  <div className="bg-primary/10 p-2 rounded-full text-primary">
+                    <Plus size={20} />
+                  </div>
+                  <h3 className="font-bold text-gray-700">{t('addNewOutfit')}</h3>
+                </div>
+                <div className="p-0">
+                  <ClosetItemForm
+                    plushies={plushies}
+                    t={t}
+                    fitLabels={fitLabels}
+                    onSave={(item) => addClosetItem(item)}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -768,7 +770,7 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, paddingBottom: '120px', boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+      <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
         <button
           onClick={handleSaveWrapper}
           disabled={!image}

@@ -354,17 +354,9 @@ const Closet = () => {
     <div className="pb-24">
       {/* Header & Tabs */}
       <div className="sticky top-0 bg-background/95 backdrop-blur z-10 pt-4 pb-2 px-4 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-black flex items-center gap-2">
-            {t('myCloset')}
-          </h2>
-          <button
-            onClick={() => setShowAddModal(true)}
-            className="bg-gray-100 p-2 rounded-full text-primary hover:bg-gray-200 active:scale-95 transition-all"
-          >
-            <Plus size={24} />
-          </button>
-        </div>
+        <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
+          {t('myCloset')}
+        </h2>
         <div className="flex bg-gray-100 p-1 rounded-xl">
           <button
             onClick={() => setActiveTab('items')}
@@ -741,17 +733,17 @@ const Closet = () => {
       {/* FAB - Global (Visible unless Inline Form is active) */}
       {(activeTab === 'gallery' || (closetItems && closetItems.length > 0)) && (
         <Portal>
-          <div className="fixed bottom-0 left-0 right-0 z-[20000] flex justify-center pointer-events-none">
-            <div className="w-full max-w-[480px] h-0 relative">
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="absolute bottom-28 right-6 pointer-events-auto bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors active:scale-95"
-                style={{ touchAction: 'manipulation' }}
-              >
-                <Plus size={28} />
-              </button>
-            </div>
-          </div>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="fixed z-[2147483647] bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors active:scale-95"
+            style={{
+              bottom: '120px',
+              right: '20px',
+              touchAction: 'manipulation'
+            }}
+          >
+            <Plus size={28} />
+          </button>
         </Portal>
       )}
     </div>

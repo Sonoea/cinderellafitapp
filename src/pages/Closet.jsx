@@ -1,5 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom'; // Hoisted import
+import { collectionGroup, query, where, getDocs } from 'firebase/firestore'; // Import Firestore functions
+import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -76,43 +78,60 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
 const Closet = () => {
   const { plushies, updatePlushie, closetItems, addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
+  // ... (inside Closet component)
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
-  const [showAddModal, setShowAddModal] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null); // For viewing details
-  const [isEditing, setIsEditing] = useState(false);
-  const [editData, setEditData] = useState({});
 
-  // Get user display name and photo
-  const userDisplayName = currentUser?.displayName || 'Me';
-  const userPhoto = currentUser?.photoURL || 'https://placehold.co/100/purple/white?text=Me';
+  // Gallery State
+  const [publicItems, setPublicItems] = useState([]);
+  const [isLoadingGallery, setIsLoadingGallery] = useState(false);
 
-  // Advanced Gallery Filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterMySize, setFilterMySize] = useState(false);
+  // Fetch Global Gallery on Tab Change
+  useEffect(() => {
+    if (activeTab === 'gallery') {
+      const fetchGallery = async () => {
+        setIsLoadingGallery(true);
+        try {
+          // Use Collection Group Query to search ALL 'closetItems' collections for isPublic == true
+          const q = query(collectionGroup(db, 'closetItems'), where('isPublic', '==', true));
+          const querySnapshot = await getDocs(q);
+          const items = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            // Avoid duplicates if necessary, or just map. 
+            // We add a 'uid' field if not present to distinguish users, but 'userName' should be there if saved correctly.
+            items.push({
+              id: doc.id,
+              ...data,
+              // Ensure we fail gracefully if data is missing
+              userName: data.userName || 'Unknown User',
+              userIcon: data.userIcon || '/api/placeholder/40/40',
+              shopName: data.url ? new URL(data.url).hostname : '',
+              // Ensure Date parsing works
+              date: data.createdAt ? new Date(data.createdAt).toISOString().split('T')[0] : 'Recently',
+            });
+          });
+          // Sort by createdAt descending
+          items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          setPublicItems(items);
+        } catch (error) {
+          console.error("Error fetching global gallery:", error);
+          // If collection group query fails (e.g., missing index), we might fall back or just show empty.
+        } finally {
+          setIsLoadingGallery(false);
+        }
+      };
 
-  // My Closet Filters
-  const [activePlushieId, setActivePlushieId] = useState('all');
-  const [activeFitRating, setActiveFitRating] = useState('all'); // 'all', 1, 2, 3
+      fetchGallery();
+    }
+  }, [activeTab]);
 
   const getFilteredGallery = () => {
-    // 1. Merge Local Public Items + Mock Gallery
-    const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
-      id: `local-${item.id}`,
-      userName: userDisplayName,
-      userIcon: userPhoto,
-      plushieName: item.plushieName || 'My Plushie',
-      plushieHeight: item.plushieHeight || 0,
-      location: item.location,
-      imageUrl: item.image,
-      itemName: item.name,
-      shopName: item.url ? new URL(item.url || 'http://b').hostname : '',
-      fitRating: item.fitRating,
-      comment: item.comment,
-      date: new Date(item.createdAt).toISOString().split('T')[0],
-      likes: 0
-    }));
+    // Merge Fetched Public Items + Mock Gallery
+    // Note: fetched items (publicItems) might include current user's items too, which is correct.
+    const allItems = [...publicItems, ...MOCK_GALLERY];
 
-    const allItems = [...localPublicItems, ...MOCK_GALLERY];
+    // Remove duplicates based on ID (MOCK_GALLERY items have 'g0', real items have timestamps)
+    // Actually, simply concatenating is fine as long as IDs are unique.
 
     return allItems.filter(item => {
       // Text Filter

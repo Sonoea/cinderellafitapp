@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Camera, Ruler, ArrowRight, ScanLine, ShoppingBag, CheckCircle, AlertTriangle } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { compressImage } from '../utils/imageUtils';
 
 const Measure = () => {
     const { addPlushie, updatePlushie, plushies, t, plushieLimit, language } = useApp();
@@ -52,14 +53,22 @@ const Measure = () => {
     }, [isEditMode, editId, plushies]);
 
     // Handle image upload
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setFormData({ ...formData, image: reader.result });
-            };
-            reader.readAsDataURL(file);
+            // 10MB Limit
+            if (file.size > 10 * 1024 * 1024) {
+                alert(language === 'jp' ? "画像サイズが大きすぎます（最大10MB）" : "Image size too large (Max 10MB)");
+                return;
+            }
+
+            try {
+                const compressedDataUrl = await compressImage(file);
+                setFormData({ ...formData, image: compressedDataUrl });
+            } catch (error) {
+                console.error("Image processing failed", error);
+                alert(language === 'jp' ? "画像の処理に失敗しました" : "Failed to process image");
+            }
         }
     };
 
@@ -112,26 +121,24 @@ const Measure = () => {
             <form onSubmit={handleManualSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm fade-in">
                 {/* Image Upload UI */}
                 <div className="flex flex-col items-center justify-center mb-4">
-                    <div className="relative w-32 h-32 mb-2">
-                        <div className={`w-full h-full rounded-full overflow-hidden border-4 border-gray-100 shadow-md ${!formData.image ? 'bg-gray-100 flex items-center justify-center' : ''}`}>
+                    <label htmlFor="image-upload" className="relative w-32 h-32 mb-2 cursor-pointer group">
+                        <div className={`w-full h-full rounded-full overflow-hidden border-4 border-gray-100 shadow-md flex items-center justify-center ${!formData.image ? 'bg-gray-100' : 'bg-white'}`}>
                             {formData.image ? (
-                                <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                                <img src={formData.image} alt="Preview" className="w-full h-full object-cover group-hover:opacity-80 transition-opacity" />
                             ) : (
-                                <Camera size={32} className="text-gray-400" />
+                                <Camera size={40} className="text-gray-300 group-hover:text-gray-400 transition-colors" />
                             )}
                         </div>
-                        <label htmlFor="image-upload" className="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-lg hover:bg-primary-dark transition-colors">
-                            <Camera size={16} />
-                        </label>
                         <input
                             type="file"
                             id="image-upload"
                             accept="image/*"
-                            className="hidden"
+                            style={{ display: 'none' }}
                             onChange={handleImageChange}
                         />
-                    </div>
-                    <span className="text-xs font-bold text-gray-400">{t('uploadPhoto') || '写真をアップロード'}</span>
+                    </label>
+                    <span className="text-xs font-bold text-gray-400 mt-1">{t('uploadPhoto') || '写真をアップロード'}</span>
+                    <span className="text-[10px] text-gray-400 mt-0.5">(Max 10MB)</span>
                 </div>
                 <div>
                     <label className="text-xs text-gray-400 font-bold uppercase tracking-wider">{t('nameLabel')}</label>

@@ -354,9 +354,17 @@ const Closet = () => {
     <div className="pb-24">
       {/* Header & Tabs */}
       <div className="sticky top-0 bg-background/95 backdrop-blur z-10 pt-4 pb-2 px-4 shadow-sm">
-        <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
-          {t('myCloset')}
-        </h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-2xl font-black flex items-center gap-2">
+            {t('myCloset')}
+          </h2>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="bg-gray-100 p-2 rounded-full text-primary hover:bg-gray-200 active:scale-95 transition-all"
+          >
+            <Plus size={24} />
+          </button>
+        </div>
         <div className="flex bg-gray-100 p-1 rounded-xl">
           <button
             onClick={() => setActiveTab('items')}

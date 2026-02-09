@@ -200,7 +200,7 @@ const Closet = () => {
                 {/* Fab Button to Add Item - OUTSIDE the grid */}
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="fixed bottom-28 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors z-[10000]"
+                  className="fixed bottom-36 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-xl flex items-center justify-center hover:bg-primary-dark transition-colors z-[10000]"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <Plus size={28} />

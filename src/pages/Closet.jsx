@@ -117,7 +117,7 @@ const Closet = () => {
   const fullFitLabels = t('fitLabels') || ['Too Tight', 'Tight', 'Good', 'Loose', 'Perfect'];
 
   return (
-    <div className="pb-24">
+    <div className="pb-32">
       {/* Header & Tabs */}
       <div className="sticky top-0 bg-background/95 backdrop-blur z-10 pt-4 pb-2 px-4 shadow-sm">
         <h2 className="text-2xl font-black mb-4 flex items-center gap-2">
@@ -168,7 +168,7 @@ const Closet = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-2 gap-3 mb-20">
+                <div className="grid grid-cols-2 gap-3">
                   {closetItems.map(item => (
                     <div
                       key={item.id}
@@ -200,7 +200,7 @@ const Closet = () => {
                 {/* Fab Button to Add Item - OUTSIDE the grid */}
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-50"
+                  className="fixed bottom-24 right-6 bg-primary text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center hover:bg-primary-dark transition-colors z-[20000]"
                   style={{ touchAction: 'manipulation' }}
                 >
                   <Plus size={28} />

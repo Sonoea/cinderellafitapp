@@ -39,7 +39,7 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
   return (
     <Portal>
       <div className="fixed inset-0 bg-black/80 z-[2147483647] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ touchAction: 'none' }}>
-        <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[85vh] mb-0" onClick={e => e.stopPropagation()}>
+        <div className="bg-white rounded-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh]" style={{ maxWidth: '400px', width: '95%', marginBottom: '0' }} onClick={e => e.stopPropagation()}>
           {/* Header */}
           <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
             <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>

@@ -768,28 +768,17 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, paddingBottom: '120px', boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+      {/* Footer - Pinned to bottom of container */}
+      <div className="p-4 border-t border-gray-100 bg-white shadow-[0_-5px_15px_rgba(0,0,0,0.05)] z-10">
         <button
           onClick={handleSaveWrapper}
           disabled={!image}
-          style={{
-            width: '100%',
-            backgroundColor: image ? '#FBBF24' : '#E5E7EB',
-            color: image ? '#000000' : '#9CA3AF',
-            fontWeight: 'bold',
-            padding: '16px',
-            borderRadius: '16px',
-            fontSize: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px',
-            boxShadow: image ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
-            cursor: image ? 'pointer' : 'not-allowed',
-            transition: 'all 0.2s'
-          }}
+          className={`w-full py-4 rounded-2xl font-bold text-lg flex items-center justify-center gap-2 shadow-lg transition-all active:scale-[0.98] ${image
+            ? 'bg-[#FBBF24] text-black shadow-orange-100'
+            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+            }`}
         >
-          <span style={{ fontSize: '24px' }}>✨</span>
+          <span className="text-2xl">✨</span>
           <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
         </button>
       </div>
@@ -799,7 +788,7 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
 
 const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
   return (
-    <div className="fixed inset-0 bg-black/80 z-[110] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="fixed inset-0 bg-black/80 z-[20000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[70vh] mb-40">
         {/* Header */}
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">

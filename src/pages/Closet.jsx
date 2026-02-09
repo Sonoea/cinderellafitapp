@@ -788,8 +788,8 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
 
 const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
   return (
-    <div className="fixed inset-0 bg-black/80 z-[20000] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl w-full max-w-sm overflow-hidden shadow-2xl flex flex-col max-h-[70vh] mb-40">
+    <div className="fixed inset-0 bg-black/80 z-[20000] flex items-end justify-center sm:items-center sm:p-4 backdrop-blur-sm animate-in fade-in duration-200">
+      <div className="bg-white rounded-t-3xl sm:rounded-3xl w-full sm:max-w-sm overflow-hidden shadow-2xl flex flex-col h-[85vh] sm:h-auto sm:max-h-[85vh]">
         {/* Header */}
         <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
           <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>

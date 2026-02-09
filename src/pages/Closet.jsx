@@ -166,7 +166,7 @@ const Closet = () => {
   const fullFitLabels = t('fitLabels') || ['Too Tight', 'Tight', 'Good', 'Loose', 'Perfect'];
 
   return (
-    <div className="pb-32">
+    <div className="pb-48">
       {/* Header & Tabs */}
       <div className="sticky top-0 bg-background/95 backdrop-blur z-10 pt-4 pb-2 px-4 shadow-sm">
         <h2 className="text-2xl font-black mb-4 flex items-center gap-2">

@@ -38,26 +38,34 @@ const MOCK_GALLERY = [
 const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
   return (
     <Portal>
-      <div className="fixed inset-0 bg-black/80 z-[2147483647] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in duration-200" style={{ touchAction: 'none' }}>
-        <div className="bg-white rounded-3xl w-full overflow-hidden shadow-2xl flex flex-col max-h-[85vh]" style={{ maxWidth: '400px', width: '95%', marginBottom: '0' }} onClick={e => e.stopPropagation()}>
+      <div
+        className="fixed inset-0 bg-black/50 z-[2147483647] flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
+        style={{ touchAction: 'none' }}
+      >
+        <div
+          className="bg-white w-full h-[100dvh] md:h-[85vh] md:max-w-[400px] md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300"
+          onClick={e => e.stopPropagation()}
+        >
           {/* Header */}
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0 z-10">
             <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
-            <button onClick={onClose} className="p-2 bg-gray-200 rounded-full hover:bg-gray-300">
-              <X size={16} />
+            <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
+              <X size={24} />
             </button>
           </div>
 
           {/* Reused Form */}
-          <ClosetItemForm
-            plushies={plushies}
-            t={t}
-            fitLabels={fitLabels}
-            onSave={(item) => {
-              onSave(item);
-              onClose();
-            }}
-          />
+          <div className="flex-1 overflow-hidden relative">
+            <ClosetItemForm
+              plushies={plushies}
+              t={t}
+              fitLabels={fitLabels}
+              onSave={(item) => {
+                onSave(item);
+                onClose();
+              }}
+            />
+          </div>
         </div>
       </div>
     </Portal>

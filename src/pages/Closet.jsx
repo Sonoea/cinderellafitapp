@@ -157,56 +157,48 @@ const Closet = () => {
               <p>{t('closetTabHelp')}</p>
             </div>
 
-            <div className="space-y-8">
+            <div className="space-y-4">
               {/* Item Grid */}
-              {closetItems.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
-                  {closetItems.map(item => (
-                    <div
-                      key={item.id}
-                      onClick={() => setSelectedItem(item)}
-                      className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
-                    >
-                      <div className="aspect-square bg-gray-100 relative">
-                        <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                        {item.isPublic && (
-                          <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
-                            <Share2 size={12} />
-                          </div>
-                        )}
+              <div className="grid grid-cols-2 gap-3 pb-32">
+                {/* 1. Add New Item Card (Always First) */}
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="aspect-square bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
+                >
+                  <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
+                    <Plus size={24} className="text-primary" />
+                  </div>
+                  <span className="text-xs font-bold">{t('addNewOutfit')}</span>
+                </button>
 
-                        {/* Fit Rating Badge */}
-                        <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
-                          item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
-                          }`}>
-                          {['😣', '😊', '😌'][item.fitRating - 1] || '😊'} {fitLabels[item.fitRating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                {/* 2. User Items */}
+                {closetItems.map(item => (
+                  <div
+                    key={item.id}
+                    onClick={() => setSelectedItem(item)}
+                    className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
+                  >
+                    <div className="aspect-square bg-gray-100 relative">
+                      <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                      {item.isPublic && (
+                        <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
+                          <Share2 size={12} />
                         </div>
-                      </div>
-                      <div className="p-2">
-                        <h4 className="font-bold text-sm truncate">{item.name || 'Untitled Item'}</h4>
-                        <p className="text-xs text-gray-400 truncate">{new Date(item.createdAt).toLocaleDateString()}</p>
+                      )}
+
+                      {/* Fit Rating Badge */}
+                      <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
+                        item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
+                        }`}>
+                        {['😣', '😊', '😌'][item.fitRating - 1] || '😊'} {fitLabels[item.fitRating - 1]?.replace(/^[^\s]+\s/, '') || ''}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Persistent Add Form */}
-              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-                  <div className="bg-primary/10 p-2 rounded-full text-primary">
-                    <Plus size={20} />
+                    <div className="p-2">
+                      <h4 className="font-bold text-sm truncate">{item.name || 'Untitled Item'}</h4>
+                      <p className="text-xs text-gray-400 truncate">{new Date(item.createdAt).toLocaleDateString()}</p>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-gray-700">{t('addNewOutfit')}</h3>
-                </div>
-                <div className="p-0">
-                  <ClosetItemForm
-                    plushies={plushies}
-                    t={t}
-                    fitLabels={fitLabels}
-                    onSave={(item) => addClosetItem(item)}
-                  />
-                </div>
+                ))}
               </div>
             </div>
           </div>

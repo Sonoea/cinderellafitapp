@@ -387,7 +387,7 @@ const Closet = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"
-                  className="w-full bg-gray-50 pl-14 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full bg-gray-50 pl-16 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -405,15 +405,12 @@ const Closet = () => {
               </button>
             </div>
 
-            <div className="bg-blue-50 p-4 rounded-xl flex items-start gap-3">
+            <div className="bg-blue-50 p-4 rounded-xl flex items-center gap-3">
               <div className="bg-white p-2 rounded-full shadow-sm">
                 <Users className="text-blue-500" size={20} />
               </div>
               <div>
                 <h3 className="font-bold text-blue-900 text-sm">{t('everyonesGallery')}</h3>
-                <p className="text-xs text-blue-700 mt-1">
-                  {t('galleryDesc')}
-                </p>
               </div>
             </div>
 

@@ -85,6 +85,15 @@ const Closet = () => {
   const [publicItems, setPublicItems] = useState([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
 
+  // Helper for safe URL parsing
+  const safeHostname = (url) => {
+    try {
+      return new URL(url).hostname;
+    } catch (e) {
+      return url || '';
+    }
+  };
+
   // Fetch Global Gallery on Tab Change
   useEffect(() => {
     if (activeTab === 'gallery') {
@@ -105,7 +114,7 @@ const Closet = () => {
               // Ensure we fail gracefully if data is missing
               userName: data.userName || 'Unknown User',
               userIcon: data.userIcon || '/api/placeholder/40/40',
-              shopName: data.url ? new URL(data.url).hostname : '',
+              shopName: data.url ? safeHostname(data.url) : '',
               // Ensure Date parsing works
               date: data.createdAt ? new Date(data.createdAt).toISOString().split('T')[0] : 'Recently',
             });
@@ -126,9 +135,27 @@ const Closet = () => {
   }, [activeTab]);
 
   const getFilteredGallery = () => {
-    // Merge Fetched Public Items + Mock Gallery
-    // Note: fetched items (publicItems) might include current user's items too, which is correct.
-    const allItems = [...publicItems, ...MOCK_GALLERY];
+    // 1. Merge Local Public Items + Mock Gallery
+    const userDisplayName = currentUser?.displayName || 'You';
+    const userPhoto = currentUser?.photoURL || '/api/placeholder/40/40';
+
+    const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
+      id: `local-${item.id}`,
+      userName: userDisplayName,
+      userIcon: userPhoto,
+      plushieName: item.plushieName || 'My Plushie',
+      plushieHeight: item.plushieHeight || 0,
+      location: item.location,
+      imageUrl: item.image,
+      itemName: item.name,
+      shopName: item.url ? safeHostname(item.url) : '',
+      fitRating: item.fitRating,
+      comment: item.comment,
+      date: item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : 'Recently',
+      likes: 0
+    }));
+
+    const allItems = [...publicItems, ...localPublicItems, ...MOCK_GALLERY];
 
     // Remove duplicates based on ID (MOCK_GALLERY items have 'g0', real items have timestamps)
     // Actually, simply concatenating is fine as long as IDs are unique.

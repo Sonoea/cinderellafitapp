@@ -23,13 +23,13 @@ class ErrorBoundary extends React.Component {
             return (
                 <div className="p-8 text-center">
                     <h2 className="text-xl font-bold text-red-600 mb-4">Something went wrong.</h2>
-                    <details className="text-left bg-gray-100 p-4 rounded text-xs overflow-auto whitespace-pre-wrap">
-                        <summary className="cursor-pointer font-bold mb-2">Error Details (Please screenshot this)</summary>
+                    <div className="text-left bg-red-50 p-4 rounded text-xs overflow-auto whitespace-pre-wrap border border-red-200 text-red-800">
+                        <p className="font-bold mb-2">Error Details:</p>
                         {this.state.error && this.state.error.toString()}
                         <br />
                         <br />
                         {this.state.errorInfo && this.state.errorInfo.componentStack}
-                    </details>
+                    </div>
                     <button
                         onClick={() => window.location.reload()}
                         className="mt-6 px-6 py-2 bg-primary text-white rounded-lg font-bold"

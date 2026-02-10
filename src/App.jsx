@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
@@ -6,12 +6,15 @@ import ErrorBoundary from './components/ErrorBoundary';
 import BottomNav from './components/BottomNav';
 import Home from './pages/Home';
 import Measure from './pages/Measure';
-import Closet from './pages/Closet';
+// import Closet from './pages/Closet'; // Convert to lazy
 import Shop from './pages/Shop';
 import Legal from './pages/Legal';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Guide from './pages/Guide';
+
+// Lazy load Closet to prevent circular dependency/initialization issues
+const Closet = lazy(() => import('./pages/Closet'));
 
 function App() {
   return (
@@ -26,7 +29,9 @@ function App() {
                 <Route path="/measure" element={<Measure />} />
                 <Route path="/closet" element={
                   <ErrorBoundary>
-                    <Closet />
+                    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+                      <Closet />
+                    </Suspense>
                   </ErrorBoundary>
                 } />
                 <Route path="/shop" element={<Shop />} />

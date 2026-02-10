@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
 import { collectionGroup, query, where, getDocs } from 'firebase/firestore'; // Import Firestore functions
 import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
@@ -6,9 +6,11 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
-import AddItemModal from '../components/AddItemModal';
+// import AddItemModal from '../components/AddItemModal';
 import Portal from '../components/Portal';
 import { MOCK_GALLERY } from '../constants/mockData';
+
+const AddItemModal = lazy(() => import('../components/AddItemModal'));
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
@@ -563,16 +565,20 @@ const Closet = () => {
 
       {/* === ADD ITEM MODAL === */}
       {showAddModal && (
-        <AddItemModal
-          onClose={() => setShowAddModal(false)}
-          onSave={(item) => {
-            addClosetItem(item);
-            setShowAddModal(false);
-          }}
-          plushies={plushies}
-          t={t}
-          fitLabels={fitLabels}
-        />
+        <Portal>
+          <Suspense fallback={null}>
+            <AddItemModal
+              onClose={() => setShowAddModal(false)}
+              onSave={(item) => {
+                addClosetItem(item);
+                setShowAddModal(false);
+              }}
+              plushies={plushies}
+              t={t}
+              fitLabels={fitLabels}
+            />
+          </Suspense>
+        </Portal>
       )}
 
       {/* === ITEM DETAIL MODAL (Also Portaled for safety) === */}

@@ -12,23 +12,7 @@ import Portal from '../components/Portal';
 
 const AddItemModal = lazy(() => import('../components/AddItemModal'));
 
-const MOCK_GALLERY = [
-  {
-    id: 'g0',
-    userName: 'うなえさん',
-    userIcon: '/unae-san.png',
-    plushieName: 'うなえさん',
-    plushieHeight: 12,
-    location: '東京',
-    imageUrl: '/sample-outfit.jpg',
-    itemName: 'パンダのドレス',
-    shopName: 'ダイソー',
-    fitRating: 2,
-    comment: 'ダイソーの椅子の靴下です。ヒレを通す穴を開ければ、うなえさんにぴったりのドレスに変身！',
-    date: '2026-02-07',
-    likes: 42,
-  }
-];
+// MOCK_GALLERY removed to prevent data leak confusion
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
@@ -131,8 +115,9 @@ const Closet = () => {
     }
   }, [activeTab]);
 
-  const getFilteredGallery = () => {
-    // 1. Merge Local Public Items + Mock Gallery
+  // --- FILTERED ITEMS LOGIC ---
+  const filteredItems = React.useMemo(() => {
+    // 1. Merge Local Public Items
     const userDisplayName = currentUser?.displayName || 'You';
     const userPhoto = currentUser?.photoURL || '/api/placeholder/40/40';
 
@@ -152,10 +137,11 @@ const Closet = () => {
       likes: 0
     }));
 
-    const allItems = [...publicItems, ...localPublicItems, ...MOCK_GALLERY];
+    // Combine Public Global Items + Local Public Items (No Mock Data)
+    const allItems = [...publicItems, ...localPublicItems];
 
-    // Remove duplicates based on ID (MOCK_GALLERY items have 'g0', real items have timestamps)
-    // Actually, simply concatenating is fine as long as IDs are unique.
+    // Remove duplicates based on ID if necessary (Firestore IDs should be unique from Local IDs)
+    // local IDs are prefixed with 'local-' so no collision with Firestore auto-ids
 
     return allItems.filter(item => {
       // Text Filter
@@ -177,7 +163,7 @@ const Closet = () => {
 
       return matchesSearch && matchesSize;
     });
-  };
+  }, [closetItems, publicItems, searchTerm, filterMySize, currentUser, plushies]);
 
   // Plushie Edit Logic
   const fileInputRef = useRef(null);
@@ -456,62 +442,64 @@ const Closet = () => {
               </div>
             </div>
 
-            {getFilteredGallery().length === 0 ? (
+            {filteredItems.length === 0 ? (
               <div className="text-center py-10 text-gray-400">
                 <p>No items found matching your filters.</p>
               </div>
             ) : (
-              getFilteredGallery().map(post => (
-                <div key={post.id} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="p-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <img src={post.userIcon} className="w-8 h-8 rounded-full bg-gray-200 object-cover" alt="" />
-                      <div>
-                        <p className="text-xs font-bold text-gray-800">{post.userName}</p>
-                        <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                          <span>{post.plushieName}</span>
-                          {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500">{post.plushieHeight}cm</span>}
+              /* Gallery Grid */
+              <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
+                {filteredItems.map((post) => (
+                  <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden break-inside-avoid">
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <img src={post.userIcon} className="w-8 h-8 rounded-full bg-gray-200 object-cover" alt="" />
+                        <div>
+                          <p className="text-xs font-bold text-gray-800">{post.userName}</p>
+                          <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                            <span>{post.plushieName}</span>
+                            {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500">{post.plushieHeight}cm</span>}
+                          </div>
                         </div>
                       </div>
+                      <div className="text-right">
+                        <span className="text-[10px] text-gray-400 block">{post.date}</span>
+                        {post.location && (
+                          <div className="flex items-center justify-end gap-0.5 text-[10px] text-blue-400 mt-0.5">
+                            <MapPin size={10} />
+                            <span className="truncate max-w-[80px]">{post.location}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-gray-400 block">{post.date}</span>
-                      {post.location && (
-                        <div className="flex items-center justify-end gap-0.5 text-[10px] text-blue-400 mt-0.5">
-                          <MapPin size={10} />
-                          <span className="truncate max-w-[80px]">{post.location}</span>
+
+                    <div className="aspect-square bg-gray-50 relative">
+                      <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
+                      {post.likes > 0 && (
+                        <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
+                          <Heart size={12} fill="currentColor" /> {post.likes}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
+                        <span className="text-lg">
+                          {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-600 mb-2">{post.comment}</p>
+
+                      {post.shopName && (
+                        <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
+                          <Shirt size={10} />
+                          {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
                         </div>
                       )}
                     </div>
                   </div>
-
-                  <div className="aspect-square bg-gray-50 relative">
-                    <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
-                    {post.likes > 0 && (
-                      <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
-                        <Heart size={12} fill="currentColor" /> {post.likes}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
-                      <span className="text-lg">
-                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-600 mb-2">{post.comment}</p>
-
-                    {post.shopName && (
-                      <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
-                        <Shirt size={10} />
-                        {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))
+              </div>
             )}
           </div>
         )}

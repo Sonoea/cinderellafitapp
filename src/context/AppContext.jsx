@@ -63,7 +63,10 @@ export const AppProvider = ({ children }) => {
           });
 
           if (loadedPlushies.length > 0) {
-            // Filter out default plushie (ID 2) if user has other custom plushies
+            // Restore default plushie (ID 2) if missing
+            if (!loadedPlushies.some(p => p.id === 2)) {
+              loadedPlushies.push(DEFAULT_PLUSHIE);
+            }
             setPlushies(loadedPlushies.sort((a, b) => a.id - b.id));
           } else {
             // Initial seed for new user if empty

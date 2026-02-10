@@ -117,13 +117,13 @@ const Closet = () => {
       likes: 0
     }));
 
-    // Combine Public Global Items + Local Public Items (No Mock Data)
-    const allItems = [...publicItems, ...localPublicItems];
+    // Combine Public Global Items + Local Public Items
+    const combinedItems = [...publicItems, ...localPublicItems];
 
-    // Remove duplicates based on ID if necessary (Firestore IDs should be unique from Local IDs)
-    // local IDs are prefixed with 'local-' so no collision with Firestore auto-ids
+    // Deduplication by ID
+    const uniqueItems = Array.from(new Map(combinedItems.map(item => [item.id, item])).values());
 
-    return allItems.filter(item => {
+    return uniqueItems.filter(item => {
       // Text Filter
       const matchesSearch = searchTerm === '' ||
         (item.location && item.location.toLowerCase().includes(searchTerm.toLowerCase())) ||

@@ -202,37 +202,8 @@ export const AppProvider = ({ children }) => {
             // Sort by createdAt descending (newest first)
             setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
           } else {
-            // Firestore is empty. Check if we have local data to migrate.
-            const saved = localStorage.getItem('my_closet_v1');
-            if (saved) {
-              try {
-                const localItems = JSON.parse(saved);
-                if (localItems.length > 0) {
-                  console.log("Migrating local items to Firestore...", localItems);
-                  // Migrate items to Firestore
-                  // We use a loop here to upload each item. 
-                  // In production, batch write might be better but loop is fine for small number.
-                  const migratedItems = [];
-                  for (const item of localItems) {
-                    try {
-                      await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(item.id)), item);
-                      migratedItems.push(item);
-                    } catch (e) {
-                      console.error("Failed to migrate item:", item.id, e);
-                    }
-                  }
-                  setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-                  alert("以前のデータをクラウドに同期しました。");
-                } else {
-                  setClosetItems([]);
-                }
-              } catch (e) {
-                console.error("Failed to parse local closet items during migration", e);
-                setClosetItems([]);
-              }
-            } else {
-              setClosetItems([]);
-            }
+            // Firestore is empty.
+            setClosetItems([]);
           }
         } catch (error) {
           console.error("Error loading closetItems from Firestore:", error);

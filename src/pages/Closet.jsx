@@ -263,47 +263,17 @@ const Closet = () => {
                 ))}
               </div>
 
-              {/* --- Timeline Grid --- */}
+              {/* --- Timeline Grid (Refactored) --- */}
               {(() => {
-                // Filter Items based on Active Plushie AND Fit Rating
-                const filteredClosetItems = closetItems.filter(item => {
-                  // Robust comparison: Convert both to strings to handle mixed types (number vs string)
+                const timelineItems = closetItems.filter(item => {
                   const matchPlushie = activePlushieId === 'all' || String(item.plushieId) === String(activePlushieId);
                   const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
                   return matchPlushie && matchFit;
                 });
 
-                if (filteredClosetItems.length === 0) {
-                  // Even if no items match, show the Add button
-                  return renderGrid([], true);
-                }
-
-                // Group items by Year-Month
-                const groupedItems = filteredClosetItems.reduce((acc, item) => {
-                  let yearStr, monthStr;
-                  try {
-                    const date = item.createdAt ? new Date(item.createdAt) : new Date();
-                    if (isNaN(date.getTime())) throw new Error('Invalid Date');
-                    yearStr = date.getFullYear();
-                    monthStr = (date.getMonth() + 1).toString().padStart(2, '0');
-                  } catch (e) {
-                    yearStr = '----';
-                    monthStr = '--';
-                  }
-
-                  const key = `${yearStr}.${monthStr}`; // e.g., 2026.02
-                  if (!acc[key]) acc[key] = [];
-                  acc[key].push(item);
-                  return acc;
-                }, {});
-
-                // Sort keys descending (newest first)
-                const sortedKeys = Object.keys(groupedItems).sort((a, b) => b.localeCompare(a));
-
-                // Helper: Render Grid for a group
-                const renderGrid = (items, isFirstGroup) => (
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    {isFirstGroup && (
+                if (timelineItems.length === 0) {
+                  return (
+                    <div className="grid grid-cols-2 gap-3 mb-6">
                       <button
                         onClick={() => setShowAddModal(true)}
                         className="aspect-square bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
@@ -313,55 +283,71 @@ const Closet = () => {
                         </div>
                         <span className="text-xs font-bold">{t('addNewOutfit')}</span>
                       </button>
-                    )}
-                    {items.map(item => (
-                      <div
-                        key={item.id}
-                        onClick={() => setSelectedItem(item)}
-                        className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
-                      >
-                        <div className="aspect-square bg-gray-100 relative">
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
-                          {item.isPublic && (
-                            <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
-                              <Share2 size={12} />
-                            </div>
-                          )}
-                          <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
-                            item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
-                            }`}>
-                            {['😣', '😊', '😌'][item.fitRating - 1] || '😊'} {fitLabels[item.fitRating - 1]?.replace(/^[^\s]+\s/, '') || ''}
-                          </div>
-                        </div>
-                        <div className="p-2">
-                          <h4 className="font-bold text-sm truncate">{item.name || 'Untitled Item'}</h4>
-                          <p className="text-xs text-gray-400 truncate">
-                            {(() => {
-                              try {
-                                return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '---';
-                              } catch (e) {
-                                return '---';
-                              }
-                            })()}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                );
-
-                // If no items, show just the Add button in a grid
-                if (closetItems.length === 0) return renderGrid([], true);
+                    </div>
+                  );
+                }
 
                 return (
                   <div className="pb-32">
-                    {sortedKeys.map((key, index) => (
+                    {Object.entries(timelineItems.reduce((acc, item) => {
+                      let key = '----.--';
+                      try {
+                        const d = new Date(item.createdAt);
+                        if (!isNaN(d.getTime())) {
+                          key = `${d.getFullYear()}.${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                        }
+                      } catch (e) { }
+                      if (!acc[key]) acc[key] = [];
+                      acc[key].push(item);
+                      return acc;
+                    }, {})).sort((a, b) => b[0].localeCompare(a[0])).map(([key, groupItems], groupIndex) => (
                       <div key={key}>
                         <h3 className="text-xs font-black text-gray-400 mb-3 ml-1 flex items-center gap-2">
                           <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
                           {key}
                         </h3>
-                        {renderGrid(groupedItems[key], index === 0)}
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                          {/* Add Button only in the very first group */}
+                          {groupIndex === 0 && (
+                            <button
+                              onClick={() => setShowAddModal(true)}
+                              className="aspect-square bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
+                            >
+                              <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
+                                <Plus size={24} className="text-primary" />
+                              </div>
+                              <span className="text-xs font-bold">{t('addNewOutfit')}</span>
+                            </button>
+                          )}
+
+                          {groupItems.map(item => (
+                            <div
+                              key={item.id}
+                              onClick={() => setSelectedItem(item)}
+                              className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
+                            >
+                              <div className="aspect-square bg-gray-100 relative">
+                                <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                                {item.isPublic && (
+                                  <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
+                                    <Share2 size={12} />
+                                  </div>
+                                )}
+                                <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
+                                  item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
+                                  }`}>
+                                  {t('fitLabelsShort')?.[item.fitRating - 1] || '😊'}
+                                </div>
+                              </div>
+                              <div className="p-2">
+                                <h4 className="font-bold text-sm truncate">{item.name || 'Untitled'}</h4>
+                                <p className="text-xs text-gray-400 truncate">
+                                  {safeDate(item.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     ))}
                   </div>

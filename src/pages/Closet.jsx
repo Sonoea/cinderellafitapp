@@ -139,7 +139,11 @@ const Closet = () => {
             }
           });
           // Sort by createdAt descending
-          items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          items.sort((a, b) => {
+            const dateA = a.date === 'Recently' ? 0 : new Date(a.date).getTime();
+            const dateB = b.date === 'Recently' ? 0 : new Date(b.date).getTime();
+            return dateB - dateA;
+          });
           setPublicItems(items);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
@@ -345,8 +349,18 @@ const Closet = () => {
 
                 // Group items by Year-Month
                 const groupedItems = filteredClosetItems.reduce((acc, item) => {
-                  const date = new Date(item.createdAt);
-                  const key = `${date.getFullYear()}.${(date.getMonth() + 1).toString().padStart(2, '0')}`; // e.g., 2026.02
+                  let yearStr, monthStr;
+                  try {
+                    const date = item.createdAt ? new Date(item.createdAt) : new Date();
+                    if (isNaN(date.getTime())) throw new Error('Invalid Date');
+                    yearStr = date.getFullYear();
+                    monthStr = (date.getMonth() + 1).toString().padStart(2, '0');
+                  } catch (e) {
+                    yearStr = '----';
+                    monthStr = '--';
+                  }
+
+                  const key = `${yearStr}.${monthStr}`; // e.g., 2026.02
                   if (!acc[key]) acc[key] = [];
                   acc[key].push(item);
                   return acc;
@@ -390,7 +404,15 @@ const Closet = () => {
                         </div>
                         <div className="p-2">
                           <h4 className="font-bold text-sm truncate">{item.name || 'Untitled Item'}</h4>
-                          <p className="text-xs text-gray-400 truncate">{new Date(item.createdAt).toLocaleDateString()}</p>
+                          <p className="text-xs text-gray-400 truncate">
+                            {(() => {
+                              try {
+                                return item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '---';
+                              } catch (e) {
+                                return '---';
+                              }
+                            })()}
+                          </p>
                         </div>
                       </div>
                     ))}

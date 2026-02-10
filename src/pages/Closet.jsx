@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { collectionGroup, query, where, getDocs } from 'firebase/firestore'; // Import Firestore functions
 import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
@@ -10,8 +10,7 @@ import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { MOCK_GALLERY } from '../data/mockData';
 
-// Lazy Load Modal
-const AddItemModal = lazy(() => import('../components/AddItemModal'));
+import AddItemModal from '../components/AddItemModal';
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
@@ -68,18 +67,23 @@ const Closet = () => {
               console.warn("Skipping invalid gallery item:", doc.id, err);
             }
           });
+          // Combine with Mock Gallery (so Sample is always visible)
+          const allItems = [...items, ...MOCK_GALLERY];
+
           // Sort by createdAt descending
-          items.sort((a, b) => {
+          allItems.sort((a, b) => {
             const dateA = a.date === 'Recently' ? 0 : new Date(a.date).getTime();
             const dateB = b.date === 'Recently' ? 0 : new Date(b.date).getTime();
+            // If 'Recently', treat as new (push to top)?
+            // Current logic: 0. Date.now() is ~1.7e12.
+            // B(Time) - A(0) = Positive. B comes first.
+            // So 'Recently' (0) goes to BOTTOM.
+            // If we want 'Recently' to be at top, we should use a future date or special check.
+            // Let's keep it at bottom for now, or check generic sort.
             return dateB - dateA;
           });
 
-          if (items.length === 0) {
-            setPublicItems(MOCK_GALLERY);
-          } else {
-            setPublicItems(items);
-          }
+          setPublicItems(allItems);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
         } finally {
@@ -445,18 +449,16 @@ const Closet = () => {
       {
         showAddModal && (
           <Portal>
-            <Suspense fallback={null}>
-              <AddItemModal
-                onClose={() => setShowAddModal(false)}
-                onSave={(item) => {
-                  addClosetItem(item);
-                  setShowAddModal(false);
-                }}
-                plushies={plushies}
-                t={t}
-                fitLabels={fitLabels}
-              />
-            </Suspense>
+            <AddItemModal
+              onClose={() => setShowAddModal(false)}
+              onSave={(item) => {
+                addClosetItem(item);
+                setShowAddModal(false);
+              }}
+              plushies={plushies}
+              t={t}
+              fitLabels={fitLabels}
+            />
           </Portal>
         )
       }

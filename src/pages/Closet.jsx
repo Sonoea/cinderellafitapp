@@ -8,6 +8,7 @@ import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Came
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
+import { MOCK_GALLERY } from '../data/mockData';
 
 // Lazy Load Modal
 const AddItemModal = lazy(() => import('../components/AddItemModal'));
@@ -73,7 +74,12 @@ const Closet = () => {
             const dateB = b.date === 'Recently' ? 0 : new Date(b.date).getTime();
             return dateB - dateA;
           });
-          setPublicItems(items);
+
+          if (items.length === 0) {
+            setPublicItems(MOCK_GALLERY);
+          } else {
+            setPublicItems(items);
+          }
         } catch (error) {
           console.error("Error fetching global gallery:", error);
         } finally {

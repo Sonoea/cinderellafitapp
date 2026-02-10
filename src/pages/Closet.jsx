@@ -135,31 +135,7 @@ const Closet = () => {
     });
   }, [closetItems, publicItems, searchTerm, filterMySize, currentUser, plushies]);
 
-  // Plushie Edit Logic
-  const fileInputRef = useRef(null);
-  const [editingId, setEditingId] = useState(null);
 
-  const handleEditPlushieClick = (id) => {
-    setEditingId(id);
-    fileInputRef.current.click();
-  };
-
-  const handlePlushieFileChange = async (e) => {
-    const file = e.target.files[0];
-    if (file && editingId) {
-      try {
-        const compressedImage = await compressImage(file);
-        const plushieToUpdate = plushies.find(p => p.id === editingId);
-        if (plushieToUpdate) {
-          updatePlushie({ ...plushieToUpdate, image: compressedImage });
-        }
-      } catch (error) {
-        console.error("Image compression failed", error);
-        alert(t('imageUploadError') || "Failed to upload image.");
-      }
-      setEditingId(null);
-    }
-  };
 
   const fitLabels = t('fitLabelsShort') || ['Tight', 'Snug', 'Good', 'Loose', 'Perf'];
   const fullFitLabels = t('fitLabels') || ['Too Tight', 'Tight', 'Good', 'Loose', 'Perfect'];
@@ -185,13 +161,6 @@ const Closet = () => {
               }`}
           >
             <Users size={16} /> {t('gallery')}
-          </button>
-          <button
-            onClick={() => setActiveTab('plushies')}
-            className={`flex-1 py-2 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2 ${activeTab === 'plushies' ? 'bg-white shadow text-primary' : 'text-gray-500'
-              }`}
-          >
-            <Camera size={16} /> {t('plushies')}
           </button>
         </div>
       </div>
@@ -371,7 +340,7 @@ const Closet = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input
                   type="text"
-                  className="w-full bg-gray-50 pl-16 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full bg-gray-50 pl-12 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
                   placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -400,7 +369,8 @@ const Closet = () => {
 
             {filteredItems.length === 0 ? (
               <div className="text-center py-10 text-gray-400">
-                <p>No items found matching your filters.</p>
+                <p className="font-bold mb-1">{t('noItems')}</p>
+                <p className="text-xs">{t('noItemsSub')}</p>
               </div>
             ) : (
               /* Gallery Grid */
@@ -461,69 +431,6 @@ const Closet = () => {
           </div>
         )}
 
-        {/* === PLUSHIES TAB (Original Functionality) === */}
-        {activeTab === 'plushies' && (
-          <div className="fade-in pb-20">
-            <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
-              <span className="text-lg">💡</span>
-              <p>{t('plushiesTabHelp')}</p>
-            </div>
-
-            {/* Hidden File Input for Image Update */}
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handlePlushieFileChange}
-              className="hidden"
-              accept="image/*"
-            />
-
-            <div className="grid grid-cols-2 gap-4">
-              {plushies.map(plushie => (
-                <div key={plushie.id} className="bg-white p-4 rounded-2xl shadow-sm flex flex-col items-center gap-3 relative border border-gray-100">
-                  <button
-                    onClick={() => handleEditPlushieClick(plushie.id)}
-                    className="absolute top-2 right-2 p-2 text-gray-400 hover:text-primary bg-gray-50 rounded-full"
-                    title="Change Photo"
-                  >
-                    <Edit2 size={16} />
-                  </button>
-
-                  <div className="w-20 h-20 rounded-full p-1 border-2 border-dashed border-gray-200">
-                    <img
-                      src={plushie.image}
-                      className="w-full h-full rounded-full object-cover"
-                      alt={plushie.name}
-                    />
-                  </div>
-
-                  <div className="text-center">
-                    <h3 className="text-lg font-bold">{plushie.name}</h3>
-                    <span className="text-[10px] text-white bg-secondary px-2 py-0.5 rounded-full">
-                      {plushie.type}
-                    </span>
-                  </div>
-
-                  <div className="w-full bg-gray-50 rounded-lg p-3 text-xs text-gray-500 mt-2">
-                    <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                      <div className="flex justify-between"><span>{t('height')}</span> <b>{plushie.measurements.height}</b></div>
-                      <div className="flex justify-between"><span>{t('waist')}</span> <b>{plushie.measurements.waist}</b></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              <Link
-                to="/measure"
-                className="flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-gray-200 text-gray-300 hover:border-primary hover:text-primary hover:bg-gray-50 transition-colors"
-                style={{ minHeight: '200px' }}
-              >
-                <Plus size={32} className="mb-2" />
-                <span className="text-xs font-bold">{t('addFriend')}</span>
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* === ADD ITEM MODAL === */}

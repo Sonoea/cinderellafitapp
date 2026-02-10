@@ -6,35 +6,11 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
-// import AddItemModal from '../components/AddItemModal';
 import Portal from '../components/Portal';
-// import { MOCK_GALLERY } from '../constants/mockData';
+import { safeHostname, safeDate } from '../utils/formatting';
 
+// Lazy Load Modal
 const AddItemModal = lazy(() => import('../components/AddItemModal'));
-
-// MOCK_GALLERY removed to prevent data leak confusion
-
-// --- HELPER FUNCTIONS (Defined outside component to avoid TDZ) ---
-const safeHostname = (url) => {
-  try {
-    if (!url || typeof url !== 'string') return '';
-    const urlToCheck = url.startsWith('http') ? url : `https://${url}`;
-    return new URL(urlToCheck).hostname;
-  } catch (e) {
-    return '';
-  }
-};
-
-const safeDate = (dateVal) => {
-  try {
-    if (!dateVal) return 'Recently';
-    const d = new Date(dateVal);
-    if (isNaN(d.getTime())) return 'Recently';
-    return d.toISOString().split('T')[0];
-  } catch (e) {
-    return 'Recently';
-  }
-};
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {

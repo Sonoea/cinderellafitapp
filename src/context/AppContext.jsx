@@ -174,7 +174,7 @@ export const AppProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('my_closet_v1');
       const parsed = saved ? JSON.parse(saved) : [];
-      return Array.isArray(parsed) ? parsed : [];
+      return Array.isArray(parsed) ? parsed.filter(item => item && typeof item === 'object') : [];
     } catch (e) {
       console.error("Failed to parse closet items", e);
       return [];

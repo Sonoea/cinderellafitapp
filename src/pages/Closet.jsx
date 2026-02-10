@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom'; // Hoisted import
 import { collectionGroup, query, where, getDocs } from 'firebase/firestore'; // Import Firestore functions
 import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
@@ -8,76 +7,18 @@ import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import ClosetItemForm from '../components/ClosetItemForm';
-
-// --- PORTAL COMPONENT ---
-const Portal = ({ children }) => {
-  return createPortal(children, document.body);
-};
-
-// --- MOCK DATA ---
-const MOCK_GALLERY = [
-  {
-    id: 'g0',
-    userName: 'うなえさん',
-    userIcon: '/unae-san.png',
-    plushieName: 'うなえさん',
-    plushieHeight: 12,
-    location: '東京',
-    imageUrl: '/sample-outfit.jpg',
-    itemName: 'パンダのドレス',
-    shopName: 'ダイソー',
-    fitRating: 2,
-    comment: 'ダイソーの椅子の靴下です。ヒレを通す穴を開ければ、うなえさんにぴったりのドレスに変身！',
-    date: '2026-02-07',
-    likes: 42,
-  }
-];
-
-// --- REUSABLE FORM COMPONENT ---
-// MOVED TO: src/components/ClosetItemForm.jsx
-
-// --- ADD ITEM MODAL ---
-const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
-  return (
-    <Portal>
-      <div
-        className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
-        style={{ touchAction: 'none' }}
-      >
-        <div
-          className="modal-responsive animate-in slide-in-from-bottom-10 fade-in duration-300"
-          onClick={e => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white flex-shrink-0 z-10">
-            <h3 className="font-bold text-lg">{t('addNewOutfit')}</h3>
-            <button onClick={onClose} className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors">
-              <X size={24} />
-            </button>
-          </div>
-
-          {/* Reused Form */}
-          <div className="flex-1 overflow-hidden relative">
-            <ClosetItemForm
-              plushies={plushies}
-              t={t}
-              fitLabels={fitLabels}
-              onSave={(item) => {
-                onSave(item);
-                onClose();
-              }}
-            />
-          </div>
-        </div>
-      </div>
-    </Portal>
-  );
-}
+import AddItemModal from '../components/AddItemModal';
+import Portal from '../components/Portal';
+import { MOCK_GALLERY } from '../constants/mockData';
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
+  // Debugging log for production crash
+  console.log("Closet component rendering...");
+
   const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
+
   // ... (inside Closet component)
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
 

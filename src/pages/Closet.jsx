@@ -88,7 +88,7 @@ const Closet = () => {
   // --- FILTERED ITEMS LOGIC ---
   const filteredItems = React.useMemo(() => {
     // 1. Merge Local Public Items
-    const userDisplayName = currentUser?.displayName || 'You';
+    const userDisplayName = currentUser?.displayName || t('guest') || 'Guest';
     const userPhoto = currentUser?.photoURL || '/api/placeholder/40/40';
 
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
@@ -381,10 +381,10 @@ const Closet = () => {
                       <div className="flex items-center gap-2">
                         <img src={post.userIcon} className="w-8 h-8 rounded-full bg-gray-200 object-cover" alt="" />
                         <div>
-                          <p className="text-xs font-bold text-gray-800">{post.userName}</p>
+                          <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.userName}</p>
                           <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                            <span>{post.plushieName}</span>
-                            {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500">{post.plushieHeight}cm</span>}
+                            <span className="truncate max-w-[80px]">{post.plushieName}</span>
+                            {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
                           </div>
                         </div>
                       </div>

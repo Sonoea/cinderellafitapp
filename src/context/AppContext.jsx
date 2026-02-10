@@ -63,7 +63,13 @@ export const AppProvider = ({ children }) => {
           });
 
           if (loadedPlushies.length > 0) {
-            setPlushies(loadedPlushies.sort((a, b) => a.id - b.id));
+            // Filter out default plushie (ID 2) if user has other custom plushies
+            const hasCustomPlushies = loadedPlushies.some(p => p.id !== 2);
+            const finalPlushies = hasCustomPlushies
+              ? loadedPlushies.filter(p => p.id !== 2)
+              : loadedPlushies;
+
+            setPlushies(finalPlushies.sort((a, b) => a.id - b.id));
           } else {
             // Initial seed for new user if empty
             setPlushies([DEFAULT_PLUSHIE]);

@@ -134,7 +134,7 @@ export const translations = {
         filterSize: "Find Size Match",
         searchPlaceholder: "Search by Location, Name, Brand...",
         filterLocation: "Filter by Location",
-        height: "Height",
+
         cm: "cm",
         closetTabHelp: "Upload photos to save your collection. Public items appear in the 'Gallery' tab!",
         galleryTabHelp: "See everyone's outfits! Upload yours from the 'My Outfits' tab.",
@@ -238,7 +238,7 @@ export const translations = {
         filterSize: "自分と同じサイズ",
         searchPlaceholder: "場所・アイテム名・ブランドで検索...",
         filterLocation: "場所で検索",
-        height: "身長",
+
         cm: "cm",
         closetTabHelp: "写真をアップしてコーデを保存！公開にすると「ギャラリー」でみんなにシェアできます。",
         galleryTabHelp: "みんなのコーデをチェック！自分の写真は「マイコーデ」タブから追加できます。",

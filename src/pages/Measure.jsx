@@ -29,12 +29,16 @@ const Measure = () => {
         leg: '',
     });
 
+    const hasLoaded = React.useRef(false);
+
     // Load data for edit mode
     useEffect(() => {
-        if (isEditMode && plushies.length > 0) {
+        if (isEditMode && plushies.length > 0 && !hasLoaded.current) {
             const targetPlushie = plushies.find(p => String(p.id) === String(editId));
             if (targetPlushie) {
-                setFormData({
+                // Wrap in timeout to avoid synchronous state update warning (though ref prevents loop)
+                // or just accept that we need to update state based on props/context
+                const dataToLoad = {
                     name: targetPlushie.name,
                     type: targetPlushie.type,
                     image: targetPlushie.image,
@@ -47,9 +51,16 @@ const Measure = () => {
                     arm: targetPlushie.measurements?.arm || '',
                     armGirth: targetPlushie.measurements?.armGirth || '',
                     leg: targetPlushie.measurements?.leg || '',
-                });
+                };
+
+                // Use functional update or just set it. 
+                // The warning is strict about effects triggering re-renders immediately.
+                // But this is necessary for initialization.
+                setFormData(dataToLoad);
+                hasLoaded.current = true;
             }
         }
+
     }, [isEditMode, editId, plushies]);
 
     // Handle image upload

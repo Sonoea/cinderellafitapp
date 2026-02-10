@@ -3,7 +3,6 @@ import { translations } from '../translations';
 import { db } from '../firebase/config';
 import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
-
 const AppContext = createContext();
 
 const DEFAULT_PLUSHIE = {
@@ -77,7 +76,13 @@ export const AppProvider = ({ children }) => {
       } else {
         // Guest: Load from localStorage
         const saved = localStorage.getItem('my_plushies_v2');
-        let parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
+        let parsed;
+        try {
+          parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
+        } catch (e) {
+          console.error("Failed to parse plushies from localStorage", e);
+          parsed = [DEFAULT_PLUSHIE];
+        }
 
         // MIGRATION: Fix old placeholder image and Unagi type in localStorage
         parsed = parsed.map(p => {
@@ -200,24 +205,29 @@ export const AppProvider = ({ children }) => {
             // Firestore is empty. Check if we have local data to migrate.
             const saved = localStorage.getItem('my_closet_v1');
             if (saved) {
-              const localItems = JSON.parse(saved);
-              if (localItems.length > 0) {
-                console.log("Migrating local items to Firestore...", localItems);
-                // Migrate items to Firestore
-                // We use a loop here to upload each item. 
-                // In production, batch write might be better but loop is fine for small number.
-                const migratedItems = [];
-                for (const item of localItems) {
-                  try {
-                    await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(item.id)), item);
-                    migratedItems.push(item);
-                  } catch (e) {
-                    console.error("Failed to migrate item:", item.id, e);
+              try {
+                const localItems = JSON.parse(saved);
+                if (localItems.length > 0) {
+                  console.log("Migrating local items to Firestore...", localItems);
+                  // Migrate items to Firestore
+                  // We use a loop here to upload each item. 
+                  // In production, batch write might be better but loop is fine for small number.
+                  const migratedItems = [];
+                  for (const item of localItems) {
+                    try {
+                      await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(item.id)), item);
+                      migratedItems.push(item);
+                    } catch (e) {
+                      console.error("Failed to migrate item:", item.id, e);
+                    }
                   }
+                  setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+                  alert("以前のデータをクラウドに同期しました。");
+                } else {
+                  setClosetItems([]);
                 }
-                setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-                alert("以前のデータをクラウドに同期しました。");
-              } else {
+              } catch (e) {
+                console.error("Failed to parse local closet items during migration", e);
                 setClosetItems([]);
               }
             } else {
@@ -231,7 +241,12 @@ export const AppProvider = ({ children }) => {
         // Fallback to local storage for guest
         const saved = localStorage.getItem('my_closet_v1');
         if (saved) {
-          setClosetItems(JSON.parse(saved));
+          try {
+            setClosetItems(JSON.parse(saved));
+          } catch (e) {
+            console.error("Failed to parse local closet items", e);
+            setClosetItems([]);
+          }
         }
       }
     };

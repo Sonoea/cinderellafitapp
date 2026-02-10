@@ -85,6 +85,21 @@ const Closet = () => {
   const [publicItems, setPublicItems] = useState([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
 
+  // --- RESTORED MISSING STATES ---
+  // Filters (Items Tab)
+  const [activePlushieId, setActivePlushieId] = useState('all');
+  const [activeFitRating, setActiveFitRating] = useState('all');
+
+  // Filters (Gallery Tab)
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterMySize, setFilterMySize] = useState(false);
+
+  // Modals / Selection
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({});
+
   // Helper for safe URL parsing
   const safeHostname = (url) => {
     try {

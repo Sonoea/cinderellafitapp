@@ -177,7 +177,7 @@ export const AppProvider = ({ children }) => {
   // Closet State
   const [closetItems, setClosetItems] = useState(() => {
     try {
-      const saved = localStorage.getItem('my_closet_v1');
+      const saved = localStorage.getItem('my_closet_v2');
       const parsed = saved ? JSON.parse(saved) : [];
       return Array.isArray(parsed) ? parsed.filter(item => item && typeof item === 'object') : [];
     } catch (e) {
@@ -210,7 +210,7 @@ export const AppProvider = ({ children }) => {
         }
       } else {
         // Fallback to local storage for guest
-        const saved = localStorage.getItem('my_closet_v1');
+        const saved = localStorage.getItem('my_closet_v2');
         if (saved) {
           try {
             setClosetItems(JSON.parse(saved));
@@ -228,7 +228,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser) {
       try {
-        localStorage.setItem('my_closet_v1', JSON.stringify(closetItems));
+        localStorage.setItem('my_closet_v2', JSON.stringify(closetItems));
       } catch (e) {
         console.error("Failed to save closet to localStorage", e);
       }

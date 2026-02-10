@@ -88,9 +88,25 @@ const Closet = () => {
   // Helper for safe URL parsing
   const safeHostname = (url) => {
     try {
-      return new URL(url).hostname;
+      if (!url) return '';
+      // If no protocol, assume http to make URL constructor happy, or just return as is
+      const urlToCheck = url.startsWith('http') ? url : `https://${url}`;
+      return new URL(urlToCheck).hostname;
     } catch (e) {
       return url || '';
+    }
+  };
+
+  // Helper for safe Date parsing
+  const safeDate = (dateVal) => {
+    try {
+      if (!dateVal) return 'Recently';
+      const d = new Date(dateVal);
+      // Check for Invalid Date
+      if (isNaN(d.getTime())) return 'Recently';
+      return d.toISOString().split('T')[0];
+    } catch (e) {
+      return 'Recently';
     }
   };
 
@@ -105,26 +121,28 @@ const Closet = () => {
           const querySnapshot = await getDocs(q);
           const items = [];
           querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            // Avoid duplicates if necessary, or just map. 
-            // We add a 'uid' field if not present to distinguish users, but 'userName' should be there if saved correctly.
-            items.push({
-              id: doc.id,
-              ...data,
-              // Ensure we fail gracefully if data is missing
-              userName: data.userName || 'Unknown User',
-              userIcon: data.userIcon || '/api/placeholder/40/40',
-              shopName: data.url ? safeHostname(data.url) : '',
-              // Ensure Date parsing works
-              date: data.createdAt ? new Date(data.createdAt).toISOString().split('T')[0] : 'Recently',
-            });
+            try {
+              const data = doc.data();
+              // Safety checks
+              if (!data) return;
+
+              items.push({
+                id: doc.id,
+                ...data,
+                userName: data.userName || 'Unknown User',
+                userIcon: data.userIcon || '/api/placeholder/40/40',
+                shopName: safeHostname(data.url),
+                date: safeDate(data.createdAt),
+              });
+            } catch (err) {
+              console.warn("Skipping invalid gallery item:", doc.id, err);
+            }
           });
           // Sort by createdAt descending
-          items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+          items.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setPublicItems(items);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
-          // If collection group query fails (e.g., missing index), we might fall back or just show empty.
         } finally {
           setIsLoadingGallery(false);
         }
@@ -148,10 +166,10 @@ const Closet = () => {
       location: item.location,
       imageUrl: item.image,
       itemName: item.name,
-      shopName: item.url ? safeHostname(item.url) : '',
+      shopName: safeHostname(item.url),
       fitRating: item.fitRating,
       comment: item.comment,
-      date: item.createdAt ? new Date(item.createdAt).toISOString().split('T')[0] : 'Recently',
+      date: safeDate(item.createdAt),
       likes: 0
     }));
 

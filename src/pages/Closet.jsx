@@ -76,7 +76,7 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
-  const { plushies, updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
+  const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
   // ... (inside Closet component)
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'

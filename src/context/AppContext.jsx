@@ -75,7 +75,7 @@ export const AppProvider = ({ children }) => {
         }
       } else {
         // Guest: Load from localStorage
-        const saved = localStorage.getItem('my_plushies_v2');
+        const saved = localStorage.getItem('my_plushies_v3');
         let parsed;
         try {
           parsed = saved ? JSON.parse(saved) : [DEFAULT_PLUSHIE];
@@ -108,7 +108,7 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!currentUser) {
       try {
-        localStorage.setItem('my_plushies_v2', JSON.stringify(plushies));
+        localStorage.setItem('my_plushies_v3', JSON.stringify(plushies));
       } catch (e) {
         console.error("Failed to save plushies to localStorage", e);
         if (e.name === 'QuotaExceededError') {

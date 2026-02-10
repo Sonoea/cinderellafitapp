@@ -14,6 +14,28 @@ const AddItemModal = lazy(() => import('../components/AddItemModal'));
 
 // MOCK_GALLERY removed to prevent data leak confusion
 
+// --- HELPER FUNCTIONS (Defined outside component to avoid TDZ) ---
+const safeHostname = (url) => {
+  try {
+    if (!url || typeof url !== 'string') return '';
+    const urlToCheck = url.startsWith('http') ? url : `https://${url}`;
+    return new URL(urlToCheck).hostname;
+  } catch (e) {
+    return '';
+  }
+};
+
+const safeDate = (dateVal) => {
+  try {
+    if (!dateVal) return 'Recently';
+    const d = new Date(dateVal);
+    if (isNaN(d.getTime())) return 'Recently';
+    return d.toISOString().split('T')[0];
+  } catch (e) {
+    return 'Recently';
+  }
+};
+
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
   // Debugging log for production crash
@@ -22,14 +44,13 @@ const Closet = () => {
   const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
 
-  // ... (inside Closet component)
+  // --- STATE DECLARATIONS ---
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
 
   // Gallery State
   const [publicItems, setPublicItems] = useState([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
 
-  // --- RESTORED MISSING STATES ---
   // Filters (Items Tab)
   const [activePlushieId, setActivePlushieId] = useState('all');
   const [activeFitRating, setActiveFitRating] = useState('all');
@@ -43,33 +64,6 @@ const Closet = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
-
-  // Helper for safe URL parsing
-  const safeHostname = (url) => {
-    try {
-      if (!url || typeof url !== 'string') return '';
-      // If no protocol, assume http to make URL constructor happy, or just return as is
-      const urlToCheck = url.startsWith('http') ? url : `https://${url}`;
-      return new URL(urlToCheck).hostname;
-    } catch (e) {
-      return '';
-    }
-  };
-
-  // Helper for safe Date parsing
-  const safeDate = (dateVal) => {
-    try {
-      if (!dateVal) return 'Recently';
-      const d = new Date(dateVal);
-      // Check for Invalid Date
-      if (isNaN(d.getTime())) return 'Recently';
-      return d.toISOString().split('T')[0];
-    } catch (e) {
-      return 'Recently';
-    }
-  };
-
-  // Fetch Global Gallery on Tab Change
   useEffect(() => {
     if (activeTab === 'gallery') {
       const fetchGallery = async () => {

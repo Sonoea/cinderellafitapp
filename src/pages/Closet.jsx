@@ -6,7 +6,6 @@ import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
-import ClosetItemForm from '../components/ClosetItemForm';
 import AddItemModal from '../components/AddItemModal';
 import Portal from '../components/Portal';
 import { MOCK_GALLERY } from '../constants/mockData';

@@ -48,11 +48,22 @@ const Legal = () => {
                     <div className="px-4 pb-4 text-sm text-gray-600 space-y-4 border-t border-gray-100 pt-4">
                         {language === 'jp' ? (
                             <>
-                                <p className="text-xs text-gray-400">最終更新日: 2026年1月28日</p>
+                                <p className="text-xs text-gray-400">最終更新日: 2026年2月10日</p>
+
+                                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-6">
+                                    <h3 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
+                                        <span className="bg-orange-600 text-white text-[10px] px-2 py-0.5 rounded-full">BETA</span>
+                                        ベータ版について
+                                    </h3>
+                                    <p className="text-sm text-orange-900">
+                                        現在、当サービスは「ベータ版（テスト公開中）」として運用されています。
+                                        機能の改善や不具合の修正を随時行っております。予期せぬ不具合が発生する可能性がありますが、ご了承の上ご利用ください。
+                                    </p>
+                                </div>
 
                                 <div>
                                     <h3 className="font-bold text-gray-800 mb-2">1. はじめに</h3>
-                                    <p>CinderellaFit（以下「本サービス」）は、ぬいぐるみのサイズ計測とお洋服のフィッティングをサポートするサービスです。本プライバシーポリシーでは、お客様の個人情報の取り扱いについてご説明いたします。</p>
+                                    <p>CinderellaFit（以下「本サービス」）は、ぬいぐるみのサイズ計測とお洋服のフィッティングをサポートするサービスです。</p>
                                 </div>
 
                                 <div>
@@ -92,11 +103,22 @@ const Legal = () => {
                             </>
                         ) : (
                             <>
-                                <p className="text-xs text-gray-400">Last updated: January 28, 2026</p>
+                                <p className="text-xs text-gray-400">Last updated: February 10, 2026</p>
+
+                                <div className="bg-orange-50 p-4 rounded-xl border border-orange-100 mb-6">
+                                    <h3 className="font-bold text-orange-800 mb-2 flex items-center gap-2">
+                                        <span className="bg-orange-600 text-white text-[10px] px-2 py-0.5 rounded-full">BETA</span>
+                                        Beta Version
+                                    </h3>
+                                    <p className="text-sm text-orange-900">
+                                        This service is currently in "Beta Information" (Test Release).
+                                        We are continuously improving features and fixing bugs. Please note that unexpected issues may occur.
+                                    </p>
+                                </div>
 
                                 <div>
                                     <h3 className="font-bold text-gray-800 mb-2">1. Introduction</h3>
-                                    <p>CinderellaFit ("the Service") helps you measure your plushies and find fitting clothes. This Privacy Policy explains how we handle your information.</p>
+                                    <p>CinderellaFit ("the Service") helps you measure your plushies and find fitting clothes.</p>
                                 </div>
 
                                 <div>

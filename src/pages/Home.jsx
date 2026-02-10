@@ -13,7 +13,12 @@ const Home = () => {
         <div className="flex flex-col gap-4">
             <header className="flex justify-between items-center py-4">
                 <div>
-                    <h1 style={{ color: 'var(--primary-dark)', fontSize: '24px' }}>{t('appTitle')}</h1>
+                    <h1 style={{ color: 'var(--primary-dark)', fontSize: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {t('appTitle')}
+                        <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full border border-orange-200 font-bold tracking-wider">
+                            BETA
+                        </span>
+                    </h1>
                     <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>
                         {language === 'jp' ? 'サイズ失敗、もうしない。' : 'Never buy the wrong size again'}
                     </p>

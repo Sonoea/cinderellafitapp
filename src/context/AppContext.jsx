@@ -200,14 +200,7 @@ export const AppProvider = ({ children }) => {
           });
 
           if (loadedItems.length > 0) {
-            // Filter out default plushie items (plushieId: 2) if user has other items
-            const hasCustomItems = loadedItems.some(i => String(i.plushieId) !== '2');
-            const finalItems = hasCustomItems
-              ? loadedItems.filter(i => String(i.plushieId) !== '2')
-              : loadedItems;
-
-            // Sort by createdAt descending (newest first)
-            setClosetItems(finalItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+            setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
           } else {
             // Firestore is empty.
             setClosetItems([]);

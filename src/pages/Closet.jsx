@@ -88,7 +88,7 @@ const Closet = () => {
   // --- FILTERED ITEMS LOGIC ---
   const filteredItems = React.useMemo(() => {
     // 1. Merge Local Public Items
-    const userDisplayName = currentUser?.displayName || t('guest') || 'Guest';
+    const userDisplayName = currentUser?.displayName || currentUser?.email?.split('@')[0] || t('guest');
     const userPhoto = currentUser?.photoURL || '/api/placeholder/40/40';
 
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
@@ -234,10 +234,12 @@ const Closet = () => {
 
               {/* --- Timeline Grid (Refactored) --- */}
               {(() => {
+                const visiblePlushieIds = new Set(plushies.map(p => String(p.id)));
                 const timelineItems = closetItems.filter(item => {
                   const matchPlushie = activePlushieId === 'all' || String(item.plushieId) === String(activePlushieId);
                   const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
-                  return matchPlushie && matchFit;
+                  const isPlushieVisible = visiblePlushieIds.has(String(item.plushieId));
+                  return matchPlushie && matchFit && isPlushieVisible;
                 });
 
                 if (timelineItems.length === 0) {

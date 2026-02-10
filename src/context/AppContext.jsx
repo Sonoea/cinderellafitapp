@@ -171,8 +171,14 @@ export const AppProvider = ({ children }) => {
 
   // Closet State
   const [closetItems, setClosetItems] = useState(() => {
-    const saved = localStorage.getItem('my_closet_v1');
-    return saved ? JSON.parse(saved) : [];
+    try {
+      const saved = localStorage.getItem('my_closet_v1');
+      const parsed = saved ? JSON.parse(saved) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.error("Failed to parse closet items", e);
+      return [];
+    }
   });
 
   // Load Closet Items from Firestore

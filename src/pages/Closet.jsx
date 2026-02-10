@@ -76,7 +76,7 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
-  const { plushies, updatePlushie, closetItems, addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
+  const { plushies, updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
   // ... (inside Closet component)
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
@@ -88,12 +88,12 @@ const Closet = () => {
   // Helper for safe URL parsing
   const safeHostname = (url) => {
     try {
-      if (!url) return '';
+      if (!url || typeof url !== 'string') return '';
       // If no protocol, assume http to make URL constructor happy, or just return as is
       const urlToCheck = url.startsWith('http') ? url : `https://${url}`;
       return new URL(urlToCheck).hostname;
     } catch (e) {
-      return url || '';
+      return '';
     }
   };
 

@@ -18,7 +18,7 @@ export const MOCK_GALLERY = [
     {
         id: 'mock-2',
         userName: 'Ojisan',
-        userIcon: '/api/placeholder/40/40', // Or a specific asset if available
+        userIcon: '', // Or a specific asset if available
         plushieName: 'おじさん',
         plushieHeight: 9,
         location: 'Tokyo',

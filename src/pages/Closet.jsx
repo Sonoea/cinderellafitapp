@@ -4,13 +4,34 @@ import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { MOCK_GALLERY } from '../data/mockData';
 
 import AddItemModal from '../components/AddItemModal';
+
+const UserAvatar = ({ src, alt, className }) => {
+  const [error, setError] = useState(!src || src.includes('placeholder'));
+
+  if (error) {
+    return (
+      <div className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`}>
+        <User size={20} />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      className={`object-cover rounded-full ${className}`}
+      onError={() => setError(true)}
+    />
+  );
+};
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
@@ -392,7 +413,7 @@ const Closet = () => {
                   <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden break-inside-avoid">
                     <div className="p-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <img src={post.userIcon} className="w-8 h-8 rounded-full bg-gray-200 object-cover" alt="" />
+                        <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
                         <div>
                           <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.userName}</p>
                           <div className="flex items-center gap-1 text-[10px] text-gray-400">

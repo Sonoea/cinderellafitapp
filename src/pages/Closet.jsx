@@ -98,7 +98,7 @@ const Closet = () => {
   // --- FILTERED ITEMS LOGIC ---
   const filteredItems = React.useMemo(() => {
     // 1. Merge Local Public Items
-    const userDisplayName = currentUser?.displayName || currentUser?.email?.split('@')[0] || t('guest');
+    const userDisplayName = currentUser?.displayName || t('guest');
     const userPhoto = currentUser?.photoURL || '/api/placeholder/40/40';
 
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
@@ -248,7 +248,8 @@ const Closet = () => {
                 const timelineItems = closetItems.filter(item => {
                   const matchPlushie = activePlushieId === 'all' || String(item.plushieId) === String(activePlushieId);
                   const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
-                  const isPlushieVisible = visiblePlushieIds.has(String(item.plushieId));
+                  const isMock = String(item.id).startsWith('mock-');
+                  const isPlushieVisible = isMock || visiblePlushieIds.has(String(item.plushieId));
                   return matchPlushie && matchFit && isPlushieVisible;
                 });
 

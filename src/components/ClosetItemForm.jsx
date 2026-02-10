@@ -197,7 +197,7 @@ const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+            <div className="p-4 pb-10 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
                 <button
                     onClick={handleSaveWrapper}
                     disabled={!image}

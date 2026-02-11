@@ -4,7 +4,7 @@ import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -394,8 +394,22 @@ const Closet = () => {
                               <div className="aspect-square bg-gray-100 relative">
                                 <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                 {item.isPublic && (
-                                  <div className="absolute top-2 right-2 bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
-                                    <Share2 size={12} />
+                                  <div className="absolute top-2 right-2 flex gap-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm('この写真をマイコーデから非表示にし、ギャラリーのみに表示しますか？')) {
+                                          updateClosetItem(item.id, { galleryOnly: true });
+                                        }
+                                      }}
+                                      className="bg-black/50 text-white p-1.5 rounded-full backdrop-blur-sm hover:bg-red-500/70 transition-colors"
+                                      title="マイコーデから非表示"
+                                    >
+                                      <EyeOff size={12} />
+                                    </button>
+                                    <div className="bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
+                                      <Share2 size={12} />
+                                    </div>
                                   </div>
                                 )}
                                 <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
@@ -433,11 +447,10 @@ const Closet = () => {
             {/* Filter Controls */}
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
               <div className="relative">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" size={18} />
                 <input
                   type="text"
-                  className="w-full bg-gray-50 pl-12 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
-                  placeholder={t('searchPlaceholder')}
+                  className="w-full bg-gray-50 px-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
+                  placeholder={`🔍 ${t('searchPlaceholder')}`}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />

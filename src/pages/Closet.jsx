@@ -71,6 +71,7 @@ const Closet = () => {
   // Gallery State
   const [publicItems, setPublicItems] = useState([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
+  const [galleryError, setGalleryError] = useState(null);
 
   // Filters (Items Tab)
   const [activePlushieId, setActivePlushieId] = useState('all');
@@ -90,6 +91,7 @@ const Closet = () => {
     if (activeTab === 'gallery') {
       const fetchGallery = async () => {
         setIsLoadingGallery(true);
+        setGalleryError(null);
         try {
           // Use Collection Group Query to search ALL 'closetItems' collections for isPublic == true
           const q = query(collectionGroup(db, 'closetItems'), where('isPublic', '==', true));
@@ -122,18 +124,22 @@ const Closet = () => {
           allItems.sort((a, b) => {
             const dateA = a.date === 'Recently' ? 0 : new Date(a.date).getTime();
             const dateB = b.date === 'Recently' ? 0 : new Date(b.date).getTime();
-            // If 'Recently', treat as new (push to top)?
-            // Current logic: 0. Date.now() is ~1.7e12.
-            // B(Time) - A(0) = Positive. B comes first.
-            // So 'Recently' (0) goes to BOTTOM.
-            // If we want 'Recently' to be at top, we should use a future date or special check.
-            // Let's keep it at bottom for now, or check generic sort.
             return dateB - dateA;
           });
 
           setPublicItems(allItems);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
+          // Firestore Collection Group Index が未作成の場合、エラーメッセージにURLが含まれる
+          if (error.message && error.message.includes('index')) {
+            console.error(
+              "\n🔥 Firestoreインデックスの作成が必要です。\n" +
+              "上記エラーメッセージ内のURLをクリックしてインデックスを作成してください。\n"
+            );
+          }
+          setGalleryError('データの取得に失敗しました。再読み込みしてください。');
+          // エラー時もMockデータは表示
+          setPublicItems([...MOCK_GALLERY]);
         } finally {
           setIsLoadingGallery(false);
         }
@@ -476,6 +482,13 @@ const Closet = () => {
                 <h3 className="font-bold text-blue-900 text-sm">{t('everyonesGallery')}</h3>
               </div>
             </div>
+
+            {galleryError && (
+              <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-700 flex items-center gap-2">
+                <span>⚠️</span>
+                <span>{galleryError}</span>
+              </div>
+            )}
 
             {filteredItems.length === 0 ? (
               <div className="text-center py-10 text-gray-400">

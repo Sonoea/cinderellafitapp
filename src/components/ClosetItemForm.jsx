@@ -107,20 +107,30 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectModelTitle')}</label>
-                                <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                                    {plushies.map(p => (
-                                        <button
-                                            key={p.id}
-                                            onClick={() => setFormData({ ...formData, plushieId: p.id })}
-                                            className={`flex-shrink-0 p-1 pr-3 rounded-full border flex items-center gap-2 transition-all ${formData.plushieId === p.id
-                                                ? 'border-primary bg-primary/5 ring-2 ring-primary/20'
-                                                : 'border-gray-200 hover:bg-gray-50'
-                                                }`}
-                                        >
-                                            <img src={p.image} className="w-8 h-8 rounded-full object-cover" alt="" />
-                                            <span className={`text-xs font-bold ${formData.plushieId === p.id ? 'text-primary' : 'text-gray-600'}`}>{p.name}</span>
-                                        </button>
-                                    ))}
+                                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                                    {plushies.map(p => {
+                                        const isSelected = formData.plushieId === p.id;
+                                        return (
+                                            <button
+                                                key={p.id}
+                                                onClick={() => setFormData({ ...formData, plushieId: p.id })}
+                                                className={`flex-shrink-0 p-1.5 pr-4 rounded-full flex items-center gap-2 transition-all duration-200 relative ${isSelected
+                                                    ? 'bg-primary text-white border-2 border-primary shadow-lg scale-105'
+                                                    : 'bg-white text-gray-500 border-2 border-gray-200 opacity-50 hover:opacity-80'
+                                                    }`}
+                                            >
+                                                <div className="relative">
+                                                    <img src={p.image} className={`w-9 h-9 rounded-full object-cover ${isSelected ? 'ring-2 ring-white' : ''}`} alt="" />
+                                                    {isSelected && (
+                                                        <div className="absolute -top-1 -right-1 w-4 h-4 bg-white rounded-full flex items-center justify-center shadow">
+                                                            <span className="text-primary text-[10px] font-black">✓</span>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-gray-500'}`}>{p.name}</span>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
 

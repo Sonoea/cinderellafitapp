@@ -10,12 +10,14 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
     const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
     const [previewURL, setPreviewURL] = useState(currentUser?.photoURL || null);
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedPlushieImage, setSelectedPlushieImage] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState('');
 
     // Select a plushie image as profile photo
     const selectPlushieImage = (imageUrl) => {
         setPreviewURL(imageUrl);
+        setSelectedPlushieImage(imageUrl);
         setSelectedFile(null); // Clear file selection since we're using plushie image
     };
 
@@ -23,6 +25,7 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
         const file = e.target.files[0];
         if (!file) return;
         setSelectedFile(file);
+        setSelectedPlushieImage(null); // Clear plushie selection
         const reader = new FileReader();
         reader.onload = (ev) => setPreviewURL(ev.target.result);
         reader.readAsDataURL(file);
@@ -45,6 +48,11 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                 } catch (storageErr) {
                     console.warn("Storage upload failed, using inline:", storageErr);
                     // Fall through - use previewURL (base64 from FileReader)
+                }
+            } else if (selectedPlushieImage) {
+                // Plushie image selected — convert relative path to absolute URL for cross-device compatibility
+                if (selectedPlushieImage.startsWith('/') && !selectedPlushieImage.startsWith('//')) {
+                    finalPhotoURL = `${window.location.origin}${selectedPlushieImage}`;
                 }
             }
 
@@ -115,10 +123,11 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                                         <button
                                             key={p.id}
                                             onClick={() => selectPlushieImage(p.image)}
-                                            className={`relative w-14 h-14 rounded-full overflow-hidden border-3 transition-all ${previewURL === p.image
-                                                ? 'ring-2 ring-primary border-primary scale-110'
-                                                : 'border-gray-200 hover:border-primary/50'
+                                            className={`relative flex-shrink-0 rounded-full overflow-hidden transition-all ${previewURL === p.image
+                                                ? 'ring-3 ring-primary scale-110 shadow-lg'
+                                                : 'ring-2 ring-gray-200 hover:ring-primary/50 opacity-70'
                                                 }`}
+                                            style={{ width: '56px', height: '56px' }}
                                         >
                                             <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
                                             {previewURL === p.image && (
@@ -139,7 +148,7 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                                 className="inline-flex items-center gap-1.5 px-4 py-2 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg text-xs font-bold border border-gray-200 cursor-pointer transition-colors"
                             >
                                 <Camera size={14} />
-                                写真をアップロード
+                                📷写真をアップロード
                             </label>
                             <input
                                 id="profile-photo-upload"
@@ -179,7 +188,7 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                             className="w-full py-3 bg-primary text-white font-bold rounded-xl shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
                             {isUploading && <Loader2 className="animate-spin" size={18} />}
-                            {t('save') || '保存'}
+                            {t('saveProfile') || '保存する'}
                         </button>
                     </div>
                 </div>

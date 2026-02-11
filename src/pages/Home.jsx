@@ -1,13 +1,75 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Globe, LogIn, Sparkles, Settings, Pencil } from 'lucide-react';
+import { Plus, Globe, LogIn, Sparkles, Settings, Pencil, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
+import { collectionGroup, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 const Home = () => {
     const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie, userAddedPlushieCount } = useApp();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
+
+    // Gallery Latest Feed
+    const [latestPosts, setLatestPosts] = useState([]);
+
+    useEffect(() => {
+        const fetchLatest = async () => {
+            try {
+                const q = query(
+                    collectionGroup(db, 'closetItems'),
+                    where('isPublic', '==', true)
+                );
+                const snapshot = await getDocs(q);
+                const items = [];
+                snapshot.forEach((doc) => {
+                    try {
+                        const data = doc.data();
+                        if (!data) return;
+                        items.push({
+                            id: doc.id,
+                            userName: data.userName || '誰か',
+                            itemName: data.itemName || data.name || 'コーデ',
+                            createdAt: data.createdAt || '',
+                            userIcon: data.userIcon || '',
+                            plushieName: data.plushieName || '',
+                        });
+                    } catch (e) { /* skip */ }
+                });
+                // Sort by createdAt descending, take 5
+                items.sort((a, b) => {
+                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                    return dateB - dateA;
+                });
+                setLatestPosts(items.slice(0, 5));
+            } catch (err) {
+                console.warn("Latest gallery fetch error:", err);
+            }
+        };
+        fetchLatest();
+    }, []);
+
+    // Format relative time
+    const formatRelativeTime = (dateStr) => {
+        if (!dateStr) return '';
+        try {
+            const date = new Date(dateStr);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMin = Math.floor(diffMs / 60000);
+            const diffHour = Math.floor(diffMs / 3600000);
+            const diffDay = Math.floor(diffMs / 86400000);
+            if (diffMin < 1) return language === 'jp' ? 'たった今' : 'Just now';
+            if (diffMin < 60) return language === 'jp' ? `${diffMin}分前` : `${diffMin}m ago`;
+            if (diffHour < 24) return language === 'jp' ? `${diffHour}時間前` : `${diffHour}h ago`;
+            if (diffDay < 7) return language === 'jp' ? `${diffDay}日前` : `${diffDay}d ago`;
+            return date.toLocaleDateString();
+        } catch {
+            return '';
+        }
+    };
 
     return (
         <div className="flex flex-col gap-4">
@@ -96,7 +158,6 @@ const Home = () => {
                     {language === 'jp' ? 'かんたん3ステップ' : 'Easy 3 Steps'}
                 </h3>
                 <div className="flex justify-between gap-2">
-                    {/* Step 1 */}
                     <div className="flex-1 text-center">
                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center text-2xl">
                             🧸
@@ -108,9 +169,7 @@ const Home = () => {
                             {language === 'jp' ? 'ぬいのサイズ登録' : 'Register size'}
                         </p>
                     </div>
-                    {/* Arrow */}
                     <div className="flex items-center text-gray-300">→</div>
-                    {/* Step 2 */}
                     <div className="flex-1 text-center">
                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-2xl">
                             🔍
@@ -122,9 +181,7 @@ const Home = () => {
                             {language === 'jp' ? '服のURLを貼る' : 'Paste clothing URL'}
                         </p>
                     </div>
-                    {/* Arrow */}
                     <div className="flex items-center text-gray-300">→</div>
-                    {/* Step 3 */}
                     <div className="flex-1 text-center">
                         <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-2xl">
                             ✨
@@ -163,6 +220,49 @@ const Home = () => {
                 </div>
             </Link>
 
+            {/* 🔔 Latest Gallery Feed */}
+            {latestPosts.length > 0 && (
+                <section className="mb-4">
+                    <h3 className="mb-2 flex items-center gap-2">
+                        <span>🔔</span>
+                        {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
+                    </h3>
+                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        {latestPosts.map((post, index) => (
+                            <Link
+                                key={post.id}
+                                to="/closet"
+                                className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${index < latestPosts.length - 1 ? 'border-b border-gray-50' : ''}`}
+                            >
+                                <div className="flex-shrink-0">
+                                    {post.userIcon && !post.userIcon.includes('placeholder') ? (
+                                        <img src={post.userIcon} alt="" className="w-8 h-8 rounded-full object-cover" />
+                                    ) : (
+                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                                            <Users size={14} className="text-blue-400" />
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs text-gray-700">
+                                        <span className="font-bold">{post.userName}</span>
+                                        {language === 'jp' ? 'さんが' : ' shared '}
+                                        <span className="font-bold text-primary">{post.itemName}</span>
+                                        {language === 'jp' ? 'を公開しました' : ''}
+                                    </p>
+                                    {post.plushieName && (
+                                        <p className="text-[10px] text-gray-400 mt-0.5">🧸 {post.plushieName}</p>
+                                    )}
+                                </div>
+                                <span className="text-[10px] text-gray-400 flex-shrink-0 whitespace-nowrap">
+                                    {formatRelativeTime(post.createdAt)}
+                                </span>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
+
             {/* Featured Plushie Card */}
             <section>
                 <div className="flex justify-between items-end mb-2">
@@ -194,7 +294,6 @@ const Home = () => {
                             position: 'relative',
                             overflow: 'hidden'
                         }}>
-                            {/* Decorative Circle */}
                             <div style={{
                                 position: 'absolute',
                                 top: '-20px',
@@ -207,7 +306,6 @@ const Home = () => {
                             }}></div>
 
                             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
-                                {/* Image */}
                                 <img
                                     src={plushie.image}
                                     alt={plushie.name}
@@ -221,14 +319,12 @@ const Home = () => {
                                     }}
                                 />
 
-                                {/* Info */}
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                     <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '2px', color: 'var(--primary)' }}>
                                         {plushie.name}
                                     </h3>
                                     <p style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>{plushie.type}</p>
 
-                                    {/* Measurements Grid */}
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                                         <div>
                                             <p style={{ fontSize: '10px', color: '#888', marginBottom: '2px' }}>{t('height')}</p>
@@ -241,7 +337,6 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                {/* Edit Button */}
                                 <Link to={`/measure?edit=${plushie.id}`} className="absolute top-0 right-0 p-2 bg-white/80 rounded-full hover:bg-white text-gray-400 hover:text-primary transition-colors z-20">
                                     <Pencil size={16} />
                                 </Link>
@@ -269,7 +364,6 @@ const Home = () => {
                         </div>
                     ))}
 
-                    {/* Add New Plushie Card */}
                     {canAddPlushie && (
                         <Link to="/measure" style={{
                             display: 'block',
@@ -287,27 +381,6 @@ const Home = () => {
                             </p>
                         </Link>
                     )}
-                </div>
-            </section>
-
-            {/* Discovery / News Feed */}
-            <section className="mt-4">
-                <h3 className="mb-2">{t('discover')}</h3>
-                <div style={{
-                    backgroundColor: '#FFF5F7',
-                    borderRadius: 'var(--radius-md)',
-                    padding: '16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px'
-                }}>
-                    <span style={{ fontSize: '24px' }}>✨</span>
-                    <div>
-                        <h4 style={{ fontSize: '16px' }}>{t('newArrival')}</h4>
-                        <p style={{ fontSize: '12px', color: 'var(--text-main)' }}>
-                            {t('newArrivalBody', plushies[0]?.name || 'My Friend')}
-                        </p>
-                    </div>
                 </div>
             </section>
 

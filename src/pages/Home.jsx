@@ -38,6 +38,7 @@ const Home = () => {
                             createdAt: data.createdAt || '',
                             userIcon: data.userIcon || '',
                             plushieName: data.plushieName || '',
+                            userId: data.userId // Add userId for profile fetching
                         });
                     } catch (e) { /* skip */ }
                 });
@@ -54,6 +55,30 @@ const Home = () => {
                 const validItems = items.filter(item => item.userName !== '誰か');
 
                 setLatestPosts(validItems.slice(0, 5));
+
+                // Fetch latest user profiles for these items
+                const topItems = validItems.slice(0, 5);
+                try {
+                    const { doc, getDoc } = await import('firebase/firestore');
+                    const itemsWithProfiles = await Promise.all(topItems.map(async (item) => {
+                        if (!item.userId) return item;
+                        try {
+                            const userDoc = await getDoc(doc(db, 'users', item.userId));
+                            if (userDoc.exists()) {
+                                const userData = userDoc.data();
+                                return {
+                                    ...item,
+                                    userName: userData.displayName || item.userName,
+                                    userIcon: userData.photoURL || item.userIcon
+                                };
+                            }
+                        } catch (e) { /* ignore */ }
+                        return item;
+                    }));
+                    setLatestPosts(itemsWithProfiles);
+                } catch (e) {
+                    setLatestPosts(topItems);
+                }
             } catch (err) {
                 console.warn("Latest gallery fetch error:", err);
             }

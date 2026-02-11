@@ -131,12 +131,15 @@ const Closet = () => {
               // Safety checks
               if (!data) return;
 
+              // Filter out items without user info
+              if (!data.userName && !data.userIcon) return;
+
               items.push({
                 id: doc.id,
                 ...data,
                 imageUrl: data.imageUrl || data.image,
                 itemName: data.itemName || data.name,
-                userName: data.userName || 'Unknown User',
+                userName: data.userName || null,
                 userIcon: data.userIcon || '/api/placeholder/40/40',
                 shopName: safeHostname(data.url),
                 date: safeDate(data.createdAt),
@@ -154,7 +157,8 @@ const Closet = () => {
             return dateB - dateA;
           });
 
-          setPublicItems(allItems);
+          const validItems = allItems.filter(item => item.userName);
+          setPublicItems(validItems);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
           // Firestore Collection Group Index が未作成の場合、エラーメッセージにURLが含まれる

@@ -23,11 +23,15 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
 
     const handleImageSelect = (e) => {
         const file = e.target.files[0];
+        console.log("Image selected:", file);
         if (!file) return;
         setSelectedFile(file);
         setSelectedPlushieImage(null); // Clear plushie selection
         const reader = new FileReader();
-        reader.onload = (ev) => setPreviewURL(ev.target.result);
+        reader.onload = (ev) => {
+            console.log("FileReader loaded preview");
+            setPreviewURL(ev.target.result);
+        };
         reader.readAsDataURL(file);
     };
 
@@ -38,13 +42,27 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
 
         try {
             let finalPhotoURL = previewURL;
+            let fileToUpload = selectedFile;
 
-            // If a file was selected, upload to Firebase Storage
-            if (selectedFile) {
+            // Fallback: If no file selected but we have a base64 preview, convert it to a blob
+            if (!fileToUpload && previewURL && previewURL.startsWith('data:')) {
+                console.log("No file object found, but base64 preview exists. Converting to blob...");
+                try {
+                    const response = await fetch(previewURL);
+                    const blob = await response.blob();
+                    fileToUpload = blob;
+                    console.log("Converted base64 to blob/file:", blob.size, blob.type);
+                } catch (conversionErr) {
+                    console.error("Failed to convert base64 to blob:", conversionErr);
+                }
+            }
+
+            // If a file was selected (or recovered), upload to Firebase Storage
+            if (fileToUpload) {
                 try {
                     console.log("Starting upload for user:", currentUser.uid);
                     const storageRef = ref(storage, `profilePhotos/${currentUser.uid}`);
-                    const uploadResult = await uploadBytes(storageRef, selectedFile);
+                    const uploadResult = await uploadBytes(storageRef, fileToUpload);
                     console.log("Upload success:", uploadResult);
                     finalPhotoURL = await getDownloadURL(storageRef);
                     console.log("Got download URL:", finalPhotoURL);

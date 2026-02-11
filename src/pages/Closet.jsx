@@ -8,7 +8,6 @@ import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, Lock, Unlock, X
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
-import { MOCK_GALLERY } from '../data/mockData';
 
 import AddItemModal from '../components/AddItemModal';
 import EditProfileModal from '../components/EditProfileModal';
@@ -117,8 +116,7 @@ const Closet = () => {
               console.warn("Skipping invalid gallery item:", doc.id, err);
             }
           });
-          // Combine with Mock Gallery (so Sample is always visible)
-          const allItems = [...items, ...MOCK_GALLERY];
+          const allItems = [...items];
 
           // Sort by createdAt descending
           allItems.sort((a, b) => {
@@ -138,8 +136,7 @@ const Closet = () => {
             );
           }
           setGalleryError('データの取得に失敗しました。再読み込みしてください。');
-          // エラー時もMockデータは表示
-          setPublicItems([...MOCK_GALLERY]);
+          setPublicItems([]);
         } finally {
           setIsLoadingGallery(false);
         }

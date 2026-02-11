@@ -202,11 +202,17 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 mb-1">{t('commentLabel')}</label>
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="block text-xs font-bold text-gray-700">{t('commentLabel')}</label>
+                                    <span className={`text-[10px] font-bold ${formData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
+                                        {formData.comment.length} / 500
+                                    </span>
+                                </div>
                                 <textarea
                                     className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
                                     placeholder={t('commentPlaceholder')}
                                     value={formData.comment}
+                                    maxLength={500}
                                     onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                                 ></textarea>
                             </div>

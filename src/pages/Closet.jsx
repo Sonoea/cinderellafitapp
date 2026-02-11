@@ -37,6 +37,33 @@ const UserAvatar = ({ src, alt, className }) => {
   );
 };
 
+const ExpandableText = ({ text, maxLength = 90 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!text) return null;
+  if (text.length <= maxLength) {
+    return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{text}</p>;
+  }
+
+  return (
+    <div className="mb-2">
+      <p className="text-xs text-gray-600 whitespace-pre-wrap">
+        {isExpanded ? text : `${text.slice(0, maxLength)}...`}
+        <button
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setIsExpanded(!isExpanded);
+          }}
+          className="ml-1 text-blue-500 font-bold hover:underline inline-block"
+        >
+          {isExpanded ? ' 閉じる' : ' 続きを読む'}
+        </button>
+      </p>
+    </div>
+  );
+};
+
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {
   // Debugging log for production crash
@@ -627,7 +654,7 @@ const Closet = () => {
                           {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
                         </span>
                       </div>
-                      <p className="text-xs text-gray-600 mb-2">{post.comment}</p>
+                      <ExpandableText text={post.comment} />
 
                       {post.shopName && (
                         <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
@@ -841,12 +868,20 @@ const Closet = () => {
                     <div>
                       <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('notesTitle')}</h4>
                       {isEditing ? (
-                        <textarea
-                          className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                          placeholder={t('commentPlaceholder')}
-                          value={editData.comment}
-                          onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
-                        />
+                        <div className="space-y-1">
+                          <div className="flex justify-end">
+                            <span className={`text-[10px] font-bold ${editData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
+                              {editData.comment.length} / 500
+                            </span>
+                          </div>
+                          <textarea
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                            placeholder={t('commentPlaceholder')}
+                            value={editData.comment}
+                            maxLength={500}
+                            onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
+                          />
+                        </div>
                       ) : (
                         selectedItem.comment && (
                           <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">

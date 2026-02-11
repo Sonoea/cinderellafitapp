@@ -48,11 +48,12 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                 }
             }
 
-            // Update Auth Profile
-            await updateProfile(currentUser, {
-                displayName: displayName,
-                photoURL: finalPhotoURL || ''
-            });
+            // Update Auth Profile — only set photoURL if it's a short URL (not base64)
+            const authUpdate = { displayName: displayName };
+            if (finalPhotoURL && !finalPhotoURL.startsWith('data:') && finalPhotoURL.length < 500) {
+                authUpdate.photoURL = finalPhotoURL;
+            }
+            await updateProfile(currentUser, authUpdate);
 
             // Update Firestore User Document
             const userRef = doc(db, 'users', currentUser.uid);
@@ -115,8 +116,8 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                                             key={p.id}
                                             onClick={() => selectPlushieImage(p.image)}
                                             className={`relative w-14 h-14 rounded-full overflow-hidden border-3 transition-all ${previewURL === p.image
-                                                    ? 'ring-2 ring-primary border-primary scale-110'
-                                                    : 'border-gray-200 hover:border-primary/50'
+                                                ? 'ring-2 ring-primary border-primary scale-110'
+                                                : 'border-gray-200 hover:border-primary/50'
                                                 }`}
                                         >
                                             <img src={p.image} alt={p.name} className="w-full h-full object-cover" />

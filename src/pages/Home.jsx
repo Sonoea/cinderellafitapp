@@ -177,7 +177,6 @@ const Home = () => {
                             )}
                         </p>
                     </div>
-                    <Link to="/measure" style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: 600 }}>{t('addNew')}</Link>
                 </div>
 
                 <div style={{

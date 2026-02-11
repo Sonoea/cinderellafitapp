@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Portal from './Portal';
 import { X, Camera, User, Loader2 } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { db } from '../firebase/config';
 
@@ -44,13 +44,13 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser }) => {
             }
             await updateProfile(currentUser, authUpdate);
 
-            // Update Firestore User Document
+            // Update Firestore User Document (setDoc with merge to create if not exists)
             const userRef = doc(db, 'users', currentUser.uid);
-            await updateDoc(userRef, {
+            await setDoc(userRef, {
                 displayName: displayName,
                 photoURL: photoURL || '',
                 updatedAt: new Date().toISOString()
-            });
+            }, { merge: true });
 
             onSave({ displayName, photoURL });
             onClose();

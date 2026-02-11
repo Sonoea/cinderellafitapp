@@ -42,12 +42,19 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
             // If a file was selected, upload to Firebase Storage
             if (selectedFile) {
                 try {
+                    console.log("Starting upload for user:", currentUser.uid);
                     const storageRef = ref(storage, `profilePhotos/${currentUser.uid}`);
-                    await uploadBytes(storageRef, selectedFile);
+                    const uploadResult = await uploadBytes(storageRef, selectedFile);
+                    console.log("Upload success:", uploadResult);
                     finalPhotoURL = await getDownloadURL(storageRef);
+                    console.log("Got download URL:", finalPhotoURL);
                 } catch (storageErr) {
-                    console.warn("Storage upload failed, using inline:", storageErr);
+                    console.error("Storage upload failed DETAILS:", storageErr);
+                    console.error("Error code:", storageErr.code);
+                    console.error("Error message:", storageErr.message);
+                    alert(`画像のアップロードに失敗しました: ${storageErr.message}`);
                     // Fall through - use previewURL (base64 from FileReader)
+                    // But warn user that it might not persist well
                 }
             } else if (selectedPlushieImage) {
                 // Plushie image selected — convert relative path to absolute URL for cross-device compatibility
@@ -56,12 +63,23 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                 }
             }
 
+            console.log("Updating Auth profile with photoURL:", finalPhotoURL ? finalPhotoURL.substring(0, 50) + "..." : "null");
+
             // Update Auth Profile — only set photoURL if it's a short URL (not base64)
+            // Base64 URLs are too long for Auth profile and will be ignored/cause errors
             const authUpdate = { displayName: displayName };
-            if (finalPhotoURL && !finalPhotoURL.startsWith('data:') && finalPhotoURL.length < 500) {
+            if (finalPhotoURL && !finalPhotoURL.startsWith('data:') && finalPhotoURL.length < 2000) {
                 authUpdate.photoURL = finalPhotoURL;
+            } else if (finalPhotoURL && finalPhotoURL.startsWith('data:')) {
+                console.warn("Skipping Auth photoURL update because it's base64 (too long). Use Firestore URL instead.");
             }
-            await updateProfile(currentUser, authUpdate);
+
+            try {
+                await updateProfile(currentUser, authUpdate);
+                console.log("Auth profile updated");
+            } catch (authErr) {
+                console.error("Auth update failed:", authErr);
+            }
 
             // Update Firestore User Document
             const userRef = doc(db, 'users', currentUser.uid);
@@ -70,11 +88,12 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                 photoURL: finalPhotoURL || '',
                 updatedAt: new Date().toISOString()
             }, { merge: true });
+            console.log("Firestore user doc updated");
 
             onSave({ displayName, photoURL: finalPhotoURL });
             onClose();
         } catch (err) {
-            console.error("Profile update error:", err);
+            console.error("Profile update CRITICAL error:", err);
             setError(`保存に失敗しました: ${err.message}`);
         } finally {
             setIsUploading(false);

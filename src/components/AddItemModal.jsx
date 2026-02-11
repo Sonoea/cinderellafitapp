@@ -3,7 +3,7 @@ import Portal from './Portal';
 import ClosetItemForm from './ClosetItemForm';
 import { X } from 'lucide-react';
 
-const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
+const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabels }) => {
     return (
         <Portal>
             <div
@@ -26,6 +26,7 @@ const AddItemModal = ({ onClose, onSave, plushies, t, fitLabels }) => {
                     <div className="flex-1 overflow-hidden relative">
                         <ClosetItemForm
                             plushies={plushies}
+                            initialPlushieId={initialPlushieId}
                             t={t}
                             fitLabels={fitLabels}
                             onSave={(item) => {

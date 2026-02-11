@@ -110,12 +110,20 @@ const Shop = () => {
                 } else if (sizeInfo.measurements) {
                     // Fallback to specific measurements if available
                     const parts = [];
-                    if (sizeInfo.measurements.length) parts.push(`着丈${sizeInfo.measurements.length}cm`);
-                    if (sizeInfo.measurements.head) {
-                        const h = sizeInfo.measurements.head;
-                        parts.push(h.min === h.max ? `頭囲${h.min}cm` : `頭囲${h.min}〜${h.max}cm`);
-                    }
-                    if (sizeInfo.measurements.neck) parts.push(`首周り${sizeInfo.measurements.neck}cm`);
+                    // Helper to format measurement values safely
+                    const fmt = (v) => {
+                        if (!v) return null;
+                        if (typeof v === 'object' && (v.min !== undefined || v.max !== undefined)) {
+                            const min = v.min || v.max;
+                            const max = v.max || v.min;
+                            return min === max ? `${min}cm` : `${min}〜${max}cm`;
+                        }
+                        return `${v}cm`;
+                    };
+
+                    if (sizeInfo.measurements.length) parts.push(`着丈${fmt(sizeInfo.measurements.length)}`);
+                    if (sizeInfo.measurements.head) parts.push(`頭囲${fmt(sizeInfo.measurements.head)}`);
+                    if (sizeInfo.measurements.neck) parts.push(`首周り${fmt(sizeInfo.measurements.neck)}`);
 
                     if (parts.length > 0) {
                         sizeText = parts.join(', ');
@@ -578,18 +586,34 @@ const Shop = () => {
                                         <div className="mt-3 pt-3 border-t border-gray-200">
                                             <p className="text-xs font-bold text-gray-700 mb-1">📐 検出された寸法</p>
                                             <div className="flex flex-wrap gap-2 text-xs">
-                                                {product.fit.details.measurements.neck && (
-                                                    <span className="px-2 py-1 bg-white rounded border">首周り: {product.fit.details.measurements.neck}cm</span>
-                                                )}
-                                                {product.fit.details.measurements.chest && (
-                                                    <span className="px-2 py-1 bg-white rounded border">胴囲: {product.fit.details.measurements.chest}cm</span>
-                                                )}
-                                                {product.fit.details.measurements.bodyWidth && (
-                                                    <span className="px-2 py-1 bg-white rounded border">身幅: {product.fit.details.measurements.bodyWidth}cm</span>
-                                                )}
-                                                {product.fit.details.measurements.length && (
-                                                    <span className="px-2 py-1 bg-white rounded border">着丈: {product.fit.details.measurements.length}cm</span>
-                                                )}
+                                                {/* Helper for rendering measurements safely */}
+                                                {(() => {
+                                                    const formatVal = (v) => {
+                                                        if (typeof v === 'object' && v !== null && (v.min !== undefined || v.max !== undefined)) {
+                                                            const min = v.min || v.max;
+                                                            const max = v.max || v.min;
+                                                            return min === max ? `${min}` : `${min}〜${max}`;
+                                                        }
+                                                        return v;
+                                                    };
+
+                                                    return (
+                                                        <>
+                                                            {product.fit.details.measurements.neck && (
+                                                                <span className="px-2 py-1 bg-white rounded border">首周り: {formatVal(product.fit.details.measurements.neck)}cm</span>
+                                                            )}
+                                                            {product.fit.details.measurements.chest && (
+                                                                <span className="px-2 py-1 bg-white rounded border">胴囲: {formatVal(product.fit.details.measurements.chest)}cm</span>
+                                                            )}
+                                                            {product.fit.details.measurements.bodyWidth && (
+                                                                <span className="px-2 py-1 bg-white rounded border">身幅: {formatVal(product.fit.details.measurements.bodyWidth)}cm</span>
+                                                            )}
+                                                            {product.fit.details.measurements.length && (
+                                                                <span className="px-2 py-1 bg-white rounded border">着丈: {formatVal(product.fit.details.measurements.length)}cm</span>
+                                                            )}
+                                                        </>
+                                                    );
+                                                })()}
                                             </div>
                                         </div>
                                     )

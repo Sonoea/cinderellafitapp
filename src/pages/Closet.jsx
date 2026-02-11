@@ -11,6 +11,7 @@ import { safeHostname, safeDate } from '../utils/formatting';
 import { MOCK_GALLERY } from '../data/mockData';
 
 import AddItemModal from '../components/AddItemModal';
+import EditProfileModal from '../components/EditProfileModal';
 
 const UserAvatar = ({ src, alt, className }) => {
   const [error, setError] = useState(!src || src.includes('placeholder'));
@@ -41,6 +42,28 @@ const Closet = () => {
   const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
   const { currentUser } = useAuth();
 
+  // State for real user name from Firestore (to fix "You" issue)
+  const [firestoreUserName, setFirestoreUserName] = useState(null);
+
+  useEffect(() => {
+    const fetchUserName = async () => {
+      if (currentUser?.uid) {
+        try {
+          // We could use useAuth's getUserData but we can also just fetch here or trust AppContext?
+          // Let's just fetch directly for now to be sure
+          const { doc, getDoc } = await import('firebase/firestore');
+          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          if (userDoc.exists()) {
+            setFirestoreUserName(userDoc.data().displayName);
+          }
+        } catch (e) {
+          console.error("Error fetching user name:", e);
+        }
+      }
+    };
+    fetchUserName();
+  }, [currentUser]);
+
   // --- STATE DECLARATIONS ---
   const [activeTab, setActiveTab] = useState('items'); // 'items', 'gallery', 'plushies'
 
@@ -58,6 +81,7 @@ const Closet = () => {
 
   // Modals / Selection
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditProfile, setShowEditProfile] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
@@ -79,6 +103,8 @@ const Closet = () => {
               items.push({
                 id: doc.id,
                 ...data,
+                imageUrl: data.imageUrl || data.image,
+                itemName: data.itemName || data.name,
                 userName: data.userName || 'Unknown User',
                 userIcon: data.userIcon || '/api/placeholder/40/40',
                 shopName: safeHostname(data.url),
@@ -118,14 +144,16 @@ const Closet = () => {
 
   // --- FILTERED ITEMS LOGIC ---
   const filteredItems = React.useMemo(() => {
-    // 1. Merge Local Public Items
-    const userDisplayName = currentUser?.displayName || t('guest');
+    // Prioritize: stored item userName > Firestore name > Auth name > Guest
+    const effectiveDisplayName = firestoreUserName || (currentUser?.displayName === 'You' ? null : currentUser?.displayName) || t('guest');
     const userPhoto = currentUser?.photoURL || '/api/placeholder/40/40';
+    const myUid = currentUser?.uid || null;
 
     const localPublicItems = closetItems.filter(item => item.isPublic).map(item => ({
       id: `local-${item.id}`,
-      userName: userDisplayName,
-      userIcon: userPhoto,
+      userId: item.userId || myUid,
+      userName: item.userName || effectiveDisplayName,
+      userIcon: item.userIcon || userPhoto,
       plushieName: item.plushieName || 'My Plushie',
       plushieHeight: item.plushieHeight || 0,
       location: item.location,
@@ -135,17 +163,22 @@ const Closet = () => {
       fitRating: item.fitRating,
       comment: item.comment,
       date: safeDate(item.createdAt),
-      likes: 0
+      likes: 0,
+      isOwn: true
     }));
 
     // Combine Public Global Items + Local Public Items
-    const combinedItems = [...publicItems, ...localPublicItems];
+    // Mark items from collectionGroup that belong to current user
+    const markedPublicItems = publicItems.map(item => ({
+      ...item,
+      isOwn: myUid && item.userId === myUid
+    }));
+    const combinedItems = [...markedPublicItems, ...localPublicItems];
 
     // Deduplication by ID
     const uniqueItems = Array.from(new Map(combinedItems.map(item => [item.id, item])).values());
 
     return uniqueItems.filter(item => {
-      // Text Filter
       const matchesSearch = searchTerm === '' ||
         (item.location && item.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
         (item.itemName && item.itemName.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -164,7 +197,7 @@ const Closet = () => {
 
       return matchesSearch && matchesSize;
     });
-  }, [closetItems, publicItems, searchTerm, filterMySize, currentUser, plushies]);
+  }, [closetItems, publicItems, searchTerm, filterMySize, currentUser, plushies, firestoreUserName, t]);
 
 
 
@@ -192,6 +225,32 @@ const Closet = () => {
               }`}
           >
             <Users size={16} /> {t('gallery')}
+          </button>
+        </div>
+      </div>
+
+      {/* Profile Header (Added for editing) */}
+      <div className="px-4 mt-2 mb-4">
+        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <UserAvatar
+              src={currentUser?.photoURL}
+              className="w-12 h-12 ring-2 ring-primary/20"
+              alt={firestoreUserName || currentUser?.displayName}
+            />
+            <div>
+              <h3 className="font-bold text-gray-800">
+                {firestoreUserName || (currentUser?.displayName === 'You' ? (t('guest') || 'Guest') : currentUser?.displayName) || (t('guest') || 'Guest')}
+              </h3>
+              <p className="text-xs text-gray-500">{currentUser?.email}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setShowEditProfile(true)}
+            className="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg text-xs font-bold border border-gray-200 transition-colors flex items-center gap-1"
+          >
+            <Edit2 size={12} />
+            {t('editProfile') || '編集'}
           </button>
         </div>
       </div>
@@ -269,8 +328,10 @@ const Closet = () => {
                 const timelineItems = closetItems.filter(item => {
                   const matchPlushie = activePlushieId === 'all' || String(item.plushieId) === String(activePlushieId);
                   const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
+                  // Exclude mock/admin items from My Closet — they only appear in Gallery
                   const isMock = String(item.id).startsWith('mock-');
-                  const isPlushieVisible = isMock || visiblePlushieIds.has(String(item.plushieId));
+                  if (isMock) return false;
+                  const isPlushieVisible = visiblePlushieIds.has(String(item.plushieId));
                   return matchPlushie && matchFit && isPlushieVisible;
                 });
 
@@ -291,7 +352,7 @@ const Closet = () => {
                 }
 
                 return (
-                  <div className="pb-32">
+                  <div className="pb-48">
                     {Object.entries(timelineItems.reduce((acc, item) => {
                       let key = '----.--';
                       try {
@@ -371,10 +432,10 @@ const Closet = () => {
             {/* Filter Controls */}
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 space-y-3">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 z-10" size={18} />
                 <input
                   type="text"
-                  className="w-full bg-gray-50 pl-12 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  className="w-full bg-gray-50 pl-12 pr-4 py-3 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
                   placeholder={t('searchPlaceholder')}
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
@@ -410,12 +471,15 @@ const Closet = () => {
               /* Gallery Grid */
               <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
                 {filteredItems.map((post) => (
-                  <div key={post.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden break-inside-avoid">
+                  <div key={post.id} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
                     <div className="p-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
+                        <div className="relative">
+                          <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
+                          {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white"><Star size={8} className="text-white fill-white" /></div>}
+                        </div>
                         <div>
-                          <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.userName}</p>
+                          <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
                           <div className="flex items-center gap-1 text-[10px] text-gray-400">
                             <span className="truncate max-w-[80px]">{post.plushieName}</span>
                             {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
@@ -478,12 +542,28 @@ const Closet = () => {
                 setShowAddModal(false);
               }}
               plushies={plushies}
+              initialPlushieId={activePlushieId === 'all' ? undefined : activePlushieId}
               t={t}
               fitLabels={fitLabels}
             />
           </Portal>
         )
       }
+
+      {/* === EDIT PROFILE MODAL === */}
+      {showEditProfile && (
+        <EditProfileModal
+          onClose={() => setShowEditProfile(false)}
+          onSave={(data) => {
+            // Optimistically update local state if needed, though filteredItems relies on firestoreUserName
+            // Triggering a re-fetch or waiting for the effect might be needed.
+            setFirestoreUserName(data.displayName);
+            setShowEditProfile(false);
+          }}
+          t={t}
+          currentUser={currentUser}
+        />
+      )}
 
       {/* === ITEM DETAIL MODAL (Also Portaled for safety) === */}
       {

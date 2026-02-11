@@ -63,7 +63,7 @@ export const AppProvider = ({ children }) => {
           });
 
           if (loadedPlushies.length > 0) {
-            // Restore default plushie (ID 2) if missing
+            // Restore default plushie (ID 2) if missing — Unae-san is a shared default for all users
             if (!loadedPlushies.some(p => p.id === 2)) {
               loadedPlushies.push(DEFAULT_PLUSHIE);
             }
@@ -244,6 +244,13 @@ export const AppProvider = ({ children }) => {
       createdAt: new Date().toISOString(),
       ...item
     };
+
+    // Attach user info so Gallery can display who posted the item
+    if (currentUser) {
+      newItem.userId = currentUser.uid;
+      newItem.userName = currentUser.displayName || '';
+      newItem.userIcon = currentUser.photoURL || '';
+    }
 
     // Optimistic Update
     const newItems = [newItem, ...closetItems];

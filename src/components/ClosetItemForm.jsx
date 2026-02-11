@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import { Camera, MapPin, Unlock, Lock } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 
-const ClosetItemForm = ({ plushies, t, fitLabels, onSave, onCancel }) => {
+const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel }) => {
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         url: '',
-        plushieId: plushies[0]?.id || '',
+        plushieId: initialPlushieId || plushies[0]?.id || '',
         fitRating: 2,
         comment: '',
         location: '',

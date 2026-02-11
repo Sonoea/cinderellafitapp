@@ -328,9 +328,10 @@ const Closet = () => {
                 const timelineItems = closetItems.filter(item => {
                   const matchPlushie = activePlushieId === 'all' || String(item.plushieId) === String(activePlushieId);
                   const matchFit = activeFitRating === 'all' || item.fitRating === activeFitRating;
-                  // Exclude mock/admin items from My Closet — they only appear in Gallery
+                  // Exclude mock/admin items and gallery-only items from My Closet
                   const isMock = String(item.id).startsWith('mock-');
                   if (isMock) return false;
+                  if (item.galleryOnly) return false;
                   const isPlushieVisible = visiblePlushieIds.has(String(item.plushieId));
                   return matchPlushie && matchFit && isPlushieVisible;
                 });
@@ -597,16 +598,30 @@ const Closet = () => {
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         {isEditing ? (
-                          <button
-                            onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
-                            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
-                              ? 'text-green-600 bg-green-100 border-2 border-green-400'
-                              : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
-                              }`}
-                          >
-                            {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
-                            {editData.isPublic ? t('publicGallery') : t('privateOnly')}
-                          </button>
+                          <>
+                            <button
+                              onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
+                              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
+                                ? 'text-green-600 bg-green-100 border-2 border-green-400'
+                                : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
+                                }`}
+                            >
+                              {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
+                              {editData.isPublic ? t('publicGallery') : t('privateOnly')}
+                            </button>
+                            {editData.isPublic && (
+                              <button
+                                onClick={() => setEditData({ ...editData, galleryOnly: !editData.galleryOnly })}
+                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.galleryOnly
+                                  ? 'text-blue-600 bg-blue-100 border-2 border-blue-400'
+                                  : 'text-gray-400 bg-gray-50 border-2 border-gray-200'
+                                  }`}
+                              >
+                                <Users size={12} />
+                                {editData.galleryOnly ? (t('galleryOnlyLabel') || 'ギャラリー専用') : (t('showInMyCloset') || 'マイコーデに表示')}
+                              </button>
+                            )}
+                          </>
                         ) : (
                           <>
                             {selectedItem.isPublic ? (
@@ -628,7 +643,8 @@ const Closet = () => {
                               setEditData({
                                 fitRating: selectedItem.fitRating,
                                 comment: selectedItem.comment || '',
-                                isPublic: selectedItem.isPublic
+                                isPublic: selectedItem.isPublic,
+                                galleryOnly: selectedItem.galleryOnly || false
                               });
                             }}
                             className="text-blue-400 hover:text-blue-500 p-2"

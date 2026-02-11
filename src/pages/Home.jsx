@@ -27,9 +27,13 @@ const Home = () => {
                     try {
                         const data = doc.data();
                         if (!data) return;
+
+                        // Filter out items without user info
+                        if (!data.userName && !data.userIcon) return;
+
                         items.push({
                             id: doc.id,
-                            userName: data.userName || '誰か',
+                            userName: data.userName || 'ゲスト',
                             itemName: data.itemName || data.name || 'コーデ',
                             createdAt: data.createdAt || '',
                             userIcon: data.userIcon || '',
@@ -37,13 +41,19 @@ const Home = () => {
                         });
                     } catch (e) { /* skip */ }
                 });
-                // Sort by createdAt descending, take 5
+
+                // Sort by createdAt descending
                 items.sort((a, b) => {
                     const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
                     const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                     return dateB - dateA;
                 });
-                setLatestPosts(items.slice(0, 5));
+
+                // Further filter to ensure we show quality posts (with icons if possible)
+                // And exclude specific '誰か' entries if they exist in DB
+                const validItems = items.filter(item => item.userName !== '誰か');
+
+                setLatestPosts(validItems.slice(0, 5));
             } catch (err) {
                 console.warn("Latest gallery fetch error:", err);
             }

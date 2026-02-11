@@ -15,6 +15,10 @@ import EditProfileModal from '../components/EditProfileModal';
 const UserAvatar = ({ src, alt, className }) => {
   const [error, setError] = useState(!src || src.includes('placeholder'));
 
+  useEffect(() => {
+    setError(!src || src.includes('placeholder'));
+  }, [src]);
+
   if (error) {
     return (
       <div className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`}>

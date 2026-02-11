@@ -101,6 +101,14 @@ export const AppProvider = ({ children }) => {
           return updated;
         });
 
+        // Ensure default plushie (Unae-san) exists for guests too
+        if (!parsed) parsed = [];
+        if (!parsed.some(p => p.id === 2)) {
+          parsed.push(DEFAULT_PLUSHIE);
+        }
+
+        parsed.sort((a, b) => a.id - b.id);
+
         setPlushies(parsed.filter(p => p.name !== 'Allan'));
       }
     };

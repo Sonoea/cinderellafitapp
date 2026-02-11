@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Portal from './Portal';
 import { X, Camera, User, Loader2 } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
-import { useAuth } from '../context/AuthContext';
 import { doc, updateDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
-import { db, storage } from '../firebase/config';
-import { ref, uploadString, getDownloadURL } from 'firebase/storage';
+import { db } from '../firebase/config';
+
+const MAX_ICON_SIZE_KB = 200; // Profile icons should be small
 
 const EditProfileModal = ({ onClose, onSave, t, currentUser }) => {
     const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
     const [photoURL, setPhotoURL] = useState(currentUser?.photoURL || null);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState('');
+    const fileInputRef = useRef(null);
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -21,11 +22,20 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser }) => {
         setIsUploading(true);
         setError('');
         try {
-            const compressed = await compressImage(file);
-            setPhotoURL(compressed); // Show preview immediately
+            // Compress to 200x200 for profile icons (much smaller than closet items)
+            const compressed = await compressImage(file, 200, 0.6);
+
+            // Check compressed size
+            const sizeKB = Math.round((compressed.length * 3) / 4 / 1024);
+            if (sizeKB > MAX_ICON_SIZE_KB) {
+                setError(`画像サイズが大きすぎます (${sizeKB}KB)。${MAX_ICON_SIZE_KB}KB以下の画像を選択してください。`);
+                return;
+            }
+
+            setPhotoURL(compressed);
         } catch (err) {
             console.error("Image compression error:", err);
-            setError(t('imageUploadError') || 'Failed to process image');
+            setError('画像の処理に失敗しました。別の画像をお試しください。');
         } finally {
             setIsUploading(false);
         }
@@ -37,35 +47,27 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser }) => {
         setError('');
 
         try {
-            let finalPhotoURL = photoURL;
+            // Update Auth Profile (photoURL only if it's not a long base64 — Auth has limits)
+            const authUpdate = { displayName: displayName };
+            // Firebase Auth photoURL has a size limit, so only store small URLs or skip
+            if (photoURL && !photoURL.startsWith('data:')) {
+                authUpdate.photoURL = photoURL;
+            }
+            await updateProfile(currentUser, authUpdate);
 
-            // If it's a base64 string (newly uploaded), we strictly should upload to Storage
-            // But for now, let's keep it simple or follow existing patterns.
-            // If the app uses base64 for plushies, maybe it's fine for small icons too?
-            // However, Firestore has size limits. For user profiles, it's better to verify.
-            // Given the existing code uses base64 for plushies/closet items often, we'll stick to that 
-            // unless it's too large, but `compressImage` handles resizing.
-
-            // Update Auth Profile
-            await updateProfile(currentUser, {
-                displayName: displayName,
-                photoURL: finalPhotoURL
-            });
-
-            // Update Firestore User Document
+            // Update Firestore User Document (base64 OK here for small icons)
             const userRef = doc(db, 'users', currentUser.uid);
             await updateDoc(userRef, {
                 displayName: displayName,
-                photoURL: finalPhotoURL,
+                photoURL: photoURL || '',
                 updatedAt: new Date().toISOString()
             });
 
-            // Trigger refresh in parent
-            onSave({ displayName, photoURL: finalPhotoURL });
+            onSave({ displayName, photoURL });
             onClose();
         } catch (err) {
             console.error("Profile update error:", err);
-            setError('Failed to save profile. Please try again.');
+            setError('保存に失敗しました。もう一度お試しください。');
         } finally {
             setIsUploading(false);
         }
@@ -74,8 +76,9 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser }) => {
     return (
         <Portal>
             <div
-                className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
+                className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-4 backdrop-blur-sm"
                 style={{ touchAction: 'none' }}
+                onClick={onClose}
             >
                 <div
                     className="modal-responsive relative bg-white rounded-2xl shadow-xl w-full max-w-sm overflow-hidden"
@@ -90,29 +93,39 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser }) => {
                     </div>
 
                     <div className="p-6 space-y-6">
-                        {/* Icon Upload */}
+                        {/* Icon Upload — tappable on mobile */}
                         <div className="flex flex-col items-center">
-                            <div className="relative group cursor-pointer">
-                                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 ring-4 ring-white shadow-lg">
-                                    {photoURL ? (
-                                        <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
-                                    ) : (
-                                        <div className="w-full h-full flex items-center justify-center text-gray-300">
-                                            <User size={40} />
-                                        </div>
-                                    )}
-                                </div>
-                                <label className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
+                            <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                className="relative w-24 h-24 rounded-full overflow-hidden bg-gray-100 ring-4 ring-white shadow-lg cursor-pointer group"
+                            >
+                                {photoURL ? (
+                                    <img src={photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                                        <User size={40} />
+                                    </div>
+                                )}
+                                {/* Always-visible camera overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-full">
                                     <Camera className="text-white" size={24} />
-                                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                                </label>
+                                </div>
                                 {isUploading && (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-full">
+                                    <div className="absolute inset-0 flex items-center justify-center bg-white/70 rounded-full">
                                         <Loader2 className="animate-spin text-primary" size={24} />
                                     </div>
                                 )}
-                            </div>
+                            </button>
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                className="hidden"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                            />
                             <p className="text-xs text-gray-400 mt-2">{t('tapToChangeIcon') || 'タップしてアイコンを変更'}</p>
+                            <p className="text-[10px] text-gray-300 mt-0.5">最大 {MAX_ICON_SIZE_KB}KB</p>
                         </div>
 
                         {/* Name Input */}

@@ -220,8 +220,8 @@ const Home = () => {
                 </div>
             </Link>
 
-            {/* 🔔 Latest Gallery Feed */}
-            {latestPosts.length > 0 && (
+            {/* 🔔 Latest Gallery Feed - Only for logged in users */}
+            {currentUser && latestPosts.length > 0 && (
                 <section className="mb-4">
                     <h3 className="mb-2 flex items-center gap-2">
                         <span>🔔</span>
@@ -250,9 +250,6 @@ const Home = () => {
                                         <span className="font-bold text-primary">{post.itemName}</span>
                                         {language === 'jp' ? 'を公開しました' : ''}
                                     </p>
-                                    {post.plushieName && (
-                                        <p className="text-[10px] text-gray-400 mt-0.5">🧸 {post.plushieName}</p>
-                                    )}
                                 </div>
                                 <span className="text-[10px] text-gray-400 flex-shrink-0 whitespace-nowrap">
                                     {formatRelativeTime(post.createdAt)}

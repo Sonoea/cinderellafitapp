@@ -198,28 +198,9 @@ export const AppProvider = ({ children }) => {
           const q = collection(db, "users", currentUser.uid, "closetItems");
           const querySnapshot = await getDocs(q);
           const loadedItems = [];
-          const deletionPromises = [];
-
           querySnapshot.forEach((docSnap) => {
-            const data = docSnap.data();
-            // Auto-cleanup: delete legacy items (no userId) for plushieId=2 (うなえさん)
-            // These were admin-uploaded demo items that belong in Gallery, not My Closet.
-            // Items uploaded by the user going forward will have userId set.
-            if (data.plushieId === 2 && !data.userId) {
-              console.log("Removing legacy demo item from My Closet:", docSnap.id);
-              deletionPromises.push(
-                deleteDoc(doc(db, "users", currentUser.uid, "closetItems", docSnap.id))
-              );
-              return; // Skip adding to loadedItems
-            }
-            loadedItems.push(data);
+            loadedItems.push(docSnap.data());
           });
-
-          // Execute deletions in parallel
-          if (deletionPromises.length > 0) {
-            await Promise.all(deletionPromises);
-            console.log(`Cleaned up ${deletionPromises.length} legacy demo items`);
-          }
 
           if (loadedItems.length > 0) {
             setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));

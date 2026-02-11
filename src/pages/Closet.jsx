@@ -3,7 +3,7 @@ import { collectionGroup, query, where, getDocs } from 'firebase/firestore'; // 
 import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
@@ -83,6 +83,31 @@ const Closet = () => {
   // Filters (Gallery Tab)
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMySize, setFilterMySize] = useState(false);
+
+  // --- URL PARAMS HANDLING ---
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabParam = params.get('tab');
+    if (tabParam === 'gallery' || tabParam === 'plushies') {
+      setActiveTab(tabParam);
+    }
+  }, [location.search]);
+
+  // Handle deeplink to specific gallery item
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const itemId = params.get('itemId');
+
+    if (itemId && activeTab === 'gallery' && !isLoadingGallery && publicItems.length > 0) {
+      const foundItem = publicItems.find(item => item.id === itemId);
+      if (foundItem) {
+        setSelectedItem(foundItem);
+        // Clear params to avoid reopening on refresh? Maybe not needed for now.
+      }
+    }
+  }, [location.search, activeTab, isLoadingGallery, publicItems]);
 
   // Modals / Selection
   const [showAddModal, setShowAddModal] = useState(false);

@@ -231,7 +231,7 @@ const Home = () => {
                         {latestPosts.map((post, index) => (
                             <Link
                                 key={post.id}
-                                to="/closet"
+                                to={`/closet?tab=gallery&itemId=${post.id}`}
                                 className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${index < latestPosts.length - 1 ? 'border-b border-gray-50' : ''}`}
                             >
                                 <div className="flex-shrink-0">

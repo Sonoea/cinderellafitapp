@@ -576,6 +576,7 @@ const Closet = () => {
           }}
           t={t}
           currentUser={currentUser}
+          plushies={plushies}
         />
       )}
 

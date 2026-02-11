@@ -50,9 +50,24 @@ const Home = () => {
                     return dateB - dateA;
                 });
 
+                // Deduplicate items
+                const uniqueItems = [];
+                const seen = new Set();
+                items.forEach(item => {
+                    if (!item.userId || !item.createdAt) {
+                        uniqueItems.push(item);
+                        return;
+                    }
+                    const key = `${item.userId}-${item.createdAt}-${item.itemName}`;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueItems.push(item);
+                    }
+                });
+
                 // Further filter to ensure we show quality posts (with icons if possible)
                 // And exclude specific '誰か' entries if they exist in DB
-                const validItems = items.filter(item => item.userName !== '誰か');
+                const validItems = uniqueItems.filter(item => item.userName !== '誰か');
 
                 setLatestPosts(validItems.slice(0, 5));
 

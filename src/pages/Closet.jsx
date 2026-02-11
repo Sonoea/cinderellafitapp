@@ -157,7 +157,25 @@ const Closet = () => {
             return dateB - dateA;
           });
 
-          const validItems = allItems.filter(item => item.userName);
+          // Deduplicate items
+          const uniqueItems = [];
+          const seen = new Set();
+
+          allItems.forEach(item => {
+            // If missing key fields, just include it to be safe (or filter out?)
+            // Let's include for now, filter later if needed.
+            if (!item.userId || !item.createdAt) {
+              uniqueItems.push(item);
+              return;
+            }
+            const key = `${item.userId}-${item.createdAt}-${item.itemName}`;
+            if (!seen.has(key)) {
+              seen.add(key);
+              uniqueItems.push(item);
+            }
+          });
+
+          const validItems = uniqueItems.filter(item => item.userName);
           setPublicItems(validItems);
         } catch (error) {
           console.error("Error fetching global gallery:", error);

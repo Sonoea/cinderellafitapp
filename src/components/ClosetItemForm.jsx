@@ -11,6 +11,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         fitRating: 2,
         comment: '',
         location: '',
+        purchaseType: '',
         isPublic: true,
     });
 
@@ -102,6 +103,30 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                         value={formData.location}
                                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                     />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-2">{t('purchaseTypeLabel')}</label>
+                                <div className="flex gap-2">
+                                    {[
+                                        { id: 'online', label: t('categoryOnline'), icon: '🌐' },
+                                        { id: 'retail', label: t('categoryRetail'), icon: '🏪' },
+                                        { id: 'handmade', label: t('categoryHandmade'), icon: '🪡' }
+                                    ].map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, purchaseType: cat.id })}
+                                            className={`flex-1 p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${formData.purchaseType === cat.id
+                                                ? 'border-primary bg-primary/5 text-primary shadow-sm scale-105'
+                                                : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
+                                                }`}
+                                        >
+                                            <span className="text-xl">{cat.icon}</span>
+                                            <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 

@@ -83,6 +83,7 @@ const Closet = () => {
   // Filters (Gallery Tab)
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMySize, setFilterMySize] = useState(false);
+  const [filterCategory, setFilterCategory] = useState('all');
 
   // --- URL PARAMS HANDLING ---
   const location = useLocation();
@@ -141,6 +142,7 @@ const Closet = () => {
                 itemName: data.itemName || data.name,
                 userName: data.userName || null,
                 userIcon: data.userIcon || '/api/placeholder/40/40',
+                purchaseType: data.purchaseType || '',
                 shopName: safeHostname(data.url),
                 date: safeDate(data.createdAt),
               });
@@ -214,6 +216,7 @@ const Closet = () => {
       location: item.location,
       imageUrl: item.image,
       itemName: item.name,
+      purchaseType: item.purchaseType || '',
       shopName: safeHostname(item.url),
       fitRating: item.fitRating,
       comment: item.comment,
@@ -250,9 +253,14 @@ const Closet = () => {
         }
       }
 
-      return matchesSearch && matchesSize;
+      let matchesCategory = true;
+      if (filterCategory !== 'all') {
+        matchesCategory = item.purchaseType === filterCategory;
+      }
+
+      return matchesSearch && matchesSize && matchesCategory;
     });
-  }, [closetItems, publicItems, searchTerm, filterMySize, currentUser, plushies, firestoreUserName, t]);
+  }, [closetItems, publicItems, searchTerm, filterMySize, filterCategory, plushies, currentUser, firestoreUserName, t]);
 
 
 
@@ -520,6 +528,27 @@ const Closet = () => {
                 <Ruler size={16} />
                 {t('filterSize')} {filterMySize && <span className="text-[10px] bg-white/20 px-2 rounded-full ml-1">±2cm</span>}
               </button>
+
+              <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                {[
+                  { id: 'all', label: t('categoryAll'), icon: '✨' },
+                  { id: 'online', label: t('categoryOnline'), icon: '🌐' },
+                  { id: 'retail', label: t('categoryRetail'), icon: '🏪' },
+                  { id: 'handmade', label: t('categoryHandmade'), icon: '🪡' }
+                ].map((cat) => (
+                  <button
+                    key={cat.id}
+                    onClick={() => setFilterCategory(cat.id)}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
+                      ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                      : 'bg-white text-gray-400 border-gray-100 hover:bg-gray-50'
+                      }`}
+                  >
+                    <span>{cat.icon}</span>
+                    <span>{cat.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="bg-blue-50 p-4 rounded-xl flex items-center gap-3">
@@ -584,7 +613,16 @@ const Closet = () => {
 
                     <div className="p-3">
                       <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
+                        <div className="flex flex-col gap-1">
+                          <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
+                          {post.purchaseType && (
+                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
+                              {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                                post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                  `🪡 ${t('categoryHandmade')}`}
+                            </span>
+                          )}
+                        </div>
                         <span className="text-lg">
                           {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
                         </span>

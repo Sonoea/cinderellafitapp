@@ -44,24 +44,25 @@ const Closet = () => {
 
   // State for real user name from Firestore (to fix "You" issue)
   const [firestoreUserName, setFirestoreUserName] = useState(null);
+  const [firestorePhotoURL, setFirestorePhotoURL] = useState(null);
 
   useEffect(() => {
-    const fetchUserName = async () => {
+    const fetchUserProfile = async () => {
       if (currentUser?.uid) {
         try {
-          // We could use useAuth's getUserData but we can also just fetch here or trust AppContext?
-          // Let's just fetch directly for now to be sure
           const { doc, getDoc } = await import('firebase/firestore');
           const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
           if (userDoc.exists()) {
-            setFirestoreUserName(userDoc.data().displayName);
+            const data = userDoc.data();
+            setFirestoreUserName(data.displayName || null);
+            setFirestorePhotoURL(data.photoURL || null);
           }
         } catch (e) {
-          console.error("Error fetching user name:", e);
+          console.error("Error fetching user profile:", e);
         }
       }
     };
-    fetchUserName();
+    fetchUserProfile();
   }, [currentUser]);
 
   // --- STATE DECLARATIONS ---
@@ -234,7 +235,7 @@ const Closet = () => {
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <UserAvatar
-              src={currentUser?.photoURL}
+              src={firestorePhotoURL || currentUser?.photoURL}
               className="w-12 h-12 ring-2 ring-primary/20"
               alt={firestoreUserName || currentUser?.displayName}
             />
@@ -569,9 +570,8 @@ const Closet = () => {
         <EditProfileModal
           onClose={() => setShowEditProfile(false)}
           onSave={(data) => {
-            // Optimistically update local state if needed, though filteredItems relies on firestoreUserName
-            // Triggering a re-fetch or waiting for the effect might be needed.
             setFirestoreUserName(data.displayName);
+            setFirestorePhotoURL(data.photoURL || null);
             setShowEditProfile(false);
           }}
           t={t}

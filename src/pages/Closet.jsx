@@ -159,8 +159,8 @@ const Closet = () => {
               // Safety checks
               if (!data) return;
 
-              // Filter out items without user info
-              if (!data.userName && !data.userIcon) return;
+              // Filter out items without any identification (at least userId or userName should exist)
+              if (!data.userName && !data.userIcon && !data.userId) return;
 
               items.push({
                 id: doc.id,
@@ -829,11 +829,6 @@ const Closet = () => {
                       {isEditing ? (
                         <div className="flex justify-between gap-2">
                           {[1, 2, 3].map((rating) => {
-                            const colors = [
-                              { bg: 'bg-red-100', border: 'border-red-400', text: 'text-red-600' },
-                              { bg: 'bg-green-100', border: 'border-green-400', text: 'text-green-600' },
-                              { bg: 'bg-yellow-100', border: 'border-yellow-400', text: 'text-yellow-600' },
-                            ][rating - 1];
                             const emojis = ['😣', '😊', '😌'];
                             const labels = [t('fitLabelsShort')?.[0] || 'きつい', t('fitLabelsShort')?.[1] || 'ぴったり', t('fitLabelsShort')?.[2] || '大きめ'];
                             const isSelected = editData.fitRating === rating;
@@ -841,11 +836,13 @@ const Closet = () => {
                               <button
                                 key={rating}
                                 onClick={() => setEditData({ ...editData, fitRating: rating })}
-                                className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected ? `${colors.bg} ${colors.border} scale-105 shadow-md` : 'bg-white border-gray-200 opacity-60'
+                                className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected
+                                  ? 'bg-primary text-white border-primary scale-105 shadow-md'
+                                  : 'bg-white border-gray-200 opacity-60'
                                   }`}
                               >
                                 <span className={`text-2xl block text-center ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
-                                <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? colors.text : 'text-gray-400'}`}>
+                                <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                                   {labels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
                                 </p>
                               </button>

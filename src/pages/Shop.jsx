@@ -329,15 +329,15 @@ const Shop = () => {
                                 key={p.id}
                                 onClick={() => setSelectedId(p.id)}
                                 className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all min-w-[80px] ${selectedId === p.id
-                                    ? 'bg-primary/10 border-primary'
-                                    : 'bg-gray-50 border-transparent hover:border-gray-200'
+                                    ? 'bg-primary text-white border-primary shadow-md scale-105'
+                                    : 'bg-gray-50 border-transparent hover:border-gray-200 text-gray-700'
                                     }`}
                             >
                                 <div className="w-12 h-12 rounded-full bg-white overflow-hidden border border-gray-200">
                                     <img src={p.image} className="w-full h-full object-cover" alt="" />
                                 </div>
-                                <span className="text-xs font-bold text-gray-700">{p.name}</span>
-                                <span className="text-[10px] text-gray-500">{p.measurements?.height}cm</span>
+                                <span className={`text-xs font-bold ${selectedId === p.id ? 'text-white' : 'text-gray-700'}`}>{p.name}</span>
+                                <span className={`text-[10px] ${selectedId === p.id ? 'text-white/80' : 'text-gray-500'}`}>{p.measurements?.height}cm</span>
                             </button>
                         ))}
                     </div>

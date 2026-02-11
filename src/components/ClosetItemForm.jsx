@@ -119,7 +119,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             type="button"
                                             onClick={() => setFormData({ ...formData, purchaseType: cat.id })}
                                             className={`flex-1 p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${formData.purchaseType === cat.id
-                                                ? 'border-primary bg-primary/5 text-primary shadow-sm scale-105'
+                                                ? 'bg-primary text-white border-primary shadow-lg scale-105'
                                                 : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
                                                 }`}
                                         >
@@ -163,11 +163,6 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 <label className="block text-xs font-bold text-gray-700 mb-2">{t('fitRating')}</label>
                                 <div className="flex justify-between bg-gray-50 p-3 rounded-xl gap-2">
                                     {[1, 2, 3].map((rating) => {
-                                        const colors = [
-                                            { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-600', selectedBg: 'bg-red-100' },
-                                            { bg: 'bg-green-50', border: 'border-green-400', text: 'text-green-600', selectedBg: 'bg-green-100' },
-                                            { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-600', selectedBg: 'bg-yellow-100' },
-                                        ][rating - 1];
                                         const emojis = ['😣', '😊', '😌'];
                                         const isSelected = formData.fitRating === rating;
 
@@ -177,14 +172,13 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, fitRating: rating })}
                                                 className={`
-                          flex-1 p-3 rounded-xl transition-all duration-200 relative
-                          ${isSelected
-                                                        ? `${colors.selectedBg} scale-110 shadow-lg ring-4 ${colors.border.replace('border-', 'ring-')}`
-                                                        : 'bg-white hover:bg-gray-100 opacity-60'}
-                          active:scale-95
-                          border-3 
-                          ${isSelected ? colors.border : 'border-gray-200'}
-                        `}
+                                                  flex-1 p-3 rounded-xl transition-all duration-200 relative
+                                                  ${isSelected
+                                                        ? 'bg-primary text-white border-primary scale-110 shadow-lg ring-4 ring-primary/20'
+                                                        : 'bg-white hover:bg-gray-100 opacity-60 border-gray-200'}
+                                                  active:scale-95
+                                                  border-2
+                                                `}
                                             >
                                                 {isSelected && (
                                                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
@@ -192,7 +186,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                     </div>
                                                 )}
                                                 <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
-                                                <p className={`text-[10px] text-center font-bold ${isSelected ? colors.text : 'text-gray-400'}`}>
+                                                <p className={`text-[10px] text-center font-bold ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                                                     {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
                                                 </p>
                                             </button>

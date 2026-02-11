@@ -28,8 +28,8 @@ const Home = () => {
                         const data = doc.data();
                         if (!data) return;
 
-                        // Filter out items without user info
-                        if (!data.userName && !data.userIcon) return;
+                        // Filter out items without any identification (at least userId or userName should exist)
+                        if (!data.userName && !data.userIcon && !data.userId) return;
 
                         items.push({
                             id: doc.id,

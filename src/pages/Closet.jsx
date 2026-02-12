@@ -399,26 +399,41 @@ const Closet = () => {
 
     // Combine Public Global Items + Local Public Items
     // Mark items from collectionGroup that belong to current user
-    const markedPublicItems = publicItems.map(item => {
-      const isOwn = myUid && item.userId === myUid;
-      const liveProfile = userProfiles[item.userId];
+    const finalItems = [...publicItems];
+
+    // Add local public items if not already in publicItems
+    localPublicItems.forEach(localItem => {
+      const exists = finalItems.some(pi => pi.id === localItem.id);
+      if (!exists) {
+        finalItems.push(localItem);
+      }
+    });
+
+    const processedItems = finalItems.map(item => {
+      const itemUid = item.userId || myUid;
+      const isOwn = myUid && itemUid === myUid;
+      const liveProfile = userProfiles[itemUid];
+
+      // Ensure every item has a compositeId and the correct owner uid
+      const compositeId = item.compositeId || `${itemUid}_${item.id}`;
 
       return {
         ...item,
+        userId: itemUid,
+        compositeId,
         isOwn,
         // Override with latest profile if available
         userName: isOwn ? (firestoreUserName || item.userName) : (liveProfile?.displayName || item.userName),
         userIcon: isOwn ? (firestorePhotoURL || item.userIcon) : (liveProfile?.photoURL || item.userIcon)
       };
     });
-    const combinedItems = [...markedPublicItems, ...localPublicItems];
 
     // Deduplication by Content (to handle local-id prefix differences)
     const uniqueItems = [];
     const seenCombos = new Set();
 
-    combinedItems.forEach(item => {
-      // Content-based key
+    processedItems.forEach(item => {
+      // Content-based key for deduplication
       const comboKey = `${item.userId}-${item.itemName}-${item.imageUrl}`;
       if (!seenCombos.has(comboKey)) {
         seenCombos.add(comboKey);
@@ -796,40 +811,49 @@ const Closet = () => {
                       <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
                     </div>
 
-                    <div className="px-3 py-3 flex items-center gap-6 border-b border-gray-50 bg-white">
+                    <div className="px-3 py-3 flex items-center gap-6 border-b border-gray-50 bg-white relative z-10">
                       {/* Like Button */}
                       <button
+                        type="button"
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           toggleLike(post.id, post.userId);
                         }}
-                        className={`flex items-center gap-2 transition-all active:scale-95 group ${(itemLikes[post.compositeId || post.id]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
+                        className={`flex items-center gap-2.5 transition-all p-1 -m-1 rounded-xl active:scale-90 group focus:outline-none ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
                           }`}
                       >
-                        <div className={`p-1.5 rounded-full transition-colors ${(itemLikes[post.compositeId || post.id]?.isLiked) ? 'bg-pink-50' : 'bg-gray-50 group-hover:bg-pink-50/50'
+                        <div className={`p-2 rounded-full transition-all duration-300 ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-sm' : 'bg-gray-50 group-hover:bg-pink-50/50'
                           }`}>
-                          <Heart size={22} fill={(itemLikes[post.compositeId || post.id]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
+                          <Heart
+                            size={24}
+                            fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
+                            strokeWidth={2.5}
+                            className={(itemLikes[post.compositeId]?.isLiked) ? "animate-pulse" : ""}
+                          />
                         </div>
-                        <div className="flex flex-col items-start leading-none">
-                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">いい！</span>
-                          <span className="text-xs font-black">{itemLikes[post.compositeId || post.id]?.count ?? post.likes ?? 0}</span>
+                        <div className="flex flex-col items-start leading-tight">
+                          <span className="text-[11px] font-black uppercase tracking-wider">いい！</span>
+                          <span className="text-sm font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
                         </div>
                       </button>
 
                       {/* Comment Button (Opens Detail) */}
                       <button
+                        type="button"
                         onClick={(e) => {
+                          e.preventDefault();
                           e.stopPropagation();
                           setSelectedItem(post);
                         }}
-                        className="flex items-center gap-2 text-gray-400 hover:text-blue-500 transition-all active:scale-95 group"
+                        className="flex items-center gap-2.5 text-gray-400 hover:text-blue-500 transition-all p-1 -m-1 rounded-xl active:scale-90 group focus:outline-none"
                       >
-                        <div className="p-1.5 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-colors">
-                          <MessageCircle size={22} strokeWidth={2.5} />
+                        <div className="p-2 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300">
+                          <MessageCircle size={24} strokeWidth={2.5} />
                         </div>
-                        <div className="flex flex-col items-start leading-none">
-                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">コメント</span>
-                          <span className="text-xs font-black">{itemComments[post.compositeId || post.id]?.length || 0}</span>
+                        <div className="flex flex-col items-start leading-tight">
+                          <span className="text-[11px] font-black uppercase tracking-wider">コメント</span>
+                          <span className="text-sm font-black tabular-nums">{itemComments[post.compositeId]?.length || 0}</span>
                         </div>
                       </button>
                     </div>
@@ -1106,13 +1130,13 @@ const Closet = () => {
                           <div className="flex items-center gap-2">
                             <MessageCircle size={18} className="text-blue-500" />
                             <span>{t('commentsTitle') || 'コメント'}</span>
-                            <span className="bg-white border px-2 py-0.5 rounded-full text-[10px] text-gray-500">{itemComments[selectedItem.compositeId || selectedItem.id]?.length || 0}</span>
+                            <span className="bg-white border px-2 py-0.5 rounded-full text-[10px] text-gray-500">{itemComments[selectedItem.compositeId]?.length || 0}</span>
                           </div>
                         </h4>
 
                         <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                          {(itemComments[selectedItem.compositeId || selectedItem.id] || []).length > 0 ? (
-                            (itemComments[selectedItem.compositeId || selectedItem.id] || []).map((comment) => (
+                          {(itemComments[selectedItem.compositeId] || []).length > 0 ? (
+                            (itemComments[selectedItem.compositeId] || []).map((comment) => (
                               <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2">
                                 <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
                                 <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">

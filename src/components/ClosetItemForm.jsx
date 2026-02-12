@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Camera, MapPin, Unlock, Lock } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 
@@ -15,6 +15,13 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         purchaseType: '',
         isPublic: true,
     });
+
+    // Ensure scroll area is focused for keyboard scroll
+    useEffect(() => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.focus();
+        }
+    }, []);
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -62,8 +69,13 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
     };
 
     return (
-        <div className="flex-1 flex flex-col min-h-0">
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'contain' }}>
+        <div className="modal-content-grid">
+            <div
+                ref={scrollContainerRef}
+                className="modal-scroll-area"
+                tabIndex="0"
+                style={{ outline: 'none' }}
+            >
                 <div className="p-4 space-y-6">
 
                     {/* 1. Photo Section */}

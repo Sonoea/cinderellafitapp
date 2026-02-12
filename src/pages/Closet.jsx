@@ -811,7 +811,7 @@ const Closet = () => {
                           <Heart size={22} fill={(itemLikes[post.compositeId || post.id]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
                         </div>
                         <div className="flex flex-col items-start leading-none">
-                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">Like</span>
+                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">いい！</span>
                           <span className="text-xs font-black">{itemLikes[post.compositeId || post.id]?.count ?? post.likes ?? 0}</span>
                         </div>
                       </button>
@@ -828,7 +828,7 @@ const Closet = () => {
                           <MessageCircle size={22} strokeWidth={2.5} />
                         </div>
                         <div className="flex flex-col items-start leading-none">
-                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">Comment</span>
+                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">コメント</span>
                           <span className="text-xs font-black">{itemComments[post.compositeId || post.id]?.length || 0}</span>
                         </div>
                       </button>

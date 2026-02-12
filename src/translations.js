@@ -150,6 +150,7 @@ export const translations = {
         galleryTabHelp: "See everyone's outfits! Upload yours from the 'My Outfits' tab.",
         plushiesTabHelp: "Register your plushies here to link them to outfits.",
         tapToTakePhoto: "Tap to Take or Upload Photo",
+        commentHint: "Tap for details/comments",
 
         // Guide
         guideTitle: "User Guide",
@@ -317,6 +318,7 @@ export const translations = {
         saveLook: "保存する",
         guide2D: "ドラッグで移動 • ピンチで拡大縮小",
         guide3D: "緑＝サイズOK • 赤＝きつい",
+        commentHint: "タップして詳細・コメントを見る",
 
         // Item Scan
         scanTarget: "何をスキャンしますか？",

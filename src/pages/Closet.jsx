@@ -794,21 +794,34 @@ const Closet = () => {
                       </div>
                     </div>
 
-                    <div className="aspect-square bg-gray-50 relative cursor-pointer" onClick={() => setSelectedItem(post)}>
-                      <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
+                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
+                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                    </div>
 
+                    <div className="px-3 py-2 flex items-center gap-4 border-b border-gray-50">
+                      {/* Like Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleLike(post.id, post.userId);
                         }}
-                        className={`absolute bottom-3 right-3 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm transition-all active:scale-90 z-10 ${(itemLikes[post.id]?.isLiked)
-                            ? 'bg-pink-500 text-white'
-                            : 'bg-white/80 text-pink-500'
+                        className={`flex items-center gap-1.5 transition-all active:scale-90 ${(itemLikes[post.id]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
                           }`}
                       >
-                        <Heart size={12} fill={(itemLikes[post.id]?.isLiked) ? "currentColor" : "none"} />
-                        <span>{itemLikes[post.id]?.count ?? post.likes ?? 0}</span>
+                        <Heart size={20} fill={(itemLikes[post.id]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
+                        <span className="text-xs font-bold">{itemLikes[post.id]?.count ?? post.likes ?? 0}</span>
+                      </button>
+
+                      {/* Comment Button (Opens Detail) */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedItem(post);
+                        }}
+                        className="flex items-center gap-1.5 text-gray-400 hover:text-blue-400 transition-all active:scale-90"
+                      >
+                        <Share2 size={20} strokeWidth={2.5} className="rotate-0" />
+                        <span className="text-xs font-bold">{itemComments[post.id]?.length || 0}</span>
                       </button>
                     </div>
 

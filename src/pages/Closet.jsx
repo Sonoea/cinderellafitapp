@@ -102,6 +102,7 @@ const Closet = () => {
   const [publicItems, setPublicItems] = useState([]);
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
   const [galleryError, setGalleryError] = useState(null);
+  const [userProfiles, setUserProfiles] = useState({}); // { [userId]: { displayName, photoURL } }
 
   // Filters (Items Tab)
   const [activePlushieId, setActivePlushieId] = useState('all');
@@ -143,6 +144,33 @@ const Closet = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
+
+  // Helper to resolve user profiles for gallery
+  const resolveUserProfiles = async (uids) => {
+    if (!uids || uids.length === 0) return;
+    const { doc, getDoc } = await import('firebase/firestore');
+    const newProfiles = { ...userProfiles };
+    let changed = false;
+
+    for (const uid of uids) {
+      if (!newProfiles[uid]) {
+        try {
+          const uDoc = await getDoc(doc(db, 'users', uid));
+          if (uDoc.exists()) {
+            newProfiles[uid] = uDoc.data();
+            changed = true;
+          }
+        } catch (e) {
+          console.error("Error fetching extra profile:", uid, e);
+        }
+      }
+    }
+
+    if (changed) {
+      setUserProfiles(newProfiles);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'gallery') {
       const fetchGallery = async () => {
@@ -206,6 +234,10 @@ const Closet = () => {
 
           const validItems = uniqueItems;
           setPublicItems(validItems);
+
+          // Resolve user profiles for these items
+          const uniqueUserIds = [...new Set(validItems.map(item => item.userId).filter(Boolean))];
+          resolveUserProfiles(uniqueUserIds);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
           // Firestore Collection Group Index が未作成の場合、エラーメッセージにURLが含まれる
@@ -254,10 +286,18 @@ const Closet = () => {
 
     // Combine Public Global Items + Local Public Items
     // Mark items from collectionGroup that belong to current user
-    const markedPublicItems = publicItems.map(item => ({
-      ...item,
-      isOwn: myUid && item.userId === myUid
-    }));
+    const markedPublicItems = publicItems.map(item => {
+      const isOwn = myUid && item.userId === myUid;
+      const liveProfile = userProfiles[item.userId];
+
+      return {
+        ...item,
+        isOwn,
+        // Override with latest profile if available
+        userName: isOwn ? (firestoreUserName || item.userName) : (liveProfile?.displayName || item.userName),
+        userIcon: isOwn ? (firestorePhotoURL || item.userIcon) : (liveProfile?.photoURL || item.userIcon)
+      };
+    });
     const combinedItems = [...markedPublicItems, ...localPublicItems];
 
     // Deduplication by Content (to handle local-id prefix differences)

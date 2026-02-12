@@ -820,7 +820,7 @@ const Closet = () => {
                         }}
                         className="flex items-center gap-1.5 text-gray-400 hover:text-blue-400 transition-all active:scale-90"
                       >
-                        <Share2 size={20} strokeWidth={2.5} className="rotate-0" />
+                        <MessageSquare size={20} strokeWidth={2.5} />
                         <span className="text-xs font-bold">{itemComments[post.id]?.length || 0}</span>
                       </button>
                     </div>
@@ -1093,10 +1093,13 @@ const Closet = () => {
                     {/* Comments Section */}
                     {selectedItem.isPublic && !isEditing && (
                       <div className="pt-4 border-t border-gray-100">
-                        <h4 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center gap-2">
-                          <Users size={16} />
-                          Comments
-                          <span className="bg-gray-100 px-2 py-0.5 rounded-full text-[10px]">{itemComments[selectedItem.id]?.length || 0}</span>
+                        <h4 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <MessageSquare size={16} />
+                            Comments
+                            <span className="bg-gray-100 px-2 py-0.5 rounded-full text-[10px]">{itemComments[selectedItem.id]?.length || 0}</span>
+                          </div>
+                          {currentUser && <span className="text-[10px] text-primary italic font-bold">Write a comment below! ↓</span>}
                         </h4>
 
                         <div className="space-y-4 mb-6">

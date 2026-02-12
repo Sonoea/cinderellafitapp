@@ -180,11 +180,6 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                   border-2
                                                 `}
                                             >
-                                                {isSelected && (
-                                                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-md">
-                                                        <span className="text-xs">✓</span>
-                                                    </div>
-                                                )}
                                                 <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
                                                 <p className={`text-[10px] text-center font-bold ${isSelected ? 'text-white' : 'text-gray-400'}`}>
                                                     {fitLabels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}

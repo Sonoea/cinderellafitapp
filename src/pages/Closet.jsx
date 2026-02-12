@@ -107,6 +107,8 @@ const Closet = () => {
   const [itemComments, setItemComments] = useState({}); // { [itemId]: [comments] }
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
+  const commentsRef = useRef(null);
 
   // Filters (Items Tab)
   const [activePlushieId, setActivePlushieId] = useState('all');
@@ -285,6 +287,14 @@ const Closet = () => {
         const bareId = String(selectedItem.id || '').replace(/^local-/, '');
         if (bareId && selectedItem.userId) {
           fetchEngagement(bareId, selectedItem.userId);
+        }
+
+        // Auto-scroll to comments if requested
+        if (shouldScrollToComments) {
+          setTimeout(() => {
+            commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            setShouldScrollToComments(false);
+          }, 300);
         }
       } catch (err) {
         console.error("Error in selectedItem effect:", err);
@@ -857,6 +867,7 @@ const Closet = () => {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
+                          setShouldScrollToComments(true);
                           setSelectedItem(post);
                         }}
                         className="flex items-center gap-3 text-gray-400 hover:text-blue-500 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30"
@@ -866,7 +877,7 @@ const Closet = () => {
                           <MessageCircle size={28} strokeWidth={3} />
                         </div>
                         <div className="flex flex-col items-start leading-tight pointer-events-none">
-                          <span className="text-[14px] font-black uppercase tracking-widest">コメント</span>
+                          <span className="text-[13px] font-black uppercase tracking-widest">見てみる・書く</span>
                           <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || 0}</span>
                         </div>
                       </button>
@@ -1024,7 +1035,7 @@ const Closet = () => {
                       )}
 
                       {/* Edit / Delete Buttons */}
-                      <div className="flex gap-1 z-20 relative">
+                      <div className="flex gap-2 z-20 relative">
                         {!isEditing && (
                           <button
                             onClick={() => {
@@ -1036,9 +1047,10 @@ const Closet = () => {
                                 galleryOnly: selectedItem.galleryOnly || false
                               });
                             }}
-                            className="text-blue-400 hover:text-blue-500 p-2"
+                            className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
                           >
-                            <Edit2 size={18} />
+                            <Edit2 size={14} />
+                            <span>編集する</span>
                           </button>
                         )}
                         <button
@@ -1049,9 +1061,10 @@ const Closet = () => {
                               setIsEditing(false);
                             }
                           }}
-                          className="text-red-400 hover:text-red-500 p-2"
+                          className="bg-red-50 text-red-400 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-red-200"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={14} />
+                          <span>削除</span>
                         </button>
                       </div>
                     </div>
@@ -1110,9 +1123,12 @@ const Closet = () => {
                       )}
                     </div>
 
-                    {/* Comment */}
+                    {/* Author's Note Section */}
                     <div>
-                      <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('notesTitle')}</h4>
+                      <h4 className="text-sm font-black text-gray-400 uppercase mb-2 flex items-center gap-2">
+                        <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                        <span>投稿者のひとこと（アイテム説明）</span>
+                      </h4>
                       {isEditing ? (
                         <div className="space-y-1">
                           <div className="flex justify-end">
@@ -1139,8 +1155,8 @@ const Closet = () => {
 
                     {/* Comments Section */}
                     {selectedItem.isPublic && !isEditing && (
-                      <div className="pt-6 border-t-2 border-dashed border-gray-100 mt-4">
-                        <h4 className="text-sm font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-50 p-3 rounded-xl border border-blue-100">
+                      <div ref={commentsRef} className="pt-8 border-t-2 border-dashed border-gray-100 mt-6 scroll-mt-6">
+                        <h4 className="text-base font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-500 text-white p-4 rounded-2xl shadow-md">
                           <div className="flex items-center gap-3">
                             <MessageCircle size={22} className="text-blue-500" />
                             <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>

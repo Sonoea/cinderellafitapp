@@ -1,10 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { collectionGroup, query, where, getDocs } from 'firebase/firestore'; // Import Firestore functions
-import { db } from '../firebase/config'; // Import db
+import { collectionGroup, query, where, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, getDoc } from 'firebase/firestore';
+import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -225,12 +224,7 @@ const Closet = () => {
     }));
 
     try {
-      // Use pre-imported or top-level functions if available, or just use the pre-resolved ones from previous import
-      // To keep it simple, I'll assume they were imported in fetchEngagement or just import again if needed, 
-      // but better to import once at start of engagement.
-      const { doc, setDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore');
       const likeRef = doc(db, 'users', ownerUid, 'closetItems', itemId, 'likes', currentUser.uid);
-
       if (newIsLiked) {
         await setDoc(likeRef, { createdAt: serverTimestamp() });
       } else {
@@ -251,7 +245,6 @@ const Closet = () => {
     setIsSubmittingComment(true);
 
     try {
-      const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
       const commentData = {
         userId: currentUser.uid,
         userName: firestoreUserName || currentUser.displayName || t('guest'),
@@ -307,6 +300,7 @@ const Closet = () => {
 
               items.push({
                 id: doc.id,
+                userId: doc.ref.parent.parent.id, // Owner is parent user doc
                 ...data,
                 imageUrl: data.imageUrl || data.image,
                 itemName: data.itemName || data.name,
@@ -1092,69 +1086,87 @@ const Closet = () => {
 
                     {/* Comments Section */}
                     {selectedItem.isPublic && !isEditing && (
-                      <div className="pt-4 border-t border-gray-100">
-                        <h4 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center justify-between">
+                      <div className="pt-6 border-t-2 border-dashed border-gray-100 mt-4">
+                        <h4 className="text-sm font-bold text-gray-800 uppercase mb-4 flex items-center justify-between bg-gray-50 p-2 rounded-lg">
                           <div className="flex items-center gap-2">
-                            <MessageCircle size={16} />
-                            Comments
-                            <span className="bg-gray-100 px-2 py-0.5 rounded-full text-[10px]">{itemComments[selectedItem.id]?.length || 0}</span>
+                            <MessageCircle size={18} className="text-blue-500" />
+                            <span>{t('commentsTitle') || 'コメント'}</span>
+                            <span className="bg-white border px-2 py-0.5 rounded-full text-[10px] text-gray-500">{itemComments[selectedItem.id]?.length || 0}</span>
                           </div>
-                          {currentUser && <span className="text-[10px] text-primary italic font-bold">Write a comment below! ↓</span>}
                         </h4>
 
-                        <div className="space-y-4 mb-6">
-                          {(itemComments[selectedItem.id] || []).map((comment) => (
-                            <div key={comment.id} className="flex gap-3 animate-in slide-in-from-bottom-2">
-                              <UserAvatar src={comment.userIcon} className="w-8 h-8 flex-shrink-0" alt="" />
-                              <div className="flex-1">
-                                <div className="flex items-center justify-between mb-0.5">
-                                  <span className="text-xs font-bold text-gray-800">{comment.userName}</span>
-                                  <span className="text-[10px] text-gray-400">
-                                    {comment.createdAt?.seconds
-                                      ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
-                                      : new Date(comment.createdAt).toLocaleDateString()}
-                                  </span>
+                        <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                          {(itemComments[selectedItem.id] || []).length > 0 ? (
+                            (itemComments[selectedItem.id] || []).map((comment) => (
+                              <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2">
+                                <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
+                                <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">
+                                  <div className="flex items-center justify-between mb-1">
+                                    <span className="text-xs font-bold text-gray-900">{comment.userName}</span>
+                                    <span className="text-[10px] text-gray-400">
+                                      {comment.createdAt?.seconds
+                                        ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
+                                        : new Date(comment.createdAt).toLocaleDateString()}
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-gray-700 leading-relaxed break-words">
+                                    {comment.text}
+                                  </p>
                                 </div>
-                                <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-2 rounded-lg rounded-tl-none inline-block min-w-[50%]">
-                                  {comment.text}
-                                </p>
                               </div>
-                            </div>
-                          ))}
-
-                          {(!itemComments[selectedItem.id] || itemComments[selectedItem.id].length === 0) && (
-                            <div className="text-center py-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                              <p className="text-xs text-gray-400 font-bold italic">No comments yet. Be the first!</p>
+                            ))
+                          ) : (
+                            <div className="text-center py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">
+                              <p className="text-sm text-gray-400 font-medium italic">{t('noCommentsYet') || 'まだコメントがありません'}</p>
                             </div>
                           )}
                         </div>
 
                         {/* Comment Form */}
                         {currentUser ? (
-                          <div className="flex gap-2 items-end">
-                            <div className="flex-1 relative">
-                              <textarea
-                                value={commentText}
-                                onChange={(e) => setCommentText(e.target.value)}
-                                placeholder="Add a comment..."
-                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-20"
-                                maxLength={200}
-                              />
-                              <span className="absolute bottom-2 right-2 text-[8px] text-gray-400">
-                                {commentText.length}/200
+                          <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-inner">
+                            <div className="flex items-center gap-2 mb-3">
+                              <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
+                                <Plus size={14} /> {t('addCommentLabel') || 'コメントを投稿する'}
                               </span>
                             </div>
-                            <button
-                              onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
-                              disabled={!commentText.trim() || isSubmittingComment}
-                              className="bg-primary text-white p-3 rounded-xl shadow-md hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-12 w-12 flex items-center justify-center"
-                            >
-                              {isSubmittingComment ? '...' : <Plus size={24} />}
-                            </button>
+                            <div className="flex gap-2 items-end">
+                              <div className="flex-1 relative group">
+                                <textarea
+                                  value={commentText}
+                                  onChange={(e) => setCommentText(e.target.value)}
+                                  placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
+                                  className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
+                                  maxLength={200}
+                                />
+                                <div className="absolute bottom-2 right-2 flex items-center gap-2">
+                                  <span className={`text-[9px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
+                                    {commentText.length}/200
+                                  </span>
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
+                                disabled={!commentText.trim() || isSubmittingComment}
+                                className="bg-primary text-white p-4 rounded-xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-24 w-14 flex flex-col items-center justify-center gap-2 group active:scale-95"
+                              >
+                                {isSubmittingComment ? (
+                                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                  <>
+                                    <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                    <span className="text-[10px] font-bold">送信</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
                           </div>
                         ) : (
-                          <div className="bg-blue-50 p-4 rounded-xl text-center">
-                            <p className="text-xs text-blue-600 font-bold mb-2">Login to leave a comment!</p>
+                          <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
+                            <p className="text-sm text-gray-500 font-bold mb-3">{t('loginToComment') || 'コメントするにはログインが必要です'}</p>
+                            <Link to="/settings" className="inline-block px-6 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                              {t('goToLogin') || 'ログイン・設定へ'}
+                            </Link>
                           </div>
                         )}
                       </div>

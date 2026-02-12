@@ -151,6 +151,11 @@ export const translations = {
         plushiesTabHelp: "Register your plushies here to link them to outfits.",
         tapToTakePhoto: "Tap to Take or Upload Photo",
         commentHint: "Tap for details/comments",
+        commentsTitle: "Comments",
+        noCommentsYet: "No comments yet. Be the first!",
+        addCommentLabel: "Add a comment",
+        loginToComment: "Login to leave a comment!",
+        goToLogin: "Go to Login/Settings",
 
         // Guide
         guideTitle: "User Guide",
@@ -319,6 +324,11 @@ export const translations = {
         guide2D: "ドラッグで移動 • ピンチで拡大縮小",
         guide3D: "緑＝サイズOK • 赤＝きつい",
         commentHint: "タップして詳細・コメントを見る",
+        commentsTitle: "コメント",
+        noCommentsYet: "まだコメントがありません。最初のひとりになりませんか？",
+        addCommentLabel: "コメントを投稿する",
+        loginToComment: "コメントするにはログインが必要です",
+        goToLogin: "ログイン・設定へ",
 
         // Item Scan
         scanTarget: "何をスキャンしますか？",

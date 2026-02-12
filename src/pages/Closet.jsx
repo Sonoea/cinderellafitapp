@@ -225,7 +225,9 @@ const Closet = () => {
     }));
 
     try {
-      const likeRef = doc(db, 'users', ownerUid, 'closetItems', itemId.replace(/^local-/, ''), 'likes', currentUser.uid);
+      // Ensure we use a string and strip local- prefix for the firestore path
+      const bareId = String(itemId).replace(/^local-/, '');
+      const likeRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid);
       if (newIsLiked) {
         await setDoc(likeRef, { createdAt: serverTimestamp() });
       } else {
@@ -277,9 +279,15 @@ const Closet = () => {
 
   useEffect(() => {
     if (selectedItem) {
-      // Ensure we pass the bare ID for the path, and the owner UID
-      const bareId = selectedItem.id?.replace(/^local-/, '');
-      fetchEngagement(bareId, selectedItem.userId);
+      try {
+        // Ensure we pass a string bare ID for the path, and the owner UID
+        const bareId = String(selectedItem.id || '').replace(/^local-/, '');
+        if (bareId && selectedItem.userId) {
+          fetchEngagement(bareId, selectedItem.userId);
+        }
+      } catch (err) {
+        console.error("Error in selectedItem effect:", err);
+      }
     }
   }, [selectedItem]);
 
@@ -1004,13 +1012,13 @@ const Closet = () => {
                       {!isEditing && (
                         <button
                           onClick={() => toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId)}
-                          className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId || `${selectedItem.userId}_${selectedItem.id}`]?.isLiked)
-                            ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
-                            : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
+                          className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId]?.isLiked)
+                              ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
+                              : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
                             }`}
                         >
-                          <Heart size={20} fill={(itemLikes[selectedItem.compositeId || `${selectedItem.userId}_${selectedItem.id}`]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className="pointer-events-none" />
-                          <span className="pointer-events-none">{itemLikes[selectedItem.compositeId || `${selectedItem.userId}_${selectedItem.id}`]?.count ?? selectedItem.likes ?? 0}</span>
+                          <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className="pointer-events-none" />
+                          <span className="pointer-events-none">{itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0}</span>
                         </button>
                       )}
 

@@ -805,10 +805,11 @@ const Closet = () => {
                                     </div>
                                   </div>
                                 )}
-                                <div className={`absolute bottom-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-black text-white ${item.fitRating === 2 ? 'bg-green-500' :
+                                <div className={`absolute bottom-3 left-2 px-1.5 py-0.5 rounded-full text-xs shadow-sm flex items-center justify-center ${item.fitRating === 2 ? 'bg-green-500' :
                                   item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
                                   }`}>
-                                  {t('fitLabelsShort')?.[item.fitRating - 1] || '😊'}
+                                  {/* 絵文字のみを表示してコンパクトにする */}
+                                  {(t('fitLabelsShort')?.[item.fitRating - 1] || '😊').split(' ')[0]}
                                 </div>
                               </div>
                               <div className="p-2">

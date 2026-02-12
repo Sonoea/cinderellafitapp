@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Camera, MapPin, Unlock, Lock } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 
 const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel }) => {
+    const scrollContainerRef = useRef(null);
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
@@ -21,6 +22,16 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
             try {
                 const compressed = await compressImage(file);
                 setImage(compressed);
+
+                // Auto-scroll to form fields after photo upload
+                setTimeout(() => {
+                    if (scrollContainerRef.current) {
+                        scrollContainerRef.current.scrollTo({
+                            top: 200,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 100);
             } catch {
                 alert('Failed to load image');
             }
@@ -51,8 +62,8 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
     };
 
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
+        <div className="flex flex-col h-full overflow-hidden">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto min-h-0">
                 <div className="p-4 space-y-6">
 
                     {/* 1. Photo Section */}
@@ -236,7 +247,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
             </div>
 
             {/* Footer */}
-            <div className="p-4 pb-10 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+            <div className="p-4 pb-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
                 <button
                     onClick={handleSaveWrapper}
                     disabled={!image || isSaving}

@@ -8,7 +8,6 @@ const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabel
         <Portal>
             <div
                 className="fixed inset-0 bg-black/50 z-modal flex items-center justify-center backdrop-blur-sm animate-in fade-in duration-200"
-                style={{ touchAction: 'none' }}
             >
                 <div
                     className="modal-responsive animate-in slide-in-from-bottom-10 fade-in duration-300"
@@ -23,7 +22,7 @@ const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabel
                     </div>
 
                     {/* Reused Form */}
-                    <div className="flex-1 overflow-hidden relative">
+                    <div className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
                         <ClosetItemForm
                             plushies={plushies}
                             initialPlushieId={initialPlushieId}

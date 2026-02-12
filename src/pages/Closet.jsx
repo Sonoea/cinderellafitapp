@@ -957,10 +957,9 @@ const Closet = () => {
           <Portal>
             <div
               className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in zoom-in-95 duration-200"
-              style={{ touchAction: 'none' }}
             >
               <div
-                className="modal-responsive relative no-scrollbar shadow-2xl"
+                className="modal-responsive relative shadow-2xl overflow-hidden"
                 onClick={e => e.stopPropagation()}
               >
                 <button
@@ -970,298 +969,300 @@ const Closet = () => {
                   <X size={20} />
                 </button>
 
-                <div className="flex-1 overflow-y-auto min-h-0 bg-white">
-                  <div className="relative">
-                    <img src={selectedItem.image} alt="" className="w-full aspect-square object-cover" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
-                      <h2 className="text-xl font-bold">{selectedItem.name}</h2>
+                <div className="modal-content-wrapper bg-white">
+                  <div className="modal-scroll-area">
+                    <div className="relative">
+                      <img src={selectedItem.image} alt="" className="w-full aspect-square object-cover" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
+                        <h2 className="text-xl font-bold">{selectedItem.name}</h2>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="p-6 space-y-6">
-                    {/* Status Section */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        {isEditing ? (
-                          <>
-                            <button
-                              onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
-                              className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
-                                ? 'text-green-600 bg-green-100 border-2 border-green-400'
-                                : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
-                                }`}
-                            >
-                              {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
-                              {editData.isPublic ? t('publicGallery') : t('privateOnly')}
-                            </button>
-                            {editData.isPublic && (
+                    <div className="p-6 space-y-6">
+                      {/* Status Section */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          {isEditing ? (
+                            <>
                               <button
-                                onClick={() => setEditData({ ...editData, galleryOnly: !editData.galleryOnly })}
-                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.galleryOnly
-                                  ? 'text-blue-600 bg-blue-100 border-2 border-blue-400'
-                                  : 'text-gray-400 bg-gray-50 border-2 border-gray-200'
+                                onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
+                                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
+                                  ? 'text-green-600 bg-green-100 border-2 border-green-400'
+                                  : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
                                   }`}
                               >
-                                <Users size={12} />
-                                {editData.galleryOnly ? (t('galleryOnlyLabel') || 'ギャラリー専用') : (t('showInMyCloset') || 'マイコーデに表示')}
+                                {editData.isPublic ? <Share2 size={12} /> : <Lock size={12} />}
+                                {editData.isPublic ? t('publicGallery') : t('privateOnly')}
                               </button>
-                            )}
-                          </>
-                        ) : (
-                          <>
-                            {selectedItem.isPublic ? (
-                              <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg font-bold text-xs"><Share2 size={12} /> {t('publicGallery')}</span>
-                            ) : (
-                              <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-1 rounded-lg font-bold text-xs"><Lock size={12} /> {t('privateOnly')}</span>
-                            )}
-                            <span>•</span>
-                            <span>{new Date(selectedItem.createdAt).toLocaleDateString()}</span>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Live Like Button in Modal */}
-                      {!isEditing && (
-                        <button
-                          onClick={() => toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId)}
-                          className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId]?.isLiked)
-                            ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
-                            : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
-                            }`}
-                        >
-                          <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className="pointer-events-none" />
-                          <span className="pointer-events-none">{itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0}</span>
-                        </button>
-                      )}
-
-                      {/* Edit / Delete Buttons */}
-                      <div className="flex gap-2 z-20 relative">
-                        {!isEditing && (
-                          <button
-                            onClick={() => {
-                              setIsEditing(true);
-                              setEditData({
-                                fitRating: selectedItem.fitRating,
-                                comment: selectedItem.comment || '',
-                                isPublic: selectedItem.isPublic,
-                                galleryOnly: selectedItem.galleryOnly || false
-                              });
-                            }}
-                            className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
-                          >
-                            <Edit2 size={14} />
-                            <span>編集する</span>
-                          </button>
-                        )}
-                        <button
-                          onClick={() => {
-                            if (window.confirm(t('deleteConfirm'))) {
-                              deleteClosetItem(selectedItem.id);
-                              setSelectedItem(null);
-                              setIsEditing(false);
-                            }
-                          }}
-                          className="bg-red-50 text-red-400 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-red-200"
-                        >
-                          <Trash2 size={14} />
-                          <span>削除</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* URL */}
-                    {selectedItem.url && (
-                      <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
-                        <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500">
-                          <Shirt size={20} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-400 font-bold uppercase">{t('boughtFrom')}</p>
-                          <a href={selectedItem.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary truncate block hover:underline">
-
-                            {selectedItem.url}
-                          </a>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Fit Rating */}
-                    <div>
-                      <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('fitRatingTitle')}</h4>
-                      {isEditing ? (
-                        <div className="flex justify-between gap-2">
-                          {[1, 2, 3].map((rating) => {
-                            const emojis = ['😣', '😊', '😌'];
-                            const labels = [t('fitLabelsShort')?.[0] || 'きつい', t('fitLabelsShort')?.[1] || 'ぴったり', t('fitLabelsShort')?.[2] || '大きめ'];
-                            const isSelected = editData.fitRating === rating;
-                            return (
-                              <button
-                                key={rating}
-                                onClick={() => setEditData({ ...editData, fitRating: rating })}
-                                className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected
-                                  ? 'bg-primary text-white border-primary scale-105 shadow-md'
-                                  : 'bg-white border-gray-200 opacity-60'
-                                  }`}
-                              >
-                                <span className={`text-2xl block text-center ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
-                                <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? 'text-white' : 'text-gray-400'}`}>
-                                  {labels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
-                                </p>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      ) : (
-                        <div className="flex gap-3 items-center">
-                          <span className="text-4xl">
-                            {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
-                          </span>
-                          <p className="text-lg font-bold text-gray-700">
-                            {fullFitLabels[selectedItem.fitRating - 1]}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Author's Note Section */}
-                    <div>
-                      <h4 className="text-sm font-black text-gray-400 uppercase mb-2 flex items-center gap-2">
-                        <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                        <span>投稿者のひとこと（アイテム説明）</span>
-                      </h4>
-                      {isEditing ? (
-                        <div className="space-y-1">
-                          <div className="flex justify-end">
-                            <span className={`text-[10px] font-bold ${editData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
-                              {editData.comment.length} / 500
-                            </span>
-                          </div>
-                          <textarea
-                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                            placeholder={t('commentPlaceholder')}
-                            value={editData.comment}
-                            maxLength={500}
-                            onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
-                          />
-                        </div>
-                      ) : (
-                        selectedItem.comment && (
-                          <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
-                            {selectedItem.comment}
-                          </p>
-                        )
-                      )}
-                    </div>
-
-                    {/* Comments Section */}
-                    {selectedItem.isPublic && !isEditing && (
-                      <div ref={commentsRef} className="pt-8 border-t-2 border-dashed border-gray-100 mt-6 scroll-mt-6">
-                        <h4 className="text-base font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-500 text-white p-4 rounded-2xl shadow-md">
-                          <div className="flex items-center gap-3">
-                            <MessageCircle size={22} className="text-blue-500" />
-                            <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>
-                            <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">{itemComments[selectedItem.compositeId || selectedItem.id]?.length || 0}</span>
-                          </div>
-                        </h4>
-
-                        <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                          {(itemComments[selectedItem.compositeId] || []).length > 0 ? (
-                            (itemComments[selectedItem.compositeId] || []).map((comment) => (
-                              <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2">
-                                <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
-                                <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs font-bold text-gray-900">{comment.userName}</span>
-                                    <span className="text-[10px] text-gray-400">
-                                      {comment.createdAt?.seconds
-                                        ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
-                                        : new Date(comment.createdAt).toLocaleDateString()}
-                                    </span>
-                                  </div>
-                                  <p className="text-sm text-gray-700 leading-relaxed break-words">
-                                    {comment.text}
-                                  </p>
-                                </div>
-                              </div>
-                            ))
+                              {editData.isPublic && (
+                                <button
+                                  onClick={() => setEditData({ ...editData, galleryOnly: !editData.galleryOnly })}
+                                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.galleryOnly
+                                    ? 'text-blue-600 bg-blue-100 border-2 border-blue-400'
+                                    : 'text-gray-400 bg-gray-50 border-2 border-gray-200'
+                                    }`}
+                                >
+                                  <Users size={12} />
+                                  {editData.galleryOnly ? (t('galleryOnlyLabel') || 'ギャラリー専用') : (t('showInMyCloset') || 'マイコーデに表示')}
+                                </button>
+                              )}
+                            </>
                           ) : (
-                            <div className="text-center py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">
-                              <p className="text-sm text-gray-400 font-medium italic">{t('noCommentsYet') || 'まだコメントがありません'}</p>
-                            </div>
+                            <>
+                              {selectedItem.isPublic ? (
+                                <span className="flex items-center gap-1 text-green-600 bg-green-50 px-2 py-1 rounded-lg font-bold text-xs"><Share2 size={12} /> {t('publicGallery')}</span>
+                              ) : (
+                                <span className="flex items-center gap-1 text-gray-500 bg-gray-100 px-2 py-1 rounded-lg font-bold text-xs"><Lock size={12} /> {t('privateOnly')}</span>
+                              )}
+                              <span>•</span>
+                              <span>{new Date(selectedItem.createdAt).toLocaleDateString()}</span>
+                            </>
                           )}
                         </div>
 
-                        {/* Comment Form */}
-                        {currentUser ? (
-                          <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-inner">
-                            <div className="flex items-center gap-2 mb-3">
-                              <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
-                                <Plus size={14} /> {t('addCommentLabel') || 'コメントを投稿する'}
-                              </span>
-                            </div>
-                            <div className="flex gap-2 items-end">
-                              <div className="flex-1 relative group">
-                                <textarea
-                                  value={commentText}
-                                  onChange={(e) => setCommentText(e.target.value)}
-                                  placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
-                                  className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
-                                  maxLength={200}
-                                />
-                                <div className="absolute bottom-2 right-2 flex items-center gap-2">
-                                  <span className={`text-[9px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
-                                    {commentText.length}/200
-                                  </span>
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
-                                disabled={!commentText.trim() || isSubmittingComment}
-                                className="bg-primary text-white p-4 rounded-xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-24 w-14 flex flex-col items-center justify-center gap-2 group active:scale-95"
-                              >
-                                {isSubmittingComment ? (
-                                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                  <>
-                                    <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                    <span className="text-[10px] font-bold">送信</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
+                        {/* Live Like Button in Modal */}
+                        {!isEditing && (
+                          <button
+                            onClick={() => toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId)}
+                            className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId]?.isLiked)
+                              ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
+                              : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
+                              }`}
+                          >
+                            <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className="pointer-events-none" />
+                            <span className="pointer-events-none">{itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0}</span>
+                          </button>
+                        )}
+
+                        {/* Edit / Delete Buttons */}
+                        <div className="flex gap-2 z-20 relative">
+                          {!isEditing && (
+                            <button
+                              onClick={() => {
+                                setIsEditing(true);
+                                setEditData({
+                                  fitRating: selectedItem.fitRating,
+                                  comment: selectedItem.comment || '',
+                                  isPublic: selectedItem.isPublic,
+                                  galleryOnly: selectedItem.galleryOnly || false
+                                });
+                              }}
+                              className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
+                            >
+                              <Edit2 size={14} />
+                              <span>編集する</span>
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              if (window.confirm(t('deleteConfirm'))) {
+                                deleteClosetItem(selectedItem.id);
+                                setSelectedItem(null);
+                                setIsEditing(false);
+                              }
+                            }}
+                            className="bg-red-50 text-red-400 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-red-200"
+                          >
+                            <Trash2 size={14} />
+                            <span>削除</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* URL */}
+                      {selectedItem.url && (
+                        <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
+                          <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500">
+                            <Shirt size={20} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-gray-400 font-bold uppercase">{t('boughtFrom')}</p>
+                            <a href={selectedItem.url} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-primary truncate block hover:underline">
+
+                              {selectedItem.url}
+                            </a>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Fit Rating */}
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('fitRatingTitle')}</h4>
+                        {isEditing ? (
+                          <div className="flex justify-between gap-2">
+                            {[1, 2, 3].map((rating) => {
+                              const emojis = ['😣', '😊', '😌'];
+                              const labels = [t('fitLabelsShort')?.[0] || 'きつい', t('fitLabelsShort')?.[1] || 'ぴったり', t('fitLabelsShort')?.[2] || '大きめ'];
+                              const isSelected = editData.fitRating === rating;
+                              return (
+                                <button
+                                  key={rating}
+                                  onClick={() => setEditData({ ...editData, fitRating: rating })}
+                                  className={`flex-1 p-3 rounded-xl transition-all border-2 ${isSelected
+                                    ? 'bg-primary text-white border-primary scale-105 shadow-md'
+                                    : 'bg-white border-gray-200 opacity-60'
+                                    }`}
+                                >
+                                  <span className={`text-2xl block text-center ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
+                                  <p className={`text-[10px] text-center font-bold mt-1 ${isSelected ? 'text-white' : 'text-gray-400'}`}>
+                                    {labels[rating - 1]?.replace(/^[^\s]+\s/, '') || ''}
+                                  </p>
+                                </button>
+                              );
+                            })}
                           </div>
                         ) : (
-                          <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
-                            <p className="text-sm text-gray-500 font-bold mb-3">{t('loginToComment') || 'コメントするにはログインが必要です'}</p>
-                            <Link to="/settings" className="inline-block px-6 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-                              {t('goToLogin') || 'ログイン・設定へ'}
-                            </Link>
+                          <div className="flex gap-3 items-center">
+                            <span className="text-4xl">
+                              {['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}
+                            </span>
+                            <p className="text-lg font-bold text-gray-700">
+                              {fullFitLabels[selectedItem.fitRating - 1]}
+                            </p>
                           </div>
                         )}
                       </div>
-                    )}
 
-                    {/* Save / Cancel Buttons */}
-                    {isEditing && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold"
-                        >
-                          {t('cancel') || 'キャンセル'}
-                        </button>
-                        <button
-                          onClick={() => {
-                            updateClosetItem(selectedItem.id, editData);
-                            setSelectedItem({ ...selectedItem, ...editData });
-                            setIsEditing(false);
-                          }}
-                          className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-md"
-                        >
-                          {t('save') || '保存'}
-                        </button>
+                      {/* Author's Note Section */}
+                      <div>
+                        <h4 className="text-sm font-black text-gray-400 uppercase mb-2 flex items-center gap-2">
+                          <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                          <span>投稿者のひとこと（アイテム説明）</span>
+                        </h4>
+                        {isEditing ? (
+                          <div className="space-y-1">
+                            <div className="flex justify-end">
+                              <span className={`text-[10px] font-bold ${editData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
+                                {editData.comment.length} / 500
+                              </span>
+                            </div>
+                            <textarea
+                              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                              placeholder={t('commentPlaceholder')}
+                              value={editData.comment}
+                              maxLength={500}
+                              onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
+                            />
+                          </div>
+                        ) : (
+                          selectedItem.comment && (
+                            <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
+                              {selectedItem.comment}
+                            </p>
+                          )
+                        )}
                       </div>
-                    )}
+
+                      {/* Comments Section */}
+                      {selectedItem.isPublic && !isEditing && (
+                        <div ref={commentsRef} className="pt-8 border-t-2 border-dashed border-gray-100 mt-6 scroll-mt-6">
+                          <h4 className="text-base font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-500 text-white p-4 rounded-2xl shadow-md">
+                            <div className="flex items-center gap-3">
+                              <MessageCircle size={22} className="text-blue-500" />
+                              <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>
+                              <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">{itemComments[selectedItem.compositeId || selectedItem.id]?.length || 0}</span>
+                            </div>
+                          </h4>
+
+                          <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                            {(itemComments[selectedItem.compositeId] || []).length > 0 ? (
+                              (itemComments[selectedItem.compositeId] || []).map((comment) => (
+                                <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2">
+                                  <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
+                                  <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">
+                                    <div className="flex items-center justify-between mb-1">
+                                      <span className="text-xs font-bold text-gray-900">{comment.userName}</span>
+                                      <span className="text-[10px] text-gray-400">
+                                        {comment.createdAt?.seconds
+                                          ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
+                                          : new Date(comment.createdAt).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-gray-700 leading-relaxed break-words">
+                                      {comment.text}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-center py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">
+                                <p className="text-sm text-gray-400 font-medium italic">{t('noCommentsYet') || 'まだコメントがありません'}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Comment Form */}
+                          {currentUser ? (
+                            <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-inner">
+                              <div className="flex items-center gap-2 mb-3">
+                                <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
+                                  <Plus size={14} /> {t('addCommentLabel') || 'コメントを投稿する'}
+                                </span>
+                              </div>
+                              <div className="flex gap-2 items-end">
+                                <div className="flex-1 relative group">
+                                  <textarea
+                                    value={commentText}
+                                    onChange={(e) => setCommentText(e.target.value)}
+                                    placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
+                                    className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
+                                    maxLength={200}
+                                  />
+                                  <div className="absolute bottom-2 right-2 flex items-center gap-2">
+                                    <span className={`text-[9px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
+                                      {commentText.length}/200
+                                    </span>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
+                                  disabled={!commentText.trim() || isSubmittingComment}
+                                  className="bg-primary text-white p-4 rounded-xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-24 w-14 flex flex-col items-center justify-center gap-2 group active:scale-95"
+                                >
+                                  {isSubmittingComment ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                  ) : (
+                                    <>
+                                      <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                      <span className="text-[10px] font-bold">送信</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
+                              <p className="text-sm text-gray-500 font-bold mb-3">{t('loginToComment') || 'コメントするにはログインが必要です'}</p>
+                              <Link to="/settings" className="inline-block px-6 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                                {t('goToLogin') || 'ログイン・設定へ'}
+                              </Link>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Save / Cancel Buttons */}
+                      {isEditing && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setIsEditing(false)}
+                            className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold"
+                          >
+                            {t('cancel') || 'キャンセル'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              updateClosetItem(selectedItem.id, editData);
+                              setSelectedItem({ ...selectedItem, ...editData });
+                              setIsEditing(false);
+                            }}
+                            className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-md"
+                          >
+                            {t('save') || '保存'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

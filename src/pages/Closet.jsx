@@ -107,6 +107,9 @@ const Closet = () => {
   const [itemComments, setItemComments] = useState({}); // { [itemId]: [comments] }
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState(null);
+  const [editingCommentText, setEditingCommentText] = useState('');
+  const [isUpdatingComment, setIsUpdatingComment] = useState(false);
   const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
   const commentsRef = useRef(null);
 
@@ -304,6 +307,36 @@ const Closet = () => {
     } catch (e) {
       console.error("Error deleting comment:", e);
       alert("コメントの削除に失敗しました");
+    }
+  };
+
+  const updateComment = async (itemId, ownerUid, commentId) => {
+    if (!currentUser || !editingCommentText.trim() || isUpdatingComment) return;
+    setIsUpdatingComment(true);
+
+    try {
+      const bareId = String(itemId).replace(/^local-/, '');
+      const commentDocRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'comments', commentId);
+      await updateDoc(commentDocRef, {
+        text: editingCommentText.trim(),
+        updatedAt: serverTimestamp()
+      });
+
+      // Update local state
+      const compositeId = `${ownerUid}_${bareId}`;
+      setItemComments(prev => ({
+        ...prev,
+        [compositeId]: (prev[compositeId] || []).map(c =>
+          c.id === commentId ? { ...c, text: editingCommentText.trim() } : c
+        )
+      }));
+      setEditingCommentId(null);
+      setEditingCommentText('');
+    } catch (e) {
+      console.error("Error updating comment:", e);
+      alert("コメントの更新に失敗しました");
+    } finally {
+      setIsUpdatingComment(false);
     }
   };
 
@@ -1271,24 +1304,66 @@ const Closet = () => {
                                             ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
                                             : new Date(comment.createdAt).toLocaleDateString()}
                                         </span>
-                                        {currentUser?.uid === comment.userId && (
-                                          <button
-                                            onClick={() => {
-                                              if (window.confirm("このコメントを削除しますか？")) {
-                                                deleteComment(selectedItem.id, selectedItem.userId, comment.id);
-                                              }
-                                            }}
-                                            className="opacity-0 group-hover/comment:opacity-100 p-1 text-gray-300 hover:text-red-400 transition-all"
-                                            title="削除"
-                                          >
-                                            <Trash2 size={12} />
-                                          </button>
+                                        {currentUser?.uid === comment.userId && !editingCommentId && (
+                                          <div className="flex items-center gap-1 opacity-0 group-hover/comment:opacity-100 transition-all">
+                                            <button
+                                              onClick={() => {
+                                                setEditingCommentId(comment.id);
+                                                setEditingCommentText(comment.text);
+                                              }}
+                                              className="p-1 text-gray-300 hover:text-blue-500 transition-all"
+                                              title="編集"
+                                            >
+                                              <Edit2 size={12} />
+                                            </button>
+                                            <button
+                                              onClick={() => {
+                                                if (window.confirm("このコメントを削除しますか？")) {
+                                                  deleteComment(selectedItem.id, selectedItem.userId, comment.id);
+                                                }
+                                              }}
+                                              className="p-1 text-gray-300 hover:text-red-400 transition-all"
+                                              title="削除"
+                                            >
+                                              <Trash2 size={12} />
+                                            </button>
+                                          </div>
                                         )}
                                       </div>
                                     </div>
-                                    <p className="text-sm text-gray-700 leading-relaxed break-words">
-                                      {comment.text}
-                                    </p>
+
+                                    {editingCommentId === comment.id ? (
+                                      <div className="space-y-2 mt-2">
+                                        <textarea
+                                          value={editingCommentText}
+                                          onChange={(e) => setEditingCommentText(e.target.value)}
+                                          className="w-full p-2 bg-gray-50 rounded-lg border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-20 resize-none"
+                                          placeholder="コメントを編集..."
+                                        />
+                                        <div className="flex justify-end gap-2">
+                                          <button
+                                            onClick={() => {
+                                              setEditingCommentId(null);
+                                              setEditingCommentText('');
+                                            }}
+                                            className="px-3 py-1 text-[10px] font-bold text-gray-400 hover:text-gray-600"
+                                          >
+                                            キャンセル
+                                          </button>
+                                          <button
+                                            onClick={() => updateComment(selectedItem.id, selectedItem.userId, comment.id)}
+                                            disabled={!editingCommentText.trim() || isUpdatingComment}
+                                            className="px-3 py-1 bg-primary text-white rounded-lg text-[10px] font-bold shadow-sm hover:brightness-110 disabled:opacity-50"
+                                          >
+                                            {isUpdatingComment ? '保存中...' : '保存する'}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <p className="text-sm text-gray-700 leading-relaxed break-words">
+                                        {comment.text}
+                                      </p>
+                                    )}
                                   </div>
                                 </div>
                               ))

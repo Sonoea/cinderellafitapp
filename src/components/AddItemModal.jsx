@@ -31,7 +31,7 @@ const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabel
                     </div>
 
                     {/* Reused Form */}
-                    <div className="flex-1 min-h-0 flex flex-col relative overflow-hidden">
+                    <div className="flex-1 min-h-0 relative flex flex-col">
                         <ClosetItemForm
                             plushies={plushies}
                             initialPlushieId={initialPlushieId}

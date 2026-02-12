@@ -62,8 +62,8 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
     };
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto min-h-0" style={{ overscrollBehavior: 'contain' }}>
+        <div className="flex-1 min-h-0 flex flex-col">
+            <div ref={scrollContainerRef} className="flex-1 overflow-y-auto" style={{ overscrollBehavior: 'contain' }}>
                 <div className="p-4 space-y-6">
 
                     {/* 1. Photo Section */}

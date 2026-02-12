@@ -215,7 +215,9 @@ const Closet = () => {
     }
     if (!itemId || !ownerUid) return;
 
-    const compositeId = existingCompositeId || `${ownerUid}_${itemId}`;
+    const bareId = String(itemId).replace(/^local-/, '');
+    const compositeId = `${ownerUid}_${bareId}`;
+
     const currentLike = itemLikes[compositeId] || { count: 0, isLiked: false };
     const newIsLiked = !currentLike.isLiked;
     const newCount = newIsLiked ? currentLike.count + 1 : Math.max(0, currentLike.count - 1);
@@ -227,8 +229,6 @@ const Closet = () => {
     }));
 
     try {
-      // Ensure we use a string and strip local- prefix for the firestore path
-      const bareId = String(itemId).replace(/^local-/, '');
       const likeRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid);
       if (newIsLiked) {
         await setDoc(likeRef, { createdAt: serverTimestamp() });
@@ -266,7 +266,7 @@ const Closet = () => {
       });
 
       // Update local state
-      const compositeId = `${ownerUid}_${itemId}`;
+      const compositeId = `${ownerUid}_${bareId}`;
       setItemComments(prev => ({
         ...prev,
         [compositeId]: [...(prev[compositeId] || []), { ...commentData, id: Date.now().toString() }]
@@ -436,7 +436,9 @@ const Closet = () => {
       const liveProfile = userProfiles[itemUid];
 
       // Ensure every item has a compositeId and the correct owner uid
-      const compositeId = item.compositeId || `${itemUid}_${item.id}`;
+      // Always use the bare ID for the composite key to match social stats
+      const bareId = String(item.id).replace(/^local-/, '');
+      const compositeId = `${itemUid}_${bareId}`;
 
       return {
         ...item,
@@ -1160,7 +1162,9 @@ const Closet = () => {
                             <div className="flex items-center gap-3">
                               <MessageCircle size={22} className="text-blue-500" />
                               <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>
-                              <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">{itemComments[selectedItem.compositeId || selectedItem.id]?.length || 0}</span>
+                              <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">
+                                {itemComments[selectedItem.compositeId]?.length || 0}
+                              </span>
                             </div>
                           </h4>
 

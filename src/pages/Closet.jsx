@@ -178,9 +178,8 @@ const Closet = () => {
   // Fetch Likes & Comments for an item
   const fetchEngagement = async (itemId, ownerUid) => {
     if (!itemId || !ownerUid) return;
+    const compositeId = `${ownerUid}_${itemId}`;
     try {
-      const { collection, getDocs, query, orderBy } = await import('firebase/firestore');
-
       // Fetch Likes Count
       const likesRef = collection(db, 'users', ownerUid, 'closetItems', itemId, 'likes');
       const likesSnap = await getDocs(likesRef);
@@ -189,7 +188,7 @@ const Closet = () => {
 
       setItemLikes(prev => ({
         ...prev,
-        [itemId]: { count: likesCount, isLiked }
+        [compositeId]: { count: likesCount, isLiked }
       }));
 
       // Fetch Comments
@@ -200,7 +199,7 @@ const Closet = () => {
 
       setItemComments(prev => ({
         ...prev,
-        [itemId]: comments
+        [compositeId]: comments
       }));
     } catch (e) {
       console.error("Error fetching engagement:", e);
@@ -214,14 +213,15 @@ const Closet = () => {
     }
     if (!itemId || !ownerUid) return;
 
-    const currentLike = itemLikes[itemId] || { count: 0, isLiked: false };
+    const compositeId = `${ownerUid}_${itemId}`;
+    const currentLike = itemLikes[compositeId] || { count: 0, isLiked: false };
     const newIsLiked = !currentLike.isLiked;
     const newCount = newIsLiked ? currentLike.count + 1 : Math.max(0, currentLike.count - 1);
 
     // Optimistic UI update
     setItemLikes(prev => ({
       ...prev,
-      [itemId]: { count: newCount, isLiked: newIsLiked }
+      [compositeId]: { count: newCount, isLiked: newIsLiked }
     }));
 
     try {
@@ -236,7 +236,7 @@ const Closet = () => {
       // Revert optimistic update on error
       setItemLikes(prev => ({
         ...prev,
-        [itemId]: currentLike
+        [compositeId]: currentLike
       }));
     }
   };
@@ -261,9 +261,10 @@ const Closet = () => {
       });
 
       // Update local state
+      const compositeId = `${ownerUid}_${itemId}`;
       setItemComments(prev => ({
         ...prev,
-        [itemId]: [...(prev[itemId] || []), { ...commentData, id: Date.now().toString() }]
+        [compositeId]: [...(prev[compositeId] || []), { ...commentData, id: Date.now().toString() }]
       }));
       setCommentText('');
     } catch (e) {

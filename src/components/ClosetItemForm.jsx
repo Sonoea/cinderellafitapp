@@ -69,7 +69,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
     };
 
     return (
-        <div className="modal-content-grid">
+        <div className="modal-content-wrapper">
             <div
                 ref={scrollContainerRef}
                 className="modal-scroll-area"
@@ -259,7 +259,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
             </div>
 
             {/* Footer */}
-            <div className="p-4 pb-4 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+            <div className="modal-footer-fixed p-4 pb-4" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
                 <button
                     onClick={handleSaveWrapper}
                     disabled={!image || isSaving}

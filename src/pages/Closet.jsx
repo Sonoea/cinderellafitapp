@@ -206,14 +206,14 @@ const Closet = () => {
     }
   };
 
-  const toggleLike = async (itemId, ownerUid) => {
+  const toggleLike = async (itemId, ownerUid, existingCompositeId) => {
     if (!currentUser) {
       alert("ログインが必要です");
       return;
     }
     if (!itemId || !ownerUid) return;
 
-    const compositeId = `${ownerUid}_${itemId}`;
+    const compositeId = existingCompositeId || `${ownerUid}_${itemId}`;
     const currentLike = itemLikes[compositeId] || { count: 0, isLiked: false };
     const newIsLiked = !currentLike.isLiked;
     const newCount = newIsLiked ? currentLike.count + 1 : Math.max(0, currentLike.count - 1);
@@ -225,7 +225,7 @@ const Closet = () => {
     }));
 
     try {
-      const likeRef = doc(db, 'users', ownerUid, 'closetItems', itemId, 'likes', currentUser.uid);
+      const likeRef = doc(db, 'users', ownerUid, 'closetItems', itemId.replace(/^local-/, ''), 'likes', currentUser.uid);
       if (newIsLiked) {
         await setDoc(likeRef, { createdAt: serverTimestamp() });
       } else {
@@ -1129,11 +1129,11 @@ const Closet = () => {
                     {/* Comments Section */}
                     {selectedItem.isPublic && !isEditing && (
                       <div className="pt-6 border-t-2 border-dashed border-gray-100 mt-4">
-                        <h4 className="text-sm font-bold text-gray-800 uppercase mb-4 flex items-center justify-between bg-gray-50 p-2 rounded-lg">
-                          <div className="flex items-center gap-2">
-                            <MessageCircle size={18} className="text-blue-500" />
-                            <span>{t('commentsTitle') || 'コメント'}</span>
-                            <span className="bg-white border px-2 py-0.5 rounded-full text-[10px] text-gray-500">{itemComments[selectedItem.compositeId]?.length || 0}</span>
+                        <h4 className="text-sm font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-50 p-3 rounded-xl border border-blue-100">
+                          <div className="flex items-center gap-3">
+                            <MessageCircle size={22} className="text-blue-500" />
+                            <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>
+                            <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">{itemComments[selectedItem.compositeId || selectedItem.id]?.length || 0}</span>
                           </div>
                         </h4>
 

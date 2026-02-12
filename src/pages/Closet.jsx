@@ -332,9 +332,9 @@ const Closet = () => {
 
               items.push({
                 id: doc.id,
-                userId: ownerUid,
                 compositeId: `${ownerUid}_${doc.id}`.replace(/local-/g, ''),
                 ...data,
+                userId: ownerUid,
                 imageUrl,
                 itemName: data.itemName || data.name || 'Untitled',
                 plushieName: data.plushieName || data.plushie || '',
@@ -477,7 +477,9 @@ const Closet = () => {
     });
 
     const processedItems = finalItems.map(item => {
-      const itemUid = item.userId || myUid;
+      // For items from Firestore, userId is already correctly set to the ownerUid.
+      // We only fallback to myUid for local-created items that might be missing it.
+      const itemUid = item.userId || (item.id.toString().startsWith('local-') ? myUid : null);
       const isOwn = myUid && itemUid === myUid;
       const liveProfile = userProfiles[itemUid];
 

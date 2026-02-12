@@ -4,7 +4,7 @@ import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageSquare, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -820,7 +820,7 @@ const Closet = () => {
                         }}
                         className="flex items-center gap-1.5 text-gray-400 hover:text-blue-400 transition-all active:scale-90"
                       >
-                        <MessageSquare size={20} strokeWidth={2.5} />
+                        <MessageCircle size={20} strokeWidth={2.5} />
                         <span className="text-xs font-bold">{itemComments[post.id]?.length || 0}</span>
                       </button>
                     </div>
@@ -1095,7 +1095,7 @@ const Closet = () => {
                       <div className="pt-4 border-t border-gray-100">
                         <h4 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <MessageSquare size={16} />
+                            <MessageCircle size={16} />
                             Comments
                             <span className="bg-gray-100 px-2 py-0.5 rounded-full text-[10px]">{itemComments[selectedItem.id]?.length || 0}</span>
                           </div>

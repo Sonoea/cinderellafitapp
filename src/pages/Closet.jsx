@@ -299,9 +299,11 @@ const Closet = () => {
               // Filter out items without any identification (at least userId or userName should exist)
               if (!data.userName && !data.userIcon && !data.userId) return;
 
+              const ownerUid = doc.ref.parent.parent.id;
               items.push({
                 id: doc.id,
-                userId: doc.ref.parent.parent.id, // Owner is parent user doc
+                userId: ownerUid,
+                compositeId: `${ownerUid}_${doc.id}`,
                 ...data,
                 imageUrl: data.imageUrl || data.image,
                 itemName: data.itemName || data.name,
@@ -793,18 +795,24 @@ const Closet = () => {
                       <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
                     </div>
 
-                    <div className="px-3 py-2 flex items-center gap-4 border-b border-gray-50">
+                    <div className="px-3 py-3 flex items-center gap-6 border-b border-gray-50 bg-white">
                       {/* Like Button */}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleLike(post.id, post.userId);
                         }}
-                        className={`flex items-center gap-1.5 transition-all active:scale-90 ${(itemLikes[post.id]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
+                        className={`flex items-center gap-2 transition-all active:scale-95 group ${(itemLikes[post.compositeId || post.id]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
                           }`}
                       >
-                        <Heart size={20} fill={(itemLikes[post.id]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
-                        <span className="text-xs font-bold">{itemLikes[post.id]?.count ?? post.likes ?? 0}</span>
+                        <div className={`p-1.5 rounded-full transition-colors ${(itemLikes[post.compositeId || post.id]?.isLiked) ? 'bg-pink-50' : 'bg-gray-50 group-hover:bg-pink-50/50'
+                          }`}>
+                          <Heart size={22} fill={(itemLikes[post.compositeId || post.id]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
+                        </div>
+                        <div className="flex flex-col items-start leading-none">
+                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">Like</span>
+                          <span className="text-xs font-black">{itemLikes[post.compositeId || post.id]?.count ?? post.likes ?? 0}</span>
+                        </div>
                       </button>
 
                       {/* Comment Button (Opens Detail) */}
@@ -813,10 +821,15 @@ const Closet = () => {
                           e.stopPropagation();
                           setSelectedItem(post);
                         }}
-                        className="flex items-center gap-1.5 text-gray-400 hover:text-blue-400 transition-all active:scale-90"
+                        className="flex items-center gap-2 text-gray-400 hover:text-blue-500 transition-all active:scale-95 group"
                       >
-                        <MessageCircle size={20} strokeWidth={2.5} />
-                        <span className="text-xs font-bold">{itemComments[post.id]?.length || 0}</span>
+                        <div className="p-1.5 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-colors">
+                          <MessageCircle size={22} strokeWidth={2.5} />
+                        </div>
+                        <div className="flex flex-col items-start leading-none">
+                          <span className="text-[10px] font-bold uppercase tracking-tight opacity-60">Comment</span>
+                          <span className="text-xs font-black">{itemComments[post.compositeId || post.id]?.length || 0}</span>
+                        </div>
                       </button>
                     </div>
 

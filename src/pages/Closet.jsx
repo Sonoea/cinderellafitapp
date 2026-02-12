@@ -332,7 +332,7 @@ const Closet = () => {
               items.push({
                 id: doc.id,
                 userId: ownerUid,
-                compositeId: `${ownerUid}_${doc.id}`,
+                compositeId: `${ownerUid}_${doc.id}`.replace(/local-/g, ''),
                 ...data,
                 imageUrl: data.imageUrl || data.image,
                 itemName: data.itemName || data.name,
@@ -375,6 +375,19 @@ const Closet = () => {
 
           const validItems = uniqueItems;
           setPublicItems(validItems);
+
+          // NEW: Sync the 'likes' count from the document into our itemLikes state
+          const newLikesState = {};
+          validItems.forEach(item => {
+            if (item.likes !== undefined) {
+              const compositeId = item.compositeId || `${item.userId}_${item.id}`.replace(/local-/g, '');
+              newLikesState[compositeId] = {
+                count: item.likes || 0,
+                isLiked: false // Will be updated by the myLikes fetch below
+              };
+            }
+          });
+          setItemLikes(prev => ({ ...prev, ...newLikesState }));
 
           const uniqueUserIds = [...new Set(validItems.map(item => item.userId).filter(Boolean))];
           resolveUserProfiles(uniqueUserIds);

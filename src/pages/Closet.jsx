@@ -322,24 +322,26 @@ const Closet = () => {
           querySnapshot.forEach((doc) => {
             try {
               const data = doc.data();
-              // Safety checks
               if (!data) return;
 
-              // Filter out items without any identification (at least userId or userName should exist)
-              if (!data.userName && !data.userIcon && !data.userId) return;
-
               const ownerUid = doc.ref.parent.parent.id;
+              const imageUrl = data.imageUrl || data.image;
+
+              // Lenient check: must have at least an image to be in the gallery
+              if (!imageUrl) return;
+
               items.push({
                 id: doc.id,
                 userId: ownerUid,
                 compositeId: `${ownerUid}_${doc.id}`.replace(/local-/g, ''),
                 ...data,
-                imageUrl: data.imageUrl || data.image,
-                itemName: data.itemName || data.name,
+                imageUrl,
+                itemName: data.itemName || data.name || 'Untitled',
+                plushieName: data.plushieName || data.plushie || '',
                 userName: data.userName || null,
                 userIcon: data.userIcon || '/api/placeholder/40/40',
                 purchaseType: data.purchaseType || '',
-                shopName: safeHostname(data.url),
+                shopName: safeHostname(data.url || data.shopUrl),
                 date: safeDate(data.createdAt),
               });
             } catch (err) {
@@ -841,9 +843,28 @@ const Closet = () => {
             )}
 
             {filteredItems.length === 0 ? (
-              <div className="text-center py-10 text-gray-400">
-                <p className="font-bold mb-1">{t('noItems')}</p>
-                <p className="text-xs">{t('noItemsSub')}</p>
+              <div className="text-center py-16 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-3">
+                <div className="text-4xl">🔍</div>
+                <div>
+                  <p className="font-black text-gray-800">{t('noItems') || 'お探しのアイテムは見つかりません'}</p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    {(searchTerm || filterMySize || filterCategory !== 'all')
+                      ? 'フィルター条件を変更して試してみてください'
+                      : (t('noItemsSub') || 'まだ投稿がありません。最初の投稿をしてみませんか？')}
+                  </p>
+                </div>
+                {(searchTerm || filterMySize || filterCategory !== 'all') && (
+                  <button
+                    onClick={() => {
+                      setSearchTerm('');
+                      setFilterMySize(false);
+                      setFilterCategory('all');
+                    }}
+                    className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"
+                  >
+                    全てのフィルターをリセット
+                  </button>
+                )}
               </div>
             ) : (
               /* Gallery Grid */

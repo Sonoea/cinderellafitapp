@@ -27,18 +27,27 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         }
     };
 
-    const handleSaveWrapper = () => {
-        if (!image) return;
+    const [isSaving, setIsSaving] = useState(false);
 
-        // Get selected plushie data to snapshot
-        const selectedPlushie = plushies.find(p => p.id === formData.plushieId);
+    const handleSaveWrapper = async () => {
+        if (!image || isSaving) return;
 
-        onSave({
-            image,
-            ...formData,
-            plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
-            plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
-        });
+        setIsSaving(true);
+        try {
+            // Get selected plushie data to snapshot
+            const selectedPlushie = plushies.find(p => p.id === formData.plushieId);
+
+            await onSave({
+                image,
+                ...formData,
+                plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
+                plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
+            });
+        } catch (error) {
+            console.error("Error during save:", error);
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -230,11 +239,11 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
             <div className="p-4 pb-10 border-t border-gray-100 bg-white" style={{ position: 'relative', zIndex: 120, boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
                 <button
                     onClick={handleSaveWrapper}
-                    disabled={!image}
+                    disabled={!image || isSaving}
                     style={{
                         width: '100%',
-                        backgroundColor: image ? '#FBBF24' : '#E5E7EB',
-                        color: image ? '#000000' : '#9CA3AF',
+                        backgroundColor: (image && !isSaving) ? '#FBBF24' : '#E5E7EB',
+                        color: (image && !isSaving) ? '#000000' : '#9CA3AF',
                         fontWeight: 'bold',
                         padding: '16px',
                         borderRadius: '16px',
@@ -243,13 +252,14 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        boxShadow: image ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
-                        cursor: image ? 'pointer' : 'not-allowed',
-                        transition: 'all 0.2s'
+                        boxShadow: (image && !isSaving) ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
+                        cursor: (image && !isSaving) ? 'pointer' : 'not-allowed',
+                        transition: 'all 0.2s',
+                        opacity: isSaving ? 0.7 : 1
                     }}
                 >
-                    <span style={{ fontSize: '24px' }}>✨</span>
-                    <span>{image ? t('saveToCloset') : t('choosePhotoFirst')}</span>
+                    <span style={{ fontSize: '24px' }}>{isSaving ? '⏳' : '✨'}</span>
+                    <span>{isSaving ? '保存中...' : (image ? t('saveToCloset') : t('choosePhotoFirst'))}</span>
                 </button>
             </div>
         </div>

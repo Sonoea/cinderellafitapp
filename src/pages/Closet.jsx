@@ -197,14 +197,14 @@ const Closet = () => {
               uniqueItems.push(item);
               return;
             }
-            const key = `${item.userId}-${item.createdAt}-${item.itemName}`;
+            const key = `${item.userId}-${item.itemName}-${item.imageUrl}`;
             if (!seen.has(key)) {
               seen.add(key);
               uniqueItems.push(item);
             }
           });
 
-          const validItems = uniqueItems.filter(item => item.userName);
+          const validItems = uniqueItems;
           setPublicItems(validItems);
         } catch (error) {
           console.error("Error fetching global gallery:", error);
@@ -678,8 +678,8 @@ const Closet = () => {
           <Portal>
             <AddItemModal
               onClose={() => setShowAddModal(false)}
-              onSave={(item) => {
-                addClosetItem(item);
+              onSave={async (item) => {
+                await addClosetItem(item);
                 setShowAddModal(false);
               }}
               plushies={plushies}

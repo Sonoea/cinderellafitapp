@@ -58,7 +58,7 @@ const Home = () => {
                         uniqueItems.push(item);
                         return;
                     }
-                    const key = `${item.userId}-${item.createdAt}-${item.itemName}`;
+                    const key = `${item.userId}-${item.itemName}-${item.imageUrl || item.image}`;
                     if (!seen.has(key)) {
                         seen.add(key);
                         uniqueItems.push(item);

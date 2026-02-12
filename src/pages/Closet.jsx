@@ -225,6 +225,9 @@ const Closet = () => {
     }));
 
     try {
+      // Use pre-imported or top-level functions if available, or just use the pre-resolved ones from previous import
+      // To keep it simple, I'll assume they were imported in fetchEngagement or just import again if needed, 
+      // but better to import once at start of engagement.
       const { doc, setDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore');
       const likeRef = doc(db, 'users', ownerUid, 'closetItems', itemId, 'likes', currentUser.uid);
 
@@ -791,20 +794,30 @@ const Closet = () => {
                       </div>
                     </div>
 
-                    <div className="aspect-square bg-gray-50 relative" onClick={() => setSelectedItem(post)}>
-                      <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
+                    <div className="aspect-square bg-gray-50 relative group cursor-pointer" onClick={() => setSelectedItem(post)}>
+                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+
+                      {/* Comment Indicator Overlay */}
+                      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                        <div className="bg-white/90 backdrop-blur px-3 py-1.5 rounded-full text-[10px] font-bold text-gray-800 flex items-center gap-1.5 shadow-lg transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                          <Users size={12} />
+                          {t('commentHint') || 'タップして詳細・コメント'}
+                        </div>
+                      </div>
+
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          e.preventDefault();
                           toggleLike(post.id, post.userId);
                         }}
-                        className={`absolute bottom-3 right-3 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md transition-all active:scale-90 ${(itemLikes[post.id]?.isLiked)
-                          ? 'bg-pink-500 text-white border-none'
-                          : 'bg-white/80 text-pink-500 border border-pink-100'
+                        className={`absolute bottom-3 right-3 backdrop-blur px-3 py-2 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-lg transition-all active:scale-95 z-30 hover:scale-105 ${(itemLikes[post.id]?.isLiked)
+                            ? 'bg-pink-500 text-white border-pink-400'
+                            : 'bg-white/90 text-pink-500 border border-pink-100'
                           }`}
                       >
-                        <Heart size={14} fill={(itemLikes[post.id]?.isLiked) ? "currentColor" : "none"} />
-                        <span>{itemLikes[post.id]?.count ?? post.likes ?? 0}</span>
+                        <Heart size={16} fill={(itemLikes[post.id]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
+                        <span className="min-w-[12px]">{itemLikes[post.id]?.count ?? post.likes ?? 0}</span>
                       </button>
                     </div>
 

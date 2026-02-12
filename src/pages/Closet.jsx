@@ -277,7 +277,9 @@ const Closet = () => {
 
   useEffect(() => {
     if (selectedItem) {
-      fetchEngagement(selectedItem.id, selectedItem.userId);
+      // Ensure we pass the bare ID for the path, and the owner UID
+      const bareId = selectedItem.id?.replace(/^local-/, '');
+      fetchEngagement(bareId, selectedItem.userId);
     }
   }, [selectedItem]);
 
@@ -782,7 +784,7 @@ const Closet = () => {
               /* Gallery Grid */
               <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
                 {filteredItems.map((post) => (
-                  <div key={post.id} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
+                  <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
                     <div className="p-3 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="relative">
@@ -825,7 +827,7 @@ const Closet = () => {
                           }`}
                         style={{ pointerEvents: 'auto' }}
                       >
-                        <div className={`p-3 rounded-full transition-all duration-300 ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-md ring-4 ring-pink-100/50' : 'bg-gray-50 group-hover:bg-pink-50/50'
+                        <div className={`p-3 rounded-full transition-all duration-300 pointer-events-none ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-md ring-4 ring-pink-100/50' : 'bg-gray-50 group-hover:bg-pink-50/50'
                           }`}>
                           <Heart
                             size={28}
@@ -834,7 +836,7 @@ const Closet = () => {
                             className={(itemLikes[post.compositeId]?.isLiked) ? "animate-pulse" : ""}
                           />
                         </div>
-                        <div className="flex flex-col items-start leading-tight">
+                        <div className="flex flex-col items-start leading-tight pointer-events-none">
                           <span className="text-[14px] font-black uppercase tracking-widest">いい！</span>
                           <span className="text-xl font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
                         </div>
@@ -851,10 +853,10 @@ const Closet = () => {
                         className="flex items-center gap-3 text-gray-400 hover:text-blue-500 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30"
                         style={{ pointerEvents: 'auto' }}
                       >
-                        <div className="p-3 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300">
+                        <div className="p-3 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300 pointer-events-none">
                           <MessageCircle size={28} strokeWidth={3} />
                         </div>
-                        <div className="flex flex-col items-start leading-tight">
+                        <div className="flex flex-col items-start leading-tight pointer-events-none">
                           <span className="text-[14px] font-black uppercase tracking-widest">コメント</span>
                           <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || 0}</span>
                         </div>
@@ -1001,14 +1003,14 @@ const Closet = () => {
                       {/* Live Like Button in Modal */}
                       {!isEditing && (
                         <button
-                          onClick={() => toggleLike(selectedItem.id, selectedItem.userId)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all active:scale-95 ${(itemLikes[selectedItem.id]?.isLiked)
-                            ? 'bg-pink-500 text-white shadow-lg shadow-pink-200'
-                            : 'bg-pink-50 text-pink-500 hover:bg-pink-100'
+                          onClick={() => toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId)}
+                          className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId || `${selectedItem.userId}_${selectedItem.id}`]?.isLiked)
+                            ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
+                            : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
                             }`}
                         >
-                          <Heart size={18} fill={(itemLikes[selectedItem.id]?.isLiked) ? "currentColor" : "none"} />
-                          <span>{itemLikes[selectedItem.id]?.count ?? selectedItem.likes ?? 0}</span>
+                          <Heart size={20} fill={(itemLikes[selectedItem.compositeId || `${selectedItem.userId}_${selectedItem.id}`]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className="pointer-events-none" />
+                          <span className="pointer-events-none">{itemLikes[selectedItem.compositeId || `${selectedItem.userId}_${selectedItem.id}`]?.count ?? selectedItem.likes ?? 0}</span>
                         </button>
                       )}
 

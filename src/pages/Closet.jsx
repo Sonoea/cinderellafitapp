@@ -337,7 +337,7 @@ const Closet = () => {
 
       return matchesSearch && matchesSize && matchesCategory;
     });
-  }, [closetItems, publicItems, searchTerm, filterMySize, filterCategory, plushies, currentUser, firestoreUserName, t]);
+  }, [closetItems, publicItems, searchTerm, filterMySize, filterCategory, plushies, currentUser, firestoreUserName, firestorePhotoURL, userProfiles, t]);
 
 
 

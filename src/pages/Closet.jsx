@@ -287,6 +287,26 @@ const Closet = () => {
     }
   };
 
+  const deleteComment = async (itemId, ownerUid, commentId) => {
+    if (!currentUser) return;
+
+    try {
+      const bareId = String(itemId).replace(/^local-/, '');
+      const commentDocRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'comments', commentId);
+      await deleteDoc(commentDocRef);
+
+      // Update local state
+      const compositeId = `${ownerUid}_${bareId}`;
+      setItemComments(prev => ({
+        ...prev,
+        [compositeId]: (prev[compositeId] || []).filter(c => c.id !== commentId)
+      }));
+    } catch (e) {
+      console.error("Error deleting comment:", e);
+      alert("コメントの削除に失敗しました");
+    }
+  };
+
   useEffect(() => {
     if (selectedItem) {
       try {
@@ -1240,16 +1260,31 @@ const Closet = () => {
                           <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                             {(itemComments[selectedItem.compositeId] || []).length > 0 ? (
                               (itemComments[selectedItem.compositeId] || []).map((comment) => (
-                                <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2">
+                                <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2 group/comment">
                                   <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
                                   <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">
                                     <div className="flex items-center justify-between mb-1">
                                       <span className="text-xs font-bold text-gray-900">{comment.userName}</span>
-                                      <span className="text-[10px] text-gray-400">
-                                        {comment.createdAt?.seconds
-                                          ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
-                                          : new Date(comment.createdAt).toLocaleDateString()}
-                                      </span>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-[10px] text-gray-400">
+                                          {comment.createdAt?.seconds
+                                            ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
+                                            : new Date(comment.createdAt).toLocaleDateString()}
+                                        </span>
+                                        {currentUser?.uid === comment.userId && (
+                                          <button
+                                            onClick={() => {
+                                              if (window.confirm("このコメントを削除しますか？")) {
+                                                deleteComment(selectedItem.id, selectedItem.userId, comment.id);
+                                              }
+                                            }}
+                                            className="opacity-0 group-hover/comment:opacity-100 p-1 text-gray-300 hover:text-red-400 transition-all"
+                                            title="削除"
+                                          >
+                                            <Trash2 size={12} />
+                                          </button>
+                                        )}
+                                      </div>
                                     </div>
                                     <p className="text-sm text-gray-700 leading-relaxed break-words">
                                       {comment.text}

@@ -260,8 +260,18 @@ const Closet = () => {
     }));
     const combinedItems = [...markedPublicItems, ...localPublicItems];
 
-    // Deduplication by ID
-    const uniqueItems = Array.from(new Map(combinedItems.map(item => [item.id, item])).values());
+    // Deduplication by Content (to handle local-id prefix differences)
+    const uniqueItems = [];
+    const seenCombos = new Set();
+
+    combinedItems.forEach(item => {
+      // Content-based key
+      const comboKey = `${item.userId}-${item.itemName}-${item.imageUrl}`;
+      if (!seenCombos.has(comboKey)) {
+        seenCombos.add(comboKey);
+        uniqueItems.push(item);
+      }
+    });
 
     return uniqueItems.filter(item => {
       const matchesSearch = searchTerm === '' ||

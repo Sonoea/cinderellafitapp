@@ -1101,39 +1101,41 @@ const Closet = () => {
                           </button>
                         )}
 
-                        {/* Edit / Delete Buttons */}
-                        <div className="flex gap-2 z-20 relative">
-                          {!isEditing && (
+                        {/* Edit / Delete Buttons - ONLY for the owner */}
+                        {currentUser?.uid === selectedItem.userId && (
+                          <div className="flex gap-2 z-20 relative">
+                            {!isEditing && (
+                              <button
+                                onClick={() => {
+                                  setIsEditing(true);
+                                  setEditData({
+                                    fitRating: selectedItem.fitRating,
+                                    comment: selectedItem.comment || '',
+                                    isPublic: selectedItem.isPublic,
+                                    galleryOnly: selectedItem.galleryOnly || false
+                                  });
+                                }}
+                                className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
+                              >
+                                <Edit2 size={14} />
+                                <span>編集する</span>
+                              </button>
+                            )}
                             <button
                               onClick={() => {
-                                setIsEditing(true);
-                                setEditData({
-                                  fitRating: selectedItem.fitRating,
-                                  comment: selectedItem.comment || '',
-                                  isPublic: selectedItem.isPublic,
-                                  galleryOnly: selectedItem.galleryOnly || false
-                                });
+                                if (window.confirm(t('deleteConfirm'))) {
+                                  deleteClosetItem(selectedItem.id);
+                                  setSelectedItem(null);
+                                  setIsEditing(false);
+                                }
                               }}
-                              className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
+                              className="bg-red-50 text-red-400 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-red-200"
                             >
-                              <Edit2 size={14} />
-                              <span>編集する</span>
+                              <Trash2 size={14} />
+                              <span>削除</span>
                             </button>
-                          )}
-                          <button
-                            onClick={() => {
-                              if (window.confirm(t('deleteConfirm'))) {
-                                deleteClosetItem(selectedItem.id);
-                                setSelectedItem(null);
-                                setIsEditing(false);
-                              }
-                            }}
-                            className="bg-red-50 text-red-400 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-red-200"
-                          >
-                            <Trash2 size={14} />
-                            <span>削除</span>
-                          </button>
-                        </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* URL */}

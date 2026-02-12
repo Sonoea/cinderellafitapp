@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Portal from './Portal';
 import ClosetItemForm from './ClosetItemForm';
 import { X } from 'lucide-react';
 
 const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabels }) => {
+    // Body Scroll Lock
+    useEffect(() => {
+        const originalStyle = window.getComputedStyle(document.body).overflow;
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = originalStyle;
+        };
+    }, []);
+
     return (
         <Portal>
             <div

@@ -248,6 +248,7 @@ const Closet = () => {
     setIsSubmittingComment(true);
 
     try {
+      const bareId = String(itemId).replace(/^local-/, '');
       const commentData = {
         userId: currentUser.uid,
         userName: firestoreUserName || currentUser.displayName || t('guest'),
@@ -256,7 +257,7 @@ const Closet = () => {
         createdAt: new Date().toISOString(),
       };
 
-      const commentsRef = collection(db, 'users', ownerUid, 'closetItems', itemId, 'comments');
+      const commentsRef = collection(db, 'users', ownerUid, 'closetItems', bareId, 'comments');
       await addDoc(commentsRef, {
         ...commentData,
         createdAt: serverTimestamp()
@@ -1013,8 +1014,8 @@ const Closet = () => {
                         <button
                           onClick={() => toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId)}
                           className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId]?.isLiked)
-                              ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
-                              : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
+                            ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
+                            : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'
                             }`}
                         >
                           <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className="pointer-events-none" />

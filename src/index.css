@@ -647,8 +647,8 @@ input:focus {
   /* Dynamic viewport height for mobile */
   background-color: var(--surface);
   border-radius: 0;
-  display: grid;
-  grid-template-rows: auto 1fr;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   box-shadow: none;
 }

@@ -103,6 +103,10 @@ const Closet = () => {
   const [isLoadingGallery, setIsLoadingGallery] = useState(false);
   const [galleryError, setGalleryError] = useState(null);
   const [userProfiles, setUserProfiles] = useState({}); // { [userId]: { displayName, photoURL } }
+  const [itemLikes, setItemLikes] = useState({}); // { [itemId]: { count, isLiked } }
+  const [itemComments, setItemComments] = useState({}); // { [itemId]: [comments] }
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [commentText, setCommentText] = useState('');
 
   // Filters (Items Tab)
   const [activePlushieId, setActivePlushieId] = useState('all');
@@ -170,6 +174,114 @@ const Closet = () => {
       setUserProfiles(newProfiles);
     }
   };
+
+  // Fetch Likes & Comments for an item
+  const fetchEngagement = async (itemId, ownerUid) => {
+    if (!itemId || !ownerUid) return;
+    try {
+      const { collection, getDocs, query, orderBy } = await import('firebase/firestore');
+
+      // Fetch Likes Count
+      const likesRef = collection(db, 'users', ownerUid, 'closetItems', itemId, 'likes');
+      const likesSnap = await getDocs(likesRef);
+      const likesCount = likesSnap.size;
+      const isLiked = currentUser ? likesSnap.docs.some(doc => doc.id === currentUser.uid) : false;
+
+      setItemLikes(prev => ({
+        ...prev,
+        [itemId]: { count: likesCount, isLiked }
+      }));
+
+      // Fetch Comments
+      const commentsRef = collection(db, 'users', ownerUid, 'closetItems', itemId, 'comments');
+      const q = query(commentsRef, orderBy('createdAt', 'asc'));
+      const commentsSnap = await getDocs(q);
+      const comments = commentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+      setItemComments(prev => ({
+        ...prev,
+        [itemId]: comments
+      }));
+    } catch (e) {
+      console.error("Error fetching engagement:", e);
+    }
+  };
+
+  const toggleLike = async (itemId, ownerUid) => {
+    if (!currentUser) {
+      alert("ログインが必要です");
+      return;
+    }
+    if (!itemId || !ownerUid) return;
+
+    const currentLike = itemLikes[itemId] || { count: 0, isLiked: false };
+    const newIsLiked = !currentLike.isLiked;
+    const newCount = newIsLiked ? currentLike.count + 1 : Math.max(0, currentLike.count - 1);
+
+    // Optimistic UI update
+    setItemLikes(prev => ({
+      ...prev,
+      [itemId]: { count: newCount, isLiked: newIsLiked }
+    }));
+
+    try {
+      const { doc, setDoc, deleteDoc, serverTimestamp } = await import('firebase/firestore');
+      const likeRef = doc(db, 'users', ownerUid, 'closetItems', itemId, 'likes', currentUser.uid);
+
+      if (newIsLiked) {
+        await setDoc(likeRef, { createdAt: serverTimestamp() });
+      } else {
+        await deleteDoc(likeRef);
+      }
+    } catch (e) {
+      console.error("Error toggling like:", e);
+      // Revert optimistic update on error
+      setItemLikes(prev => ({
+        ...prev,
+        [itemId]: currentLike
+      }));
+    }
+  };
+
+  const submitComment = async (itemId, ownerUid) => {
+    if (!currentUser || !commentText.trim() || isSubmittingComment) return;
+    setIsSubmittingComment(true);
+
+    try {
+      const { collection, addDoc, serverTimestamp } = await import('firebase/firestore');
+      const commentData = {
+        userId: currentUser.uid,
+        userName: firestoreUserName || currentUser.displayName || t('guest'),
+        userIcon: firestorePhotoURL || currentUser.photoURL || '',
+        text: commentText.trim(),
+        createdAt: new Date().toISOString(),
+      };
+
+      const commentsRef = collection(db, 'users', ownerUid, 'closetItems', itemId, 'comments');
+      await addDoc(commentsRef, {
+        ...commentData,
+        createdAt: serverTimestamp()
+      });
+
+      // Update local state
+      setItemComments(prev => ({
+        ...prev,
+        [itemId]: [...(prev[itemId] || []), { ...commentData, id: Date.now().toString() }]
+      }));
+      setCommentText('');
+    } catch (e) {
+      console.error("Error submitting comment:", e);
+      alert("コメントの送信に失敗しました");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedItem) {
+      fetchEngagement(selectedItem.id, selectedItem.userId);
+    }
+  }, [selectedItem]);
 
   useEffect(() => {
     if (activeTab === 'gallery') {
@@ -679,13 +791,21 @@ const Closet = () => {
                       </div>
                     </div>
 
-                    <div className="aspect-square bg-gray-50 relative">
+                    <div className="aspect-square bg-gray-50 relative" onClick={() => setSelectedItem(post)}>
                       <img src={post.imageUrl} className="w-full h-full object-cover" alt="" />
-                      {post.likes > 0 && (
-                        <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm text-pink-500">
-                          <Heart size={12} fill="currentColor" /> {post.likes}
-                        </div>
-                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLike(post.id, post.userId);
+                        }}
+                        className={`absolute bottom-3 right-3 backdrop-blur px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md transition-all active:scale-90 ${(itemLikes[post.id]?.isLiked)
+                          ? 'bg-pink-500 text-white border-none'
+                          : 'bg-white/80 text-pink-500 border border-pink-100'
+                          }`}
+                      >
+                        <Heart size={14} fill={(itemLikes[post.id]?.isLiked) ? "currentColor" : "none"} />
+                        <span>{itemLikes[post.id]?.count ?? post.likes ?? 0}</span>
+                      </button>
                     </div>
 
                     <div className="p-3">
@@ -824,6 +944,21 @@ const Closet = () => {
                           </>
                         )}
                       </div>
+
+                      {/* Live Like Button in Modal */}
+                      {!isEditing && (
+                        <button
+                          onClick={() => toggleLike(selectedItem.id, selectedItem.userId)}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-all active:scale-95 ${(itemLikes[selectedItem.id]?.isLiked)
+                            ? 'bg-pink-500 text-white shadow-lg shadow-pink-200'
+                            : 'bg-pink-50 text-pink-500 hover:bg-pink-100'
+                            }`}
+                        >
+                          <Heart size={18} fill={(itemLikes[selectedItem.id]?.isLiked) ? "currentColor" : "none"} />
+                          <span>{itemLikes[selectedItem.id]?.count ?? selectedItem.likes ?? 0}</span>
+                        </button>
+                      )}
+
                       {/* Edit / Delete Buttons */}
                       <div className="flex gap-1 z-20 relative">
                         {!isEditing && (
@@ -937,6 +1072,73 @@ const Closet = () => {
                         )
                       )}
                     </div>
+
+                    {/* Comments Section */}
+                    {selectedItem.isPublic && !isEditing && (
+                      <div className="pt-4 border-t border-gray-100">
+                        <h4 className="text-sm font-bold text-gray-400 uppercase mb-4 flex items-center gap-2">
+                          <Users size={16} />
+                          Comments
+                          <span className="bg-gray-100 px-2 py-0.5 rounded-full text-[10px]">{itemComments[selectedItem.id]?.length || 0}</span>
+                        </h4>
+
+                        <div className="space-y-4 mb-6">
+                          {(itemComments[selectedItem.id] || []).map((comment) => (
+                            <div key={comment.id} className="flex gap-3 animate-in slide-in-from-bottom-2">
+                              <UserAvatar src={comment.userIcon} className="w-8 h-8 flex-shrink-0" alt="" />
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-0.5">
+                                  <span className="text-xs font-bold text-gray-800">{comment.userName}</span>
+                                  <span className="text-[10px] text-gray-400">
+                                    {comment.createdAt?.seconds
+                                      ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
+                                      : new Date(comment.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <p className="text-sm text-gray-600 leading-relaxed bg-gray-50 p-2 rounded-lg rounded-tl-none inline-block min-w-[50%]">
+                                  {comment.text}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+
+                          {(!itemComments[selectedItem.id] || itemComments[selectedItem.id].length === 0) && (
+                            <div className="text-center py-4 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                              <p className="text-xs text-gray-400 font-bold italic">No comments yet. Be the first!</p>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Comment Form */}
+                        {currentUser ? (
+                          <div className="flex gap-2 items-end">
+                            <div className="flex-1 relative">
+                              <textarea
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder="Add a comment..."
+                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-20"
+                                maxLength={200}
+                              />
+                              <span className="absolute bottom-2 right-2 text-[8px] text-gray-400">
+                                {commentText.length}/200
+                              </span>
+                            </div>
+                            <button
+                              onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
+                              disabled={!commentText.trim() || isSubmittingComment}
+                              className="bg-primary text-white p-3 rounded-xl shadow-md hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-12 w-12 flex items-center justify-center"
+                            >
+                              {isSubmittingComment ? '...' : <Plus size={24} />}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="bg-blue-50 p-4 rounded-xl text-center">
+                            <p className="text-xs text-blue-600 font-bold mb-2">Login to leave a comment!</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Save / Cancel Buttons */}
                     {isEditing && (

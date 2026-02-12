@@ -812,31 +812,31 @@ const Closet = () => {
                       <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
                     </div>
 
-                    <div className="px-3 py-3 flex items-center gap-8 border-b border-gray-50 bg-white relative z-20">
+                    <div className="px-3 py-4 flex items-center gap-10 border-b border-gray-50 bg-white relative z-20">
                       {/* Like Button */}
                       <button
                         type="button"
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          toggleLike(post.id, post.userId);
+                          toggleLike(post.id, post.userId, post.compositeId);
                         }}
-                        className={`flex items-center gap-2.5 transition-all p-2 -m-2 rounded-xl active:scale-90 group focus:outline-none z-30 ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
+                        className={`flex items-center gap-3 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30 ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
                           }`}
                         style={{ pointerEvents: 'auto' }}
                       >
-                        <div className={`p-2.5 rounded-full transition-all duration-300 ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-sm' : 'bg-gray-50 group-hover:bg-pink-50/50'
+                        <div className={`p-3 rounded-full transition-all duration-300 ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-md ring-4 ring-pink-100/50' : 'bg-gray-50 group-hover:bg-pink-50/50'
                           }`}>
                           <Heart
-                            size={26}
+                            size={28}
                             fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
-                            strokeWidth={2.5}
+                            strokeWidth={3}
                             className={(itemLikes[post.compositeId]?.isLiked) ? "animate-pulse" : ""}
                           />
                         </div>
                         <div className="flex flex-col items-start leading-tight">
-                          <span className="text-[12px] font-black uppercase tracking-wider">いい！</span>
-                          <span className="text-base font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                          <span className="text-[14px] font-black uppercase tracking-widest">いい！</span>
+                          <span className="text-xl font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
                         </div>
                       </button>
 
@@ -848,15 +848,15 @@ const Closet = () => {
                           e.stopPropagation();
                           setSelectedItem(post);
                         }}
-                        className="flex items-center gap-2.5 text-gray-400 hover:text-blue-500 transition-all p-2 -m-2 rounded-xl active:scale-90 group focus:outline-none z-30"
+                        className="flex items-center gap-3 text-gray-400 hover:text-blue-500 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30"
                         style={{ pointerEvents: 'auto' }}
                       >
-                        <div className="p-2.5 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300">
-                          <MessageCircle size={26} strokeWidth={2.5} />
+                        <div className="p-3 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300">
+                          <MessageCircle size={28} strokeWidth={3} />
                         </div>
                         <div className="flex flex-col items-start leading-tight">
-                          <span className="text-[12px] font-black uppercase tracking-wider">コメント</span>
-                          <span className="text-base font-black tabular-nums">{itemComments[post.compositeId]?.length || 0}</span>
+                          <span className="text-[14px] font-black uppercase tracking-widest">コメント</span>
+                          <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || 0}</span>
                         </div>
                       </button>
                     </div>

@@ -4,7 +4,7 @@ import { db } from '../firebase/config'; // Import db
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageSquare, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';

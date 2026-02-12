@@ -1106,13 +1106,13 @@ const Closet = () => {
                           <div className="flex items-center gap-2">
                             <MessageCircle size={18} className="text-blue-500" />
                             <span>{t('commentsTitle') || 'コメント'}</span>
-                            <span className="bg-white border px-2 py-0.5 rounded-full text-[10px] text-gray-500">{itemComments[selectedItem.id]?.length || 0}</span>
+                            <span className="bg-white border px-2 py-0.5 rounded-full text-[10px] text-gray-500">{itemComments[selectedItem.compositeId || selectedItem.id]?.length || 0}</span>
                           </div>
                         </h4>
 
                         <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                          {(itemComments[selectedItem.id] || []).length > 0 ? (
-                            (itemComments[selectedItem.id] || []).map((comment) => (
+                          {(itemComments[selectedItem.compositeId || selectedItem.id] || []).length > 0 ? (
+                            (itemComments[selectedItem.compositeId || selectedItem.id] || []).map((comment) => (
                               <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2">
                                 <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
                                 <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">

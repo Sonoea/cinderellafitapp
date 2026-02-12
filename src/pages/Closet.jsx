@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { collectionGroup, query, where, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, getDoc, orderBy } from 'firebase/firestore';
+import { collectionGroup, query, where, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, getDoc, orderBy, updateDoc, increment } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -230,10 +230,17 @@ const Closet = () => {
 
     try {
       const likeRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid);
+      const itemRef = doc(db, 'users', ownerUid, 'closetItems', bareId);
+
       if (newIsLiked) {
-        await setDoc(likeRef, { createdAt: serverTimestamp() });
+        await setDoc(likeRef, {
+          likedBy: currentUser.uid,
+          createdAt: serverTimestamp()
+        });
+        await updateDoc(itemRef, { likes: increment(1) });
       } else {
         await deleteDoc(likeRef);
+        await updateDoc(itemRef, { likes: increment(-1) });
       }
     } catch (e) {
       console.error("Error toggling like:", e);
@@ -369,9 +376,33 @@ const Closet = () => {
           const validItems = uniqueItems;
           setPublicItems(validItems);
 
-          // Resolve user profiles for these items
           const uniqueUserIds = [...new Set(validItems.map(item => item.userId).filter(Boolean))];
           resolveUserProfiles(uniqueUserIds);
+
+          // NEW: Also fetch current user's likes to show red hearts on reload
+          if (currentUser) {
+            try {
+              const myLikesQuery = query(collectionGroup(db, 'likes'), where('likedBy', '==', currentUser.uid));
+              const myLikesSnap = await getDocs(myLikesQuery);
+              const myLikesMap = {};
+              myLikesSnap.forEach(doc => {
+                const itemDocId = doc.ref.parent.parent.id;
+                const ownerUid = doc.ref.parent.parent.parent.parent.id;
+                const compositeId = `${ownerUid}_${itemDocId}`;
+                myLikesMap[compositeId] = { isLiked: true };
+              });
+
+              setItemLikes(prev => {
+                const newState = { ...prev };
+                Object.keys(myLikesMap).forEach(key => {
+                  newState[key] = { ...(newState[key] || { count: 0 }), isLiked: true };
+                });
+                return newState;
+              });
+            } catch (likeErr) {
+              console.warn("Failed to fetch user likes:", likeErr);
+            }
+          }
         } catch (error) {
           console.error("Error fetching global gallery:", error);
           // Firestore Collection Group Index が未作成の場合、エラーメッセージにURLが含まれる

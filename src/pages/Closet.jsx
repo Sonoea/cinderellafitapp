@@ -997,40 +997,41 @@ const Closet = () => {
               </div>
             ) : (
               /* Gallery Grid */
-              <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
+              <div className="grid grid-cols-2 gap-2.5 mb-20 fade-in">
                 {filteredItems.map((post) => (
-                  <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
-                    <div className="p-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
-                          {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white"><Star size={8} className="text-white fill-white" /></div>}
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
-                          <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                            <span className="truncate max-w-[80px]">{post.plushieName}</span>
-                            {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
-                          </div>
+                  <div key={post.compositeId} className={`bg-white rounded-2xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'ring-2 ring-primary/20' : 'ring-1 ring-gray-100'}`}>
+                    {/* Header — compact */}
+                    <div className="px-2.5 py-2 flex items-center gap-1.5">
+                      <div className="relative flex-shrink-0">
+                        <UserAvatar src={post.userIcon} className="w-6 h-6" alt={post.userName} />
+                        {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-[1.5px] ring-white"><Star size={6} className="text-white fill-white" /></div>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[10px] font-bold text-gray-800 truncate">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
+                        <div className="flex items-center gap-1 text-[9px] text-gray-400 leading-tight">
+                          <span className="truncate">{post.plushieName}</span>
+                          {post.plushieHeight && <span className="bg-gray-100 px-0.5 rounded text-gray-400 whitespace-nowrap">{post.plushieHeight}cm</span>}
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[10px] text-gray-400 block">{post.date}</span>
-                        {post.location && (
-                          <div className="flex items-center justify-end gap-0.5 text-[10px] text-blue-400 mt-0.5">
-                            <MapPin size={10} />
-                            <span className="truncate max-w-[80px]">{post.location}</span>
-                          </div>
-                        )}
-                      </div>
+                      {post.location && (
+                        <div className="flex items-center gap-0.5 text-[8px] text-blue-400 flex-shrink-0">
+                          <MapPin size={8} />
+                          <span className="truncate max-w-[40px]">{post.location}</span>
+                        </div>
+                      )}
                     </div>
 
+                    {/* Image */}
                     <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
                       <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                      {/* Date badge */}
+                      <div className="absolute top-1.5 right-1.5 bg-black/40 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
+                        {post.date}
+                      </div>
                     </div>
 
-                    <div className="px-3 py-4 flex items-center gap-10 border-b border-gray-50 bg-white relative z-20">
-                      {/* Like Button */}
+                    {/* Social bar — inline compact */}
+                    <div className="px-2.5 py-1.5 flex items-center justify-between bg-white border-b border-gray-50">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1038,26 +1039,17 @@ const Closet = () => {
                           e.stopPropagation();
                           toggleLike(post.id, post.userId, post.compositeId);
                         }}
-                        className={`flex items-center gap-3 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30 ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
-                          }`}
+                        className={`flex items-center gap-1 transition-all active:scale-90 focus:outline-none ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'}`}
                         style={{ pointerEvents: 'auto' }}
                       >
-                        <div className={`p-3 rounded-full transition-all duration-300 pointer-events-none ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-md ring-4 ring-pink-100/50' : 'bg-gray-50 group-hover:bg-pink-50/50'
-                          }`}>
-                          <Heart
-                            size={28}
-                            fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
-                            strokeWidth={3}
-                            className={(itemLikes[post.compositeId]?.isLiked) ? "animate-pulse" : ""}
-                          />
-                        </div>
-                        <div className="flex flex-col items-start leading-tight pointer-events-none">
-                          <span className="text-[14px] font-black uppercase tracking-widest">いい！</span>
-                          <span className="text-xl font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
-                        </div>
+                        <Heart
+                          size={16}
+                          fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
+                          strokeWidth={2.5}
+                        />
+                        <span className="text-[11px] font-bold tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
                       </button>
 
-                      {/* Comment Button (Opens Detail) */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1066,41 +1058,36 @@ const Closet = () => {
                           setShouldScrollToComments(true);
                           setSelectedItem(post);
                         }}
-                        className="flex items-center gap-3 text-gray-400 hover:text-blue-500 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30"
+                        className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-all active:scale-90 focus:outline-none"
                         style={{ pointerEvents: 'auto' }}
                       >
-                        <div className="p-3 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300 pointer-events-none">
-                          <MessageCircle size={28} strokeWidth={3} />
-                        </div>
-                        <div className="flex flex-col items-start leading-tight pointer-events-none">
-                          <span className="text-[13px] font-black uppercase tracking-widest">見てみる・書く</span>
-                          <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
-                        </div>
+                        <MessageCircle size={16} strokeWidth={2.5} />
+                        <span className="text-[11px] font-bold tabular-nums">{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
                       </button>
+
+                      <span className="text-base leading-none">
+                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
+                      </span>
                     </div>
 
-                    <div className="p-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex flex-col gap-1">
-                          <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
-                          {post.purchaseType && (
-                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
-                              {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
-                                post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
-                                  `🪡 ${t('categoryHandmade')}`}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-lg">
-                          {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                        </span>
+                    {/* Content — compact */}
+                    <div className="px-2.5 py-2">
+                      <div className="flex items-start justify-between gap-1 mb-1">
+                        <h3 className="font-bold text-[11px] text-gray-800 leading-snug line-clamp-2">{post.itemName}</h3>
                       </div>
-                      <ExpandableText text={post.comment} />
+                      {post.purchaseType && (
+                        <span className="inline-block text-[8px] font-bold bg-gray-100/80 text-gray-400 px-1.5 py-0.5 rounded-full mb-1">
+                          {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                            post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                              `🪡 ${t('categoryHandmade')}`}
+                        </span>
+                      )}
+                      <ExpandableText text={post.comment} maxLength={50} />
 
                       {post.shopName && (
-                        <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
-                          <Shirt size={10} />
-                          {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
+                        <div className="bg-gray-50 px-1.5 py-1 rounded-md inline-flex items-center gap-1 text-[9px] text-gray-400">
+                          <Shirt size={9} />
+                          <span className="font-bold truncate max-w-[100px]">{post.shopName}</span>
                         </div>
                       )}
                     </div>
@@ -1449,8 +1436,8 @@ const Closet = () => {
                                           toggleCommentHeart(selectedItem.id, selectedItem.userId, comment.id);
                                         }}
                                         className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold transition-all active:scale-90 ${(comment.heartedBy || []).includes(currentUser?.uid)
-                                            ? 'bg-pink-50 text-pink-500 ring-1 ring-pink-200'
-                                            : 'bg-gray-50 text-gray-400 hover:bg-pink-50 hover:text-pink-400'
+                                          ? 'bg-pink-50 text-pink-500 ring-1 ring-pink-200'
+                                          : 'bg-gray-50 text-gray-400 hover:bg-pink-50 hover:text-pink-400'
                                           }`}
                                       >
                                         <Heart

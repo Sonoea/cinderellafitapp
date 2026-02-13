@@ -144,6 +144,7 @@ export const translations = {
         categoryRetail: "In-store",
         categoryHandmade: "Handmade",
         purchaseTypeLabel: "Purchase Type",
+        notSet: "Not Set",
 
         cm: "cm",
         closetTabHelp: "Upload photos to save your collection. Public items appear in the 'Gallery' tab!",
@@ -264,6 +265,7 @@ export const translations = {
         categoryRetail: "お店で購入",
         categoryHandmade: "手作り",
         purchaseTypeLabel: "購入方法",
+        notSet: "未設定",
 
         cm: "cm",
         closetTabHelp: "写真をアップしてコーデを保存！公開にすると「ギャラリー」でみんなにシェアできます。",

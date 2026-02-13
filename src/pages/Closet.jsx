@@ -121,6 +121,7 @@ const Closet = () => {
   // Filters (Gallery Tab)
   const [searchTerm, setSearchTerm] = useState('');
   const [filterMySize, setFilterMySize] = useState(false);
+  const [sizeFilterPlushieId, setSizeFilterPlushieId] = useState('all');
   const [filterCategory, setFilterCategory] = useState('all');
 
   // --- URL PARAMS HANDLING ---
@@ -648,11 +649,19 @@ const Closet = () => {
       let matchesSize = true;
       if (filterMySize) {
         if (!item.plushieHeight) matchesSize = false;
-        else {
+        else if (sizeFilterPlushieId === 'all') {
           matchesSize = plushies.some(myPlushie => {
             const myHeight = myPlushie.measurements?.height || 0;
             return Math.abs(myHeight - item.plushieHeight) <= 2;
           });
+        } else {
+          const selectedPlushie = plushies.find(p => String(p.id) === String(sizeFilterPlushieId));
+          if (selectedPlushie) {
+            const myHeight = selectedPlushie.measurements?.height || 0;
+            matchesSize = Math.abs(myHeight - item.plushieHeight) <= 2;
+          } else {
+            matchesSize = false;
+          }
         }
       }
 
@@ -663,7 +672,7 @@ const Closet = () => {
 
       return matchesSearch && matchesSize && matchesCategory;
     });
-  }, [closetItems, publicItems, searchTerm, filterMySize, filterCategory, plushies, currentUser, firestoreUserName, firestorePhotoURL, userProfiles, t]);
+  }, [closetItems, publicItems, searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, plushies, currentUser, firestoreUserName, firestorePhotoURL, userProfiles, t]);
 
 
 
@@ -923,7 +932,10 @@ const Closet = () => {
                 />
               </div>
               <button
-                onClick={() => setFilterMySize(!filterMySize)}
+                onClick={() => {
+                  setFilterMySize(!filterMySize);
+                  if (filterMySize) setSizeFilterPlushieId('all');
+                }}
                 className={`w-full py-2 rounded-xl text-sm font-bold flex items-center justify-center gap-2 transition-all border ${filterMySize
                   ? 'bg-primary text-white border-primary shadow-md'
                   : 'bg-white text-gray-500 border-gray-200 hover:bg-gray-50'
@@ -932,6 +944,36 @@ const Closet = () => {
                 <Ruler size={16} />
                 {t('filterSize')} {filterMySize && <span className="text-[10px] bg-white/20 px-2 rounded-full ml-1">±2cm</span>}
               </button>
+
+              {/* Plushie selector for size filter */}
+              {filterMySize && plushies.length > 1 && (
+                <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
+                  <button
+                    onClick={() => setSizeFilterPlushieId('all')}
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${sizeFilterPlushieId === 'all'
+                      ? 'bg-primary text-white border-primary shadow-sm'
+                      : 'bg-white text-gray-400 border-gray-100 hover:bg-gray-50'
+                      }`}
+                  >
+                    <span>✨</span>
+                    <span>{t('categoryAll') || 'すべて'}</span>
+                  </button>
+                  {plushies.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => setSizeFilterPlushieId(p.id)}
+                      className={`flex-shrink-0 pl-1 pr-3 py-1 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${String(sizeFilterPlushieId) === String(p.id)
+                        ? 'bg-primary text-white border-primary shadow-sm'
+                        : 'bg-white text-gray-400 border-gray-100 hover:bg-gray-50'
+                        }`}
+                    >
+                      <img src={p.image} className="w-5 h-5 rounded-full object-cover" alt="" />
+                      <span>{p.name}</span>
+                      {p.measurements?.height ? <span className="text-[9px] opacity-70">{p.measurements.height}cm</span> : null}
+                    </button>
+                  ))}
+                </div>
+              )}
 
               <div className="flex gap-2 overflow-x-auto no-scrollbar py-1">
                 {[
@@ -987,6 +1029,7 @@ const Closet = () => {
                     onClick={() => {
                       setSearchTerm('');
                       setFilterMySize(false);
+                      setSizeFilterPlushieId('all');
                       setFilterCategory('all');
                     }}
                     className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"
@@ -1232,7 +1275,8 @@ const Closet = () => {
                                     fitRating: selectedItem.fitRating,
                                     comment: selectedItem.comment || '',
                                     isPublic: selectedItem.isPublic,
-                                    galleryOnly: selectedItem.galleryOnly || false
+                                    galleryOnly: selectedItem.galleryOnly || false,
+                                    purchaseType: selectedItem.purchaseType || ''
                                   });
                                 }}
                                 className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
@@ -1309,6 +1353,44 @@ const Closet = () => {
                               {fullFitLabels[selectedItem.fitRating - 1]}
                             </p>
                           </div>
+                        )}
+                      </div>
+
+                      {/* Purchase Type Section */}
+                      <div>
+                        <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('purchaseTypeLabel') || '入手方法'}</h4>
+                        {isEditing ? (
+                          <div className="flex gap-2">
+                            {[
+                              { id: '', label: t('notSet') || '未設定', icon: '➖' },
+                              { id: 'online', label: t('categoryOnline'), icon: '🌐' },
+                              { id: 'retail', label: t('categoryRetail'), icon: '🏪' },
+                              { id: 'handmade', label: t('categoryHandmade'), icon: '🪡' }
+                            ].map((cat) => (
+                              <button
+                                key={cat.id}
+                                type="button"
+                                onClick={() => setEditData({ ...editData, purchaseType: cat.id })}
+                                className={`flex-1 p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${editData.purchaseType === cat.id
+                                  ? 'bg-primary text-white border-primary shadow-lg scale-105'
+                                  : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
+                                  }`}
+                              >
+                                <span className="text-xl">{cat.icon}</span>
+                                <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        ) : (
+                          selectedItem.purchaseType ? (
+                            <span className="inline-flex items-center gap-1.5 text-sm font-bold bg-gray-100 text-gray-600 px-3 py-1.5 rounded-xl">
+                              {selectedItem.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                                selectedItem.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                  `🪡 ${t('categoryHandmade')}`}
+                            </span>
+                          ) : (
+                            <span className="text-sm text-gray-400 italic">{t('notSet') || '未設定'}</span>
+                          )
                         )}
                       </div>
 

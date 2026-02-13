@@ -125,13 +125,22 @@ const Home = () => {
         <div className="flex flex-col gap-4">
             <header className="flex justify-between items-center py-4">
                 <div>
-                    <h1 style={{ color: 'var(--primary-dark)', fontSize: '24px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <h1 style={{ color: 'var(--primary-dark)', fontSize: '22px', fontWeight: '800', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         {t('appTitle')}
-                        <span className="bg-orange-100 text-orange-600 text-[10px] px-2 py-0.5 rounded-full border border-orange-200 font-bold tracking-wider">
-                            BETA
+                        <span style={{
+                            fontSize: '9px',
+                            fontWeight: '700',
+                            letterSpacing: '0.08em',
+                            padding: '3px 8px',
+                            borderRadius: '20px',
+                            background: 'linear-gradient(135deg, #E8956A 0%, #D4A490 100%)',
+                            color: 'white',
+                            textTransform: 'uppercase'
+                        }}>
+                            Beta
                         </span>
                     </h1>
-                    <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600', marginTop: '2px', letterSpacing: '-0.01em' }}>
                         {language === 'jp' ? 'サイズ失敗、もうしない。' : 'Never buy the wrong size again'}
                     </p>
                     <p style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
@@ -143,15 +152,24 @@ const Home = () => {
                 <div className="flex gap-2">
                     <button
                         onClick={toggleLanguage}
-                        className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center text-xs font-bold text-gray-400 hover:text-primary transition-all"
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                        style={{
+                            background: 'var(--gray-100)',
+                            color: 'var(--text-light)',
+                            border: '1px solid var(--gray-200)'
+                        }}
                     >
                         {language === 'en' ? 'JP' : 'EN'}
                     </button>
                     <Link
                         to="/settings"
-                        className="px-3 py-2 rounded-full bg-white shadow-sm flex items-center gap-1 hover:bg-gray-100 transition-all"
+                        className="px-3 py-2 rounded-full flex items-center gap-1 transition-all"
+                        style={{
+                            background: 'var(--gray-100)',
+                            border: '1px solid var(--gray-200)'
+                        }}
                     >
-                        <Settings size={16} style={{ color: 'var(--primary)' }} />
+                        <Settings size={15} style={{ color: 'var(--primary)' }} />
                         <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary)' }}>
                             {language === 'jp' ? '設定・ガイド' : 'Settings/Guide'}
                         </span>
@@ -202,44 +220,87 @@ const Home = () => {
             )}
 
             {/* How to Use - Quick Guide */}
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 mb-4">
-                <h3 className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-                    <span>📖</span>
+            <div className="rounded-2xl p-4 mb-4" style={{
+                background: 'white',
+                boxShadow: 'var(--shadow-sm)',
+                border: '1px solid var(--gray-200)'
+            }}>
+                <h3 style={{
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    color: 'var(--text-main)',
+                    marginBottom: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    letterSpacing: '-0.01em'
+                }}>
+                    <span style={{ fontSize: '14px' }}>📖</span>
                     {language === 'jp' ? 'かんたん3ステップ' : 'Easy 3 Steps'}
                 </h3>
                 <div className="flex justify-between gap-2">
                     <div className="flex-1 text-center">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-pink-100 to-pink-200 flex items-center justify-center text-2xl">
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            margin: '0 auto 8px',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(145deg, #F5EDE9 0%, #EEDED8 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px'
+                        }}>
                             🧸
                         </div>
-                        <p className="text-[10px] font-bold text-gray-600">
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
                             {language === 'jp' ? '1. 採寸' : '1. Measure'}
                         </p>
-                        <p className="text-[9px] text-gray-400">
+                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
                             {language === 'jp' ? 'ぬいのサイズ登録' : 'Register size'}
                         </p>
                     </div>
-                    <div className="flex items-center text-gray-300">→</div>
+                    <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
                     <div className="flex-1 text-center">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center text-2xl">
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            margin: '0 auto 8px',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(145deg, var(--primary-light) 0%, #D5ECEE 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px'
+                        }}>
                             🔍
                         </div>
-                        <p className="text-[10px] font-bold text-gray-600">
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
                             {language === 'jp' ? '2. URL入力' : '2. Enter URL'}
                         </p>
-                        <p className="text-[9px] text-gray-400">
+                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
                             {language === 'jp' ? '服のURLを貼る' : 'Paste clothing URL'}
                         </p>
                     </div>
-                    <div className="flex items-center text-gray-300">→</div>
+                    <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
                     <div className="flex-1 text-center">
-                        <div className="w-12 h-12 mx-auto mb-2 rounded-full bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center text-2xl">
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            margin: '0 auto 8px',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(145deg, #E8F5F0 0%, #D4EDE5 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px'
+                        }}>
                             ✨
                         </div>
-                        <p className="text-[10px] font-bold text-gray-600">
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
                             {language === 'jp' ? '3. フィット確認' : '3. Check Fit'}
                         </p>
-                        <p className="text-[9px] text-gray-400">
+                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
                             {language === 'jp' ? 'サイズ判定表示' : 'See result'}
                         </p>
                     </div>
@@ -249,59 +310,114 @@ const Home = () => {
             {/* My Closet Feature Highlight */}
             <Link
                 to="/closet"
-                className="block bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 shadow-sm border border-purple-100 mb-4 hover:shadow-md transition-shadow"
+                className="block rounded-2xl p-4 mb-4 hover-scale"
+                style={{
+                    background: 'linear-gradient(135deg, var(--secondary-light) 0%, var(--primary-light) 100%)',
+                    border: '1px solid var(--gray-200)',
+                    boxShadow: 'var(--shadow-sm)'
+                }}
             >
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white text-lg">
+                    <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '18px',
+                        boxShadow: '0 2px 8px rgba(61, 122, 127, 0.25)'
+                    }}>
                         👗
                     </div>
                     <div className="flex-1">
-                        <h3 className="text-sm font-bold text-purple-700 flex items-center gap-1">
+                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {language === 'jp' ? 'マイクローゼット' : 'My Closet'}
-                            <span className="text-[10px] bg-purple-200 text-purple-600 px-1.5 py-0.5 rounded-full">NEW</span>
+                            <span style={{
+                                fontSize: '9px',
+                                fontWeight: '700',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                padding: '2px 7px',
+                                borderRadius: '20px',
+                                letterSpacing: '0.02em'
+                            }}>NEW</span>
                         </h3>
-                        <p className="text-[11px] text-purple-500">
+                        <p style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
                             {language === 'jp'
                                 ? 'お気に入りのコーデを登録してシェアしよう！'
                                 : 'Save & share your favorite outfits!'}
                         </p>
                     </div>
-                    <div className="text-purple-300">→</div>
+                    <div style={{ color: 'var(--gray-300)', fontSize: '18px' }}>→</div>
                 </div>
             </Link>
 
             {/* 🔔 Latest Gallery Feed - Only for logged in users */}
             {currentUser && latestPosts.length > 0 && (
                 <section className="mb-4">
-                    <h3 className="mb-2 flex items-center gap-2">
+                    <h3 style={{
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        color: 'var(--text-main)',
+                        marginBottom: '10px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        letterSpacing: '-0.01em'
+                    }}>
                         <span>🔔</span>
                         {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
                     </h3>
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div className="rounded-2xl overflow-hidden stagger-in" style={{
+                        background: 'white',
+                        boxShadow: 'var(--shadow-sm)',
+                        border: '1px solid var(--gray-200)'
+                    }}>
                         {latestPosts.map((post, index) => (
                             <Link
                                 key={post.id}
                                 to={`/closet?tab=gallery&itemId=${post.id}`}
-                                className={`flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors ${index < latestPosts.length - 1 ? 'border-b border-gray-50' : ''}`}
+                                className="flex items-center gap-3 px-4 py-3 transition-all"
+                                style={{
+                                    borderBottom: index < latestPosts.length - 1 ? '1px solid var(--gray-100)' : 'none'
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--gray-50)'}
+                                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
                                 <div className="flex-shrink-0">
                                     {post.userIcon && !post.userIcon.includes('placeholder') ? (
-                                        <img src={post.userIcon} alt="" className="w-8 h-8 rounded-full object-cover" />
+                                        <img src={post.userIcon} alt="" style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '10px',
+                                            objectFit: 'cover',
+                                            border: '1px solid var(--gray-200)'
+                                        }} />
                                     ) : (
-                                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                                            <Users size={14} className="text-blue-400" />
+                                        <div style={{
+                                            width: '32px',
+                                            height: '32px',
+                                            borderRadius: '10px',
+                                            background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                        }}>
+                                            <Users size={14} style={{ color: 'var(--primary)' }} />
                                         </div>
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-xs text-gray-700">
+                                    <p className="text-xs" style={{ color: 'var(--text-main)' }}>
                                         <span className="font-bold">{post.userName}</span>
                                         {language === 'jp' ? 'さんが' : ' shared '}
-                                        <span className="font-bold text-primary">{post.itemName}</span>
+                                        <span className="font-bold" style={{ color: 'var(--primary)' }}>{post.itemName}</span>
                                         {language === 'jp' ? 'を公開しました' : ''}
                                     </p>
                                 </div>
-                                <span className="text-[10px] text-gray-400 flex-shrink-0 whitespace-nowrap">
+                                <span style={{ fontSize: '10px', color: 'var(--text-light)', flexShrink: 0, whiteSpace: 'nowrap' }}>
                                     {formatRelativeTime(post.createdAt)}
                                 </span>
                             </Link>
@@ -338,6 +454,7 @@ const Home = () => {
                             borderRadius: 'var(--radius-md)',
                             padding: '16px',
                             boxShadow: 'var(--shadow-sm)',
+                            border: '1px solid var(--gray-200)',
                             position: 'relative',
                             overflow: 'hidden'
                         }}>
@@ -348,8 +465,8 @@ const Home = () => {
                                 width: '100px',
                                 height: '100px',
                                 borderRadius: '50%',
-                                background: `linear-gradient(135deg, ${['Unagi', 'ウナギ'].includes(plushie.type) ? '#FFB7CB' : '#FFD4A3'} 0%, ${['Unagi', 'ウナギ'].includes(plushie.type) ? '#FFC7D6' : '#FFE7C3'} 100%)`,
-                                opacity: 0.3
+                                background: `linear-gradient(135deg, ${['Unagi', 'ウナギ'].includes(plushie.type) ? 'var(--secondary-light)' : 'var(--primary-light)'} 0%, ${['Unagi', 'ウナギ'].includes(plushie.type) ? '#F5EDE9' : '#E8F4F5'} 100%)`,
+                                opacity: 0.5
                             }}></div>
 
                             <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', position: 'relative', zIndex: 1 }}>
@@ -359,37 +476,43 @@ const Home = () => {
                                     style={{
                                         width: '100px',
                                         height: '100px',
-                                        borderRadius: 'var(--radius-sm)',
+                                        borderRadius: '12px',
                                         objectFit: 'cover',
                                         objectPosition: 'top center',
-                                        flexShrink: 0
+                                        flexShrink: 0,
+                                        border: '1px solid var(--gray-200)'
                                     }}
                                 />
 
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '2px', color: 'var(--primary)' }}>
+                                    <h3 style={{ fontSize: '17px', fontWeight: '700', marginBottom: '2px', color: 'var(--primary-dark)', letterSpacing: '-0.02em' }}>
                                         {plushie.name}
                                     </h3>
-                                    <p style={{ fontSize: '12px', color: '#888', marginBottom: '12px' }}>{plushie.type}</p>
+                                    <p style={{ fontSize: '11px', color: 'var(--text-light)', marginBottom: '12px' }}>{plushie.type}</p>
 
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                                         <div>
-                                            <p style={{ fontSize: '10px', color: '#888', marginBottom: '2px' }}>{t('height')}</p>
-                                            <p style={{ fontSize: '16px', fontWeight: '800' }}>{plushie.measurements.height}cm</p>
+                                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '2px', fontWeight: '500' }}>{t('height')}</p>
+                                            <p style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>{plushie.measurements.height}<span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-light)' }}>cm</span></p>
                                         </div>
                                         <div>
-                                            <p style={{ fontSize: '10px', color: '#888', marginBottom: '2px' }}>{t('waist')}</p>
-                                            <p style={{ fontSize: '16px', fontWeight: '800' }}>{plushie.measurements.waist}cm</p>
+                                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '2px', fontWeight: '500' }}>{t('waist')}</p>
+                                            <p style={{ fontSize: '16px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.02em' }}>{plushie.measurements.waist}<span style={{ fontSize: '11px', fontWeight: '500', color: 'var(--text-light)' }}>cm</span></p>
                                         </div>
                                     </div>
                                 </div>
 
                                 <Link
                                     to={`/measure?edit=${plushie.id}`}
-                                    className="absolute top-0 right-0 p-2.5 bg-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 text-primary hover:text-primary-dark transition-all duration-200 z-20 ring-2 ring-white/50"
+                                    className="absolute top-0 right-0 p-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 z-20"
                                     title={language === 'jp' ? 'サイズを編集' : 'Edit Size'}
+                                    style={{
+                                        background: 'white',
+                                        color: 'var(--primary)',
+                                        border: '1px solid var(--gray-200)'
+                                    }}
                                 >
-                                    <Pencil size={18} strokeWidth={2.5} />
+                                    <Pencil size={16} strokeWidth={2.5} />
                                 </Link>
                             </div>
 
@@ -401,13 +524,16 @@ const Home = () => {
                                 style={{
                                     width: '100%',
                                     padding: '12px',
-                                    borderRadius: '8px',
-                                    background: '#548C8C',
+                                    borderRadius: '10px',
+                                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
                                     color: 'white',
                                     fontWeight: '600',
+                                    fontSize: '13px',
                                     border: 'none',
                                     cursor: 'pointer',
-                                    marginTop: 'auto'
+                                    marginTop: 'auto',
+                                    boxShadow: '0 2px 8px rgba(61, 122, 127, 0.25)',
+                                    letterSpacing: '0.01em'
                                 }}
                             >
                                 {t('findClothes')}
@@ -437,9 +563,11 @@ const Home = () => {
 
             {/* Footer with Legal Links */}
             <footer className="mt-8 pb-20 text-center">
+                <div style={{ width: '40px', height: '1px', background: 'var(--gray-200)', margin: '0 auto 16px' }}></div>
                 <Link
                     to="/legal"
-                    className="text-xs text-gray-400 hover:text-primary transition-colors"
+                    style={{ fontSize: '11px', color: 'var(--text-light)' }}
+                    className="hover:text-primary transition-colors"
                 >
                     {language === 'jp' ? 'プライバシーポリシー・利用規約' : 'Privacy Policy & Terms'}
                 </Link>

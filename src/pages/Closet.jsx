@@ -997,40 +997,40 @@ const Closet = () => {
               </div>
             ) : (
               /* Gallery Grid */
-              <div className="grid grid-cols-2 mb-20 fade-in" style={{ gap: '10px' }}>
+              <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
                 {filteredItems.map((post) => (
-                  <div key={post.compositeId} className="bg-white rounded-2xl shadow-sm overflow-hidden" style={{ border: post.isOwn ? '2px solid rgba(79,138,139,0.3)' : '1px solid #f1f2f6' }}>
-                    {/* Header */}
-                    <div className="flex items-center" style={{ padding: '8px 10px', gap: '6px' }}>
-                      <div className="relative" style={{ flexShrink: 0 }}>
-                        <UserAvatar src={post.userIcon} className="rounded-full" style={{ width: '24px', height: '24px' }} alt={post.userName} />
-                        {post.isOwn && <div className="absolute bg-primary rounded-full flex items-center justify-center" style={{ bottom: '-2px', right: '-2px', width: '12px', height: '12px', border: '1.5px solid white' }}><Star size={6} className="text-white" style={{ fill: 'white' }} /></div>}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <p className="font-bold text-gray-800" style={{ fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
-                        <div className="flex items-center" style={{ gap: '4px', fontSize: '9px', color: '#636E72', lineHeight: 1.2 }}>
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.plushieName}</span>
-                          {post.plushieHeight && <span className="bg-gray-100 rounded" style={{ padding: '0 3px', fontSize: '9px', whiteSpace: 'nowrap' }}>{post.plushieHeight}cm</span>}
+                  <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="relative">
+                          <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
+                          {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white"><Star size={8} className="text-white fill-white" /></div>}
+                        </div>
+                        <div>
+                          <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
+                          <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                            <span className="truncate max-w-[80px]">{post.plushieName}</span>
+                            {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
+                          </div>
                         </div>
                       </div>
-                      {post.location && (
-                        <div className="flex items-center" style={{ gap: '2px', fontSize: '8px', color: '#60a5fa', flexShrink: 0 }}>
-                          <MapPin size={8} />
-                          <span style={{ maxWidth: '40px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.location}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Image */}
-                    <div className="relative overflow-hidden" style={{ aspectRatio: '1', background: '#fafafa', cursor: 'pointer' }} onClick={() => setSelectedItem(post)}>
-                      <img src={post.imageUrl} className="w-full h-full object-cover" style={{ transition: 'transform 0.5s' }} alt="" />
-                      <div className="absolute" style={{ top: '6px', right: '6px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', color: 'white', fontSize: '8px', fontWeight: 700, padding: '2px 6px', borderRadius: '9999px' }}>
-                        {post.date}
+                      <div className="text-right">
+                        <span className="text-[10px] text-gray-400 block">{post.date}</span>
+                        {post.location && (
+                          <div className="flex items-center justify-end gap-0.5 text-[10px] text-blue-400 mt-0.5">
+                            <MapPin size={10} />
+                            <span className="truncate max-w-[80px]">{post.location}</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
-                    {/* Social bar */}
-                    <div className="flex items-center justify-between bg-white" style={{ padding: '6px 10px', borderBottom: '1px solid #fafafa' }}>
+                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
+                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                    </div>
+
+                    <div className="px-3 py-4 flex items-center gap-10 border-b border-gray-50 bg-white relative z-20">
+                      {/* Like Button */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1038,17 +1038,26 @@ const Closet = () => {
                           e.stopPropagation();
                           toggleLike(post.id, post.userId, post.compositeId);
                         }}
-                        className="flex items-center transition-all"
-                        style={{ gap: '4px', color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#636E72', pointerEvents: 'auto', background: 'none', border: 'none', padding: 0 }}
+                        className={`flex items-center gap-3 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30 ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
+                          }`}
+                        style={{ pointerEvents: 'auto' }}
                       >
-                        <Heart
-                          size={16}
-                          fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
-                          strokeWidth={2.5}
-                        />
-                        <span className="font-bold" style={{ fontSize: '11px', fontVariantNumeric: 'tabular-nums' }}>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                        <div className={`p-3 rounded-full transition-all duration-300 pointer-events-none ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-md ring-4 ring-pink-100/50' : 'bg-gray-50 group-hover:bg-pink-50/50'
+                          }`}>
+                          <Heart
+                            size={28}
+                            fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
+                            strokeWidth={3}
+                            className={(itemLikes[post.compositeId]?.isLiked) ? "animate-pulse" : ""}
+                          />
+                        </div>
+                        <div className="flex flex-col items-start leading-tight pointer-events-none">
+                          <span className="text-[14px] font-black uppercase tracking-widest">いい！</span>
+                          <span className="text-xl font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                        </div>
                       </button>
 
+                      {/* Comment Button (Opens Detail) */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1057,34 +1066,41 @@ const Closet = () => {
                           setShouldScrollToComments(true);
                           setSelectedItem(post);
                         }}
-                        className="flex items-center transition-all"
-                        style={{ gap: '4px', color: '#636E72', pointerEvents: 'auto', background: 'none', border: 'none', padding: 0 }}
+                        className="flex items-center gap-3 text-gray-400 hover:text-blue-500 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30"
+                        style={{ pointerEvents: 'auto' }}
                       >
-                        <MessageCircle size={16} strokeWidth={2.5} />
-                        <span className="font-bold" style={{ fontSize: '11px', fontVariantNumeric: 'tabular-nums' }}>{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
+                        <div className="p-3 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300 pointer-events-none">
+                          <MessageCircle size={28} strokeWidth={3} />
+                        </div>
+                        <div className="flex flex-col items-start leading-tight pointer-events-none">
+                          <span className="text-[13px] font-black uppercase tracking-widest">見てみる・書く</span>
+                          <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
+                        </div>
                       </button>
-
-                      <span style={{ fontSize: '16px', lineHeight: 1 }}>
-                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                      </span>
                     </div>
 
-                    {/* Content */}
-                    <div style={{ padding: '8px 10px' }}>
-                      <h3 className="font-bold text-gray-800" style={{ fontSize: '11px', lineHeight: 1.3, marginBottom: '4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.itemName}</h3>
-                      {post.purchaseType && (
-                        <span className="bg-gray-100 rounded-full" style={{ display: 'inline-block', fontSize: '8px', fontWeight: 700, color: '#636E72', padding: '2px 6px', marginBottom: '4px' }}>
-                          {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
-                            post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
-                              `🪡 ${t('categoryHandmade')}`}
+                    <div className="p-3">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="flex flex-col gap-1">
+                          <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
+                          {post.purchaseType && (
+                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
+                              {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                                post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                  `🪡 ${t('categoryHandmade')}`}
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-lg">
+                          {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
                         </span>
-                      )}
-                      <ExpandableText text={post.comment} maxLength={50} />
+                      </div>
+                      <ExpandableText text={post.comment} />
 
                       {post.shopName && (
-                        <div className="flex items-center bg-gray-50 rounded-lg" style={{ gap: '4px', padding: '4px 6px', fontSize: '9px', color: '#636E72' }}>
-                          <Shirt size={9} />
-                          <span className="font-bold" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100px' }}>{post.shopName}</span>
+                        <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
+                          <Shirt size={10} />
+                          {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
                         </div>
                       )}
                     </div>

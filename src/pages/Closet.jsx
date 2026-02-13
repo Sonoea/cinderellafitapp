@@ -997,41 +997,40 @@ const Closet = () => {
               </div>
             ) : (
               /* Gallery Grid */
-              <div className="grid grid-cols-2 gap-2.5 mb-20 fade-in">
+              <div className="grid grid-cols-2 mb-20 fade-in" style={{ gap: '10px' }}>
                 {filteredItems.map((post) => (
-                  <div key={post.compositeId} className={`bg-white rounded-2xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'ring-2 ring-primary/20' : 'ring-1 ring-gray-100'}`}>
-                    {/* Header — compact */}
-                    <div className="px-2.5 py-2 flex items-center gap-1.5">
-                      <div className="relative flex-shrink-0">
-                        <UserAvatar src={post.userIcon} className="w-6 h-6" alt={post.userName} />
-                        {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-[1.5px] ring-white"><Star size={6} className="text-white fill-white" /></div>}
+                  <div key={post.compositeId} className="bg-white rounded-2xl shadow-sm overflow-hidden" style={{ border: post.isOwn ? '2px solid rgba(79,138,139,0.3)' : '1px solid #f1f2f6' }}>
+                    {/* Header */}
+                    <div className="flex items-center" style={{ padding: '8px 10px', gap: '6px' }}>
+                      <div className="relative" style={{ flexShrink: 0 }}>
+                        <UserAvatar src={post.userIcon} className="rounded-full" style={{ width: '24px', height: '24px' }} alt={post.userName} />
+                        {post.isOwn && <div className="absolute bg-primary rounded-full flex items-center justify-center" style={{ bottom: '-2px', right: '-2px', width: '12px', height: '12px', border: '1.5px solid white' }}><Star size={6} className="text-white" style={{ fill: 'white' }} /></div>}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] font-bold text-gray-800 truncate">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
-                        <div className="flex items-center gap-1 text-[9px] text-gray-400 leading-tight">
-                          <span className="truncate">{post.plushieName}</span>
-                          {post.plushieHeight && <span className="bg-gray-100 px-0.5 rounded text-gray-400 whitespace-nowrap">{post.plushieHeight}cm</span>}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <p className="font-bold text-gray-800" style={{ fontSize: '10px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
+                        <div className="flex items-center" style={{ gap: '4px', fontSize: '9px', color: '#636E72', lineHeight: 1.2 }}>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.plushieName}</span>
+                          {post.plushieHeight && <span className="bg-gray-100 rounded" style={{ padding: '0 3px', fontSize: '9px', whiteSpace: 'nowrap' }}>{post.plushieHeight}cm</span>}
                         </div>
                       </div>
                       {post.location && (
-                        <div className="flex items-center gap-0.5 text-[8px] text-blue-400 flex-shrink-0">
+                        <div className="flex items-center" style={{ gap: '2px', fontSize: '8px', color: '#60a5fa', flexShrink: 0 }}>
                           <MapPin size={8} />
-                          <span className="truncate max-w-[40px]">{post.location}</span>
+                          <span style={{ maxWidth: '40px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{post.location}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Image */}
-                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
-                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
-                      {/* Date badge */}
-                      <div className="absolute top-1.5 right-1.5 bg-black/40 backdrop-blur-sm text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full">
+                    <div className="relative overflow-hidden" style={{ aspectRatio: '1', background: '#fafafa', cursor: 'pointer' }} onClick={() => setSelectedItem(post)}>
+                      <img src={post.imageUrl} className="w-full h-full object-cover" style={{ transition: 'transform 0.5s' }} alt="" />
+                      <div className="absolute" style={{ top: '6px', right: '6px', background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', color: 'white', fontSize: '8px', fontWeight: 700, padding: '2px 6px', borderRadius: '9999px' }}>
                         {post.date}
                       </div>
                     </div>
 
-                    {/* Social bar — inline compact */}
-                    <div className="px-2.5 py-1.5 flex items-center justify-between bg-white border-b border-gray-50">
+                    {/* Social bar */}
+                    <div className="flex items-center justify-between bg-white" style={{ padding: '6px 10px', borderBottom: '1px solid #fafafa' }}>
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1039,15 +1038,15 @@ const Closet = () => {
                           e.stopPropagation();
                           toggleLike(post.id, post.userId, post.compositeId);
                         }}
-                        className={`flex items-center gap-1 transition-all active:scale-90 focus:outline-none ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'}`}
-                        style={{ pointerEvents: 'auto' }}
+                        className="flex items-center transition-all"
+                        style={{ gap: '4px', color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#636E72', pointerEvents: 'auto', background: 'none', border: 'none', padding: 0 }}
                       >
                         <Heart
                           size={16}
                           fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
                           strokeWidth={2.5}
                         />
-                        <span className="text-[11px] font-bold tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                        <span className="font-bold" style={{ fontSize: '11px', fontVariantNumeric: 'tabular-nums' }}>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
                       </button>
 
                       <button
@@ -1058,25 +1057,23 @@ const Closet = () => {
                           setShouldScrollToComments(true);
                           setSelectedItem(post);
                         }}
-                        className="flex items-center gap-1 text-gray-400 hover:text-blue-500 transition-all active:scale-90 focus:outline-none"
-                        style={{ pointerEvents: 'auto' }}
+                        className="flex items-center transition-all"
+                        style={{ gap: '4px', color: '#636E72', pointerEvents: 'auto', background: 'none', border: 'none', padding: 0 }}
                       >
                         <MessageCircle size={16} strokeWidth={2.5} />
-                        <span className="text-[11px] font-bold tabular-nums">{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
+                        <span className="font-bold" style={{ fontSize: '11px', fontVariantNumeric: 'tabular-nums' }}>{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
                       </button>
 
-                      <span className="text-base leading-none">
+                      <span style={{ fontSize: '16px', lineHeight: 1 }}>
                         {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
                       </span>
                     </div>
 
-                    {/* Content — compact */}
-                    <div className="px-2.5 py-2">
-                      <div className="flex items-start justify-between gap-1 mb-1">
-                        <h3 className="font-bold text-[11px] text-gray-800 leading-snug line-clamp-2">{post.itemName}</h3>
-                      </div>
+                    {/* Content */}
+                    <div style={{ padding: '8px 10px' }}>
+                      <h3 className="font-bold text-gray-800" style={{ fontSize: '11px', lineHeight: 1.3, marginBottom: '4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{post.itemName}</h3>
                       {post.purchaseType && (
-                        <span className="inline-block text-[8px] font-bold bg-gray-100/80 text-gray-400 px-1.5 py-0.5 rounded-full mb-1">
+                        <span className="bg-gray-100 rounded-full" style={{ display: 'inline-block', fontSize: '8px', fontWeight: 700, color: '#636E72', padding: '2px 6px', marginBottom: '4px' }}>
                           {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
                             post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
                               `🪡 ${t('categoryHandmade')}`}
@@ -1085,9 +1082,9 @@ const Closet = () => {
                       <ExpandableText text={post.comment} maxLength={50} />
 
                       {post.shopName && (
-                        <div className="bg-gray-50 px-1.5 py-1 rounded-md inline-flex items-center gap-1 text-[9px] text-gray-400">
+                        <div className="flex items-center bg-gray-50 rounded-lg" style={{ gap: '4px', padding: '4px 6px', fontSize: '9px', color: '#636E72' }}>
                           <Shirt size={9} />
-                          <span className="font-bold truncate max-w-[100px]">{post.shopName}</span>
+                          <span className="font-bold" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100px' }}>{post.shopName}</span>
                         </div>
                       )}
                     </div>

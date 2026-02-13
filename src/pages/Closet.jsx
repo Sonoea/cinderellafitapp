@@ -1000,7 +1000,8 @@ const Closet = () => {
               <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
                 {filteredItems.map((post) => (
                   <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
-                    <div className="p-3 flex items-center justify-between">
+                    {/* Header - compact */}
+                    <div className="p-2 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="relative">
                           <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
@@ -1014,23 +1015,25 @@ const Closet = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[10px] text-gray-400 block">{post.date}</span>
-                        {post.location && (
-                          <div className="flex items-center justify-end gap-0.5 text-[10px] text-blue-400 mt-0.5">
-                            <MapPin size={10} />
-                            <span className="truncate max-w-[80px]">{post.location}</span>
-                          </div>
-                        )}
+                      {post.location && (
+                        <div className="flex items-center gap-1 text-[10px] text-blue-400">
+                          <MapPin size={10} />
+                          <span className="truncate max-w-[50px]">{post.location}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Image with date badge */}
+                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
+                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                      <div className="absolute" style={{ top: 6, right: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
+                        {post.date}
                       </div>
                     </div>
 
-                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
-                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
-                    </div>
-
-                    <div className="px-3 py-4 flex items-center gap-10 border-b border-gray-50 bg-white relative z-20">
-                      {/* Like Button */}
+                    {/* Social bar - compact inline */}
+                    <div className="flex items-center justify-between bg-white" style={{ padding: '8px 12px', borderBottom: '1px solid #f5f5f5' }}>
+                      {/* Like */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1038,26 +1041,18 @@ const Closet = () => {
                           e.stopPropagation();
                           toggleLike(post.id, post.userId, post.compositeId);
                         }}
-                        className={`flex items-center gap-3 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30 ${(itemLikes[post.compositeId]?.isLiked) ? 'text-pink-500' : 'text-gray-400 hover:text-pink-400'
-                          }`}
-                        style={{ pointerEvents: 'auto' }}
+                        className="flex items-center gap-1 transition-all"
+                        style={{ pointerEvents: 'auto', color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                       >
-                        <div className={`p-3 rounded-full transition-all duration-300 pointer-events-none ${(itemLikes[post.compositeId]?.isLiked) ? 'bg-pink-50 shadow-md ring-4 ring-pink-100/50' : 'bg-gray-50 group-hover:bg-pink-50/50'
-                          }`}>
-                          <Heart
-                            size={28}
-                            fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
-                            strokeWidth={3}
-                            className={(itemLikes[post.compositeId]?.isLiked) ? "animate-pulse" : ""}
-                          />
-                        </div>
-                        <div className="flex flex-col items-start leading-tight pointer-events-none">
-                          <span className="text-[14px] font-black uppercase tracking-widest">いい！</span>
-                          <span className="text-xl font-black tabular-nums">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
-                        </div>
+                        <Heart
+                          size={18}
+                          fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
+                          strokeWidth={2.5}
+                        />
+                        <span className="font-bold" style={{ fontSize: '12px' }}>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
                       </button>
 
-                      {/* Comment Button (Opens Detail) */}
+                      {/* Comment */}
                       <button
                         type="button"
                         onClick={(e) => {
@@ -1066,39 +1061,35 @@ const Closet = () => {
                           setShouldScrollToComments(true);
                           setSelectedItem(post);
                         }}
-                        className="flex items-center gap-3 text-gray-400 hover:text-blue-500 transition-all p-3 -m-3 rounded-2xl active:scale-75 group focus:outline-none z-30"
-                        style={{ pointerEvents: 'auto' }}
+                        className="flex items-center gap-1 text-gray-400 transition-all"
+                        style={{ pointerEvents: 'auto', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                       >
-                        <div className="p-3 rounded-full bg-gray-50 group-hover:bg-blue-50/50 transition-all duration-300 pointer-events-none">
-                          <MessageCircle size={28} strokeWidth={3} />
-                        </div>
-                        <div className="flex flex-col items-start leading-tight pointer-events-none">
-                          <span className="text-[13px] font-black uppercase tracking-widest">見てみる・書く</span>
-                          <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
-                        </div>
+                        <MessageCircle size={18} strokeWidth={2.5} />
+                        <span className="font-bold" style={{ fontSize: '12px' }}>{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
                       </button>
+
+                      {/* Fit emoji */}
+                      <span style={{ fontSize: '18px', lineHeight: 1 }}>
+                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
+                      </span>
                     </div>
 
-                    <div className="p-3">
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="flex flex-col gap-1">
-                          <h3 className="font-bold text-sm text-gray-800">{post.itemName}</h3>
-                          {post.purchaseType && (
-                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
-                              {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
-                                post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
-                                  `🪡 ${t('categoryHandmade')}`}
-                            </span>
-                          )}
+                    {/* Content */}
+                    <div className="p-2">
+                      <h3 className="font-bold text-sm text-gray-800 mb-1">{post.itemName}</h3>
+                      {post.purchaseType && (
+                        <div style={{ marginBottom: '4px' }}>
+                          <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
+                            {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                              post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                `🪡 ${t('categoryHandmade')}`}
+                          </span>
                         </div>
-                        <span className="text-lg">
-                          {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                        </span>
-                      </div>
+                      )}
                       <ExpandableText text={post.comment} />
 
                       {post.shopName && (
-                        <div className="bg-gray-50 px-2 py-1.5 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500">
+                        <div className="bg-gray-50 px-2 py-1 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500" style={{ marginTop: '4px' }}>
                           <Shirt size={10} />
                           {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
                         </div>

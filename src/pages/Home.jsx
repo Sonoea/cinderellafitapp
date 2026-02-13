@@ -384,8 +384,12 @@ const Home = () => {
                                     </div>
                                 </div>
 
-                                <Link to={`/measure?edit=${plushie.id}`} className="absolute top-0 right-0 p-2 bg-white/80 rounded-full hover:bg-white text-gray-400 hover:text-primary transition-colors z-20">
-                                    <Pencil size={16} />
+                                <Link
+                                    to={`/measure?edit=${plushie.id}`}
+                                    className="absolute top-0 right-0 p-2.5 bg-white rounded-full shadow-lg hover:shadow-xl hover:scale-110 text-primary hover:text-primary-dark transition-all duration-200 z-20 ring-2 ring-white/50"
+                                    title={language === 'jp' ? 'サイズを編集' : 'Edit Size'}
+                                >
+                                    <Pencil size={18} strokeWidth={2.5} />
                                 </Link>
                             </div>
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { collectionGroup, query, where, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, getDoc, orderBy, updateDoc, increment } from 'firebase/firestore';
+import { collectionGroup, query, where, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, getDoc, orderBy, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
@@ -104,6 +104,7 @@ const Closet = () => {
   const [galleryError, setGalleryError] = useState(null);
   const [userProfiles, setUserProfiles] = useState({}); // { [userId]: { displayName, photoURL } }
   const [itemLikes, setItemLikes] = useState({}); // { [itemId]: { count, isLiked } }
+  const [itemCommentCounts, setItemCommentCounts] = useState({}); // { [compositeId]: number }
   const [itemComments, setItemComments] = useState({}); // { [itemId]: [comments] }
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentText, setCommentText] = useState('');
@@ -275,11 +276,19 @@ const Closet = () => {
         createdAt: serverTimestamp()
       });
 
+      // Increment commentCount on the parent document
+      const itemRef = doc(db, 'users', ownerUid, 'closetItems', bareId);
+      await updateDoc(itemRef, { commentCount: increment(1) });
+
       // Update local state
       const compositeId = `${ownerUid}_${bareId}`;
       setItemComments(prev => ({
         ...prev,
         [compositeId]: [...(prev[compositeId] || []), { ...commentData, id: Date.now().toString() }]
+      }));
+      setItemCommentCounts(prev => ({
+        ...prev,
+        [compositeId]: (prev[compositeId] || 0) + 1
       }));
       setCommentText('');
     } catch (e) {
@@ -298,11 +307,19 @@ const Closet = () => {
       const commentDocRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'comments', commentId);
       await deleteDoc(commentDocRef);
 
+      // Decrement commentCount on the parent document
+      const itemRef = doc(db, 'users', ownerUid, 'closetItems', bareId);
+      await updateDoc(itemRef, { commentCount: increment(-1) });
+
       // Update local state
       const compositeId = `${ownerUid}_${bareId}`;
       setItemComments(prev => ({
         ...prev,
         [compositeId]: (prev[compositeId] || []).filter(c => c.id !== commentId)
+      }));
+      setItemCommentCounts(prev => ({
+        ...prev,
+        [compositeId]: Math.max(0, (prev[compositeId] || 0) - 1)
       }));
     } catch (e) {
       console.error("Error deleting comment:", e);
@@ -337,6 +354,57 @@ const Closet = () => {
       alert("コメントの更新に失敗しました");
     } finally {
       setIsUpdatingComment(false);
+    }
+  };
+
+  // Toggle heart reaction on a comment
+  const toggleCommentHeart = async (itemId, ownerUid, commentId) => {
+    if (!currentUser) {
+      alert("ログインが必要です");
+      return;
+    }
+    const bareId = String(itemId).replace(/^local-/, '');
+    const compositeId = `${ownerUid}_${bareId}`;
+    const commentDocRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'comments', commentId);
+
+    // Check current state from local comments
+    const currentComments = itemComments[compositeId] || [];
+    const comment = currentComments.find(c => c.id === commentId);
+    const isHearted = (comment?.heartedBy || []).includes(currentUser.uid);
+
+    // Optimistic UI update
+    setItemComments(prev => ({
+      ...prev,
+      [compositeId]: (prev[compositeId] || []).map(c => {
+        if (c.id !== commentId) return c;
+        const currentHeartedBy = c.heartedBy || [];
+        const newHeartedBy = isHearted
+          ? currentHeartedBy.filter(uid => uid !== currentUser.uid)
+          : [...currentHeartedBy, currentUser.uid];
+        return {
+          ...c,
+          heartedBy: newHeartedBy,
+          hearts: newHeartedBy.length
+        };
+      })
+    }));
+
+    try {
+      if (isHearted) {
+        await updateDoc(commentDocRef, {
+          heartedBy: arrayRemove(currentUser.uid),
+          hearts: increment(-1)
+        });
+      } else {
+        await updateDoc(commentDocRef, {
+          heartedBy: arrayUnion(currentUser.uid),
+          hearts: increment(1)
+        });
+      }
+    } catch (e) {
+      console.error("Error toggling comment heart:", e);
+      // Revert on error
+      await fetchEngagement(bareId, ownerUid);
     }
   };
 
@@ -431,18 +499,23 @@ const Closet = () => {
           const validItems = uniqueItems;
           setPublicItems(validItems);
 
-          // NEW: Sync the 'likes' count from the document into our itemLikes state
+          // NEW: Sync the 'likes' count and 'commentCount' from the document into state
           const newLikesState = {};
+          const newCommentCounts = {};
           validItems.forEach(item => {
+            const compositeId = item.compositeId || `${item.userId}_${item.id}`.replace(/local-/g, '');
             if (item.likes !== undefined) {
-              const compositeId = item.compositeId || `${item.userId}_${item.id}`.replace(/local-/g, '');
               newLikesState[compositeId] = {
                 count: item.likes || 0,
                 isLiked: false // Will be updated by the myLikes fetch below
               };
             }
+            if (item.commentCount !== undefined) {
+              newCommentCounts[compositeId] = item.commentCount || 0;
+            }
           });
           setItemLikes(prev => ({ ...prev, ...newLikesState }));
+          setItemCommentCounts(prev => ({ ...prev, ...newCommentCounts }));
 
           const uniqueUserIds = [...new Set(validItems.map(item => item.userId).filter(Boolean))];
           resolveUserProfiles(uniqueUserIds);
@@ -1001,7 +1074,7 @@ const Closet = () => {
                         </div>
                         <div className="flex flex-col items-start leading-tight pointer-events-none">
                           <span className="text-[13px] font-black uppercase tracking-widest">見てみる・書く</span>
-                          <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || 0}</span>
+                          <span className="text-xl font-black tabular-nums">{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
                         </div>
                       </button>
                     </div>
@@ -1365,6 +1438,29 @@ const Closet = () => {
                                         {comment.text}
                                       </p>
                                     )}
+
+                                    {/* Heart reaction button */}
+                                    <div className="flex items-center gap-1 mt-2 pt-1.5 border-t border-gray-50">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.preventDefault();
+                                          e.stopPropagation();
+                                          toggleCommentHeart(selectedItem.id, selectedItem.userId, comment.id);
+                                        }}
+                                        className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold transition-all active:scale-90 ${(comment.heartedBy || []).includes(currentUser?.uid)
+                                            ? 'bg-pink-50 text-pink-500 ring-1 ring-pink-200'
+                                            : 'bg-gray-50 text-gray-400 hover:bg-pink-50 hover:text-pink-400'
+                                          }`}
+                                      >
+                                        <Heart
+                                          size={12}
+                                          fill={(comment.heartedBy || []).includes(currentUser?.uid) ? 'currentColor' : 'none'}
+                                          strokeWidth={2.5}
+                                        />
+                                        <span>{comment.hearts || (comment.heartedBy || []).length || ''}</span>
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
                               ))

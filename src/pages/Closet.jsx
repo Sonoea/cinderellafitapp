@@ -468,11 +468,13 @@ const Closet = () => {
         <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <UserAvatar
-                src={firestorePhotoURL || currentUser?.photoURL}
-                className="w-12 h-12 ring-2 ring-primary/20"
-                alt={firestoreUserName || currentUser?.displayName}
-              />
+              {currentUser && (
+                <UserAvatar
+                  src={firestorePhotoURL || currentUser?.photoURL}
+                  className="w-12 h-12 ring-2 ring-primary/20"
+                  alt={firestoreUserName || currentUser?.displayName}
+                />
+              )}
               <div>
                 <h3 className="font-bold text-gray-800">
                   {firestoreUserName || (currentUser?.displayName === 'You' ? (t('guest') || 'Guest') : currentUser?.displayName) || (t('guest') || 'Guest')}

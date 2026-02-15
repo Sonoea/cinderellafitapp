@@ -214,7 +214,8 @@ export const translations = {
 
         cm: "cm",
         closetTabHelp: "Upload photos to save your collection. Public items appear in the 'Gallery' tab!",
-        closetTabHelpGuest: "Upload photos to save your outfits! To share in the Gallery, set to public and sign in.",
+        closetTabHelpGuest: "Upload photos to save your outfits! Sign in to share them in the Gallery.",
+        loginToShare: "Login required to share publicly",
         galleryTabHelp: "See everyone's outfits! Upload yours from the 'My Outfits' tab.",
         galleryTabHelpGuest: "Sign in to see everyone's outfits and share your own!",
         plushiesTabHelp: "Register your plushies here to link them to outfits.",
@@ -342,7 +343,8 @@ export const translations = {
 
         cm: "cm",
         closetTabHelp: "写真をアップしてコーデを保存！公開にすると「ギャラリー」でみんなにシェアできます。",
-        closetTabHelpGuest: "写真をアップしてコーデを保存！公開設定にし、ログインすると「ギャラリー」でみんなにシェアできます。",
+        closetTabHelpGuest: "写真をアップしてコーデを保存！ログインすると「ギャラリー」でみんなにシェアできます。",
+        loginToShare: "公開するにはログインが必要です",
         galleryTabHelp: "みんなのコーデをチェック！自分の写真は「マイコーデ」タブから追加できます。",
         galleryTabHelpGuest: "ログインするとみんなのコーデが見られます。自分のコーデもシェアしよう！",
         plushiesTabHelp: "ぬいぐるみを登録して、コーデ写真と紐付けよう。",

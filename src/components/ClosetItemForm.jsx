@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Camera, MapPin, Unlock, Lock } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
+import { useAuth } from '../context/AuthContext';
 
 const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel }) => {
+    const { currentUser } = useAuth();
     const scrollContainerRef = useRef(null);
     const [image, setImage] = useState(null);
     const [formData, setFormData] = useState({
@@ -13,7 +15,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         comment: '',
         location: '',
         purchaseType: '',
-        isPublic: true,
+        isPublic: !!currentUser, // Default to true only if logged in
     });
 
     // Ensure scroll area is focused for keyboard scroll
@@ -238,7 +240,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 ></textarea>
                             </div>
 
-                            <div className="flex items-center justify-between bg-blue-50 p-3 rounded-xl">
+                            <div className={`flex items-center justify-between bg-blue-50 p-3 rounded-xl ${!currentUser ? 'opacity-60 grayscale' : ''}`}>
                                 <div className="flex items-center gap-2">
                                     <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
                                         {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
@@ -249,10 +251,21 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     </div>
                                 </div>
                                 <label className="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" className="sr-only peer" checked={formData.isPublic} onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })} />
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={formData.isPublic}
+                                        disabled={!currentUser}
+                                        onChange={(e) => setFormData({ ...formData, isPublic: e.target.checked })}
+                                    />
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
+                            {!currentUser && (
+                                <p className="text-[10px] text-red-500 font-bold text-center mt-1">
+                                    ※ {t('loginToShare')}
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>

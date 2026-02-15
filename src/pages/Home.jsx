@@ -122,16 +122,16 @@ const Home = () => {
     };
 
     return (
-        <div className="flex flex-col gap-4">
-            <header className="flex justify-between items-center py-4">
+        <div className="flex flex-col gap-2">
+            <header className="flex justify-between items-center py-2">
                 <div>
-                    <h1 style={{ color: 'var(--primary-dark)', fontSize: '22px', fontWeight: '800', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <h1 style={{ color: 'var(--primary-dark)', fontSize: '20px', fontWeight: '800', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
                         {t('appTitle')}
                         <span style={{
                             fontSize: '9px',
                             fontWeight: '700',
                             letterSpacing: '0.08em',
-                            padding: '3px 8px',
+                            padding: '2px 6px',
                             borderRadius: '20px',
                             background: 'linear-gradient(135deg, #E8956A 0%, #D4A490 100%)',
                             color: 'white',
@@ -140,10 +140,10 @@ const Home = () => {
                             Beta
                         </span>
                     </h1>
-                    <p style={{ fontSize: '13px', color: 'var(--primary)', fontWeight: '600', marginTop: '2px', letterSpacing: '-0.01em' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600', marginTop: '1px', letterSpacing: '-0.01em' }}>
                         {language === 'jp' ? 'サイズ失敗、もうしない。' : 'Never buy the wrong size again'}
                     </p>
-                    <p style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
+                    <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '1px' }}>
                         {language === 'jp'
                             ? 'ぬいぐるみ服のサイズ比較・判断支援アプリ'
                             : 'Size comparison tool for plushie clothing'}
@@ -152,7 +152,7 @@ const Home = () => {
                 <div className="flex gap-2">
                     <button
                         onClick={toggleLanguage}
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all"
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all"
                         style={{
                             background: 'var(--gray-100)',
                             color: 'var(--text-light)',
@@ -163,15 +163,15 @@ const Home = () => {
                     </button>
                     <Link
                         to="/settings"
-                        className="px-3 py-2 rounded-full flex items-center gap-1 transition-all"
+                        className="px-2.5 py-1.5 rounded-full flex items-center gap-1 transition-all"
                         style={{
                             background: 'var(--gray-100)',
                             border: '1px solid var(--gray-200)'
                         }}
                     >
-                        <Settings size={15} style={{ color: 'var(--primary)' }} />
-                        <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary)' }}>
-                            {language === 'jp' ? '設定・ガイド' : 'Settings/Guide'}
+                        <Settings size={14} style={{ color: 'var(--primary)' }} />
+                        <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--primary)' }}>
+                            {language === 'jp' ? '設定・ガイド' : 'Settings & Guide'}
                         </span>
                     </Link>
                 </div>
@@ -180,24 +180,24 @@ const Home = () => {
             {/* Login Banner for Non-Logged-In Users */}
             {!currentUser && (
                 <div
-                    className="rounded-2xl p-4 shadow-lg mb-4"
+                    className="rounded-2xl p-2 shadow-sm mb-2"
                     style={{
                         background: 'linear-gradient(135deg, #4F8A8B 0%, #F4A261 100%)',
-                        boxShadow: '0 8px 20px rgba(79, 138, 139, 0.3)'
+                        boxShadow: '0 2px 8px rgba(79, 138, 139, 0.2)'
                     }}
                 >
-                    <div className="flex items-center gap-3 mb-3">
+                    <div className="flex items-center gap-2 mb-1.5">
                         <div
-                            className="w-10 h-10 rounded-full flex items-center justify-center"
+                            className="w-6 h-6 rounded-full flex items-center justify-center"
                             style={{ background: 'rgba(255, 255, 255, 0.2)' }}
                         >
-                            <Sparkles size={20} style={{ color: 'white' }} />
+                            <Sparkles size={14} style={{ color: 'white' }} />
                         </div>
                         <div className="flex-1">
-                            <h3 style={{ color: 'white', fontWeight: '700', fontSize: '14px', marginBottom: '2px' }}>
+                            <h3 style={{ color: 'white', fontWeight: '700', fontSize: '12px', marginBottom: '0' }}>
                                 {language === 'jp' ? 'デバイス間でデータを同期' : 'Sync Your Data'}
                             </h3>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.9)', fontSize: '12px' }}>
+                            <p style={{ color: 'rgba(255, 255, 255, 0.95)', fontSize: '10px' }}>
                                 {language === 'jp'
                                     ? 'ログインして、どこからでもぬいぐるみを管理'
                                     : 'Login to manage your plushies anywhere'}
@@ -206,21 +206,22 @@ const Home = () => {
                     </div>
                     <Link
                         to="/login"
-                        className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all"
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl font-bold transition-all"
                         style={{
                             backgroundColor: 'white',
                             color: '#4F8A8B',
-                            fontWeight: '700'
+                            fontWeight: '700',
+                            fontSize: '12px'
                         }}
                     >
-                        <LogIn size={18} />
+                        <LogIn size={14} />
                         {language === 'jp' ? 'ログイン / 新規登録' : 'Login / Sign Up'}
                     </Link>
                 </div>
             )}
 
             {/* How to Use - Quick Guide */}
-            <div className="rounded-2xl p-4 mb-4" style={{
+            <Link to="/guide" className="block rounded-2xl p-4 mb-4 hover-scale" style={{
                 background: 'white',
                 boxShadow: 'var(--shadow-sm)',
                 border: '1px solid var(--gray-200)'
@@ -232,11 +233,17 @@ const Home = () => {
                     marginBottom: '14px',
                     display: 'flex',
                     alignItems: 'center',
+                    justifyContent: 'space-between',
                     gap: '8px',
                     letterSpacing: '-0.01em'
                 }}>
-                    <span style={{ fontSize: '14px' }}>📖</span>
-                    {language === 'jp' ? 'かんたん3ステップ' : 'Easy 3 Steps'}
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px' }}>📖</span>
+                        {language === 'jp' ? 'かんたん3ステップ' : 'Easy 3 Steps'}
+                    </span>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '600' }}>
+                        {language === 'jp' ? '詳しく見る' : 'Details'} →
+                    </span>
                 </h3>
                 <div className="flex justify-between gap-2">
                     <div className="flex-1 text-center">
@@ -279,7 +286,7 @@ const Home = () => {
                             {language === 'jp' ? '2. URL入力' : '2. Enter URL'}
                         </p>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {language === 'jp' ? '服のURLを貼る' : 'Paste clothing URL'}
+                            {language === 'jp' ? '服のURLを貼る' : 'Paste URL'}
                         </p>
                     </div>
                     <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
@@ -305,146 +312,151 @@ const Home = () => {
                         </p>
                     </div>
                 </div>
-            </div>
+            </Link>
 
             {/* My Closet Feature Highlight */}
             <Link
                 to="/closet"
-                className="block rounded-2xl p-4 mb-4 hover-scale"
+                className="block rounded-2xl p-2 mb-2 hover-scale"
                 style={{
                     background: 'linear-gradient(135deg, var(--secondary-light) 0%, var(--primary-light) 100%)',
                     border: '1px solid var(--gray-200)',
                     boxShadow: 'var(--shadow-sm)'
                 }}
             >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '12px',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
                         background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: '18px',
-                        boxShadow: '0 2px 8px rgba(61, 122, 127, 0.25)'
+                        fontSize: '14px',
+                        boxShadow: '0 2px 4px rgba(61, 122, 127, 0.2)'
                     }}>
                         👗
                     </div>
                     <div className="flex-1">
-                        <h3 style={{ fontSize: '14px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                             {language === 'jp' ? 'マイクローゼット' : 'My Closet'}
                             <span style={{
-                                fontSize: '9px',
+                                fontSize: '8px',
                                 fontWeight: '700',
                                 background: 'var(--primary)',
                                 color: 'white',
-                                padding: '2px 7px',
+                                padding: '1px 5px',
                                 borderRadius: '20px',
                                 letterSpacing: '0.02em'
                             }}>NEW</span>
                         </h3>
-                        <p style={{ fontSize: '11px', color: 'var(--text-light)', marginTop: '2px' }}>
+                        <p style={{ fontSize: '9px', color: 'var(--text-light)', marginTop: '0' }}>
                             {language === 'jp'
                                 ? 'お気に入りのコーデを登録してシェアしよう！'
                                 : 'Save & share your favorite outfits!'}
                         </p>
                     </div>
-                    <div style={{ color: 'var(--gray-300)', fontSize: '18px' }}>→</div>
+                    <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
                 </div>
             </Link>
 
             {/* 🔔 Latest Gallery Feed - Public for all users */}
-            {latestPosts.length > 0 && (
-                <section className="mb-4">
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        marginBottom: '10px'
-                    }}>
-                        <h3 style={{
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            color: 'var(--text-main)',
+            {
+                latestPosts.length > 0 && (
+                    <section className="mb-2">
+                        <div style={{
                             display: 'flex',
+                            justifyContent: 'space-between',
                             alignItems: 'center',
-                            gap: '8px',
-                            letterSpacing: '-0.01em'
+                            marginBottom: '6px'
                         }}>
-                            <span>🔔</span>
-                            {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
-                        </h3>
-                        <Link
-                            to="/gallery"
-                            style={{
+                            <h3 style={{
                                 fontSize: '12px',
-                                fontWeight: '600',
-                                color: 'var(--primary)',
+                                fontWeight: '700',
+                                color: 'var(--text-main)',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '4px'
-                            }}
-                        >
-                            {language === 'jp' ? 'もっと見る' : 'See all'}
-                            <span>→</span>
-                        </Link>
-                    </div>
-                    <div className="rounded-2xl overflow-hidden stagger-in" style={{
-                        background: 'white',
-                        boxShadow: 'var(--shadow-sm)',
-                        border: '1px solid var(--gray-200)'
-                    }}>
-                        {latestPosts.map((post, index) => (
+                                gap: '4px',
+                                letterSpacing: '-0.01em'
+                            }}>
+                                <span>🔔</span>
+                                {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
+                            </h3>
                             <Link
-                                key={post.id}
                                 to="/gallery"
-                                className="flex items-center gap-3 px-4 py-3 transition-all"
                                 style={{
-                                    borderBottom: index < latestPosts.length - 1 ? '1px solid var(--gray-100)' : 'none'
+                                    fontSize: '10px',
+                                    fontWeight: '600',
+                                    color: 'var(--primary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '2px'
                                 }}
-                                onMouseEnter={e => e.currentTarget.style.backgroundColor = 'var(--gray-50)'}
-                                onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                             >
-                                <div className="flex-shrink-0">
-                                    {post.userIcon && !post.userIcon.includes('placeholder') ? (
-                                        <img src={post.userIcon} alt="" style={{
-                                            width: '32px',
-                                            height: '32px',
-                                            borderRadius: '10px',
-                                            objectFit: 'cover',
-                                            border: '1px solid var(--gray-200)'
-                                        }} />
-                                    ) : (
-                                        <div style={{
-                                            width: '32px',
-                                            height: '32px',
-                                            borderRadius: '10px',
-                                            background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
-                                        }}>
-                                            <Users size={14} style={{ color: 'var(--primary)' }} />
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-xs" style={{ color: 'var(--text-main)' }}>
-                                        <span className="font-bold">{post.userName}</span>
-                                        {language === 'jp' ? 'さんが' : ' shared '}
-                                        <span className="font-bold" style={{ color: 'var(--primary)' }}>{post.itemName}</span>
-                                        {language === 'jp' ? 'を公開しました' : ''}
-                                    </p>
-                                </div>
-                                <span style={{ fontSize: '10px', color: 'var(--text-light)', flexShrink: 0, whiteSpace: 'nowrap' }}>
-                                    {formatRelativeTime(post.createdAt)}
-                                </span>
+                                {language === 'jp' ? 'もっと見る' : 'See all'}
+                                <span>→</span>
                             </Link>
-                        ))}
-                    </div>
-                </section>
-            )}
+                        </div>
+                        <div className="rounded-2xl overflow-hidden stagger-in" style={{
+                            background: 'white',
+                            boxShadow: 'var(--shadow-sm)',
+                            border: '1px solid var(--gray-200)'
+                        }}>
+                            {latestPosts.map((post, index) => (
+                                <Link
+                                    key={post.id}
+                                    to="/gallery"
+                                    className="flex items-center gap-2 px-3 py-1.5 transition-all"
+                                    style={{
+                                        borderBottom: index < latestPosts.length - 1 ? '1px solid var(--gray-100)' : 'none',
+                                        fontFamily: '"Inter", sans-serif'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(232, 244, 245, 0.6)'}
+                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
+                                >
+                                    <div className="flex-shrink-0">
+                                        {post.userIcon && !post.userIcon.includes('placeholder') ? (
+                                            <img src={post.userIcon} alt="" style={{
+                                                width: '22px',
+                                                height: '22px',
+                                                borderRadius: '8px',
+                                                objectFit: 'cover',
+                                                border: '1px solid var(--gray-200)'
+                                            }} />
+                                        ) : (
+                                            <div style={{
+                                                width: '22px',
+                                                height: '22px',
+                                                borderRadius: '8px',
+                                                background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                            }}>
+                                                <Users size={12} style={{ color: 'var(--primary)' }} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p style={{ color: 'var(--text-main)', fontSize: '11px', lineHeight: '1.4' }}>
+                                            <span className="font-semibold">{post.userName}</span>
+                                            {language === 'jp' ? 'が' : ' shared '}
+                                            <span className="font-semibold" style={{ color: 'var(--primary)' }}>{post.itemName}</span>
+                                            {language === 'jp' ? 'を公開' : ''}
+                                        </p>
+                                    </div>
+                                    <span style={{ fontSize: '9px', color: 'var(--text-light)', flexShrink: 0, whiteSpace: 'nowrap', fontWeight: 400 }}>
+                                        {formatRelativeTime(post.createdAt)}
+                                    </span>
+                                </Link>
+                            ))}
+                        </div>
+                    </section>
+                )
+            }
+
+
 
             {/* Featured Plushie Card */}
             <section>
@@ -592,7 +604,7 @@ const Home = () => {
                     {language === 'jp' ? 'プライバシーポリシー・利用規約' : 'Privacy Policy & Terms'}
                 </Link>
             </footer>
-        </div>
+        </div >
     );
 };
 

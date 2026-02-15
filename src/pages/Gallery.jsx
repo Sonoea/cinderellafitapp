@@ -8,17 +8,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Users, User, Search, Ruler, Share2, Shirt, MapPin, Star, Send, X, LogIn, Trash2, Edit2 } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
 
-const UserAvatar = ({ src, alt, className, onClick }) => {
+const UserAvatar = ({ src, alt, className, onClick, style }) => {
     const [error, setError] = useState(!src || src.includes('placeholder'));
     useEffect(() => { setError(!src || src.includes('placeholder')); }, [src]);
     if (error) {
         return (
-            <div onClick={onClick} className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`} style={onClick ? { cursor: 'pointer' } : {}}>
+            <div onClick={onClick} className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`} style={{ ...(onClick ? { cursor: 'pointer' } : {}), ...style }}>
                 <User size={20} />
             </div>
         );
     }
-    return <img src={src} alt={alt} className={`object-cover rounded-full ${className}`} onError={() => setError(true)} onClick={onClick} style={onClick ? { cursor: 'pointer' } : {}} />;
+    return <img src={src} alt={alt} className={`object-cover rounded-full ${className}`} onError={() => setError(true)} onClick={onClick} style={{ ...(onClick ? { cursor: 'pointer' } : {}), ...style }} />;
 };
 
 const ExpandableText = ({ text, maxLength = 90 }) => {
@@ -648,7 +648,7 @@ const Gallery = () => {
                                     <div className="space-y-3 mb-4">
                                         {(itemComments[selectedItem.compositeId] || []).map(comment => (
                                             <div key={comment.id} className="flex gap-2">
-                                                <UserAvatar src={comment.userIcon} className="w-7 h-7 flex-shrink-0" alt={comment.userName} />
+                                                <UserAvatar src={comment.userIcon} className="w-7 h-7 flex-shrink-0" alt={comment.userName} style={{ width: '28px', height: '28px', minWidth: '28px' }} />
                                                 <div className="flex-1 bg-gray-50 rounded-xl px-3 py-2">
                                                     <div className="flex items-center justify-between">
                                                         <span className="text-xs font-bold text-gray-700">{comment.userName}</span>

@@ -797,7 +797,7 @@ const Closet = () => {
                       )}
 
                       {/* Edit / Delete Buttons - ONLY for the owner */}
-                      {currentUser?.uid === selectedItem.userId && (
+                      {(currentUser?.uid === selectedItem.userId || (!currentUser && !selectedItem.userId)) && (
                         <div className="flex gap-2 z-20 relative">
                           {!isEditing && (
                             <button

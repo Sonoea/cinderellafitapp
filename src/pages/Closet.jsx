@@ -3,8 +3,8 @@ import { collectionGroup, query, where, getDocs, doc, setDoc, deleteDoc, addDoc,
 import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { Link, useLocation } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -70,7 +70,8 @@ const Closet = () => {
   console.log("Closet component rendering...");
 
   const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
+  const navigate = useNavigate();
 
   // State for real user name from Firestore (to fix "You" issue)
   const [firestoreUserName, setFirestoreUserName] = useState(null);
@@ -704,31 +705,50 @@ const Closet = () => {
         </div>
       </div>
 
-      {/* Profile Header (Added for editing) */}
-      <div className="px-4 mt-2 mb-4">
-        <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <UserAvatar
-              src={firestorePhotoURL || currentUser?.photoURL}
-              className="w-12 h-12 ring-2 ring-primary/20"
-              alt={firestoreUserName || currentUser?.displayName}
-            />
-            <div>
-              <h3 className="font-bold text-gray-800">
-                {firestoreUserName || (currentUser?.displayName === 'You' ? (t('guest') || 'Guest') : currentUser?.displayName) || (t('guest') || 'Guest')}
-              </h3>
-              <p className="text-xs text-gray-500">{currentUser?.email}</p>
+      {/* Profile Header - Only show on Items (マイコーデ) tab */}
+      {activeTab === 'items' && (
+        <div className="px-4 mt-2 mb-4">
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <UserAvatar
+                  src={firestorePhotoURL || currentUser?.photoURL}
+                  className="w-12 h-12 ring-2 ring-primary/20"
+                  alt={firestoreUserName || currentUser?.displayName}
+                />
+                <div>
+                  <h3 className="font-bold text-gray-800">
+                    {firestoreUserName || (currentUser?.displayName === 'You' ? (t('guest') || 'Guest') : currentUser?.displayName) || (t('guest') || 'Guest')}
+                  </h3>
+                  <p className="text-xs text-gray-500">{currentUser?.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowEditProfile(true)}
+                className="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg text-xs font-bold border border-gray-200 transition-colors flex items-center gap-1"
+              >
+                <Edit2 size={12} />
+                {t('editProfile') || '編集'}
+              </button>
             </div>
+            {/* Logout link */}
+            {currentUser && (
+              <button
+                onClick={async () => {
+                  if (window.confirm(t('logoutConfirm') || 'ログアウトしますか？')) {
+                    const result = await logout();
+                    if (result.success) navigate('/login');
+                  }
+                }}
+                className="mt-3 pt-3 border-t border-gray-100 w-full flex items-center justify-end gap-1.5 text-xs text-gray-400 hover:text-red-500 transition-colors"
+              >
+                <LogOut size={12} />
+                <span>{t('logout') || 'ログアウト'}</span>
+              </button>
+            )}
           </div>
-          <button
-            onClick={() => setShowEditProfile(true)}
-            className="px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-600 rounded-lg text-xs font-bold border border-gray-200 transition-colors flex items-center gap-1"
-          >
-            <Edit2 size={12} />
-            {t('editProfile') || '編集'}
-          </button>
         </div>
-      </div>
+      )}
 
       <div className="px-4 mt-4">
         {/* === ITEMS TAB === */}
@@ -736,7 +756,7 @@ const Closet = () => {
           <div className="fade-in">
             <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
               <span className="text-lg">💡</span>
-              <p>{t('closetTabHelp')}</p>
+              <p>{currentUser ? t('closetTabHelp') : t('closetTabHelpGuest')}</p>
             </div>
 
             <div className="space-y-4">
@@ -917,7 +937,7 @@ const Closet = () => {
           <div className="space-y-4 fade-in pb-20">
             <div className="bg-gray-50 px-4 py-2 rounded-lg text-xs text-gray-500 flex items-start gap-2">
               <span className="text-lg">💡</span>
-              <p>{t('galleryTabHelp')}</p>
+              <p>{currentUser ? t('galleryTabHelp') : t('galleryTabHelpGuest')}</p>
             </div>
 
             {/* Filter Controls */}
@@ -996,155 +1016,183 @@ const Closet = () => {
                 ))}
               </div>
             </div>
-
-            <div className="bg-blue-50 p-4 rounded-xl flex items-center gap-3">
-              <div className="bg-white p-2 rounded-full shadow-sm">
-                <Users className="text-blue-500" size={20} />
-              </div>
-              <div>
-                <h3 className="font-bold text-blue-900 text-sm">{t('everyonesGallery')}</h3>
-              </div>
-            </div>
-
-            {galleryError && (
-              <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-700 flex items-center gap-2">
-                <span>⚠️</span>
-                <span>{galleryError}</span>
-              </div>
-            )}
-
-            {filteredItems.length === 0 ? (
-              <div className="text-center py-16 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-3">
-                <div className="text-4xl">🔍</div>
-                <div>
-                  <p className="font-black text-gray-800">{t('noItems') || 'お探しのアイテムは見つかりません'}</p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    {(searchTerm || filterMySize || filterCategory !== 'all')
-                      ? 'フィルター条件を変更して試してみてください'
-                      : (t('noItemsSub') || 'まだ投稿がありません。最初の投稿をしてみませんか？')}
-                  </p>
-                </div>
-                {(searchTerm || filterMySize || filterCategory !== 'all') && (
-                  <button
-                    onClick={() => {
-                      setSearchTerm('');
-                      setFilterMySize(false);
-                      setSizeFilterPlushieId('all');
-                      setFilterCategory('all');
-                    }}
-                    className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"
-                  >
-                    全てのフィルターをリセット
-                  </button>
-                )}
-              </div>
-            ) : (
-              /* Gallery Grid */
-              <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
-                {filteredItems.map((post) => (
-                  <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
-                    {/* Header - compact */}
-                    <div className="p-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <div className="relative">
-                          <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
-                          {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white"><Star size={8} className="text-white fill-white" /></div>}
-                        </div>
-                        <div>
-                          <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
-                          <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                            <span className="truncate max-w-[80px]">{post.plushieName}</span>
-                            {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
-                          </div>
-                        </div>
-                      </div>
-                      {post.location && (
-                        <div className="flex items-center gap-1 text-[10px] text-blue-400">
-                          <MapPin size={10} />
-                          <span className="truncate max-w-[50px]">{post.location}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Image with date badge */}
-                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
-                      <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
-                      <div className="absolute" style={{ top: 6, right: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
-                        {post.date}
-                      </div>
-                    </div>
-
-                    {/* Social bar - compact inline */}
-                    <div className="flex items-center justify-between bg-white" style={{ padding: '8px 12px', borderBottom: '1px solid #f5f5f5' }}>
-                      {/* Like */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          toggleLike(post.id, post.userId, post.compositeId);
-                        }}
-                        className="flex items-center gap-1 transition-all"
-                        style={{ pointerEvents: 'auto', color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                      >
-                        <Heart
-                          size={18}
-                          fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
-                          strokeWidth={2.5}
-                        />
-                        <span className="font-bold" style={{ fontSize: '12px' }}>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
-                      </button>
-
-                      {/* Comment */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          setShouldScrollToComments(true);
-                          setSelectedItem(post);
-                        }}
-                        className="flex items-center gap-1 text-gray-400 transition-all"
-                        style={{ pointerEvents: 'auto', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                      >
-                        <MessageCircle size={18} strokeWidth={2.5} />
-                        <span className="font-bold" style={{ fontSize: '12px' }}>{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
-                      </button>
-
-                      {/* Fit emoji */}
-                      <span style={{ fontSize: '18px', lineHeight: 1 }}>
-                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                      </span>
-                    </div>
-
-                    {/* Content */}
-                    <div className="p-2">
-                      <h3 className="font-bold text-sm text-gray-800 mb-1">{post.itemName}</h3>
-                      {post.purchaseType && (
-                        <div style={{ marginBottom: '4px' }}>
-                          <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
-                            {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
-                              post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
-                                `🪡 ${t('categoryHandmade')}`}
-                          </span>
-                        </div>
-                      )}
-                      <ExpandableText text={post.comment} />
-
-                      {post.shopName && (
-                        <div className="bg-gray-50 px-2 py-1 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500" style={{ marginTop: '4px' }}>
-                          <Shirt size={10} />
-                          {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         )}
 
+        {/* === GALLERY TAB (Restricted to Logged-in Users) === */}
+        {activeTab === 'gallery' && (
+          <div className="fade-in">
+            {!currentUser ? (
+              /* Non-logged-in view */
+              <div className="text-center py-16 px-4 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-4">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-3xl shadow-sm">
+                  🔒
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-gray-800 mb-1">
+                    {t('gallery') || 'ギャラリー'}
+                  </h3>
+                </div>
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary-dark transition-all shadow-md hover:shadow-lg active:scale-95"
+                >
+                  <User size={18} />
+                  {t('goToLogin') || 'ログイン・新規登録'}
+                </Link>
+              </div>
+            ) : (
+              /* Logged-in view */
+              <>
+                <div className="bg-blue-50 p-4 rounded-xl flex items-center gap-3">
+                  <div className="bg-white p-2 rounded-full shadow-sm">
+                    <Users className="text-blue-500" size={20} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-blue-900 text-sm">{t('everyonesGallery')}</h3>
+                  </div>
+                </div>
+
+                {galleryError && (
+                  <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-700 flex items-center gap-2">
+                    <span>⚠️</span>
+                    <span>{galleryError}</span>
+                  </div>
+                )}
+
+                {filteredItems.length === 0 ? (
+                  <div className="text-center py-16 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-3">
+                    <div className="text-4xl">🔍</div>
+                    <div>
+                      <p className="font-black text-gray-800">{t('noItems') || 'お探しのアイテムは見つかりません'}</p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {(searchTerm || filterMySize || filterCategory !== 'all')
+                          ? 'フィルター条件を変更して試してみてください'
+                          : (t('noItemsSub') || 'まだ投稿がありません。最初の投稿をしてみませんか？')}
+                      </p>
+                    </div>
+                    {(searchTerm || filterMySize || filterCategory !== 'all') && (
+                      <button
+                        onClick={() => {
+                          setSearchTerm('');
+                          setFilterMySize(false);
+                          setSizeFilterPlushieId('all');
+                          setFilterCategory('all');
+                        }}
+                        className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"
+                      >
+                        全てのフィルターをリセット
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  /* Gallery Grid */
+                  <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
+                    {filteredItems.map((post) => (
+                      <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
+                        {/* Header - compact */}
+                        <div className="p-2 flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <div className="relative">
+                              <UserAvatar src={post.userIcon} className="w-8 h-8" alt={post.userName} />
+                              {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white"><Star size={8} className="text-white fill-white" /></div>}
+                            </div>
+                            <div>
+                              <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">{post.isOwn ? (firestoreUserName || post.userName) : post.userName}</p>
+                              <div className="flex items-center gap-1 text-[10px] text-gray-400">
+                                <span className="truncate max-w-[80px]">{post.plushieName}</span>
+                                {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
+                              </div>
+                            </div>
+                          </div>
+                          {post.location && (
+                            <div className="flex items-center gap-1 text-[10px] text-blue-400">
+                              <MapPin size={10} />
+                              <span className="truncate max-w-[50px]">{post.location}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Image with date badge */}
+                        <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
+                          <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                          <div className="absolute" style={{ top: 6, right: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', WebkitBackdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
+                            {post.date}
+                          </div>
+                        </div>
+
+                        {/* Social bar - compact inline */}
+                        <div className="flex items-center justify-between bg-white" style={{ padding: '8px 12px', borderBottom: '1px solid #f5f5f5' }}>
+                          {/* Like */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleLike(post.id, post.userId, post.compositeId);
+                            }}
+                            className="flex items-center gap-1 transition-all"
+                            style={{ pointerEvents: 'auto', color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          >
+                            <Heart
+                              size={18}
+                              fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"}
+                              strokeWidth={2.5}
+                            />
+                            <span className="font-bold" style={{ fontSize: '12px' }}>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                          </button>
+
+                          {/* Comment */}
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setShouldScrollToComments(true);
+                              setSelectedItem(post);
+                            }}
+                            className="flex items-center gap-1 text-gray-400 transition-all"
+                            style={{ pointerEvents: 'auto', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                          >
+                            <MessageCircle size={18} strokeWidth={2.5} />
+                            <span className="font-bold" style={{ fontSize: '12px' }}>{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
+                          </button>
+
+                          {/* Fit emoji */}
+                          <span style={{ fontSize: '18px', lineHeight: 1 }}>
+                            {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
+                          </span>
+                        </div>
+
+                        {/* Content */}
+                        <div className="p-2">
+                          <h3 className="font-bold text-sm text-gray-800 mb-1">{post.itemName}</h3>
+                          {post.purchaseType && (
+                            <div style={{ marginBottom: '4px' }}>
+                              <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
+                                {post.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                                  post.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                    `🪡 ${t('categoryHandmade')}`}
+                              </span>
+                            </div>
+                          )}
+                          <ExpandableText text={post.comment} />
+
+                          {post.shopName && (
+                            <div className="bg-gray-50 px-2 py-1 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500" style={{ marginTop: '4px' }}>
+                              <Shirt size={10} />
+                              {t('boughtFrom')}: <span className="font-bold">{post.shopName}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
       </div>
 
       {/* === ADD ITEM MODAL === */}
@@ -1596,10 +1644,10 @@ const Closet = () => {
 
                       {/* Save / Cancel Buttons */}
                       {isEditing && (
-                        <div className="flex gap-2">
+                        <div className="flex gap-3 mt-2">
                           <button
                             onClick={() => setIsEditing(false)}
-                            className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-500 font-bold"
+                            className="flex-1 py-4 rounded-xl border-2 border-gray-200 text-gray-500 font-bold text-base hover:bg-gray-50 transition-colors"
                           >
                             {t('cancel') || 'キャンセル'}
                           </button>
@@ -1609,9 +1657,9 @@ const Closet = () => {
                               setSelectedItem({ ...selectedItem, ...editData });
                               setIsEditing(false);
                             }}
-                            className="flex-1 py-3 rounded-xl bg-primary text-white font-bold shadow-md"
+                            className="flex-1 py-4 rounded-xl bg-primary text-white font-bold text-base shadow-md hover:opacity-90 transition-all active:scale-95"
                           >
-                            {t('save') || '保存'}
+                            ✓ {t('save') || '保存'}
                           </button>
                         </div>
                       )}

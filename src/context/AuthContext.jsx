@@ -9,6 +9,7 @@ import {
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, googleProvider, db } from '../firebase/config';
 import { sendNewUserNotification } from '../utils/emailService';
+import { generateUniqueSlug } from '../utils/profileSlug';
 
 const AuthContext = createContext();
 
@@ -21,9 +22,13 @@ export const AuthProvider = ({ children }) => {
         try {
             const result = await createUserWithEmailAndPassword(auth, email, password);
 
+            const displayName = result.user.displayName || email.split('@')[0];
+            const profileSlug = await generateUniqueSlug(displayName, result.user.uid);
+
             const userData = {
                 email: result.user.email,
-                displayName: result.user.displayName || email.split('@')[0],
+                displayName,
+                profileSlug,
                 createdAt: new Date().toISOString(),
                 plan: 'free',
                 plushieCount: 0,
@@ -47,10 +52,20 @@ export const AuthProvider = ({ children }) => {
         try {
             const result = await signInWithEmailAndPassword(auth, email, password);
 
-            // Update last login time
-            await setDoc(doc(db, 'users', result.user.uid), {
+            // Check if profileSlug exists, if not generate it
+            const userDocRef = doc(db, 'users', result.user.uid);
+            const userDoc = await getDoc(userDocRef);
+
+            const updates = {
                 lastLoginAt: new Date().toISOString()
-            }, { merge: true });
+            };
+
+            if (userDoc.exists() && !userDoc.data().profileSlug) {
+                const displayName = userDoc.data().displayName || result.user.displayName || 'User';
+                updates.profileSlug = await generateUniqueSlug(displayName, result.user.uid);
+            }
+
+            await setDoc(userDocRef, updates, { merge: true });
 
             return { success: true, user: result.user };
         } catch (error) {
@@ -67,9 +82,13 @@ export const AuthProvider = ({ children }) => {
             const userDoc = await getDoc(doc(db, 'users', result.user.uid));
 
             if (!userDoc.exists()) {
+                const gDisplayName = result.user.displayName || 'User';
+                const gProfileSlug = await generateUniqueSlug(gDisplayName, result.user.uid);
+
                 const userData = {
                     email: result.user.email,
-                    displayName: result.user.displayName || 'User',
+                    displayName: gDisplayName,
+                    profileSlug: gProfileSlug,
                     photoURL: result.user.photoURL || null,
                     createdAt: new Date().toISOString(),
                     plan: 'free',
@@ -84,9 +103,17 @@ export const AuthProvider = ({ children }) => {
                 await sendNewUserNotification({ ...userData, uid: result.user.uid });
             } else {
                 // Update last login time
-                await setDoc(doc(db, 'users', result.user.uid), {
+                const updates = {
                     lastLoginAt: new Date().toISOString()
-                }, { merge: true });
+                };
+
+                // Check if profileSlug exists (for existing users)
+                if (!userDoc.data().profileSlug) {
+                    const displayName = userDoc.data().displayName || result.user.displayName || 'User';
+                    updates.profileSlug = await generateUniqueSlug(displayName, result.user.uid);
+                }
+
+                await setDoc(doc(db, 'users', result.user.uid), updates, { merge: true });
             }
 
             return { success: true, user: result.user };

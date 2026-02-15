@@ -354,22 +354,42 @@ const Home = () => {
                 </div>
             </Link>
 
-            {/* 🔔 Latest Gallery Feed - Only for logged in users */}
-            {currentUser && latestPosts.length > 0 && (
+            {/* 🔔 Latest Gallery Feed - Public for all users */}
+            {latestPosts.length > 0 && (
                 <section className="mb-4">
-                    <h3 style={{
-                        fontSize: '14px',
-                        fontWeight: '700',
-                        color: 'var(--text-main)',
-                        marginBottom: '10px',
+                    <div style={{
                         display: 'flex',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
-                        gap: '8px',
-                        letterSpacing: '-0.01em'
+                        marginBottom: '10px'
                     }}>
-                        <span>🔔</span>
-                        {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
-                    </h3>
+                        <h3 style={{
+                            fontSize: '14px',
+                            fontWeight: '700',
+                            color: 'var(--text-main)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            letterSpacing: '-0.01em'
+                        }}>
+                            <span>🔔</span>
+                            {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
+                        </h3>
+                        <Link
+                            to="/gallery"
+                            style={{
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                color: 'var(--primary)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                            }}
+                        >
+                            {language === 'jp' ? 'もっと見る' : 'See all'}
+                            <span>→</span>
+                        </Link>
+                    </div>
                     <div className="rounded-2xl overflow-hidden stagger-in" style={{
                         background: 'white',
                         boxShadow: 'var(--shadow-sm)',
@@ -378,7 +398,7 @@ const Home = () => {
                         {latestPosts.map((post, index) => (
                             <Link
                                 key={post.id}
-                                to={`/closet?tab=gallery&itemId=${post.id}`}
+                                to="/gallery"
                                 className="flex items-center gap-3 px-4 py-3 transition-all"
                                 style={{
                                     borderBottom: index < latestPosts.length - 1 ? '1px solid var(--gray-100)' : 'none'

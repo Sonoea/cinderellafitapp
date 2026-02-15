@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Camera, Shirt, ShoppingBag } from 'lucide-react';
+import { Home, Camera, Shirt, ShoppingBag, Users } from 'lucide-react';
 
 import { useApp } from '../context/AppContext';
 
@@ -13,6 +13,7 @@ const BottomNav = () => {
 
     const navItems = [
         { to: '/', icon: Home, label: t('navHome') },
+        { to: '/gallery', icon: Users, label: t('navGallery') || (t('language') === 'jp' ? 'ギャラリー' : 'Gallery') },
         { to: '/shop', icon: ShoppingBag, label: t('navShop') },
         { to: '/closet', icon: Shirt, label: t('navCloset') },
     ];

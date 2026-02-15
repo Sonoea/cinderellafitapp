@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Portal from './Portal';
-import { X, Camera, User, Loader2, Check } from 'lucide-react';
-import { doc, setDoc } from 'firebase/firestore';
+import { X, Camera, User, Loader2, Check, Share2, Copy } from 'lucide-react';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { updateProfile } from 'firebase/auth';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase/config';
+import { generateUniqueSlug } from '../utils/profileSlug';
 
 const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) => {
     const [displayName, setDisplayName] = useState(currentUser?.displayName || '');
@@ -13,6 +14,22 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
     const [selectedPlushieImage, setSelectedPlushieImage] = useState(null);
     const [isUploading, setIsUploading] = useState(false);
     const [error, setError] = useState('');
+    const [profileSlug, setProfileSlug] = useState('');
+    const [copied, setCopied] = useState(false);
+
+    // Load current profileSlug
+    useEffect(() => {
+        const loadSlug = async () => {
+            if (!currentUser) return;
+            try {
+                const uDoc = await getDoc(doc(db, 'users', currentUser.uid));
+                if (uDoc.exists() && uDoc.data().profileSlug) {
+                    setProfileSlug(uDoc.data().profileSlug);
+                }
+            } catch (e) { /* ignore */ }
+        };
+        loadSlug();
+    }, [currentUser]);
 
     // Select a plushie image as profile photo
     const selectPlushieImage = (imageUrl) => {
@@ -101,11 +118,20 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
 
             // Update Firestore User Document
             const userRef = doc(db, 'users', currentUser.uid);
-            await setDoc(userRef, {
+            const updates = {
                 displayName: displayName,
                 photoURL: finalPhotoURL || '',
                 updatedAt: new Date().toISOString()
-            }, { merge: true });
+            };
+
+            // Regenerate profileSlug if name changed
+            if (displayName !== currentUser.displayName) {
+                const newSlug = await generateUniqueSlug(displayName, currentUser.uid);
+                updates.profileSlug = newSlug;
+                setProfileSlug(newSlug);
+            }
+
+            await setDoc(userRef, updates, { merge: true });
             console.log("Firestore user doc updated");
 
             onSave({ displayName, photoURL: finalPhotoURL });
@@ -212,6 +238,30 @@ const EditProfileModal = ({ onClose, onSave, t, currentUser, plushies = [] }) =>
                                 className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20"
                             />
                         </div>
+
+                        {/* Profile URL */}
+                        {profileSlug && (
+                            <div className="bg-blue-50 rounded-xl p-3">
+                                <p className="text-[10px] font-bold text-blue-600 mb-1">🔗 プロフィールURL</p>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs text-blue-800 truncate flex-1 font-mono bg-white px-2 py-1 rounded-lg border border-blue-100">
+                                        {window.location.origin}/gallery/{profileSlug}
+                                    </span>
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                await navigator.clipboard.writeText(`${window.location.origin}/gallery/${profileSlug}`);
+                                                setCopied(true);
+                                                setTimeout(() => setCopied(false), 2000);
+                                            } catch (e) { /* ignore */ }
+                                        }}
+                                        className={`p-1.5 rounded-lg text-xs font-bold transition-colors ${copied ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600 hover:bg-blue-200'}`}
+                                    >
+                                        {copied ? <Check size={14} /> : <Copy size={14} />}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {error && (
                             <p className="text-xs text-red-500 bg-red-50 p-2 rounded-lg text-center">

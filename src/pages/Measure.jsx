@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Ruler, ArrowRight, ScanLine, ShoppingBag, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Camera, Ruler, ArrowRight, ScanLine, ShoppingBag, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { compressImage } from '../utils/imageUtils';
 
 const Measure = () => {
-    const { addPlushie, updatePlushie, plushies, t, plushieLimit, language } = useApp();
+    const { addPlushie, updatePlushie, deletePlushie, plushies, t, plushieLimit, language } = useApp();
     const navigate = useNavigate();
 
     // Get URL query params to check for edit mode
@@ -264,13 +264,29 @@ const Measure = () => {
                 </button>
 
                 {isEditMode && (
-                    <button
-                        type="button"
-                        onClick={() => navigate('/')}
-                        className="w-full py-2 rounded-xl text-gray-400 font-bold hover:bg-gray-100"
-                    >
-                        {language === 'jp' ? 'キャンセル' : 'Cancel'}
-                    </button>
+                    <>
+                        <button
+                            type="button"
+                            onClick={() => navigate('/')}
+                            className="w-full py-2 rounded-xl text-gray-400 font-bold hover:bg-gray-100"
+                        >
+                            {language === 'jp' ? 'キャンセル' : 'Cancel'}
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={() => {
+                                if (window.confirm(language === 'jp' ? '本当に削除しますか？' : 'Are you sure you want to delete this plushie?')) {
+                                    deletePlushie(Number(editId));
+                                    navigate('/');
+                                }
+                            }}
+                            className="w-full py-3 rounded-xl text-red-500 font-bold hover:bg-red-50 flex items-center justify-center gap-2 mt-2"
+                        >
+                            <Trash2 size={18} />
+                            {language === 'jp' ? 'このぬいぐるみを削除' : 'Delete Plushie'}
+                        </button>
+                    </>
                 )}
             </form>
         </div>

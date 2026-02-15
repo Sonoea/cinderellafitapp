@@ -12,6 +12,8 @@ import Legal from './pages/Legal';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Guide from './pages/Guide';
+import Gallery from './pages/Gallery';
+import UserProfile from './pages/UserProfile';
 
 // Lazy load Closet to prevent circular dependency/initialization issues
 const Closet = lazy(() => import('./pages/Closet'));
@@ -34,6 +36,8 @@ function App() {
                     </Suspense>
                   </ErrorBoundary>
                 } />
+                <Route path="/gallery" element={<Gallery />} />
+                <Route path="/gallery/:profileSlug" element={<UserProfile />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />

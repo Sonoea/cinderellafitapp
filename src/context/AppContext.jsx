@@ -1,9 +1,18 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { translations } from '../translations';
 import { db } from '../firebase/config';
 import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 const AppContext = createContext();
+
+// Helper to track previous value
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 const DEFAULT_PLUSHIE = {
   id: 2,
@@ -48,6 +57,7 @@ export const AppProvider = ({ children }) => {
   // Plushie State
   const [plushies, setPlushies] = useState([]);
   const { currentUser } = useAuth(); // Get current user
+  const prevUser = usePrevious(currentUser);
 
   // Load from localStorage (Guest) or Firestore (User)
   useEffect(() => {
@@ -69,10 +79,33 @@ export const AppProvider = ({ children }) => {
             }
             setPlushies(loadedPlushies.sort((a, b) => a.id - b.id));
           } else {
-            // Initial seed for new user if empty
-            setPlushies([DEFAULT_PLUSHIE]);
-            // Optional: Save this seed to Firestore immediately?
-            // Better to let user save it manually or on first edit to avoid clutter/cost if they abandon.
+            // Firestore is empty — check if there's local data to migrate
+            const savedLocal = localStorage.getItem('my_plushies_v3');
+            let localPlushies = [];
+            try {
+              localPlushies = savedLocal ? JSON.parse(savedLocal) : [];
+            } catch (e) { localPlushies = []; }
+
+            // Filter out default plushie for migration count check
+            const userLocalPlushies = localPlushies.filter(p => p.id !== 2);
+
+            if (userLocalPlushies.length > 0) {
+              // Migrate local data to Firestore
+              console.log(`Migrating ${userLocalPlushies.length} plushies from localStorage to Firestore...`);
+              for (const p of localPlushies) {
+                try {
+                  await setDoc(doc(db, "users", currentUser.uid, "plushies", String(p.id)), p);
+                } catch (e) {
+                  console.error("Migration error (plushie):", e);
+                }
+              }
+              setPlushies(localPlushies.sort((a, b) => a.id - b.id));
+              // Clear local data after successful migration
+              localStorage.removeItem('my_plushies_v3');
+            } else {
+              // Initial seed for new user if empty
+              setPlushies([DEFAULT_PLUSHIE]);
+            }
           }
         } catch (error) {
           console.error("Error loading loadedPlushies from Firestore:", error);
@@ -118,7 +151,10 @@ export const AppProvider = ({ children }) => {
 
   // Save to localStorage when plushies change (Backup/Guest mode)
   useEffect(() => {
-    if (!currentUser) {
+    // SECURITY FIX: Do not save to localStorage if we just logged out (prevUser exists, currentUser null)
+    // This prevents the previous user's private data from being written to guest storage before state clears.
+    const isLoggingOut = prevUser && !currentUser;
+    if (!currentUser && !isLoggingOut) {
       try {
         localStorage.setItem('my_plushies_v3', JSON.stringify(plushies));
       } catch (e) {
@@ -128,7 +164,7 @@ export const AppProvider = ({ children }) => {
         }
       }
     }
-  }, [plushies, currentUser, t]);
+  }, [plushies, currentUser, prevUser, t]);
 
   // User Plan State (for future premium features)
   const [userPlan, setUserPlan] = useState(() => {
@@ -186,6 +222,22 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+
+  const deletePlushie = async (id) => {
+    // Optimistic Update
+    const newPlushies = plushies.filter(p => p.id !== id);
+    setPlushies(newPlushies);
+
+    if (currentUser) {
+      try {
+        await deleteDoc(doc(db, "users", currentUser.uid, "plushies", String(id)));
+      } catch (e) {
+        console.error("Error deleting plushie from Firestore: ", e);
+        alert("削除の同期に失敗しました。");
+      }
+    }
+  };
+
   // Closet State
   const [closetItems, setClosetItems] = useState(() => {
     try {
@@ -213,8 +265,38 @@ export const AppProvider = ({ children }) => {
           if (loadedItems.length > 0) {
             setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
           } else {
-            // Firestore is empty.
-            setClosetItems([]);
+            // Firestore is empty — check if there's local data to migrate
+            const savedLocal = localStorage.getItem('my_closet_v2');
+            let localItems = [];
+            try {
+              localItems = savedLocal ? JSON.parse(savedLocal) : [];
+              localItems = Array.isArray(localItems) ? localItems.filter(item => item && typeof item === 'object') : [];
+            } catch (e) { localItems = []; }
+
+            if (localItems.length > 0) {
+              // Migrate local data to Firestore with userId attached
+              console.log(`Migrating ${localItems.length} closet items from localStorage to Firestore...`);
+              const migratedItems = [];
+              for (const item of localItems) {
+                const migratedItem = {
+                  ...item,
+                  userId: currentUser.uid,
+                  userName: currentUser.displayName || '',
+                  userIcon: currentUser.photoURL || '',
+                };
+                try {
+                  await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(migratedItem.id)), migratedItem);
+                  migratedItems.push(migratedItem);
+                } catch (e) {
+                  console.error("Migration error (closet item):", e);
+                }
+              }
+              setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+              // Clear local data after successful migration
+              localStorage.removeItem('my_closet_v2');
+            } else {
+              setClosetItems([]);
+            }
           }
         } catch (error) {
           console.error("Error loading closetItems from Firestore:", error);
@@ -224,7 +306,17 @@ export const AppProvider = ({ children }) => {
         const saved = localStorage.getItem('my_closet_v2');
         if (saved) {
           try {
-            setClosetItems(JSON.parse(saved));
+            const parsed = JSON.parse(saved);
+            // SECURITY FIX: Filter out items that have a userId (meaning they belong to a logged-in user)
+            // This cleans up any data that might have leaked into localStorage during previous sessions.
+            const guestItems = Array.isArray(parsed) ? parsed.filter(item => !item.userId) : [];
+
+            setClosetItems(guestItems);
+
+            // If we filtered out items, update localStorage immediately to clean up the leak
+            if (Array.isArray(parsed) && guestItems.length !== parsed.length) {
+              localStorage.setItem('my_closet_v2', JSON.stringify(guestItems));
+            }
           } catch (e) {
             console.error("Failed to parse local closet items", e);
             setClosetItems([]);
@@ -237,14 +329,16 @@ export const AppProvider = ({ children }) => {
 
   // Sync to LocalStorage (Backup/Guest)
   useEffect(() => {
-    if (!currentUser) {
+    // SECURITY FIX: Do not save to localStorage if we just logged out.
+    const isLoggingOut = prevUser && !currentUser;
+    if (!currentUser && !isLoggingOut) {
       try {
         localStorage.setItem('my_closet_v2', JSON.stringify(closetItems));
       } catch (e) {
         console.error("Failed to save closet to localStorage", e);
       }
     }
-  }, [closetItems, currentUser]);
+  }, [closetItems, currentUser, prevUser]);
 
   const addClosetItem = async (item) => {
     const newItem = {
@@ -313,7 +407,7 @@ export const AppProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
-      plushies, addPlushie, updatePlushie,
+      plushies, addPlushie, updatePlushie, deletePlushie,
       closetItems, addClosetItem, updateClosetItem, deleteClosetItem,
       language, setLanguage, toggleLanguage, t,
       userPlan, setUserPlan, plushieLimit, canAddPlushie, userAddedPlushieCount

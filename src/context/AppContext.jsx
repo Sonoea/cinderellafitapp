@@ -371,7 +371,7 @@ export const AppProvider = ({ children }) => {
 
   const updateClosetItem = async (id, updates) => {
     // Optimistic Update
-    const newItems = closetItems.map(item => item.id === id ? { ...item, ...updates } : item);
+    const newItems = closetItems.map(item => String(item.id) === String(id) ? { ...item, ...updates } : item);
     setClosetItems(newItems);
 
     if (currentUser) {
@@ -379,7 +379,7 @@ export const AppProvider = ({ children }) => {
         // Need to merge updates with existing item logic or just send updates?
         // setDoc with merge: true is safest if we just send the whole item again or specific fields
         // Let's find the full updated object to be safe
-        const updatedItem = newItems.find(i => i.id === id);
+        const updatedItem = newItems.find(i => String(i.id) === String(id));
         if (updatedItem) {
           await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(id)), updatedItem, { merge: true });
         }
@@ -392,7 +392,7 @@ export const AppProvider = ({ children }) => {
 
   const deleteClosetItem = async (id) => {
     // Optimistic Update
-    const newItems = closetItems.filter(item => item.id !== id);
+    const newItems = closetItems.filter(item => String(item.id) !== String(id));
     setClosetItems(newItems);
 
     if (currentUser) {

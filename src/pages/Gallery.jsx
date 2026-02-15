@@ -397,75 +397,69 @@ const Gallery = () => {
                 </div>
 
                 {/* Search & Filters */}
-                <div className="space-y-2">
+                <div className="space-y-3">
                     <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
                             type="text"
-                            className="w-full bg-gray-50 px-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
-                            placeholder={`🔍 ${language === 'jp' ? 'アイテム・ユーザー名で検索' : 'Search items or users'}`}
+                            className="w-full bg-gray-50 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
+                            placeholder={language === 'jp' ? 'アイテム・ユーザー名で検索' : 'Search items or users'}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
-                    <div className="flex gap-2 overflow-x-auto no-scrollbar">
-                        {currentUser && plushies.length > 0 && (
+
+                    {/* Plushie Filter (My Size) */}
+                    {plushies.length > 0 && (
+                        <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                             <button
-                                onClick={() => { setFilterMySize(!filterMySize); if (filterMySize) setSizeFilterPlushieId('all'); }}
-                                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterMySize
-                                    ? 'bg-primary text-white border-primary shadow-sm'
+                                onClick={() => setSizeFilterPlushieId('all')}
+                                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border ${sizeFilterPlushieId === 'all'
+                                    ? 'bg-gray-800 text-white border-gray-800'
+                                    : 'bg-white text-gray-500 border-gray-200'}`}
+                            >
+                                {language === 'jp' ? 'すべて' : 'All'}
+                            </button>
+                            {plushies.map(p => (
+                                <button
+                                    key={p.id}
+                                    onClick={() => setSizeFilterPlushieId(String(p.id))}
+                                    className={`flex-shrink-0 pl-1 pr-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${String(sizeFilterPlushieId) === String(p.id)
+                                        ? 'bg-primary text-white border-primary shadow-sm'
+                                        : 'bg-white text-gray-500 border-gray-200'}`}
+                                >
+                                    <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-100">
+                                        {p.image ? (
+                                            <img src={p.image} alt="" className="w-full h-full object-cover" />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-[10px]">🧸</div>
+                                        )}
+                                    </div>
+                                    <span className="whitespace-nowrap">{p.name} {language === 'jp' ? 'サイズ' : 'Size'}</span>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Category Filter */}
+                    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                        {[
+                            { id: 'all', label: language === 'jp' ? '全カテゴリー' : 'All Cats', icon: '✨' },
+                            { id: 'online', label: language === 'jp' ? 'オンライン' : 'Online', icon: '🌐' },
+                            { id: 'retail', label: language === 'jp' ? '店舗' : 'Retail', icon: '🏪' },
+                            { id: 'handmade', label: language === 'jp' ? 'ハンドメイド' : 'Handmade', icon: '🪡' }
+                        ].map((cat) => (
+                            <button
+                                key={cat.id}
+                                onClick={() => setFilterCategory(cat.id)}
+                                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
+                                    ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
                                     : 'bg-white text-gray-400 border-gray-200'}`}
                             >
-                                <Ruler size={12} />
-                                {language === 'jp' ? 'マイサイズ' : 'My Size'}
+                                <span>{cat.icon}</span>
+                                <span className="whitespace-nowrap">{cat.label}</span>
                             </button>
-                        )}
-                        {filterMySize ? (
-                            <>
-                                <button
-                                    onClick={() => setSizeFilterPlushieId('all')}
-                                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${sizeFilterPlushieId === 'all'
-                                        ? 'bg-primary text-white border-primary shadow-sm'
-                                        : 'bg-white text-gray-400 border-gray-200'}`}
-                                >
-                                    <span>✨</span>
-                                    <span>{language === 'jp' ? 'すべての子' : 'All Plushies'}</span>
-                                </button>
-                                {plushies.map(p => (
-                                    <button
-                                        key={p.id}
-                                        onClick={() => setSizeFilterPlushieId(String(p.id))}
-                                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${String(sizeFilterPlushieId) === String(p.id)
-                                            ? 'bg-primary text-white border-primary shadow-sm'
-                                            : 'bg-white text-gray-400 border-gray-200'}`}
-                                    >
-                                        {p.image ? (
-                                            <img src={p.image} alt="" className="w-4 h-4 rounded-full object-cover" />
-                                        ) : (
-                                            <span>🧸</span>
-                                        )}
-                                        <span>{p.name}</span>
-                                    </button>
-                                ))}
-                            </>
-                        ) : (
-                            [
-                                { id: 'all', label: language === 'jp' ? 'すべて' : 'All', icon: '✨' },
-                                { id: 'online', label: language === 'jp' ? 'オンライン' : 'Online', icon: '🌐' },
-                                { id: 'retail', label: language === 'jp' ? '店舗' : 'Retail', icon: '🏪' },
-                                { id: 'handmade', label: language === 'jp' ? 'ハンドメイド' : 'Handmade', icon: '🪡' }
-                            ].map((cat) => (
-                                <button
-                                    key={cat.id}
-                                    onClick={() => setFilterCategory(cat.id)}
-                                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
-                                        ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
-                                        : 'bg-white text-gray-400 border-gray-100'}`}
-                                >
-                                    <span>{cat.icon}</span>
-                                    <span>{cat.label}</span>
-                                </button>
-                            ))
-                        )}
+                        ))}
                     </div>
                 </div>
             </div>

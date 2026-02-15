@@ -453,7 +453,7 @@ const Gallery = () => {
                                 key={cat.id}
                                 onClick={() => setFilterCategory(cat.id)}
                                 className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
-                                    ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                                    ? 'bg-primary text-white border-primary shadow-sm'
                                     : 'bg-white text-gray-400 border-gray-200'}`}
                             >
                                 <span>{cat.icon}</span>

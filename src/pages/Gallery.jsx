@@ -419,23 +419,53 @@ const Gallery = () => {
                                 {language === 'jp' ? 'マイサイズ' : 'My Size'}
                             </button>
                         )}
-                        {[
-                            { id: 'all', label: language === 'jp' ? 'すべて' : 'All', icon: '✨' },
-                            { id: 'online', label: language === 'jp' ? 'オンライン' : 'Online', icon: '🌐' },
-                            { id: 'retail', label: language === 'jp' ? '店舗' : 'Retail', icon: '🏪' },
-                            { id: 'handmade', label: language === 'jp' ? 'ハンドメイド' : 'Handmade', icon: '🪡' }
-                        ].map((cat) => (
-                            <button
-                                key={cat.id}
-                                onClick={() => setFilterCategory(cat.id)}
-                                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
-                                    ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
-                                    : 'bg-white text-gray-400 border-gray-100'}`}
-                            >
-                                <span>{cat.icon}</span>
-                                <span>{cat.label}</span>
-                            </button>
-                        ))}
+                        {filterMySize ? (
+                            <>
+                                <button
+                                    onClick={() => setSizeFilterPlushieId('all')}
+                                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${sizeFilterPlushieId === 'all'
+                                        ? 'bg-primary text-white border-primary shadow-sm'
+                                        : 'bg-white text-gray-400 border-gray-200'}`}
+                                >
+                                    <span>✨</span>
+                                    <span>{language === 'jp' ? 'すべての子' : 'All Plushies'}</span>
+                                </button>
+                                {plushies.map(p => (
+                                    <button
+                                        key={p.id}
+                                        onClick={() => setSizeFilterPlushieId(String(p.id))}
+                                        className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${String(sizeFilterPlushieId) === String(p.id)
+                                            ? 'bg-primary text-white border-primary shadow-sm'
+                                            : 'bg-white text-gray-400 border-gray-200'}`}
+                                    >
+                                        {p.image ? (
+                                            <img src={p.image} alt="" className="w-4 h-4 rounded-full object-cover" />
+                                        ) : (
+                                            <span>🧸</span>
+                                        )}
+                                        <span>{p.name}</span>
+                                    </button>
+                                ))}
+                            </>
+                        ) : (
+                            [
+                                { id: 'all', label: language === 'jp' ? 'すべて' : 'All', icon: '✨' },
+                                { id: 'online', label: language === 'jp' ? 'オンライン' : 'Online', icon: '🌐' },
+                                { id: 'retail', label: language === 'jp' ? '店舗' : 'Retail', icon: '🏪' },
+                                { id: 'handmade', label: language === 'jp' ? 'ハンドメイド' : 'Handmade', icon: '🪡' }
+                            ].map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setFilterCategory(cat.id)}
+                                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
+                                        ? 'bg-blue-500 text-white border-blue-500 shadow-sm'
+                                        : 'bg-white text-gray-400 border-gray-100'}`}
+                                >
+                                    <span>{cat.icon}</span>
+                                    <span>{cat.label}</span>
+                                </button>
+                            ))
+                        )}
                     </div>
                 </div>
             </div>

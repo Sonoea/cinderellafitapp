@@ -7,6 +7,8 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
     const { currentUser } = useAuth();
     const scrollContainerRef = useRef(null);
     const [image, setImage] = useState(null);
+    const [showUrl2, setShowUrl2] = useState(false);
+    const [showUrl3, setShowUrl3] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         url: '',
@@ -16,7 +18,27 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         location: '',
         purchaseType: '',
         isPublic: !!currentUser, // Default to true only if logged in
+        url2: '',
+        url3: '',
     });
+
+    // Load initial item data if provided (for editing)
+    useEffect(() => {
+        if (initialPlushieId && !image && !formData.name) {
+            // Logic to load existing item would go here if we were passing the full item object
+            // But currently this component seems to rely on parent passing props or just being for "New" items?
+            // Wait, looking at the code, it seems this form is used for NEW items mostly, 
+            // but `initialPlushieId` suggests it might be used for edit too? 
+            // Reviewing usage: AddItemModal uses it. EditItemModal probably uses it too?
+            // Let's assume onSave handles the data. 
+            // If this form is used for editing, we need to know where the initial data comes from. 
+            // The props are `plushies, initialPlushieId, t, fitLabels, onSave, onCancel`.
+            // It doesn't seem to take an `initialItem` prop. 
+            // AH, I missed checking `EditItemModal` or similar usage. 
+            // But the user request is about "Registering new coordinate".
+            // So for now, just initializing state is enough.
+        }
+    }, []);
 
     // Ensure scroll area is focused for keyboard scroll
     useEffect(() => {
@@ -123,6 +145,46 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                                 />
                             </div>
+
+                            {/* URL 2 */}
+                            {(formData.url2 || showUrl2) && (
+                                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <input
+                                        type="url"
+                                        className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        placeholder="https://... (2)"
+                                        value={formData.url2}
+                                        onChange={(e) => setFormData({ ...formData, url2: e.target.value })}
+                                    />
+                                </div>
+                            )}
+
+                            {/* URL 3 */}
+                            {(formData.url3 || showUrl3) && (
+                                <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                                    <input
+                                        type="url"
+                                        className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                        placeholder="https://... (3)"
+                                        value={formData.url3}
+                                        onChange={(e) => setFormData({ ...formData, url3: e.target.value })}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Add URL Button */}
+                            {(!formData.url2 || !formData.url3) && !showUrl3 && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!formData.url2 && !showUrl2) setShowUrl2(true);
+                                        else setShowUrl3(true);
+                                    }}
+                                    className="text-xs font-bold text-primary flex items-center gap-1 hover:underline ml-1"
+                                >
+                                    + {t('addUrl') || 'リンクを追加'}
+                                </button>
+                            )}
 
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 mb-1">{t('locationLabel')}</label>

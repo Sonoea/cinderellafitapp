@@ -5,7 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Heart, MessageCircle, Users, User, Search, Ruler, Share2, Shirt, MapPin, Star, Send, X, LogIn, Trash2, Edit2 } from 'lucide-react';
+import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2 } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
@@ -630,10 +630,42 @@ const Gallery = () => {
                                 {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} />}
 
                                 {/* Shop info */}
-                                {selectedItem.shopName && (
-                                    <div className="bg-gray-50 p-3 rounded-xl flex items-center gap-2 text-sm text-gray-500">
-                                        <Shirt size={16} />
-                                        <span>{language === 'jp' ? '購入元' : 'From'}: <strong>{selectedItem.shopName}</strong></span>
+                                {/* Shop info */}
+                                {(selectedItem.url || selectedItem.url2 || selectedItem.url3) && (
+                                    <div className="space-y-2">
+                                        <h4 className="text-xs font-bold text-gray-400 uppercase ml-1">
+                                            {language === 'jp' ? '購入先リンク' : 'Bought From'}
+                                        </h4>
+                                        <div className="flex flex-col gap-2">
+                                            {[
+                                                { url: selectedItem.url, label: selectedItem.shopName || safeHostname(selectedItem.url) || (language === 'jp' ? '商品ページ 1' : 'Link 1') },
+                                                { url: selectedItem.url2, label: safeHostname(selectedItem.url2) || (language === 'jp' ? '商品ページ 2' : 'Link 2') },
+                                                { url: selectedItem.url3, label: safeHostname(selectedItem.url3) || (language === 'jp' ? '商品ページ 3' : 'Link 3') }
+                                            ].filter(link => link.url).map((link, index) => (
+                                                <a
+                                                    key={index}
+                                                    href={link.url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="bg-gray-50 hover:bg-gray-100 p-3 rounded-xl flex items-center gap-3 border border-gray-100 transition-colors group"
+                                                >
+                                                    <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500 group-hover:scale-110 transition-transform">
+                                                        {index === 0 ? <Shirt size={18} /> : index === 1 ? <div className="text-lg leading-none">🧢</div> : <div className="text-lg leading-none">👞</div>}
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <span className="text-sm font-bold text-primary truncate block">
+                                                            {link.label}
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-400 truncate block">
+                                                            {link.url}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-gray-300">
+                                                        <ExternalLink size={14} />
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </div>
                                     </div>
                                 )}
 

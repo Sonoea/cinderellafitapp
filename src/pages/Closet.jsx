@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -808,7 +808,12 @@ const Closet = () => {
                                   comment: selectedItem.comment || '',
                                   isPublic: selectedItem.isPublic,
                                   galleryOnly: selectedItem.galleryOnly || false,
-                                  purchaseType: selectedItem.purchaseType || ''
+                                  isPublic: selectedItem.isPublic,
+                                  galleryOnly: selectedItem.galleryOnly || false,
+                                  purchaseType: selectedItem.purchaseType || '',
+                                  url: selectedItem.url || '',
+                                  url2: selectedItem.url2 || '',
+                                  url3: selectedItem.url3 || ''
                                 });
                               }}
                               className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
@@ -835,19 +840,76 @@ const Closet = () => {
                     </div>
 
                     {/* URL */}
-                    {selectedItem.shopName && (
-                      <div className="bg-gray-50 p-4 rounded-xl flex items-center gap-3">
-                        <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500">
-                          <Shirt size={20} />
+                    {/* URL Section (View & Edit) */}
+                    <div>
+                      {isEditing ? (
+                        <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                          <h4 className="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
+                            <Link size={14} />
+                            <span>商品URL（最大3つ）</span>
+                          </h4>
+                          <input
+                            type="url"
+                            className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                            placeholder="https://... (1)"
+                            value={editData.url}
+                            onChange={(e) => setEditData({ ...editData, url: e.target.value })}
+                          />
+                          <input
+                            type="url"
+                            className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                            placeholder="https://... (2)"
+                            value={editData.url2}
+                            onChange={(e) => setEditData({ ...editData, url2: e.target.value })}
+                          />
+                          <input
+                            type="url"
+                            className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                            placeholder="https://... (3)"
+                            value={editData.url3}
+                            onChange={(e) => setEditData({ ...editData, url3: e.target.value })}
+                          />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs text-gray-400 font-bold uppercase">{t('boughtFrom')}</p>
-                          <span className="text-sm font-bold text-primary truncate block">
-                            {selectedItem.shopName}
-                          </span>
-                        </div>
-                      </div>
-                    )}
+                      ) : (
+                        (selectedItem.url || selectedItem.url2 || selectedItem.url3) && (
+                          <div className="space-y-2">
+                            <h4 className="text-xs font-bold text-gray-400 uppercase ml-1">
+                              {t('boughtFrom') || '購入先リンク'}
+                            </h4>
+                            <div className="flex flex-col gap-2">
+                              {[
+                                { url: selectedItem.url, label: selectedItem.shopName || safeHostname(selectedItem.url) || '商品ページ 1' },
+                                { url: selectedItem.url2, label: safeHostname(selectedItem.url2) || '商品ページ 2' },
+                                { url: selectedItem.url3, label: safeHostname(selectedItem.url3) || '商品ページ 3' }
+                              ].filter(link => link.url).map((link, index) => (
+                                <a
+                                  key={index}
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="bg-gray-50 hover:bg-gray-100 p-3 rounded-xl flex items-center gap-3 border border-gray-100 transition-colors group"
+                                >
+                                  <div className="bg-white p-2 rounded-lg shadow-sm text-blue-500 group-hover:scale-110 transition-transform">
+                                    {index === 0 ? <Shirt size={18} /> : index === 1 ? <div className="text-lg leading-none">🧢</div> : <div className="text-lg leading-none">👞</div>}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <span className="text-sm font-bold text-primary truncate block">
+                                      {link.label}
+                                    </span>
+                                    <span className="text-[10px] text-gray-400 truncate block">
+                                      {link.url}
+                                    </span>
+                                  </div>
+                                  <div className="text-gray-300">
+                                    <ExternalLink size={14} />
+                                  </div>
+                                </a>
+                              ))}
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
 
                     {/* Fit Rating */}
                     <div>

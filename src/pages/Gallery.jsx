@@ -5,7 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate } from 'react-router-dom';
-import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2 } from 'lucide-react';
+import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {

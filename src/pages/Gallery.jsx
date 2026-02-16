@@ -402,7 +402,7 @@ const Gallery = () => {
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
                             type="text"
-                            className="w-full bg-gray-50 pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
+                            className="w-full bg-gray-50 pl-11 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
                             placeholder={language === 'jp' ? 'アイテム・ユーザー名で検索' : 'Search items or users'}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}

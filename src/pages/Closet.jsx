@@ -851,21 +851,21 @@ const Closet = () => {
                           <input
                             type="url"
                             className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                            placeholder="https://... (1)"
+                            placeholder={t('urlPlaceholder1')}
                             value={editData.url}
                             onChange={(e) => setEditData({ ...editData, url: e.target.value })}
                           />
                           <input
                             type="url"
                             className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                            placeholder="https://... (2)"
+                            placeholder={t('urlPlaceholder2')}
                             value={editData.url2}
                             onChange={(e) => setEditData({ ...editData, url2: e.target.value })}
                           />
                           <input
                             type="url"
                             className="w-full p-2 bg-white rounded-lg border border-gray-200 text-sm focus:ring-2 focus:ring-primary/20 outline-none"
-                            placeholder="https://... (3)"
+                            placeholder={t('urlPlaceholder3')}
                             value={editData.url3}
                             onChange={(e) => setEditData({ ...editData, url3: e.target.value })}
                           />

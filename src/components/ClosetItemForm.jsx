@@ -140,7 +140,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 <input
                                     type="url"
                                     className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                    placeholder="https://..."
+                                    placeholder={t('urlPlaceholder1')}
                                     value={formData.url}
                                     onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                                 />
@@ -152,7 +152,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     <input
                                         type="url"
                                         className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                        placeholder="https://... (2)"
+                                        placeholder={t('urlPlaceholder2')}
                                         value={formData.url2}
                                         onChange={(e) => setFormData({ ...formData, url2: e.target.value })}
                                     />
@@ -165,7 +165,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     <input
                                         type="url"
                                         className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                                        placeholder="https://... (3)"
+                                        placeholder={t('urlPlaceholder3')}
                                         value={formData.url3}
                                         onChange={(e) => setFormData({ ...formData, url3: e.target.value })}
                                     />
@@ -182,7 +182,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     }}
                                     className="text-xs font-bold text-primary flex items-center gap-1 hover:underline ml-1"
                                 >
-                                    + {t('addUrl') || 'リンクを追加'}
+                                    {t('addUrl')}
                                 </button>
                             )}
 

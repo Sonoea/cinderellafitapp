@@ -152,18 +152,33 @@ const UserProfile = () => {
         fetchUserProfile();
     }, [profileSlug, currentUser]);
 
-    // Engagement functions
+    // Engagement functions - auto-repair counts
     const fetchEngagement = async (itemId, ownerUid) => {
         if (!itemId || !ownerUid) return;
         const compositeId = `${ownerUid}_${itemId}`;
         try {
+            const itemRef = doc(db, 'users', ownerUid, 'closetItems', itemId);
             const likesSnap = await getDocs(collection(db, 'users', ownerUid, 'closetItems', itemId, 'likes'));
             const isLiked = currentUser ? likesSnap.docs.some(d => d.id === currentUser.uid) : false;
             setItemLikes(prev => ({ ...prev, [compositeId]: { count: likesSnap.size, isLiked } }));
 
             const cq = query(collection(db, 'users', ownerUid, 'closetItems', itemId, 'comments'), orderBy('createdAt', 'asc'));
             const commentsSnap = await getDocs(cq);
+            const actualCommentCount = commentsSnap.size;
             setItemComments(prev => ({ ...prev, [compositeId]: commentsSnap.docs.map(d => ({ id: d.id, ...d.data() })) }));
+            setItemCommentCounts(prev => ({ ...prev, [compositeId]: actualCommentCount }));
+
+            // Auto-repair Firestore counts if they differ from actual
+            try {
+                const itemSnap = await getDoc(itemRef);
+                if (itemSnap.exists()) {
+                    const data = itemSnap.data();
+                    const updates = {};
+                    if ((data.likes || 0) !== likesSnap.size) updates.likes = likesSnap.size;
+                    if ((data.commentCount || 0) !== actualCommentCount) updates.commentCount = actualCommentCount;
+                    if (Object.keys(updates).length > 0) await updateDoc(itemRef, updates);
+                }
+            } catch (repairErr) { /* silent - repair is best-effort */ }
         } catch (e) { console.error("Error fetching engagement:", e); }
     };
 

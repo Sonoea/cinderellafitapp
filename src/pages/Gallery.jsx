@@ -209,25 +209,42 @@ const Gallery = () => {
         const compositeId = `${ownerUid}_${bareId}`;
         if (likingInProgress.has(compositeId)) return;
         setLikingInProgress(prev => new Set(prev).add(compositeId));
-        const currentLike = itemLikes[compositeId] || { count: 0, isLiked: false };
-        const newIsLiked = !currentLike.isLiked;
-        const newCount = newIsLiked ? currentLike.count + 1 : Math.max(0, currentLike.count - 1);
-
-        setItemLikes(prev => ({ ...prev, [compositeId]: { count: newCount, isLiked: newIsLiked } }));
 
         try {
             const likeRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid);
             const itemRef = doc(db, 'users', ownerUid, 'closetItems', bareId);
-            if (newIsLiked) {
-                await setDoc(likeRef, { likedBy: currentUser.uid, createdAt: serverTimestamp() });
-                await updateDoc(itemRef, { likes: increment(1) });
-            } else {
+            const likeSnap = await getDoc(likeRef);
+            const alreadyLiked = likeSnap.exists();
+
+            if (alreadyLiked) {
+                // Unlike: remove the like document and decrement counter
                 await deleteDoc(likeRef);
                 await updateDoc(itemRef, { likes: increment(-1) });
+                setItemLikes(prev => ({
+                    ...prev,
+                    [compositeId]: { count: Math.max(0, (prev[compositeId]?.count || 1) - 1), isLiked: false }
+                }));
+            } else {
+                // Like: create like document and increment counter
+                await setDoc(likeRef, { likedBy: currentUser.uid, createdAt: serverTimestamp() });
+                await updateDoc(itemRef, { likes: increment(1) });
+                setItemLikes(prev => ({
+                    ...prev,
+                    [compositeId]: { count: (prev[compositeId]?.count || 0) + 1, isLiked: true }
+                }));
             }
         } catch (e) {
             console.error("Error toggling like:", e);
-            setItemLikes(prev => ({ ...prev, [compositeId]: currentLike }));
+            // Re-fetch actual state from Firestore on error
+            try {
+                const likeRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid);
+                const likeSnap = await getDoc(likeRef);
+                const likesSnap = await getDocs(collection(db, 'users', ownerUid, 'closetItems', bareId, 'likes'));
+                setItemLikes(prev => ({
+                    ...prev,
+                    [compositeId]: { count: likesSnap.size, isLiked: likeSnap.exists() }
+                }));
+            } catch (e2) { console.error("Error recovering like state:", e2); }
         } finally {
             setLikingInProgress(prev => { const s = new Set(prev); s.delete(compositeId); return s; });
         }

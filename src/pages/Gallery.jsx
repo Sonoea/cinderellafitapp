@@ -50,6 +50,7 @@ const Gallery = () => {
 
     // Social state
     const [itemLikes, setItemLikes] = useState({});
+    const [likingInProgress, setLikingInProgress] = useState(new Set());
     const [itemCommentCounts, setItemCommentCounts] = useState({});
     const [itemComments, setItemComments] = useState({});
     const [commentText, setCommentText] = useState('');
@@ -206,6 +207,8 @@ const Gallery = () => {
         }
         const bareId = String(itemId).replace(/^local-/, '');
         const compositeId = `${ownerUid}_${bareId}`;
+        if (likingInProgress.has(compositeId)) return;
+        setLikingInProgress(prev => new Set(prev).add(compositeId));
         const currentLike = itemLikes[compositeId] || { count: 0, isLiked: false };
         const newIsLiked = !currentLike.isLiked;
         const newCount = newIsLiked ? currentLike.count + 1 : Math.max(0, currentLike.count - 1);
@@ -225,6 +228,8 @@ const Gallery = () => {
         } catch (e) {
             console.error("Error toggling like:", e);
             setItemLikes(prev => ({ ...prev, [compositeId]: currentLike }));
+        } finally {
+            setLikingInProgress(prev => { const s = new Set(prev); s.delete(compositeId); return s; });
         }
     };
 

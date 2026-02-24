@@ -197,7 +197,7 @@ const Gallery = () => {
         } catch (e) { console.error("Error fetching engagement:", e); }
     };
 
-    // Toggle like
+    // Toggle like - uses actual subcollection count instead of increment
     const toggleLike = async (itemId, ownerUid, existingCompositeId) => {
         if (!currentUser) {
             if (window.confirm(language === 'jp' ? 'いいねするにはログインが必要です。ログインしますか？' : 'Login required to like. Go to login?')) {
@@ -217,29 +217,25 @@ const Gallery = () => {
             const alreadyLiked = likeSnap.exists();
 
             if (alreadyLiked) {
-                // Unlike: remove the like document and decrement counter
                 await deleteDoc(likeRef);
-                await updateDoc(itemRef, { likes: increment(-1) });
-                setItemLikes(prev => ({
-                    ...prev,
-                    [compositeId]: { count: Math.max(0, (prev[compositeId]?.count || 1) - 1), isLiked: false }
-                }));
             } else {
-                // Like: create like document and increment counter
                 await setDoc(likeRef, { likedBy: currentUser.uid, createdAt: serverTimestamp() });
-                await updateDoc(itemRef, { likes: increment(1) });
-                setItemLikes(prev => ({
-                    ...prev,
-                    [compositeId]: { count: (prev[compositeId]?.count || 0) + 1, isLiked: true }
-                }));
             }
+
+            // Always sync from actual subcollection count
+            const likesSnap = await getDocs(collection(db, 'users', ownerUid, 'closetItems', bareId, 'likes'));
+            const actualCount = likesSnap.size;
+            await updateDoc(itemRef, { likes: actualCount });
+            const stillLiked = likesSnap.docs.some(d => d.id === currentUser.uid);
+            setItemLikes(prev => ({
+                ...prev,
+                [compositeId]: { count: actualCount, isLiked: stillLiked }
+            }));
         } catch (e) {
             console.error("Error toggling like:", e);
-            // Re-fetch actual state from Firestore on error
             try {
-                const likeRef = doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid);
-                const likeSnap = await getDoc(likeRef);
                 const likesSnap = await getDocs(collection(db, 'users', ownerUid, 'closetItems', bareId, 'likes'));
+                const likeSnap = await getDoc(doc(db, 'users', ownerUid, 'closetItems', bareId, 'likes', currentUser.uid));
                 setItemLikes(prev => ({
                     ...prev,
                     [compositeId]: { count: likesSnap.size, isLiked: likeSnap.exists() }
@@ -250,7 +246,7 @@ const Gallery = () => {
         }
     };
 
-    // Submit comment
+    // Submit comment - syncs commentCount from actual subcollection count
     const submitComment = async (itemId, ownerUid) => {
         if (!currentUser) {
             if (window.confirm(language === 'jp' ? 'コメントするにはログインが必要です。ログインしますか？' : 'Login required to comment. Go to login?')) {
@@ -275,11 +271,14 @@ const Gallery = () => {
             const commentData = { userId: currentUser.uid, userName, userIcon, text: commentText.trim(), createdAt: new Date().toISOString() };
             const commentsColRef = collection(db, 'users', ownerUid, 'closetItems', bareId, 'comments');
             await addDoc(commentsColRef, { ...commentData, createdAt: serverTimestamp() });
-            await updateDoc(doc(db, 'users', ownerUid, 'closetItems', bareId), { commentCount: increment(1) });
+
+            // Sync commentCount from actual subcollection count
+            const allComments = await getDocs(commentsColRef);
+            await updateDoc(doc(db, 'users', ownerUid, 'closetItems', bareId), { commentCount: allComments.size });
 
             const compositeId = `${ownerUid}_${bareId}`;
             setItemComments(prev => ({ ...prev, [compositeId]: [...(prev[compositeId] || []), { ...commentData, id: Date.now().toString() }] }));
-            setItemCommentCounts(prev => ({ ...prev, [compositeId]: (prev[compositeId] || 0) + 1 }));
+            setItemCommentCounts(prev => ({ ...prev, [compositeId]: allComments.size }));
             setCommentText('');
         } catch (e) {
             console.error("Error submitting comment:", e);
@@ -289,16 +288,21 @@ const Gallery = () => {
         }
     };
 
-    // Delete comment
+    // Delete comment - syncs commentCount from actual subcollection count
     const deleteComment = async (itemId, ownerUid, commentId) => {
         if (!currentUser) return;
         try {
             const bareId = String(itemId).replace(/^local-/, '');
             await deleteDoc(doc(db, 'users', ownerUid, 'closetItems', bareId, 'comments', commentId));
-            await updateDoc(doc(db, 'users', ownerUid, 'closetItems', bareId), { commentCount: increment(-1) });
+
+            // Sync commentCount from actual subcollection count
+            const commentsColRef = collection(db, 'users', ownerUid, 'closetItems', bareId, 'comments');
+            const allComments = await getDocs(commentsColRef);
+            await updateDoc(doc(db, 'users', ownerUid, 'closetItems', bareId), { commentCount: allComments.size });
+
             const compositeId = `${ownerUid}_${bareId}`;
             setItemComments(prev => ({ ...prev, [compositeId]: (prev[compositeId] || []).filter(c => c.id !== commentId) }));
-            setItemCommentCounts(prev => ({ ...prev, [compositeId]: Math.max(0, (prev[compositeId] || 0) - 1) }));
+            setItemCommentCounts(prev => ({ ...prev, [compositeId]: allComments.size }));
         } catch (e) {
             console.error("Error deleting comment:", e);
         }
@@ -571,7 +575,7 @@ const Gallery = () => {
                                         className="flex items-center gap-1 text-gray-400 transition-all"
                                         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
                                         <MessageCircle size={18} strokeWidth={2.5} />
-                                        <span className="font-bold" style={{ fontSize: '12px' }}>{itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0}</span>
+                                        <span className="font-bold" style={{ fontSize: '12px' }}>{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
                                     </button>
                                     <span style={{ fontSize: '18px', lineHeight: 1 }}>
                                         {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}

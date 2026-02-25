@@ -4,7 +4,7 @@ import { collectionGroup, query, where, getDocs, doc, getDoc, setDoc, deleteDoc,
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
 
@@ -21,14 +21,32 @@ const UserAvatar = ({ src, alt, className, onClick, style }) => {
     return <img src={src} alt={alt} className={`object-cover rounded-full ${className}`} onError={() => setError(true)} onClick={onClick} style={{ ...(onClick ? { cursor: 'pointer' } : {}), ...style }} />;
 };
 
-const ExpandableText = ({ text, maxLength = 90 }) => {
+// Render text with clickable hashtags
+const renderTextWithHashtags = (text, onHashtagClick) => {
+    if (!text) return null;
+    // Match hashtags: # followed by word characters (including Japanese/CJK)
+    const parts = text.split(/(#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+)/g);
+    return parts.map((part, i) => {
+        if (/^#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+$/.test(part)) {
+            return (
+                <button key={i} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onHashtagClick?.(part); }}
+                    className="text-primary font-bold hover:underline" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 'inherit' }}>
+                    {part}
+                </button>
+            );
+        }
+        return <span key={i}>{part}</span>;
+    });
+};
+
+const ExpandableText = ({ text, maxLength = 90, onHashtagClick }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     if (!text) return null;
-    if (text.length <= maxLength) return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{text}</p>;
+    if (text.length <= maxLength) return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{renderTextWithHashtags(text, onHashtagClick)}</p>;
     return (
         <div className="mb-2">
             <p className="text-xs text-gray-600 whitespace-pre-wrap">
-                {isExpanded ? text : `${text.slice(0, maxLength)}...`}
+                {renderTextWithHashtags(isExpanded ? text : `${text.slice(0, maxLength)}...`, onHashtagClick)}
                 <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsExpanded(!isExpanded); }} className="ml-1 text-blue-500 font-bold hover:underline inline-block">
                     {isExpanded ? ' 閉じる' : ' 続きを読む'}
                 </button>
@@ -61,7 +79,8 @@ const Gallery = () => {
     const commentsRef = useRef(null);
 
     // Filter state
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchParams] = useSearchParams();
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
     const [filterMySize, setFilterMySize] = useState(false);
     const [sizeFilterPlushieId, setSizeFilterPlushieId] = useState('all');
     const [filterCategory, setFilterCategory] = useState('all');
@@ -389,7 +408,8 @@ const Gallery = () => {
                 (item.location && item.location.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (item.itemName && item.itemName.toLowerCase().includes(searchTerm.toLowerCase())) ||
                 (item.plushieName && item.plushieName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                (item.userName && item.userName.toLowerCase().includes(searchTerm.toLowerCase()));
+                (item.userName && item.userName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (item.comment && item.comment.toLowerCase().includes(searchTerm.toLowerCase()));
 
             let matchesSize = true;
             if (filterMySize && plushies.length > 0) {
@@ -412,6 +432,13 @@ const Gallery = () => {
             return matchesSearch && matchesSize && matchesCategory;
         });
     }, [processedItems, searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, plushies]);
+
+    // Hashtag click handler: close modal + search by tag
+    const handleHashtagClick = (tag) => {
+        setSelectedItem(null);
+        setSearchTerm(tag);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
 
     return (
         <div className="pb-48">
@@ -609,7 +636,7 @@ const Gallery = () => {
                                             </span>
                                         </div>
                                     )}
-                                    <ExpandableText text={post.comment} />
+                                    <ExpandableText text={post.comment} onHashtagClick={handleHashtagClick} />
                                     {post.shopName && (
                                         <div className="bg-gray-50 px-2 py-1 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500" style={{ marginTop: '4px' }}>
                                             <Shirt size={10} />
@@ -668,7 +695,7 @@ const Gallery = () => {
                                 </div>
 
                                 {/* Comment */}
-                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} />}
+                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} onHashtagClick={handleHashtagClick} />}
 
                                 {/* Shop info */}
                                 {/* Shop info */}

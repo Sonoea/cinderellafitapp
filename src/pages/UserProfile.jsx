@@ -21,14 +21,31 @@ const UserAvatar = ({ src, alt, className }) => {
     return <img src={src} alt={alt} className={`object-cover rounded-full ${className}`} onError={() => setError(true)} />;
 };
 
-const ExpandableText = ({ text, maxLength = 90 }) => {
+// Render text with clickable hashtags
+const renderTextWithHashtags = (text, onHashtagClick) => {
+    if (!text) return null;
+    const parts = text.split(/(#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+)/g);
+    return parts.map((part, i) => {
+        if (/^#[\w\u3040-\u309F\u30A0-\u30FF\u4E00-\u9FFF\uFF00-\uFFEF]+$/.test(part)) {
+            return (
+                <button key={i} onClick={(e) => { e.preventDefault(); e.stopPropagation(); onHashtagClick?.(part); }}
+                    className="text-primary font-bold hover:underline" style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontSize: 'inherit' }}>
+                    {part}
+                </button>
+            );
+        }
+        return <span key={i}>{part}</span>;
+    });
+};
+
+const ExpandableText = ({ text, maxLength = 90, onHashtagClick }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     if (!text) return null;
-    if (text.length <= maxLength) return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{text}</p>;
+    if (text.length <= maxLength) return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{renderTextWithHashtags(text, onHashtagClick)}</p>;
     return (
         <div className="mb-2">
             <p className="text-xs text-gray-600 whitespace-pre-wrap">
-                {isExpanded ? text : `${text.slice(0, maxLength)}...`}
+                {renderTextWithHashtags(isExpanded ? text : `${text.slice(0, maxLength)}...`, onHashtagClick)}
                 <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsExpanded(!isExpanded); }} className="ml-1 text-blue-500 font-bold hover:underline inline-block">
                     {isExpanded ? ' 閉じる' : ' 続きを読む'}
                 </button>
@@ -487,7 +504,7 @@ const UserProfile = () => {
                                     <span style={{ fontSize: '28px' }}>{['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}</span>
                                 </div>
 
-                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} />}
+                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} onHashtagClick={(tag) => navigate(`/gallery?search=${encodeURIComponent(tag)}`)} />}
 
                                 {selectedItem.shopName && (
                                     <div className="bg-gray-50 p-3 rounded-xl flex items-center gap-2 text-sm text-gray-500">

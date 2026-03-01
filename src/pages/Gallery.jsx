@@ -272,15 +272,24 @@ const Gallery = () => {
                 await setDoc(likeRef, { likedBy: currentUser.uid, createdAt: serverTimestamp() });
             }
 
-            // Always sync from actual subcollection count
+            // 実際のいいね数をサブコレクションから取得してUI更新
             const likesSnap = await getDocs(collection(db, 'users', ownerUid, 'closetItems', bareId, 'likes'));
             const actualCount = likesSnap.size;
-            await updateDoc(itemRef, { likes: actualCount });
             const stillLiked = likesSnap.docs.some(d => d.id === currentUser.uid);
+
+            // UIを先に更新（投稿者以外でも反映される）
             setItemLikes(prev => ({
                 ...prev,
                 [compositeId]: { count: actualCount, isLiked: stillLiked }
             }));
+
+            // Firestoreのlikesフィールドを更新（権限エラーはUIに影響させない）
+            try {
+                await updateDoc(itemRef, { likes: actualCount });
+            } catch (updateErr) {
+                // 投稿者以外はlikesフィールドを書き込めない場合があるが、UIは正常に動作
+                console.warn("Could not update likes count on item doc:", updateErr.code);
+            }
         } catch (e) {
             console.error("Error toggling like:", e);
             try {

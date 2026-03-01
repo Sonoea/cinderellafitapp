@@ -156,38 +156,19 @@ const Gallery = () => {
 
                 setPublicItems(uniqueItems);
 
-                // Sync likes/comments counts
+                // Sync likes/comments counts (isLiked は別のeffectで取得)
                 const newLikesState = {};
                 const newCommentCounts = {};
                 uniqueItems.forEach(item => {
                     const compositeId = item.compositeId || `${item.userId}_${item.id}`.replace(/local-/g, '');
-                    if (item.likes !== undefined) newLikesState[compositeId] = { count: item.likes || 0, isLiked: false };
+                    newLikesState[compositeId] = { count: item.likes || 0, isLiked: false };
                     if (item.commentCount !== undefined) newCommentCounts[compositeId] = item.commentCount || 0;
                 });
-                setItemLikes(prev => ({ ...prev, ...newLikesState }));
+                setItemLikes(newLikesState);
                 setItemCommentCounts(prev => ({ ...prev, ...newCommentCounts }));
 
                 const uniqueUserIds = [...new Set(uniqueItems.map(item => item.userId).filter(Boolean))];
                 resolveUserProfiles(uniqueUserIds);
-
-                // Fetch current user's likes
-                if (currentUser) {
-                    try {
-                        const myLikesQuery = query(collectionGroup(db, 'likes'), where('likedBy', '==', currentUser.uid));
-                        const myLikesSnap = await getDocs(myLikesQuery);
-                        const myLikesMap = {};
-                        myLikesSnap.forEach(d => {
-                            const itemDocId = d.ref.parent.parent.id;
-                            const ownerUid = d.ref.parent.parent.parent.parent.id;
-                            myLikesMap[`${ownerUid}_${itemDocId}`] = { isLiked: true };
-                        });
-                        setItemLikes(prev => {
-                            const newState = { ...prev };
-                            Object.keys(myLikesMap).forEach(key => { newState[key] = { ...(newState[key] || { count: 0 }), isLiked: true }; });
-                            return newState;
-                        });
-                    } catch (likeErr) { console.warn("Failed to fetch user likes:", likeErr); }
-                }
             } catch (error) {
                 console.error("Error fetching gallery:", error);
                 setGalleryError(language === 'jp' ? 'データの取得に失敗しました。再読み込みしてください。' : 'Failed to load gallery. Please refresh.');
@@ -197,7 +178,42 @@ const Gallery = () => {
             }
         };
         fetchGallery();
-    }, []);
+    }, [currentUser?.uid]);
+
+    // ログインユーザーのいいね済み状態を取得（publicItemsまたはcurrentUserが変わった時）
+    useEffect(() => {
+        if (!currentUser || publicItems.length === 0) {
+            // 未ログインの場合、全てisLiked: false にリセット
+            if (!currentUser) {
+                setItemLikes(prev => {
+                    const reset = {};
+                    Object.keys(prev).forEach(k => { reset[k] = { ...prev[k], isLiked: false }; });
+                    return reset;
+                });
+            }
+            return;
+        }
+        const loadUserLikes = async () => {
+            try {
+                const myLikesQuery = query(collectionGroup(db, 'likes'), where('likedBy', '==', currentUser.uid));
+                const myLikesSnap = await getDocs(myLikesQuery);
+                const myLikedSet = new Set();
+                myLikesSnap.forEach(d => {
+                    const itemDocId = d.ref.parent.parent.id;
+                    const ownerUid = d.ref.parent.parent.parent.parent.id;
+                    myLikedSet.add(`${ownerUid}_${itemDocId}`);
+                });
+                setItemLikes(prev => {
+                    const newState = {};
+                    Object.keys(prev).forEach(key => {
+                        newState[key] = { ...prev[key], isLiked: myLikedSet.has(key) };
+                    });
+                    return newState;
+                });
+            } catch (e) { console.warn("Failed to load user likes:", e); }
+        };
+        loadUserLikes();
+    }, [currentUser?.uid, publicItems]);
 
     // Fetch engagement (likes/comments) for a specific item and auto-repair counts
     const fetchEngagement = async (itemId, ownerUid) => {

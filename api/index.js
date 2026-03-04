@@ -733,32 +733,41 @@ app.post('/api/analyze-url', async (req, res) => {
             ogImage = $('meta[name="twitter:image"]').attr('content') || '';
         }
         if (!ogImage) {
-            // 商品画像の一般的なセレクタ
+            // 商品画像の一般的なセレクタ（優先順位順）
             const imgSelectors = [
+                '#slider img', '#slider .swiper-slide img',
                 '.item-image img', '.product-image img', '#itemImg img',
                 '.main-image img', '.item_image img', '.product_image img',
                 '.itemImg img', '.p-goods__image img', '.goods-image img',
-                '[class*="product"] img', '[class*="item"] img[src*="item"]',
-                '.slick-slide img', '.swiper-slide img',
+                '[class*="product"] img', '[class*="item"] img',
+                '.slick-slide img', '.swiper-slide img', '.swiper-container img',
+                'img[src*="itemimage"]', 'img[src*="shopimage"]',
+                'img[src*="makeshop"]', 'img[data-src*="itemimage"]',
+                'img[data-src*="makeshop"]',
             ];
             for (const sel of imgSelectors) {
-                const src = $(sel).first().attr('src') || $(sel).first().attr('data-src');
-                if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('banner')) {
+                const el = $(sel).first();
+                const src = el.attr('src') || el.attr('data-src') || el.attr('data-lazy') || el.attr('data-original');
+                if (src && src.length > 10 && !src.includes('logo') && !src.includes('icon') && !src.includes('banner') && !src.includes('spacer') && !src.includes('1x1')) {
                     ogImage = src.startsWith('http') ? src : new URL(src, url).href;
+                    console.log(`[Image] Found via selector "${sel}":`, ogImage.substring(0, 100));
                     break;
                 }
             }
         }
         if (!ogImage) {
-            // ページ内の最初の大きな画像を取得
+            // ページ内のすべてのimgを走査して商品画像を探す
             $('img').each((i, el) => {
                 if (ogImage) return;
-                const src = $(el).attr('src') || $(el).attr('data-src');
+                const src = $(el).attr('src') || $(el).attr('data-src') || $(el).attr('data-lazy') || $(el).attr('data-original') || '';
+                // 商品画像っぽいURLをチェック
+                const isProductImg = src.includes('itemimage') || src.includes('shopimage') || src.includes('makeshop') || src.includes('product') || src.includes('/item/');
                 const w = parseInt($(el).attr('width') || '0');
                 const h = parseInt($(el).attr('height') || '0');
-                if (src && (w >= 200 || h >= 200 || (!w && !h && i < 10))) {
-                    if (!src.includes('logo') && !src.includes('icon') && !src.includes('banner') && !src.includes('cart')) {
+                if (src && src.length > 10 && (isProductImg || w >= 200 || h >= 200 || (!w && !h && i < 15))) {
+                    if (!src.includes('logo') && !src.includes('icon') && !src.includes('banner') && !src.includes('cart') && !src.includes('spacer') && !src.includes('1x1')) {
                         ogImage = src.startsWith('http') ? src : new URL(src, url).href;
+                        console.log(`[Image] Found via img scan (index ${i}):`, ogImage.substring(0, 100));
                     }
                 }
             });

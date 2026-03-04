@@ -61,8 +61,8 @@ const Shop = () => {
             setAiTryonError('ぬいぐるみのプロフィール写真を設定してください');
             return;
         }
-        if (!product?.image && !product?.originalImageUrl) {
-            setAiTryonError('商品画像が取得できていません。別の商品URLをお試しください');
+        if (!product) {
+            setAiTryonError('先に商品URLを分析してください');
             return;
         }
         setAiTryonLoading(true);
@@ -78,37 +78,72 @@ const Shop = () => {
             let plushieImg = selectedPlushie.image;
             if (!plushieImg.startsWith('data:')) {
                 try {
-                    // 相対パス（/unae-san.png等）→ data URI に変換
                     plushieImg = await imageToDataUri(plushieImg);
                 } catch {
-                    // data URI変換失敗 → フルURLとして送信
                     plushieImg = `${window.location.origin}${plushieImg}`;
                 }
             }
 
-            // 商品画像の取得
-            let garmentImg = product.image || null;
+            // 商品画像の取得（複数フォールバック）
+            let garmentImg = null;
 
-            // data URIがない場合、元のURLからプロキシ経由で取得を試みる
-            if (!garmentImg || (!garmentImg.startsWith('data:') && !garmentImg.startsWith('http'))) {
-                const imgUrl = product.originalImageUrl || product.image;
-                if (imgUrl) {
-                    try {
-                        const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(imgUrl)}`);
-                        const proxyData = await proxyRes.json();
-                        if (proxyData.success && proxyData.dataUri) {
-                            garmentImg = proxyData.dataUri;
-                        } else {
-                            garmentImg = imgUrl; // プロキシ失敗→元URLをそのまま使う
-                        }
-                    } catch {
-                        garmentImg = imgUrl;
+            // 1. product.image（プロキシ済みdata URI）
+            if (product.image && product.image.startsWith('data:')) {
+                garmentImg = product.image;
+            }
+
+            // 2. product.image がURLの場合、プロキシ経由で取得
+            if (!garmentImg && product.image && product.image.startsWith('http')) {
+                try {
+                    const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(product.image)}`);
+                    const proxyData = await proxyRes.json();
+                    if (proxyData.success && proxyData.dataUri) {
+                        garmentImg = proxyData.dataUri;
                     }
-                }
+                } catch { /* continue */ }
+            }
+
+            // 3. originalImageUrl から取得
+            if (!garmentImg && product.originalImageUrl && product.originalImageUrl.startsWith('http')) {
+                try {
+                    const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(product.originalImageUrl)}`);
+                    const proxyData = await proxyRes.json();
+                    if (proxyData.success && proxyData.dataUri) {
+                        garmentImg = proxyData.dataUri;
+                    }
+                } catch { /* continue */ }
+            }
+
+            // 4. 商品URLからページを再分析して画像だけ取得
+            if (!garmentImg && product.url) {
+                try {
+                    const reAnalyze = await fetch('/api/check-size', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ url: product.url, plushieHeight: 0 }),
+                    });
+                    const reData = await reAnalyze.json();
+                    if (reData.product?.image) {
+                        // 画像URLをプロキシ
+                        try {
+                            const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(reData.product.image)}`);
+                            const proxyData = await proxyRes.json();
+                            if (proxyData.success && proxyData.dataUri) {
+                                garmentImg = proxyData.dataUri;
+                                // product stateも更新
+                                setProduct(prev => ({ ...prev, image: proxyData.dataUri, originalImageUrl: reData.product.image }));
+                            } else {
+                                garmentImg = reData.product.image;
+                            }
+                        } catch {
+                            garmentImg = reData.product.image;
+                        }
+                    }
+                } catch { /* continue */ }
             }
 
             if (!garmentImg) {
-                setAiTryonError('商品画像を取得できませんでした');
+                setAiTryonError('商品画像を取得できませんでした。この商品のAI試着には対応していない可能性があります。');
                 setAiTryonLoading(false);
                 return;
             }

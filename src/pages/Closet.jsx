@@ -808,8 +808,6 @@ const Closet = () => {
                                   comment: selectedItem.comment || '',
                                   isPublic: selectedItem.isPublic,
                                   galleryOnly: selectedItem.galleryOnly || false,
-                                  isPublic: selectedItem.isPublic,
-                                  galleryOnly: selectedItem.galleryOnly || false,
                                   purchaseType: selectedItem.purchaseType || '',
                                   url: selectedItem.url || '',
                                   url2: selectedItem.url2 || '',

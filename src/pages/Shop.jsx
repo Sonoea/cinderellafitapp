@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy, HelpCircle, X } from 'lucide-react';
+import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy, HelpCircle, X, Sparkles } from 'lucide-react';
 import { translations } from '../translations';
+import VirtualFitting3D from '../components/VirtualFitting3D';
 
 
 const Shop = () => {
@@ -32,11 +33,53 @@ const Shop = () => {
     const [manualProductName, setManualProductName] = useState('');
     const [showUrlHint, setShowUrlHint] = useState(false);
 
+    // AI試着
+    const [aiTryonResult, setAiTryonResult] = useState(null);
+    const [aiTryonLoading, setAiTryonLoading] = useState(false);
+    const [aiTryonError, setAiTryonError] = useState(null);
+
+    const handleAiTryon = async () => {
+        if (!selectedPlushie?.image || !product?.image) {
+            setAiTryonError('ぬいぐるみの写真と商品画像が必要です');
+            return;
+        }
+        setAiTryonLoading(true);
+        setAiTryonError(null);
+        setAiTryonResult(null);
+        try {
+            const clothingType = product?.rawSizeInfo?.clothingType;
+            let category = 'upper_body';
+            if (clothingType === 'dress') category = 'dresses';
+            else if (clothingType === 'bottoms') category = 'lower_body';
+
+            const res = await fetch('/api/ai-tryon', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    plushieImage: selectedPlushie.image,
+                    garmentImage: product.image,
+                    garmentDescription: product.name || 'cute plushie clothing',
+                    category,
+                }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setAiTryonResult(data.resultImage);
+            } else {
+                setAiTryonError(data.error || 'AI試着に失敗しました');
+            }
+        } catch (err) {
+            setAiTryonError('通信エラーが発生しました: ' + err.message);
+        } finally {
+            setAiTryonLoading(false);
+        }
+    };
+
 
     const selectedPlushie = plushies.find(p => p.id === selectedId);
     const plushieHeight = selectedPlushie?.measurements?.height || 0;
 
-    // Calculate fit status
+    // Calculate fit status — 「服がぬいぐるみに対してどうか」の視点で統一
     const getFitStatus = () => {
         if (!product || (productSizeMin === 0 && productSizeMax === 0)) {
             return { status: 'unknown', label: t('fitStatus.unknown'), color: 'gray', icon: AlertTriangle };
@@ -44,15 +87,23 @@ const Shop = () => {
 
         const min = productSizeMin || productSizeMax;
         const max = productSizeMax || productSizeMin;
+        const diff = plushieHeight - max; // positive = plushie bigger than product
 
         if (plushieHeight >= min && plushieHeight <= max) {
             return { status: 'perfect', label: t('fitStatus.perfect'), color: 'green', icon: CheckCircle };
-        } else if (plushieHeight >= min - 2 && plushieHeight <= max + 2) {
-            return { status: 'marginal', label: t('fitStatus.marginal'), color: 'yellow', icon: AlertTriangle };
-        } else if (plushieHeight < min) {
-            return { status: 'tooSmall', label: t('fitStatus.tooSmall'), color: 'orange', icon: AlertTriangle };
+        } else if (plushieHeight > max) {
+            // ぬいぐるみが大きい → 服が小さい/キツい
+            if (diff > 5) {
+                return { status: 'tooSmall', label: t('fitStatus.tooSmall'), color: 'red', icon: XCircle };
+            }
+            return { status: 'tight', label: t('fitStatus.tight'), color: 'orange', icon: AlertTriangle };
         } else {
-            return { status: 'tooLarge', label: t('fitStatus.tooLarge'), color: 'red', icon: XCircle };
+            // ぬいぐるみが小さい → 服が大きい/ブカブカ
+            const gap = min - plushieHeight;
+            if (gap > 5) {
+                return { status: 'tooBig', label: t('fitStatus.tooBig'), color: 'red', icon: XCircle };
+            }
+            return { status: 'loose', label: t('fitStatus.loose'), color: 'yellow', icon: AlertTriangle };
         }
     };
 
@@ -167,6 +218,19 @@ const Shop = () => {
                     fit: data.fit,
                     rawSizeInfo: sizeInfo,
                 });
+
+                // Proxy external image for VirtualFitting (bypass CORS)
+                if (data.product?.image) {
+                    try {
+                        const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(data.product.image)}`);
+                        const proxyData = await proxyRes.json();
+                        if (proxyData.success && proxyData.dataUri) {
+                            setProduct(prev => ({ ...prev, image: proxyData.dataUri }));
+                        }
+                    } catch (e) {
+                        console.log('Image proxy failed, using original URL:', e.message);
+                    }
+                }
 
             } else {
                 // API failed but might have URL analysis
@@ -754,6 +818,108 @@ const Shop = () => {
                                 </div>
                             </details>
                         </div>
+                    </div>
+                )}
+
+                {/* 3D Virtual Fitting Preview — デフォルトで表示 */}
+                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
+                    <VirtualFitting3D
+                        measurements={selectedPlushie?.measurements || {}}
+                        sizeInfo={product?.rawSizeInfo || {}}
+                        fitStatus={product ? (product.fit?.status || fitStatus.status || 'unknown') : 'unknown'}
+                        productName={product?.name}
+                        productImage={product?.image}
+                        plushieName={selectedPlushie?.name}
+                        language={language}
+                        clothingType={product?.rawSizeInfo?.clothingType}
+                    />
+                </div>
+
+                {/* AI試着セクション */}
+                {product && (
+                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
+                        <div className="flex items-center gap-2 mb-3">
+                            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">✨</div>
+                            <h2 className="font-bold text-gray-800">AI試着</h2>
+                            <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">β</span>
+                        </div>
+
+                        {!aiTryonResult && !aiTryonLoading && (
+                            <div className="text-center">
+                                <p className="text-xs text-gray-500 mb-3">
+                                    AIが{selectedPlushie?.name || 'ぬいぐるみ'}に商品を着せた画像を生成します（5〜15秒）
+                                </p>
+                                <button
+                                    onClick={handleAiTryon}
+                                    disabled={!selectedPlushie?.image}
+                                    className="w-full py-3 rounded-xl font-bold text-white text-sm"
+                                    style={{
+                                        background: selectedPlushie?.image
+                                            ? 'linear-gradient(135deg, #8b5cf6, #ec4899)'
+                                            : '#d1d5db',
+                                        cursor: selectedPlushie?.image ? 'pointer' : 'not-allowed',
+                                    }}
+                                >
+                                    ✨ AI試着する
+                                </button>
+                                {!selectedPlushie?.image && (
+                                    <p className="text-[10px] text-orange-500 mt-2">
+                                        ⚠️ ぬいぐるみのプロフィール写真を設定してください
+                                    </p>
+                                )}
+                            </div>
+                        )}
+
+                        {aiTryonLoading && (
+                            <div className="text-center py-8">
+                                <div style={{
+                                    width: 40, height: 40,
+                                    border: '4px solid #e5e7eb',
+                                    borderTopColor: '#8b5cf6',
+                                    borderRadius: '50%',
+                                    animation: 'spin 1s linear infinite',
+                                    margin: '0 auto 12px',
+                                }} />
+                                <p className="text-sm font-bold text-purple-700">🤖 AIが試着画像を生成中...</p>
+                                <p className="text-xs text-gray-400 mt-1">通常5〜15秒かかります</p>
+                                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                            </div>
+                        )}
+
+                        {aiTryonResult && (
+                            <div className="text-center">
+                                <img
+                                    src={aiTryonResult}
+                                    alt="AI試着結果"
+                                    style={{
+                                        width: '100%',
+                                        maxHeight: '400px',
+                                        objectFit: 'contain',
+                                        borderRadius: '12px',
+                                        border: '2px solid #e5e7eb',
+                                    }}
+                                />
+                                <p className="text-xs text-green-600 font-bold mt-2">✅ AI試着完了！</p>
+                                <button
+                                    onClick={() => { setAiTryonResult(null); setAiTryonError(null); }}
+                                    className="mt-2 text-xs text-purple-600 underline"
+                                >
+                                    もう一度試す
+                                </button>
+                            </div>
+                        )}
+
+                        {aiTryonError && (
+                            <div className="bg-red-50 rounded-xl p-3 mt-2">
+                                <p className="text-xs text-red-600">⚠️ {aiTryonError}</p>
+                                <button
+                                    onClick={() => setAiTryonError(null)}
+                                    className="mt-1 text-xs text-red-500 underline"
+                                >
+                                    閉じる
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 

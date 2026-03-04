@@ -212,11 +212,11 @@ function extractSizeInfo(text, title = '', extraData = {}) {
     const cleanText = text.replace(/\s+/g, ' ').trim();
     const cleanTitle = title.replace(/\s+/g, ' ').trim();
 
-    if (/ドレス|ワンピース|メイド服/.test(cleanText)) results.clothingType = 'dress';
+    if (/ドレス|ワンピース|メイド服|チャイナ服|チャイナドレス|浴衣|甚平|着物|袴/.test(cleanText)) results.clothingType = 'dress';
     else if (/トップス|シャツ|Tシャツ|セーター|スモック|ベスト/.test(cleanText)) results.clothingType = 'tops';
-    else if (/帽子|ハット|ベレー|キャップ|ヘッドドレス/.test(cleanText)) results.clothingType = 'hat';
+    else if (/帽子|ハット|ベレー|キャップ|ヘッドドレス|ヘアバンド|カチューシャ/.test(cleanText)) results.clothingType = 'hat';
     else if (/マフラー|スカーフ|ネクタイ|蝶ネクタイ|リボン/.test(cleanText)) results.clothingType = 'accessories';
-    else if (/コート|ジャケット|パーカー|アウター|ポンチョ|ケープ/.test(cleanText)) results.clothingType = 'outerwear';
+    else if (/コート|ジャケット|パーカー|アウター|ポンチョ|ケープ|着ぐるみ/.test(cleanText)) results.clothingType = 'outerwear';
     else if (/パンツ|ズボン|スカート/.test(cleanText)) results.clothingType = 'bottoms';
 
     const bodyTypeKeywords = {
@@ -776,6 +776,154 @@ app.post('/api/analyze-text', async (req, res) => {
         });
     } catch (error) {
         res.json({ success: false, error: 'Failed to analyze text' });
+    }
+});
+
+// Image proxy endpoint — fetches external images server-side to bypass CORS
+app.get('/api/proxy-image', async (req, res) => {
+    const { url } = req.query;
+    if (!url) return res.status(400).json({ error: 'URL is required' });
+
+    try {
+        const imageUrl = decodeURIComponent(url);
+        const response = await axios.get(imageUrl, {
+            headers: {
+                'User-Agent': USER_AGENTS[0],
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+                'Referer': new URL(imageUrl).origin + '/',
+            },
+            timeout: 5000,
+            responseType: 'arraybuffer',
+            maxContentLength: 5 * 1024 * 1024, // 5MB limit
+        });
+
+        const contentType = response.headers['content-type'] || 'image/jpeg';
+        const base64 = Buffer.from(response.data).toString('base64');
+        const dataUri = `data:${contentType};base64,${base64}`;
+
+        res.json({ success: true, dataUri });
+    } catch (error) {
+        console.error('Image proxy error:', error.message);
+        res.json({ success: false, error: 'Failed to fetch image' });
+    }
+});
+
+// ==== AI試着 — Replicate API (idm-vton) ====
+app.post('/api/ai-tryon', async (req, res) => {
+    const { plushieImage, garmentImage, garmentDescription, category } = req.body;
+
+    if (!plushieImage || !garmentImage) {
+        return res.status(400).json({
+            error: 'ぬいぐるみ画像と商品画像が必要です',
+        });
+    }
+
+    const apiToken = process.env.REPLICATE_API_TOKEN;
+    if (!apiToken) {
+        return res.status(500).json({
+            error: 'REPLICATE_API_TOKEN が設定されていません。Vercelの環境変数に設定してください。',
+        });
+    }
+
+    try {
+        console.log('[AI Try-On] Starting prediction...');
+
+        // Replicate API を直接呼び出す（HTTP）
+        const createResponse = await axios.post(
+            'https://api.replicate.com/v1/predictions',
+            {
+                version: 'c871bb9b046c1b1c205e3a34f3a2a2c72ac6cf1f4820c34e8d36e8aba498b4d3',
+                input: {
+                    human_img: plushieImage,
+                    garm_img: garmentImage,
+                    garment_des: garmentDescription || 'cute plushie clothing',
+                    category: category || 'upper_body',
+                    crop: false,
+                },
+            },
+            {
+                headers: {
+                    'Authorization': `Bearer ${apiToken}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'wait',
+                },
+                timeout: 120000, // 2分タイムアウト
+            }
+        );
+
+        // "Prefer: wait" で同期的に結果を待つ
+        let prediction = createResponse.data;
+
+        // もし完了していなければポーリング
+        if (prediction.status !== 'succeeded' && prediction.status !== 'failed') {
+            const predictionId = prediction.id;
+            let attempts = 0;
+            const maxAttempts = 60; // 最大60回（2分）
+
+            while (attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                attempts++;
+
+                const pollResponse = await axios.get(
+                    `https://api.replicate.com/v1/predictions/${predictionId}`,
+                    {
+                        headers: { 'Authorization': `Bearer ${apiToken}` },
+                        timeout: 10000,
+                    }
+                );
+
+                prediction = pollResponse.data;
+
+                if (prediction.status === 'succeeded' || prediction.status === 'failed') {
+                    break;
+                }
+
+                console.log(`[AI Try-On] Polling... attempt ${attempts}, status: ${prediction.status}`);
+            }
+        }
+
+        if (prediction.status === 'succeeded') {
+            const outputUrl = Array.isArray(prediction.output) ? prediction.output[0] : prediction.output;
+            console.log('[AI Try-On] Success! Output URL:', outputUrl);
+
+            // 結果画像をdata URIに変換
+            try {
+                const imageResponse = await axios.get(outputUrl, {
+                    responseType: 'arraybuffer',
+                    timeout: 15000,
+                });
+                const contentType = imageResponse.headers['content-type'] || 'image/png';
+                const base64 = Buffer.from(imageResponse.data).toString('base64');
+                const dataUri = `data:${contentType};base64,${base64}`;
+
+                res.json({
+                    success: true,
+                    resultImage: dataUri,
+                    message: 'AI試着が完了しました！',
+                });
+            } catch (imgErr) {
+                // 画像取得失敗の場合はURLを返す
+                res.json({
+                    success: true,
+                    resultImage: outputUrl,
+                    message: 'AI試着が完了しました！',
+                });
+            }
+        } else {
+            console.error('[AI Try-On] Failed:', prediction.error);
+            res.json({
+                success: false,
+                error: prediction.error || 'AI試着に失敗しました。別の画像でお試しください。',
+            });
+        }
+    } catch (error) {
+        console.error('[AI Try-On] Error:', error.response?.data || error.message);
+        const message = error.response?.status === 401
+            ? 'APIキーが無効です。REPLICATE_API_TOKENを確認してください。'
+            : error.response?.status === 422
+                ? '画像形式に問題があります。別の画像でお試しください。'
+                : `AI試着エラー: ${error.message}`;
+        res.json({ success: false, error: message });
     }
 });
 

@@ -550,10 +550,10 @@ const UserProfile = () => {
 
                                     {currentUser ? (
                                         <div className="flex gap-2">
-                                            <input type="text" value={commentText} onChange={(e) => setCommentText(e.target.value)}
+                                            <textarea value={commentText} onChange={(e) => setCommentText(e.target.value)}
                                                 placeholder={language === 'jp' ? 'コメントを入力...' : 'Write a comment...'}
-                                                className="flex-1 bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
-                                                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) { e.preventDefault(); submitComment(selectedItem.id, selectedItem.userId); } }} />
+                                                className="flex-1 bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
+                                                rows={2} />
                                             <button onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
                                                 disabled={!commentText.trim() || isSubmittingComment}
                                                 className="bg-primary text-white p-2.5 rounded-xl disabled:opacity-50">

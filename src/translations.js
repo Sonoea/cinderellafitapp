@@ -92,9 +92,10 @@ export const translations = {
         fitStatus: {
             unknown: "Unknown Size",
             perfect: "Perfect!",
-            marginal: "Marginal",
-            tooSmall: "Might be loose",
-            tooLarge: "Might be tight"
+            tight: "Might be tight",
+            loose: "Might be loose",
+            tooSmall: "Won't fit (too small)",
+            tooBig: "Way too big"
         },
         fitCriteriaTitle: "Fit Criteria",
         fitCriteria: {
@@ -413,9 +414,10 @@ export const translations = {
         fitStatus: {
             unknown: "サイズ未入力",
             perfect: "ぴったり！",
-            marginal: "ギリギリ",
-            tooSmall: "ブカブカかも",
-            tooLarge: "キツそう"
+            tight: "キツいかも",
+            loose: "ブカブカかも",
+            tooSmall: "入らないかも",
+            tooBig: "大きすぎるかも"
         },
         fitCriteriaTitle: "判定基準について",
         fitCriteria: {

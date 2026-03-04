@@ -32,6 +32,12 @@ const Shop = () => {
     const [manualText, setManualText] = useState('');
     const [manualProductName, setManualProductName] = useState('');
     const [showUrlHint, setShowUrlHint] = useState(false);
+    const [inputMode, setInputMode] = useState('url');
+    const [photoImage, setPhotoImage] = useState(null);
+    const [photoProductName, setPhotoProductName] = useState('');
+    const [photoSizeNeck, setPhotoSizeNeck] = useState('');
+    const [photoSizeWaist, setPhotoSizeWaist] = useState('');
+    const [photoSizeLength, setPhotoSizeLength] = useState('');
 
     // AI試着
     const [aiTryonResult, setAiTryonResult] = useState(null);
@@ -539,107 +545,207 @@ const Shop = () => {
                         </button>
                     </div>
 
-                    {/* URL Hint Tooltip */}
-                    {showUrlHint && (
-                        <div className="mb-3 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs relative fade-in">
-                            <button
-                                onClick={() => setShowUrlHint(false)}
-                                className="absolute top-2 right-2 text-blue-400 hover:text-blue-600"
-                            >
-                                <X size={14} />
-                            </button>
-                            <p className="font-bold text-blue-700 mb-2">{t('urlHintTitle')}</p>
-                            <ul className="text-blue-600 space-y-1">
-                                {(t('urlHintList') || []).map((hint, i) => (
-                                    <li key={i}>{hint}</li>
-                                ))}
-                            </ul>
-                            <p className="mt-2 text-blue-500">
-                                {t('urlHintSupported')}
-                            </p>
-                            <p className="text-blue-400">
-                                {t('urlHintCaution')}
-                            </p>
-                        </div>
-                    )}
-
-                    <div className="flex gap-2">
-                        <input
-                            type="url"
-                            value={url}
-                            onChange={(e) => setUrl(e.target.value)}
-                            placeholder={t('urlInputPlaceholder')}
-                            className="flex-1 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
-                        />
+                    {/* 入力モードタブ */}
+                    <div className="flex gap-1 mb-3 bg-gray-100 rounded-xl p-1">
                         <button
-                            onClick={handleAnalyzeUrl}
-                            disabled={isAnalyzing || !url.trim()}
-                            className="px-4 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            onClick={() => setInputMode('url')}
+                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition ${inputMode === 'url' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                         >
-                            {isAnalyzing ? (
-                                <span className="animate-spin">⏳</span>
-                            ) : (
-                                <Search size={18} />
-                            )}
+                            🔗 URL入力
+                        </button>
+                        <button
+                            onClick={() => setInputMode('photo')}
+                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition ${inputMode === 'photo' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                        >
+                            📷 写真で入力
                         </button>
                     </div>
 
-                    <p className="text-[10px] text-gray-400 mt-2">
-                        {t('plushieClothesPageUrl')}
-                    </p>
+                    {/* --- URL入力モード --- */}
+                    {inputMode === 'url' && (
+                        <div>
+                            {/* URL Hint Tooltip */}
+                            {showUrlHint && (
+                                <div className="mb-3 p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs relative fade-in">
+                                    <button
+                                        onClick={() => setShowUrlHint(false)}
+                                        className="absolute top-2 right-2 text-blue-400 hover:text-blue-600"
+                                    >
+                                        <X size={14} />
+                                    </button>
+                                    <p className="font-bold text-blue-700 mb-2">{t('urlHintTitle')}</p>
+                                    <ul className="text-blue-600 space-y-1">
+                                        {(t('urlHintList') || []).map((hint, i) => (
+                                            <li key={i}>{hint}</li>
+                                        ))}
+                                    </ul>
+                                    <p className="mt-2 text-blue-500">
+                                        {t('urlHintSupported')}
+                                    </p>
+                                    <p className="text-blue-400">
+                                        {t('urlHintCaution')}
+                                    </p>
+                                </div>
+                            )}
 
+                            <div className="flex gap-2">
+                                <input
+                                    type="url"
+                                    value={url}
+                                    onChange={(e) => setUrl(e.target.value)}
+                                    placeholder={t('urlInputPlaceholder')}
+                                    className="flex-1 px-4 py-3 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                                />
+                                <button
+                                    onClick={handleAnalyzeUrl}
+                                    disabled={isAnalyzing || !url.trim()}
+                                    className="px-4 py-3 bg-primary text-white rounded-xl font-bold text-sm shadow-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {isAnalyzing ? (
+                                        <span className="animate-spin">⏳</span>
+                                    ) : (
+                                        <Search size={18} />
+                                    )}
+                                </button>
+                            </div>
 
-                    {/* Manual Input Toggle Button */}
-                    <button
-                        onClick={() => setShowManualInput(!showManualInput)}
-                        className="mt-3 w-full flex items-center justify-center gap-2 text-sm text-primary hover:text-primary/80 py-2 border border-primary/30 rounded-xl hover:bg-primary/5 transition"
-                    >
-                        <FileText size={16} />
-                        {showManualInput ? t('manualInputButtonOpen') : t('manualInputButtonClosed')}
-                    </button>
-
-                    {/* Manual Input Section (Collapsible) */}
-                    {showManualInput && (
-                        <div className="mt-3 p-3 bg-yellow-50 rounded-xl border border-yellow-200 fade-in">
-                            <p className="text-xs text-yellow-700 mb-2 font-bold flex items-center gap-1">
-                                <Copy size={12} />
-                                {t('manualInputTitle')}
+                            <p className="text-[10px] text-gray-400 mt-2">
+                                {t('plushieClothesPageUrl')}
                             </p>
-                            <p className="text-[10px] text-yellow-600 mb-3">
-                                {t('manualInputDesc')}
-                            </p>
 
-                            <input
-                                type="text"
-                                value={manualProductName}
-                                onChange={(e) => setManualProductName(e.target.value)}
-                                placeholder={t('manualProductNamePlaceholder')}
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            />
 
-                            <textarea
-                                value={manualText}
-                                onChange={(e) => setManualText(e.target.value)}
-                                placeholder={t('manualTextPlaceholder')}
-                                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg h-32 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
-                            />
-
+                            {/* Manual Input Toggle Button */}
                             <button
-                                onClick={handleManualTextAnalysis}
-                                disabled={isAnalyzing || !manualText.trim()}
-                                className="mt-2 w-full px-4 py-3 bg-yellow-600 text-white rounded-xl font-bold text-sm shadow-md hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                onClick={() => setShowManualInput(!showManualInput)}
+                                className="mt-3 w-full flex items-center justify-center gap-2 text-sm text-primary hover:text-primary/80 py-2 border border-primary/30 rounded-xl hover:bg-primary/5 transition"
                             >
-                                {isAnalyzing ? (
-                                    <span className="animate-spin">⏳</span>
+                                <FileText size={16} />
+                                {showManualInput ? t('manualInputButtonOpen') : t('manualInputButtonClosed')}
+                            </button>
+
+                            {/* Manual Input Section (Collapsible) */}
+                            {showManualInput && (
+                                <div className="mt-3 p-3 bg-yellow-50 rounded-xl border border-yellow-200 fade-in">
+                                    <p className="text-xs text-yellow-700 mb-2 font-bold flex items-center gap-1">
+                                        <Copy size={12} />
+                                        {t('manualInputTitle')}
+                                    </p>
+                                    <p className="text-[10px] text-yellow-600 mb-3">
+                                        {t('manualInputDesc')}
+                                    </p>
+
+                                    <input
+                                        type="text"
+                                        value={manualProductName}
+                                        onChange={(e) => setManualProductName(e.target.value)}
+                                        placeholder={t('manualProductNamePlaceholder')}
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg mb-2 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                    />
+
+                                    <textarea
+                                        value={manualText}
+                                        onChange={(e) => setManualText(e.target.value)}
+                                        placeholder={t('manualTextPlaceholder')}
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg h-32 resize-none focus:outline-none focus:ring-2 focus:ring-primary/30"
+                                    />
+
+                                    <button
+                                        onClick={handleManualTextAnalysis}
+                                        disabled={isAnalyzing || !manualText.trim()}
+                                        className="mt-2 w-full px-4 py-3 bg-yellow-600 text-white rounded-xl font-bold text-sm shadow-md hover:bg-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    >
+                                        {isAnalyzing ? (
+                                            <span className="animate-spin">⏳</span>
+                                        ) : (
+                                            <>
+                                                <Search size={16} />
+                                                {t('analyzeTextBtn')}
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* --- 写真入力モード --- */}
+                    {inputMode === 'photo' && (
+                        <div className="space-y-3">
+                            {/* 商品写真アップロード */}
+                            <div className="border-2 border-dashed border-purple-300 rounded-xl p-4 text-center bg-purple-50/50">
+                                {photoImage ? (
+                                    <div className="relative">
+                                        <img src={photoImage} alt="商品写真" className="max-h-48 mx-auto rounded-lg object-contain" />
+                                        <button onClick={() => setPhotoImage(null)} className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
+                                        <p className="text-[10px] text-green-600 mt-1 font-bold">✅ 写真がセットされました</p>
+                                    </div>
                                 ) : (
-                                    <>
-                                        <Search size={16} />
-                                        {t('analyzeTextBtn')}
-                                    </>
+                                    <div>
+                                        <div className="text-3xl mb-2">📷</div>
+                                        <p className="text-xs text-purple-700 font-bold mb-2">商品の写真をアップロード</p>
+                                        <div className="flex gap-2 justify-center">
+                                            <label className="px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-700 transition">
+                                                カメラで撮影
+                                                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) { const reader = new FileReader(); reader.onload = (ev) => setPhotoImage(ev.target.result); reader.readAsDataURL(file); }
+                                                }} />
+                                            </label>
+                                            <label className="px-4 py-2 bg-white text-purple-600 border border-purple-300 rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-50 transition">
+                                                アルバムから選択
+                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                                    const file = e.target.files?.[0];
+                                                    if (file) { const reader = new FileReader(); reader.onload = (ev) => setPhotoImage(ev.target.result); reader.readAsDataURL(file); }
+                                                }} />
+                                            </label>
+                                        </div>
+                                    </div>
                                 )}
+                            </div>
+
+                            {/* 商品名 */}
+                            <input type="text" value={photoProductName} onChange={(e) => setPhotoProductName(e.target.value)} placeholder="商品名（例: ジャージ上下 イエロー）" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
+
+                            {/* サイズ入力 */}
+                            <div className="bg-gray-50 rounded-xl p-3">
+                                <p className="text-xs font-bold text-gray-700 mb-2">📏 サイズ情報（わかる範囲でOK）</p>
+                                <div className="grid grid-cols-3 gap-2">
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 block mb-1">首周り(cm)</label>
+                                        <input type="number" value={photoSizeNeck} onChange={(e) => setPhotoSizeNeck(e.target.value)} placeholder="例: 11" className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 block mb-1">ウエスト(cm)</label>
+                                        <input type="number" value={photoSizeWaist} onChange={(e) => setPhotoSizeWaist(e.target.value)} placeholder="例: 13" className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] text-gray-500 block mb-1">着丈(cm)</label>
+                                        <input type="number" value={photoSizeLength} onChange={(e) => setPhotoSizeLength(e.target.value)} placeholder="例: 10" className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 分析ボタン */}
+                            <button
+                                onClick={() => {
+                                    if (!photoImage) return;
+                                    const neck = parseFloat(photoSizeNeck) || 0;
+                                    const waist = parseFloat(photoSizeWaist) || 0;
+                                    const length = parseFloat(photoSizeLength) || 0;
+                                    const sizeInfo = { targetPlushieSize: 0, sizeRanges: [], dimensions: neck || waist || length ? [{ neck, width: waist, length, itemLength: length }] : [], measurements: { neck, waist, length }, clothingType: 'tops' };
+                                    if (waist > 0) { const estimated = Math.round(waist / Math.PI * 2 * 3); setProductSizeMin(Math.max(estimated - 3, 5)); setProductSizeMax(estimated + 3); setProductTargetSize(`${estimated}cm前後（推定）`); }
+                                    setProduct({ url: null, name: photoProductName || '商品（写真入力）', description: `首周り:${neck || '不明'}cm ウエスト:${waist || '不明'}cm 着丈:${length || '不明'}cm`, image: photoImage, originalImageUrl: null, detectedSize: waist ? `ウエスト${waist}cm` : '', rawSizeInfo: sizeInfo });
+                                    setAiTryonResult(null); setAiTryonError(null);
+                                }}
+                                disabled={!photoImage}
+                                className="w-full py-3 rounded-xl font-bold text-white text-sm"
+                                style={{ background: photoImage ? 'linear-gradient(135deg, #8b5cf6, #ec4899)' : '#d1d5db', cursor: photoImage ? 'pointer' : 'not-allowed' }}
+                            >
+                                {photoImage ? '✨ この写真で分析する' : '📷 先に写真をアップしてください'}
                             </button>
                         </div>
                     )}
+
                 </div>
 
                 {/* Step 3: Enter/Confirm Size */}

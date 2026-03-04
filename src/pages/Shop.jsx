@@ -38,9 +38,31 @@ const Shop = () => {
     const [aiTryonLoading, setAiTryonLoading] = useState(false);
     const [aiTryonError, setAiTryonError] = useState(null);
 
+    // 画像をdata URIに変換するヘルパー
+    const imageToDataUri = (src) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+            img.src = src;
+        });
+    };
+
     const handleAiTryon = async () => {
-        if (!selectedPlushie?.image || !product?.image) {
-            setAiTryonError('ぬいぐるみの写真と商品画像が必要です');
+        if (!selectedPlushie?.image) {
+            setAiTryonError('ぬいぐるみのプロフィール写真を設定してください');
+            return;
+        }
+        if (!product?.image) {
+            setAiTryonError('商品画像が取得できていません。別の商品URLをお試しください');
             return;
         }
         setAiTryonLoading(true);
@@ -52,12 +74,30 @@ const Shop = () => {
             if (clothingType === 'dress') category = 'dresses';
             else if (clothingType === 'bottoms') category = 'lower_body';
 
+            // ぬいぐるみ画像をdata URIに変換
+            let plushieImg = selectedPlushie.image;
+            if (!plushieImg.startsWith('data:')) {
+                try {
+                    // 相対パス（/unae-san.png等）→ data URI に変換
+                    plushieImg = await imageToDataUri(plushieImg);
+                } catch {
+                    // data URI変換失敗 → フルURLとして送信
+                    plushieImg = `${window.location.origin}${plushieImg}`;
+                }
+            }
+
+            // 商品画像もdata URIでなければフルURLに
+            let garmentImg = product.image;
+            if (!garmentImg.startsWith('data:') && !garmentImg.startsWith('http')) {
+                garmentImg = `${window.location.origin}${garmentImg}`;
+            }
+
             const res = await fetch('/api/ai-tryon', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    plushieImage: selectedPlushie.image,
-                    garmentImage: product.image,
+                    plushieImage: plushieImg,
+                    garmentImage: garmentImg,
                     garmentDescription: product.name || 'cute plushie clothing',
                     category,
                 }),

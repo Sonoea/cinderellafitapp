@@ -61,7 +61,7 @@ const Shop = () => {
             setAiTryonError('ぬいぐるみのプロフィール写真を設定してください');
             return;
         }
-        if (!product?.image) {
+        if (!product?.image && !product?.originalImageUrl) {
             setAiTryonError('商品画像が取得できていません。別の商品URLをお試しください');
             return;
         }
@@ -86,10 +86,31 @@ const Shop = () => {
                 }
             }
 
-            // 商品画像もdata URIでなければフルURLに
-            let garmentImg = product.image;
-            if (!garmentImg.startsWith('data:') && !garmentImg.startsWith('http')) {
-                garmentImg = `${window.location.origin}${garmentImg}`;
+            // 商品画像の取得
+            let garmentImg = product.image || null;
+
+            // data URIがない場合、元のURLからプロキシ経由で取得を試みる
+            if (!garmentImg || (!garmentImg.startsWith('data:') && !garmentImg.startsWith('http'))) {
+                const imgUrl = product.originalImageUrl || product.image;
+                if (imgUrl) {
+                    try {
+                        const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(imgUrl)}`);
+                        const proxyData = await proxyRes.json();
+                        if (proxyData.success && proxyData.dataUri) {
+                            garmentImg = proxyData.dataUri;
+                        } else {
+                            garmentImg = imgUrl; // プロキシ失敗→元URLをそのまま使う
+                        }
+                    } catch {
+                        garmentImg = imgUrl;
+                    }
+                }
+            }
+
+            if (!garmentImg) {
+                setAiTryonError('商品画像を取得できませんでした');
+                setAiTryonLoading(false);
+                return;
             }
 
             const res = await fetch('/api/ai-tryon', {
@@ -254,6 +275,7 @@ const Shop = () => {
                     name: data.product?.title || '商品',
                     description: data.product?.description,
                     image: data.product?.image,
+                    originalImageUrl: data.product?.image,
                     detectedSize: sizeText,
                     fit: data.fit,
                     rawSizeInfo: sizeInfo,

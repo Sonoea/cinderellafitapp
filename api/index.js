@@ -725,7 +725,44 @@ app.post('/api/analyze-url', async (req, res) => {
         const title = $('title').text() || '';
         const description = $('meta[name="description"]').attr('content') || '';
         const ogTitle = $('meta[property="og:title"]').attr('content') || '';
-        const ogImage = $('meta[property="og:image"]').attr('content') || '';
+        let ogImage = $('meta[property="og:image"]').attr('content') || '';
+
+        // OG imageが無い場合のフォールバック画像取得
+        if (!ogImage) {
+            // twitter:image
+            ogImage = $('meta[name="twitter:image"]').attr('content') || '';
+        }
+        if (!ogImage) {
+            // 商品画像の一般的なセレクタ
+            const imgSelectors = [
+                '.item-image img', '.product-image img', '#itemImg img',
+                '.main-image img', '.item_image img', '.product_image img',
+                '.itemImg img', '.p-goods__image img', '.goods-image img',
+                '[class*="product"] img', '[class*="item"] img[src*="item"]',
+                '.slick-slide img', '.swiper-slide img',
+            ];
+            for (const sel of imgSelectors) {
+                const src = $(sel).first().attr('src') || $(sel).first().attr('data-src');
+                if (src && !src.includes('logo') && !src.includes('icon') && !src.includes('banner')) {
+                    ogImage = src.startsWith('http') ? src : new URL(src, url).href;
+                    break;
+                }
+            }
+        }
+        if (!ogImage) {
+            // ページ内の最初の大きな画像を取得
+            $('img').each((i, el) => {
+                if (ogImage) return;
+                const src = $(el).attr('src') || $(el).attr('data-src');
+                const w = parseInt($(el).attr('width') || '0');
+                const h = parseInt($(el).attr('height') || '0');
+                if (src && (w >= 200 || h >= 200 || (!w && !h && i < 10))) {
+                    if (!src.includes('logo') && !src.includes('icon') && !src.includes('banner') && !src.includes('cart')) {
+                        ogImage = src.startsWith('http') ? src : new URL(src, url).href;
+                    }
+                }
+            });
+        }
         // Increase body text limit to catch tables lower down
         const bodyText = $('body').text().replace(/\s+/g, ' ').substring(0, 20000);
 

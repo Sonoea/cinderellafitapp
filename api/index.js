@@ -878,8 +878,9 @@ app.post('/api/ai-tryon', async (req, res) => {
 
         // Replicate API を直接呼び出す（HTTP）
         const createResponse = await axios.post(
-            'https://api.replicate.com/v1/models/yisol/idm-vton/predictions',
+            'https://api.replicate.com/v1/predictions',
             {
+                version: 'c8a93beed053744cb402cb002ed5f4d1eab7451f28eecb5dfcead210f9a2b535',
                 input: {
                     human_img: plushieImage,
                     garm_img: garmentImage,

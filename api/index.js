@@ -878,7 +878,7 @@ app.post('/api/ai-tryon', async (req, res) => {
 
         // Replicate API を直接呼び出す（HTTP）
         const createResponse = await axios.post(
-            'https://api.replicate.com/v1/models/cuuupid/idm-vton/predictions',
+            'https://api.replicate.com/v1/models/yisol/idm-vton/predictions',
             {
                 input: {
                     human_img: plushieImage,

@@ -1024,22 +1024,24 @@ const Shop = () => {
                     </div>
                 )}
 
-                {/* 3D Virtual Fitting Preview — デフォルトで表示 */}
-                <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
-                    <VirtualFitting3D
-                        measurements={selectedPlushie?.measurements || {}}
-                        sizeInfo={product?.rawSizeInfo || {}}
-                        fitStatus={product ? (product.fit?.status || fitStatus.status || 'unknown') : 'unknown'}
-                        productName={product?.name}
-                        productImage={product?.image}
-                        plushieName={selectedPlushie?.name}
-                        language={language}
-                        clothingType={product?.rawSizeInfo?.clothingType}
-                    />
-                </div>
+                {/* 3D Virtual Fitting Preview — 開発環境のみ */}
+                {import.meta.env.DEV && (
+                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
+                        <VirtualFitting3D
+                            measurements={selectedPlushie?.measurements || {}}
+                            sizeInfo={product?.rawSizeInfo || {}}
+                            fitStatus={product ? (product.fit?.status || fitStatus.status || 'unknown') : 'unknown'}
+                            productName={product?.name}
+                            productImage={product?.image}
+                            plushieName={selectedPlushie?.name}
+                            language={language}
+                            clothingType={product?.rawSizeInfo?.clothingType}
+                        />
+                    </div>
+                )}
 
-                {/* AI試着セクション */}
-                {product && (
+                {/* AI試着セクション — 開発環境のみ */}
+                {import.meta.env.DEV && product && (
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
                         <div className="flex items-center gap-2 mb-3">
                             <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">✨</div>

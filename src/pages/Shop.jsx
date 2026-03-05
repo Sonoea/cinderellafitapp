@@ -4,6 +4,8 @@ import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown,
 import { translations } from '../translations';
 import VirtualFitting3D from '../components/VirtualFitting3D';
 
+// 開発環境ではVercel本番APIに直接リクエスト、本番では相対パス
+const API_BASE = import.meta.env.DEV ? 'https://cinderellafitapp.vercel.app' : '';
 
 const Shop = () => {
     const { plushies, language } = useApp();
@@ -101,7 +103,7 @@ const Shop = () => {
             // 2. product.image がURLの場合、プロキシ経由で取得
             if (!garmentImg && product.image && product.image.startsWith('http')) {
                 try {
-                    const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(product.image)}`);
+                    const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(product.image)}`);
                     const proxyData = await proxyRes.json();
                     if (proxyData.success && proxyData.dataUri) {
                         garmentImg = proxyData.dataUri;
@@ -112,7 +114,7 @@ const Shop = () => {
             // 3. originalImageUrl から取得
             if (!garmentImg && product.originalImageUrl && product.originalImageUrl.startsWith('http')) {
                 try {
-                    const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(product.originalImageUrl)}`);
+                    const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(product.originalImageUrl)}`);
                     const proxyData = await proxyRes.json();
                     if (proxyData.success && proxyData.dataUri) {
                         garmentImg = proxyData.dataUri;
@@ -123,7 +125,7 @@ const Shop = () => {
             // 4. 商品URLからページを再分析して画像だけ取得
             if (!garmentImg && product.url) {
                 try {
-                    const reAnalyze = await fetch('/api/check-size', {
+                    const reAnalyze = await fetch(`${API_BASE}/api/check-size`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ url: product.url, plushieHeight: 0 }),
@@ -132,7 +134,7 @@ const Shop = () => {
                     if (reData.product?.image) {
                         // 画像URLをプロキシ
                         try {
-                            const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(reData.product.image)}`);
+                            const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(reData.product.image)}`);
                             const proxyData = await proxyRes.json();
                             if (proxyData.success && proxyData.dataUri) {
                                 garmentImg = proxyData.dataUri;
@@ -154,12 +156,36 @@ const Shop = () => {
                 return;
             }
 
-            const res = await fetch('/api/ai-tryon', {
+            // 画像をリサイズしてペイロードサイズを削減（Vercel 4.5MB制限対策）
+            const resizeForApi = (dataUri, maxSize = 512) => new Promise((resolve) => {
+                if (!dataUri || !dataUri.startsWith('data:')) { resolve(dataUri); return; }
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let w = img.width, h = img.height;
+                    if (w > maxSize || h > maxSize) {
+                        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+                        else { w = Math.round(w * maxSize / h); h = maxSize; }
+                    }
+                    canvas.width = w; canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = () => resolve(dataUri);
+                img.src = dataUri;
+            });
+
+            const [compressedPlushie, compressedGarment] = await Promise.all([
+                resizeForApi(plushieImg),
+                resizeForApi(garmentImg),
+            ]);
+
+            const res = await fetch(`${API_BASE}/api/ai-tryon`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    plushieImage: plushieImg,
-                    garmentImage: garmentImg,
+                    plushieImage: compressedPlushie,
+                    garmentImage: compressedGarment,
                     garmentDescription: product.name || 'cute plushie clothing',
                     category,
                 }),
@@ -222,7 +248,7 @@ const Shop = () => {
         setIsEditingSize(false);
 
         try {
-            const response = await fetch('/api/analyze-url', {
+            const response = await fetch(`${API_BASE}/api/analyze-url`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -325,7 +351,7 @@ const Shop = () => {
                 // Proxy external image for VirtualFitting (bypass CORS)
                 if (data.product?.image) {
                     try {
-                        const proxyRes = await fetch(`/api/proxy-image?url=${encodeURIComponent(data.product.image)}`);
+                        const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(data.product.image)}`);
                         const proxyData = await proxyRes.json();
                         if (proxyData.success && proxyData.dataUri) {
                             setProduct(prev => ({ ...prev, image: proxyData.dataUri }));
@@ -400,7 +426,7 @@ const Shop = () => {
         setProductTargetSize('');
 
         try {
-            const response = await fetch('/api/analyze-text', {
+            const response = await fetch(`${API_BASE}/api/analyze-text`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -686,16 +712,40 @@ const Shop = () => {
                                         <div className="flex gap-2 justify-center">
                                             <label className="px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-700 transition">
                                                 カメラで撮影
-                                                <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => {
+                                                <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => {
                                                     const file = e.target.files?.[0];
-                                                    if (file) { const reader = new FileReader(); reader.onload = (ev) => setPhotoImage(ev.target.result); reader.readAsDataURL(file); }
+                                                    if (file) {
+                                                        const img = new Image();
+                                                        img.onload = () => {
+                                                            const canvas = document.createElement('canvas');
+                                                            const maxSize = 800;
+                                                            let w = img.width, h = img.height;
+                                                            if (w > maxSize || h > maxSize) { if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; } else { w = Math.round(w * maxSize / h); h = maxSize; } }
+                                                            canvas.width = w; canvas.height = h;
+                                                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                                                            setPhotoImage(canvas.toDataURL('image/jpeg', 0.8));
+                                                        };
+                                                        img.src = URL.createObjectURL(file);
+                                                    }
                                                 }} />
                                             </label>
                                             <label className="px-4 py-2 bg-white text-purple-600 border border-purple-300 rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-50 transition">
                                                 アルバムから選択
-                                                <input type="file" accept="image/*" className="hidden" onChange={(e) => {
+                                                <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => {
                                                     const file = e.target.files?.[0];
-                                                    if (file) { const reader = new FileReader(); reader.onload = (ev) => setPhotoImage(ev.target.result); reader.readAsDataURL(file); }
+                                                    if (file) {
+                                                        const img = new Image();
+                                                        img.onload = () => {
+                                                            const canvas = document.createElement('canvas');
+                                                            const maxSize = 800;
+                                                            let w = img.width, h = img.height;
+                                                            if (w > maxSize || h > maxSize) { if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; } else { w = Math.round(w * maxSize / h); h = maxSize; } }
+                                                            canvas.width = w; canvas.height = h;
+                                                            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                                                            setPhotoImage(canvas.toDataURL('image/jpeg', 0.8));
+                                                        };
+                                                        img.src = URL.createObjectURL(file);
+                                                    }
                                                 }} />
                                             </label>
                                         </div>

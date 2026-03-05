@@ -9,8 +9,9 @@ export default defineConfig({
     host: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'https://cinderellafitapp.vercel.app',
         changeOrigin: true,
+        secure: true,
       }
     }
   },

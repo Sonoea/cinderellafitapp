@@ -873,6 +873,8 @@ app.post('/api/ai-tryon', async (req, res) => {
 
     try {
         console.log('[AI Try-On] Starting prediction...');
+        console.log('[AI Try-On] plushieImage length:', plushieImage?.length, 'starts with:', plushieImage?.substring(0, 30));
+        console.log('[AI Try-On] garmentImage length:', garmentImage?.length, 'starts with:', garmentImage?.substring(0, 30));
 
         // Replicate API を直接呼び出す（HTTP）
         const createResponse = await axios.post(
@@ -964,10 +966,11 @@ app.post('/api/ai-tryon', async (req, res) => {
         }
     } catch (error) {
         console.error('[AI Try-On] Error:', error.response?.data || error.message);
+        const replicateError = error.response?.data?.detail || error.response?.data?.title || '';
         const message = error.response?.status === 401
             ? 'APIキーが無効です。REPLICATE_API_TOKENを確認してください。'
             : error.response?.status === 422
-                ? '画像形式に問題があります。別の画像でお試しください。'
+                ? `画像形式エラー: ${replicateError || '画像のサイズや形式を変更してお試しください。'}`
                 : `AI試着エラー: ${error.message}`;
         res.json({ success: false, error: message });
     }

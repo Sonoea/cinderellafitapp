@@ -62,6 +62,7 @@ const Home = () => {
                             createdAt: data.createdAt || '',
                             userIcon: data.userIcon || '',
                             plushieName: data.plushieName || '',
+                            location: data.location || '',
                             userId: data.userId // Add userId for profile fetching
                         });
                     } catch (e) { /* skip */ }
@@ -108,7 +109,8 @@ const Home = () => {
                                 return {
                                     ...item,
                                     userName: userData.displayName || item.userName,
-                                    userIcon: userData.photoURL || item.userIcon
+                                    userIcon: userData.photoURL || item.userIcon,
+                                    location: item.location || userData.location || ''
                                 };
                             }
                         } catch (e) { /* ignore */ }

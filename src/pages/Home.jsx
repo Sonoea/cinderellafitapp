@@ -154,9 +154,6 @@ const Home = () => {
 
     return (
         <div className="flex flex-col gap-2">
-            <div style={{ background: '#ff4444', color: 'white', padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold', borderRadius: '8px', marginBottom: '8px' }}>
-                DEBUG MODE: VERSION 1.1 (FLAG FIX) - IF YOU SEE THIS, REFRESH ONCE
-            </div>
             <header className="flex justify-between items-center py-2">
                 <div>
                     <h1 style={{ color: 'var(--primary-dark)', fontSize: '20px', fontWeight: '800', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -545,22 +542,23 @@ const Home = () => {
                                                 <Users size={12} style={{ color: 'var(--primary)' }} />
                                             </div>
                                         )}
-                                        {/* EXTREME TEST: Moving flag outside relative container if possible or forcing z-index */}
+                                        {/* Circular location flag next to icon */}
                                         <div style={{
                                             position: 'absolute',
-                                            top: '-4px',
-                                            right: '-6px',
-                                            width: '14px',
-                                            height: '14px',
-                                            background: '#ff0000',
+                                            top: '-2px',
+                                            right: '-4px',
+                                            width: '13px',
+                                            height: '13px',
+                                            background: 'white',
                                             borderRadius: '50%',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            zIndex: 9999,
-                                            border: '1px solid white',
-                                            boxShadow: '0 0 4px rgba(0,0,0,0.3)',
-                                            fontSize: '8px'
+                                            zIndex: 50,
+                                            border: '1px solid var(--gray-200)',
+                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                            fontSize: '8px',
+                                            lineHeight: 1
                                         }}>
                                             {getLocationFlag(post.location)}
                                         </div>

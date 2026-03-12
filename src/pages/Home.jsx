@@ -106,7 +106,6 @@ const Home = () => {
                             const userDoc = await getDoc(doc(db, 'users', item.userId));
                             if (userDoc.exists()) {
                                 const userData = userDoc.data();
-                                console.log(`[Debug] Post: ${item.itemName}, UserLoc: ${userData.location}, PostLoc: ${item.location}`);
                                 return {
                                     ...item,
                                     userName: userData.displayName || item.userName,
@@ -117,7 +116,6 @@ const Home = () => {
                         } catch (e) { /* ignore */ }
                         return item;
                     }));
-                    console.log("[Debug] Final Latest Posts:", itemsWithProfiles);
                     setLatestPosts(itemsWithProfiles);
                 } catch (e) {
                     setLatestPosts(topItems);

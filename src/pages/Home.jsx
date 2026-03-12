@@ -8,26 +8,31 @@ import { db } from '../firebase/config';
 
 // Helper to get country flag from location string
 const getLocationFlag = (location) => {
-    if (!location) return '🌐';
-    const loc = location.toLowerCase();
-    if (loc.includes('日本') || loc.includes('japan') || loc.includes('tokyo') || loc.includes('osaka') || loc.includes('kyoto') || loc.includes('shibuya') || loc.includes('iwate') || loc.includes('hokkaido') ||
-        loc.includes('東京') || loc.includes('大阪') || loc.includes('京都') || loc.includes('渋谷') || loc.includes('岩手') || loc.includes('北海道') || loc.includes('札幌') || loc.includes('福岡') || loc.includes('横浜') ||
-        loc.includes('神奈川') || loc.includes('兵库') || loc.includes('兵庫') || loc.includes('愛知') || loc.includes('千葉') || loc.includes('埼玉') || loc.includes('広島') || loc.includes('仙台') || loc.includes('名古屋')) return '🇯🇵';
-    if (loc.includes('usa') || loc.includes('america') || loc.includes('new york') || loc.includes('ny') || loc.includes('la') || loc.includes('los angeles')) return '🇺🇸';
-    if (loc.includes('france') || loc.includes('paris')) return '🇫🇷';
-    if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom')) return '🇬🇧';
-    if (loc.includes('korea') || loc.includes('seoul')) return '🇰🇷';
-    if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing')) return '🇨🇳';
-    if (loc.includes('taiwan')) return '🇹🇼';
-    if (loc.includes('germany') || loc.includes('berlin')) return '🇩🇪';
-    if (loc.includes('italy') || loc.includes('rome')) return '🇮🇹';
-    if (loc.includes('spain') || loc.includes('madrid')) return '🇪🇸';
-    if (loc.includes('canada')) return '🇨🇦';
-    if (loc.includes('australia') || loc.includes('sydney')) return '🇦🇺';
-    if (loc.includes('singapore')) return '🇸🇬';
-    if (loc.includes('thailand') || loc.includes('bangkok')) return '🇹🇭';
-    if (loc.includes('vietnam')) return '🇻🇳';
-    return '🌐';
+    try {
+        if (!location) return '🌐';
+        if (typeof location !== 'string') return '❓';
+        const loc = location.toLowerCase();
+        if (loc.includes('日本') || loc.includes('japan') || loc.includes('tokyo') || loc.includes('osaka') || loc.includes('kyoto') || loc.includes('shibuya') || loc.includes('iwate') || loc.includes('hokkaido') ||
+            loc.includes('東京') || loc.includes('大阪') || loc.includes('京都') || loc.includes('渋谷') || loc.includes('岩手') || loc.includes('北海道') || loc.includes('札幌') || loc.includes('福岡') || loc.includes('横浜') ||
+            loc.includes('神奈川') || loc.includes('兵库') || loc.includes('兵庫') || loc.includes('愛知') || loc.includes('千葉') || loc.includes('埼玉') || loc.includes('広島') || loc.includes('仙台') || loc.includes('名古屋')) return '🇯🇵';
+        if (loc.includes('usa') || loc.includes('america') || loc.includes('new york') || loc.includes('ny') || loc.includes('la') || loc.includes('los angeles')) return '🇺🇸';
+        if (loc.includes('france') || loc.includes('paris')) return '🇫🇷';
+        if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom')) return '🇬🇧';
+        if (loc.includes('korea') || loc.includes('seoul')) return '🇰🇷';
+        if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing')) return '🇨🇳';
+        if (loc.includes('taiwan')) return '🇹🇼';
+        if (loc.includes('germany') || loc.includes('berlin')) return '🇩🇪';
+        if (loc.includes('italy') || loc.includes('rome')) return '🇮🇹';
+        if (loc.includes('spain') || loc.includes('madrid')) return '🇪🇸';
+        if (loc.includes('canada')) return '🇨🇦';
+        if (loc.includes('australia') || loc.includes('sydney')) return '🇦🇺';
+        if (loc.includes('singapore')) return '🇸🇬';
+        if (loc.includes('thailand') || loc.includes('bangkok')) return '🇹🇭';
+        if (loc.includes('vietnam')) return '🇻🇳';
+        return '🌐';
+    } catch (e) {
+        return '⚠️';
+    }
 };
 
 const Home = () => {
@@ -518,7 +523,7 @@ const Home = () => {
                                     onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(232, 244, 245, 0.6)'}
                                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                                 >
-                                    <div className="flex-shrink-0 relative">
+                                    <div className="flex-shrink-0 relative" style={{ overflow: 'visible' }}>
                                         {post.userIcon && !post.userIcon.includes('placeholder') ? (
                                             <img src={post.userIcon} alt="" style={{
                                                 width: '24px',
@@ -540,8 +545,23 @@ const Home = () => {
                                                 <Users size={12} style={{ color: 'var(--primary)' }} />
                                             </div>
                                         )}
-                                        {/* Circular location flag next to icon - ENLARGED FOR DEBUG */}
-                                        <div className="absolute -top-2 -right-3 w-8 h-8 rounded-full bg-red-600 border-2 border-white shadow-lg flex items-center justify-center text-[12px] z-50 animate-pulse">
+                                        {/* EXTREME TEST: Moving flag outside relative container if possible or forcing z-index */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: '-4px',
+                                            right: '-6px',
+                                            width: '14px',
+                                            height: '14px',
+                                            background: '#ff0000',
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            zIndex: 9999,
+                                            border: '1px solid white',
+                                            boxShadow: '0 0 4px rgba(0,0,0,0.3)',
+                                            fontSize: '8px'
+                                        }}>
                                             {getLocationFlag(post.location)}
                                         </div>
                                     </div>

@@ -11,6 +11,10 @@ import { safeHostname, safeDate } from '../utils/formatting';
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
     const [error, setError] = useState(!src || src.includes('placeholder'));
     useEffect(() => { setError(!src || src.includes('placeholder')); }, [src]);
+    const loc = location.toLowerCase();
+    if (loc.includes('日本') || loc.includes('japan') || loc.includes('tokyo') || loc.includes('osaka') || loc.includes('kyoto') || loc.includes('shibuya') || loc.includes('iwate') || loc.includes('hokkaido') ||
+        loc.includes('東京') || loc.includes('大阪') || loc.includes('京都') || loc.includes('渋谷') || loc.includes('岩手') || loc.includes('北海道') || loc.includes('札幌') || loc.includes('福岡') || loc.includes('横浜') ||
+        loc.includes('神奈川') || loc.includes('兵库') || loc.includes('兵庫') || loc.includes('愛知') || loc.includes('千葉') || loc.includes('埼玉') || loc.includes('広島') || loc.includes('仙台') || loc.includes('名古屋')) return '🇯🇵';
     if (error) {
         return (
             <div onClick={onClick} className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`} style={{ ...(onClick ? { cursor: 'pointer' } : {}), ...style }}>

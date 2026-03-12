@@ -166,13 +166,15 @@ const useProductColor = (imageUrl) => {
 
         if (!imageUrl) return;
 
-        // data URIのみ処理（外部URLはCORS制約）
-        if (!imageUrl.startsWith('data:')) {
-            console.log('[3D Color] Skipping non-data-URI:', imageUrl.substring(0, 60));
-            return;
+        // CORS回避のためにプロキシAPIを経由する
+        let urlToLoad = imageUrl;
+        if (!imageUrl.startsWith('data:') && !imageUrl.startsWith('/')) {
+            const API_BASE = import.meta.env.DEV ? 'https://cinderellafitapp.vercel.app' : '';
+            // /api/proxy-imageエンドポイントを使用してCORS制限を回避
+            urlToLoad = `${API_BASE}/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
         }
 
-        console.log('[3D Color] Extracting dominant color...');
+        console.log('[3D Color] Extracting dominant color from:', urlToLoad);
         setLoading(true);
 
         const img = new window.Image();
@@ -258,7 +260,7 @@ const useProductColor = (imageUrl) => {
             setLoading(false);
         };
 
-        img.src = imageUrl;
+        img.src = urlToLoad;
     }, [imageUrl]);
 
     return { extractedColor, loading };
@@ -272,20 +274,32 @@ const useProductTexture = (imageUrl) => {
         setTexture(null);
         if (!imageUrl) return;
 
-        // data: URI またはプロキシURLから直接読み込む
+        // data: URI または外部URL
+        let urlToLoad = imageUrl;
+        if (!imageUrl.startsWith('data:') && !imageUrl.startsWith('/')) {
+            // CORS回避のためにプロキシAPIを経由する
+            const API_BASE = import.meta.env.DEV ? 'https://cinderellafitapp.vercel.app' : '';
+            urlToLoad = `${API_BASE}/api/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+        }
+
         const loader = new THREE.TextureLoader();
         loader.setCrossOrigin('anonymous');
 
         loader.load(
-            imageUrl,
+            urlToLoad,
             (tex) => {
+                // 商品の画像を3Dモデル（LatheGeometry）の前面に中心が来るように配置する
+                // u方向（円周）: 1周で1.0なので、前面にだけテクスチャが広がるようにrepeatとoffsetを調整
                 tex.wrapS = THREE.ClampToEdgeWrapping;
                 tex.wrapT = THREE.ClampToEdgeWrapping;
+                tex.repeat.set(2.5, 1.2);
+                tex.offset.set(-0.75, -0.1); // フロントに合わせて位置調整
                 tex.minFilter = THREE.LinearFilter;
                 tex.magFilter = THREE.LinearFilter;
+                tex.colorSpace = "srgb"; // より自然な色にするため
                 tex.needsUpdate = true;
                 setTexture(tex);
-                console.log('[3D Texture] Product texture loaded');
+                console.log('[3D Texture] Product texture loaded and mapped');
             },
             undefined,
             (err) => {
@@ -376,22 +390,20 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
     const waistR = circumToRadius(measurements?.waist || 15);
     const bodyLength = cmToUnit(measurements?.length || 8);
 
-    // clothingTypeに応じた服のシルエット
+    // clothingTypeに応じた服のシルエット（ジャストフィット・モード）
     const clothingGeometry = useMemo(() => {
         const type = clothingType || 'tops';
         let clothLen, clothWidthR, clothNeckR;
 
-        // 基本パラメータ
-        clothWidthR = itemWidth > 0
-            ? cmToUnit(itemWidth) / 2
-            : (targetSize > 0 ? circumToRadius(targetSize * 1.2) : waistR * 1.08);
-        clothNeckR = itemNeck > 0 ? circumToRadius(itemNeck) : neckR * 1.15;
+        // 商品の実測サイズを無視し、常にぬいぐるみのサイズに合わせてジャストフィットさせる
+        clothWidthR = waistR * 1.05; // 胴回りに合わせて少し余裕を持たせる
+        clothNeckR = neckR * 1.12;   // 首回りに合わせて少し余裕を持たせる
 
         const pts = [];
 
         if (type === 'dress') {
             // ドレス・チャイナ服: 長めのストレートボディ＋裾が少し広がる
-            clothLen = itemLength > 0 ? cmToUnit(itemLength) : bodyLength * 1.1;
+            clothLen = bodyLength * 1.1;
             for (let i = 0; i <= 32; i++) {
                 const t = i / 32;
                 let radius;
@@ -411,8 +423,8 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
                 pts.push(new THREE.Vector2(Math.max(radius, 0.12), -t * clothLen));
             }
         } else if (type === 'outerwear') {
-            // アウター: 厚めで余裕のあるシルエット
-            clothLen = itemLength > 0 ? cmToUnit(itemLength) : bodyLength * 0.95;
+            // アウター（今回のジャケット等）: 厚めで余裕のあるシルエット
+            clothLen = bodyLength * 0.95;
             const extra = 1.18; // 厚さ倍率
             for (let i = 0; i <= 28; i++) {
                 const t = i / 28;
@@ -426,7 +438,7 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
             }
         } else {
             // トップス（デフォルト）: 短め、ゆるいシルエット
-            clothLen = itemLength > 0 ? cmToUnit(itemLength) : bodyLength * 0.85;
+            clothLen = bodyLength * 0.85;
             for (let i = 0; i <= 28; i++) {
                 const t = i / 28;
                 let radius;
@@ -439,46 +451,41 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
             }
         }
         return pts;
-    }, [itemLength, itemWidth, itemNeck, targetSize, bodyLength, waistR, neckR, clothingType]);
+    }, [bodyLength, waistR, neckR, clothingType]);
 
-    // 袖パラメータ（clothingTypeで調整）
+    // 袖パラメータ（ジャストフィット・モード）
     const sleeveParams = useMemo(() => {
         const type = clothingType || 'tops';
         const armR = circumToRadius(measurements?.armGirth || 3);
-        const clothWidthR = itemWidth > 0
-            ? cmToUnit(itemWidth) / 2
-            : waistR * 1.08;
+        const clothWidthR = waistR * 1.05;
 
-        let sleeveLen = cmToUnit(measurements?.arm || 3) * 0.7;
+        // ぬいぐるみの腕の長さにピッタリ合わせる
+        let sleeveLen = cmToUnit(measurements?.arm || 3) * 0.8;
         let sleeveR = armR * 1.4;
 
         if (type === 'outerwear') {
             sleeveR = armR * 1.7; // アウターは袖が太い
-            sleeveLen *= 1.1;
+            sleeveLen *= 1.1;     // アウターは少し袖長め
         } else if (type === 'dress') {
             sleeveR = armR * 1.3; // ドレスは袖が細め
             sleeveLen *= 0.8;
         }
 
         return { sleeveLen, sleeveR, bodyR: clothWidthR * 1.1 };
-    }, [measurements, itemWidth, waistR, clothingType]);
+    }, [measurements, waistR, clothingType]);
 
     // 服の色: 画像抽出 → 商品名色 → フィット状態色 の優先順
     const clothingColor = extractedColor || nameColor || fitColor;
     const hasRealColor = !!(extractedColor || nameColor);
 
-    // 商品画像テクスチャ
-    const productTexture = useProductTexture(productImageUrl);
-
     const materialProps = useMemo(() => ({
-        color: productTexture ? '#ffffff' : clothingColor,
-        map: productTexture || null,
-        roughness: 0.6,
-        metalness: 0.05,
+        color: clothingColor,
+        roughness: 0.8,
+        metalness: 0.1,
         side: THREE.DoubleSide,
         transparent: true,
-        opacity: productTexture ? 0.92 : (hasRealColor ? 0.88 : 0.75),
-    }), [clothingColor, hasRealColor, productTexture]);
+        opacity: hasRealColor ? 0.95 : 0.85,
+    }), [clothingColor, hasRealColor]);
 
     const sleeveMaterialProps = useMemo(() => ({
         color: clothingColor,
@@ -494,16 +501,14 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
     // ドレス型の服の長さ（装飾ディテール配置に使用）
     const dressLength = useMemo(() => {
         if (clothingType !== 'dress') return 0;
-        return itemLength > 0 ? cmToUnit(itemLength) : bodyLength * 1.1;
-    }, [clothingType, itemLength, bodyLength]);
+        return bodyLength * 1.1; // 実測サイズ無視
+    }, [clothingType, bodyLength]);
 
     // チャイナ服の装飾ディテール用ジオメトリ
     const dressDetails = useMemo(() => {
         if (clothingType !== 'dress') return null;
 
-        const clothWidthR = itemWidth > 0
-            ? cmToUnit(itemWidth) / 2
-            : (targetSize > 0 ? circumToRadius(targetSize * 1.2) : waistR * 1.08);
+        const clothWidthR = waistR * 1.08;
         const frontR = clothWidthR * 1.06;
 
         // 前合わせライン（中心から少しずれた位置の縦ライン）
@@ -538,7 +543,7 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
         }
 
         return { frontLinePts, buttonPositions, trimPts, frontR };
-    }, [clothingType, dressLength, itemWidth, targetSize, waistR]);
+    }, [clothingType, dressLength, waistR]);
 
     return (
         <group>
@@ -548,30 +553,14 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
                 <meshStandardMaterial {...materialProps} />
             </mesh>
 
-            {/* テクスチャ適用ラベル */}
-            {productTexture && (
-                <Html position={[0, -bodyLength * 0.5, waistR * 1.4]} center>
-                    <div style={{
-                        background: 'rgba(99,102,241,0.9)',
-                        color: 'white',
-                        padding: '2px 8px',
-                        borderRadius: '8px',
-                        fontSize: '8px',
-                        fontWeight: 800,
-                        whiteSpace: 'nowrap',
-                        pointerEvents: 'none',
-                    }}>
-                        📷 商品画像テクスチャ
-                    </div>
-                </Html>
-            )}
+            {/* テクスチャマッピングは破棄（ペーパークラフト化防止のため色抽出のみ適用） */}
 
             {/* ドレス型の装飾ディテール */}
             {dressDetails && (
                 <>
                     {/* 前合わせライン */}
                     <line geometry={new THREE.BufferGeometry().setFromPoints(dressDetails.frontLinePts)}>
-                        <lineBasicMaterial color={extractedColor ? '#00000060' : '#ffffff80'} linewidth={1} />
+                        <lineBasicMaterial color={extractedColor ? '#000000' : '#ffffff'} transparent={true} opacity={extractedColor ? 0.38 : 0.5} linewidth={1} />
                     </line>
 
                     {/* チャイナボタン（盘扣） */}
@@ -600,7 +589,7 @@ const ClothingMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl, clot
 
                     {/* 裾のトリムライン */}
                     <line geometry={new THREE.BufferGeometry().setFromPoints(dressDetails.trimPts)}>
-                        <lineBasicMaterial color={extractedColor ? '#d4af3780' : '#ffd70080'} linewidth={1} />
+                        <lineBasicMaterial color={extractedColor ? '#d4af37' : '#ffd700'} transparent={true} opacity={0.5} linewidth={1} />
                     </line>
                 </>
             )}
@@ -827,10 +816,10 @@ const HatMesh = ({ measurements, sizeInfo, fitStatus, productImageUrl }) => {
             <mesh position={[0, hatParams.crownHeight * 0.05, 0]} rotation={[Math.PI / 2, 0, 0]}>
                 <torusGeometry args={[hatParams.radius * 0.99, 0.015, 8, 32]} />
                 <meshStandardMaterial
-                    color={extractedColor ? '#00000040' : '#ffffff60'}
+                    color={extractedColor ? '#000000' : '#ffffff'}
                     roughness={0.3}
                     transparent
-                    opacity={0.6}
+                    opacity={extractedColor ? 0.25 : 0.38}
                 />
             </mesh>
 

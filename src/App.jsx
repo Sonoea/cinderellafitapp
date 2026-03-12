@@ -14,6 +14,7 @@ import Login from './pages/Login';
 import Guide from './pages/Guide';
 import Gallery from './pages/Gallery';
 import UserProfile from './pages/UserProfile';
+import AIStylist from './pages/AIStylist';
 
 // Lazy load Closet to prevent circular dependency/initialization issues
 const Closet = lazy(() => import('./pages/Closet'));
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/guide" element={<Guide />} />
+                <Route path="/ai-stylist" element={<AIStylist />} />
               </Routes>
             </main>
             <BottomNav />

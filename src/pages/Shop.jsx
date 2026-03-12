@@ -1,6 +1,9 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy, HelpCircle, X, Sparkles } from 'lucide-react';
+
+import CameraScanner from '../components/CameraScanner';
 import { translations } from '../translations';
 import VirtualFitting3D from '../components/VirtualFitting3D';
 
@@ -8,7 +11,14 @@ import VirtualFitting3D from '../components/VirtualFitting3D';
 const API_BASE = import.meta.env.DEV ? 'https://cinderellafitapp.vercel.app' : '';
 
 const Shop = () => {
-    const { plushies, language } = useApp();
+    const { plushies, language, setLanguage } = useApp();
+
+    // ユーザーの要望により、Shop画面では強制的に日本語に統一する
+    useEffect(() => {
+        if (language !== 'jp' && setLanguage) {
+            setLanguage('jp');
+        }
+    }, [language, setLanguage]);
     const t = (key) => {
         const keys = key.split('.');
         let value = translations[language];
@@ -88,7 +98,7 @@ const Shop = () => {
                 try {
                     plushieImg = await imageToDataUri(plushieImg);
                 } catch {
-                    plushieImg = `${window.location.origin}${plushieImg}`;
+                    plushieImg = `${window.location.origin}${plushieImg} `;
                 }
             }
 
@@ -103,7 +113,7 @@ const Shop = () => {
             // 2. product.image がURLの場合、プロキシ経由で取得
             if (!garmentImg && product.image && product.image.startsWith('http')) {
                 try {
-                    const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(product.image)}`);
+                    const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(product.image)} `);
                     const proxyData = await proxyRes.json();
                     if (proxyData.success && proxyData.dataUri) {
                         garmentImg = proxyData.dataUri;
@@ -114,7 +124,7 @@ const Shop = () => {
             // 3. originalImageUrl から取得
             if (!garmentImg && product.originalImageUrl && product.originalImageUrl.startsWith('http')) {
                 try {
-                    const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(product.originalImageUrl)}`);
+                    const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(product.originalImageUrl)} `);
                     const proxyData = await proxyRes.json();
                     if (proxyData.success && proxyData.dataUri) {
                         garmentImg = proxyData.dataUri;
@@ -125,7 +135,7 @@ const Shop = () => {
             // 4. 商品URLからページを再分析して画像だけ取得
             if (!garmentImg && product.url) {
                 try {
-                    const reAnalyze = await fetch(`${API_BASE}/api/check-size`, {
+                    const reAnalyze = await fetch(`${API_BASE} /api/check - size`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ url: product.url, plushieHeight: 0 }),
@@ -134,7 +144,7 @@ const Shop = () => {
                     if (reData.product?.image) {
                         // 画像URLをプロキシ
                         try {
-                            const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(reData.product.image)}`);
+                            const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(reData.product.image)} `);
                             const proxyData = await proxyRes.json();
                             if (proxyData.success && proxyData.dataUri) {
                                 garmentImg = proxyData.dataUri;
@@ -180,7 +190,7 @@ const Shop = () => {
                 resizeForApi(garmentImg),
             ]);
 
-            const res = await fetch(`${API_BASE}/api/ai-tryon`, {
+            const res = await fetch(`${API_BASE} /api/ai - tryon`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -260,7 +270,7 @@ const Shop = () => {
             });
 
             if (!response.ok) {
-                console.error(`API Error: ${response.status} ${response.statusText}`);
+                console.error(`API Error: ${response.status} ${response.statusText} `);
 
                 if (response.status === 422) {
                     const errData = await response.json();
@@ -272,7 +282,7 @@ const Shop = () => {
                 if (response.status === 504) {
                     throw new Error('タイムアウトしました（Amazonの応答が遅いため中断されました）');
                 }
-                throw new Error(`サーバーエラー: ${response.status}`);
+                throw new Error(`サーバーエラー: ${response.status} `);
             }
 
             const data = await response.json();
@@ -288,14 +298,14 @@ const Shop = () => {
                 if (sizeInfo.targetPlushieSize) {
                     detectedMin = sizeInfo.targetPlushieSize;
                     detectedMax = sizeInfo.targetPlushieSize;
-                    sizeText = `${sizeInfo.targetPlushieSize}cm用`;
+                    sizeText = `${sizeInfo.targetPlushieSize} cm用`;
                 } else if (sizeInfo.sizeRanges.length > 0) {
                     detectedMin = sizeInfo.sizeRanges[0].min;
                     detectedMax = sizeInfo.sizeRanges[0].max;
-                    sizeText = `${detectedMin}〜${detectedMax}cm`;
+                    sizeText = `${detectedMin}〜${detectedMax} cm`;
                 } else if (sizeInfo.dimensions.length > 0) {
                     const dim = sizeInfo.dimensions[0];
-                    sizeText = `縦${dim.length}cm × 横${dim.width}cm`;
+                    sizeText = `縦${dim.length} cm × 横${dim.width} cm`;
                 } else if (sizeInfo.measurements) {
                     // Fallback to specific measurements if available
                     const parts = [];
@@ -305,14 +315,14 @@ const Shop = () => {
                         if (typeof v === 'object' && (v.min !== undefined || v.max !== undefined)) {
                             const min = v.min || v.max;
                             const max = v.max || v.min;
-                            return min === max ? `${min}cm` : `${min}〜${max}cm`;
+                            return min === max ? `${min} cm` : `${min}〜${max} cm`;
                         }
-                        return `${v}cm`;
+                        return `${v} cm`;
                     };
 
-                    if (sizeInfo.measurements.length) parts.push(`着丈${fmt(sizeInfo.measurements.length)}`);
-                    if (sizeInfo.measurements.head) parts.push(`頭囲${fmt(sizeInfo.measurements.head)}`);
-                    if (sizeInfo.measurements.neck) parts.push(`首周り${fmt(sizeInfo.measurements.neck)}`);
+                    if (sizeInfo.measurements.length) parts.push(`着丈${fmt(sizeInfo.measurements.length)} `);
+                    if (sizeInfo.measurements.head) parts.push(`頭囲${fmt(sizeInfo.measurements.head)} `);
+                    if (sizeInfo.measurements.neck) parts.push(`首周り${fmt(sizeInfo.measurements.neck)} `);
 
                     if (parts.length > 0) {
                         sizeText = parts.join(', ');
@@ -329,7 +339,7 @@ const Shop = () => {
                     if (sizes.length > 0) {
                         detectedMin = Math.min(...sizes);
                         detectedMax = Math.max(...sizes);
-                        sizeText = sizes.length > 1 ? `${detectedMin}〜${detectedMax}cm` : `${detectedMin}cm`;
+                        sizeText = sizes.length > 1 ? `${detectedMin}〜${detectedMax} cm` : `${detectedMin} cm`;
                     }
                 }
 
@@ -351,7 +361,7 @@ const Shop = () => {
                 // Proxy external image for VirtualFitting (bypass CORS)
                 if (data.product?.image) {
                     try {
-                        const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(data.product.image)}`);
+                        const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(data.product.image)} `);
                         const proxyData = await proxyRes.json();
                         if (proxyData.success && proxyData.dataUri) {
                             setProduct(prev => ({ ...prev, image: proxyData.dataUri }));
@@ -367,7 +377,7 @@ const Shop = () => {
                     const sizes = data.urlAnalysis.rawMatches;
                     setProductSizeMin(Math.min(...sizes));
                     setProductSizeMax(Math.max(...sizes));
-                    setProductTargetSize(`${sizes[0]}cm (URLから推定)`);
+                    setProductTargetSize(`${sizes[0]} cm(URLから推定)`);
                 }
 
                 setProduct({
@@ -390,7 +400,7 @@ const Shop = () => {
                 const size = parseInt(singleSizeMatch[1]);
                 setProductSizeMin(size);
                 setProductSizeMax(size);
-                setProductTargetSize(`${size}cm (URLから推定)`);
+                setProductTargetSize(`${size} cm(URLから推定)`);
             }
 
             setProduct({
@@ -449,17 +459,17 @@ const Shop = () => {
                 if (sizeInfo.targetPlushieSize) {
                     detectedMin = sizeInfo.targetPlushieSize;
                     detectedMax = sizeInfo.targetPlushieSize;
-                    sizeText = `${sizeInfo.targetPlushieSize}cm用`;
+                    sizeText = `${sizeInfo.targetPlushieSize} cm用`;
                 } else if (sizeInfo.sizeRanges.length > 0) {
                     detectedMin = sizeInfo.sizeRanges[0].min;
                     detectedMax = sizeInfo.sizeRanges[0].max;
-                    sizeText = `${detectedMin}〜${detectedMax}cm`;
+                    sizeText = `${detectedMin}〜${detectedMax} cm`;
                 } else if (sizeInfo.rawMatches.length > 0) {
                     const sizes = sizeInfo.rawMatches.filter(s => s >= 5 && s <= 50);
                     if (sizes.length > 0) {
                         detectedMin = Math.min(...sizes);
                         detectedMax = Math.max(...sizes);
-                        sizeText = sizes.length > 1 ? `${detectedMin}〜${detectedMax}cm` : `${detectedMin}cm`;
+                        sizeText = sizes.length > 1 ? `${detectedMin}〜${detectedMax} cm` : `${detectedMin} cm`;
                     }
                 }
 
@@ -531,16 +541,16 @@ const Shop = () => {
                             <button
                                 key={p.id}
                                 onClick={() => setSelectedId(p.id)}
-                                className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all min-w-[80px] ${selectedId === p.id
+                                className={`flex flex - col items - center gap - 1 p - 3 rounded - xl border - 2 transition - all min - w - [80px] ${selectedId === p.id
                                     ? 'bg-primary text-white border-primary shadow-md scale-105'
                                     : 'bg-gray-50 border-transparent hover:border-gray-200 text-gray-700'
-                                    }`}
+                                    } `}
                             >
                                 <div className="w-12 h-12 rounded-full bg-white overflow-hidden border border-gray-200">
                                     <img src={p.image} className="w-full h-full object-cover" alt="" />
                                 </div>
-                                <span className={`text-xs font-bold ${selectedId === p.id ? 'text-white' : 'text-gray-700'}`}>{p.name}</span>
-                                <span className={`text-[10px] ${selectedId === p.id ? 'text-white/80' : 'text-gray-500'}`}>{p.measurements?.height}cm</span>
+                                <span className={`text - xs font - bold ${selectedId === p.id ? 'text-white' : 'text-gray-700'} `}>{p.name}</span>
+                                <span className={`text - [10px] ${selectedId === p.id ? 'text-white/80' : 'text-gray-500'} `}>{p.measurements?.height}cm</span>
                             </button>
                         ))}
                     </div>
@@ -575,13 +585,13 @@ const Shop = () => {
                     <div className="flex gap-1 mb-3 bg-gray-100 rounded-xl p-1">
                         <button
                             onClick={() => setInputMode('url')}
-                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition ${inputMode === 'url' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`flex - 1 py - 2 px - 3 rounded - lg text - xs font - bold transition ${inputMode === 'url' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'} `}
                         >
                             🔗 URL入力
                         </button>
                         <button
                             onClick={() => setInputMode('photo')}
-                            className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold transition ${inputMode === 'photo' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                            className={`flex - 1 py - 2 px - 3 rounded - lg text - xs font - bold transition ${inputMode === 'photo' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'} `}
                         >
                             📷 写真で入力
                         </button>
@@ -783,8 +793,8 @@ const Shop = () => {
                                     const waist = parseFloat(photoSizeWaist) || 0;
                                     const length = parseFloat(photoSizeLength) || 0;
                                     const sizeInfo = { targetPlushieSize: 0, sizeRanges: [], dimensions: neck || waist || length ? [{ neck, width: waist, length, itemLength: length }] : [], measurements: { neck, waist, length }, clothingType: 'tops' };
-                                    if (waist > 0) { const estimated = Math.round(waist / Math.PI * 2 * 3); setProductSizeMin(Math.max(estimated - 3, 5)); setProductSizeMax(estimated + 3); setProductTargetSize(`${estimated}cm前後（推定）`); }
-                                    setProduct({ url: null, name: photoProductName || '商品（写真入力）', description: `首周り:${neck || '不明'}cm ウエスト:${waist || '不明'}cm 着丈:${length || '不明'}cm`, image: photoImage, originalImageUrl: null, detectedSize: waist ? `ウエスト${waist}cm` : '', rawSizeInfo: sizeInfo });
+                                    if (waist > 0) { const estimated = Math.round(waist / Math.PI * 2 * 3); setProductSizeMin(Math.max(estimated - 3, 5)); setProductSizeMax(estimated + 3); setProductTargetSize(`${estimated} cm前後（推定）`); }
+                                    setProduct({ url: null, name: photoProductName || '商品（写真入力）', description: `首周り:${neck || '不明'}cm ウエスト:${waist || '不明'}cm 着丈:${length || '不明'} cm`, image: photoImage, originalImageUrl: null, detectedSize: waist ? `ウエスト${waist} cm` : '', rawSizeInfo: sizeInfo });
                                     setAiTryonResult(null); setAiTryonError(null);
                                 }}
                                 disabled={!photoImage}
@@ -835,12 +845,12 @@ const Shop = () => {
 
                         {/* AI Fit Analysis (from backend) */}
                         {product.fit && (
-                            <div className={`mb-4 p-4 rounded-xl border-2 ${product.fit.status === 'perfect' ? 'bg-green-50 border-green-400' :
+                            <div className={`mb - 4 p - 4 rounded - xl border - 2 ${product.fit.status === 'perfect' ? 'bg-green-50 border-green-400' :
                                 product.fit.status === 'caution' ? 'bg-yellow-50 border-yellow-400' :
                                     product.fit.status === 'tight' || product.fit.status === 'tooSmall' ? 'bg-red-50 border-red-400' :
                                         product.fit.status === 'loose' || product.fit.status === 'tooBig' ? 'bg-orange-50 border-orange-400' :
                                             'bg-gray-50 border-gray-300'
-                                }`}>
+                                } `}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className="text-2xl">
                                         {product.fit.status === 'perfect' ? '✅' :
@@ -848,12 +858,12 @@ const Shop = () => {
                                                 product.fit.status === 'tight' || product.fit.status === 'tooSmall' ? '❌' :
                                                     product.fit.status === 'loose' || product.fit.status === 'tooBig' ? '⚠️' : '❓'}
                                     </span>
-                                    <span className={`font-bold ${product.fit.status === 'perfect' ? 'text-green-700' :
+                                    <span className={`font - bold ${product.fit.status === 'perfect' ? 'text-green-700' :
                                         product.fit.status === 'caution' ? 'text-yellow-700' :
                                             product.fit.status === 'tight' || product.fit.status === 'tooSmall' ? 'text-red-700' :
                                                 product.fit.status === 'loose' || product.fit.status === 'tooBig' ? 'text-orange-700' :
                                                     'text-gray-700'
-                                        }`}>
+                                        } `}>
                                         {product.fit.status === 'perfect' ? t('fitStatus.perfect') :
                                             product.fit.status === 'caution' ? t('fitStatus.marginal') :
                                                 product.fit.status === 'tight' ? t('fitStatus.tooSmall') :
@@ -861,10 +871,10 @@ const Shop = () => {
                                                         product.fit.status === 'loose' ? t('fitStatus.tooLarge') :
                                                             product.fit.status === 'tooBig' ? t('fitStatus.tooLarge') : t('fitStatus.unknown')}
                                     </span>
-                                    <span className={`text-xs px-2 py-0.5 rounded-full ${product.fit.confidence === 'high' ? 'bg-green-200 text-green-800' :
+                                    <span className={`text - xs px - 2 py - 0.5 rounded - full ${product.fit.confidence === 'high' ? 'bg-green-200 text-green-800' :
                                         product.fit.confidence === 'medium' ? 'bg-yellow-200 text-yellow-800' :
                                             'bg-gray-200 text-gray-600'
-                                        }`}>
+                                        } `}>
                                         {product.fit.confidence === 'high' ? t('confidenceHigh') :
                                             product.fit.confidence === 'medium' ? t('confidenceMedium') : t('confidenceLow')}
                                     </span>
@@ -919,7 +929,7 @@ const Shop = () => {
                                                         if (typeof v === 'object' && v !== null && (v.min !== undefined || v.max !== undefined)) {
                                                             const min = v.min || v.max;
                                                             const max = v.max || v.min;
-                                                            return min === max ? `${min}` : `${min}〜${max}`;
+                                                            return min === max ? `${min} ` : `${min}〜${max} `;
                                                         }
                                                         return v;
                                                     };
@@ -980,12 +990,12 @@ const Shop = () => {
                                                 <CheckCircle size={14} className="fill-blue-200" />
                                                 {t('sizeReflected')}
                                             </p>
-                                            <span className={`text-xs font-black px-2 py-0.5 rounded ${fitStatus.color === 'green' ? 'bg-green-100 text-green-700' :
+                                            <span className={`text - xs font - black px - 2 py - 0.5 rounded ${fitStatus.color === 'green' ? 'bg-green-100 text-green-700' :
                                                 fitStatus.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' :
                                                     fitStatus.color === 'orange' ? 'bg-orange-100 text-orange-700' :
                                                         fitStatus.color === 'red' ? 'bg-red-100 text-red-700' :
                                                             'bg-gray-100 text-gray-700'
-                                                }`}>
+                                                } `}>
                                                 {t('currentFit')} {fitStatus.label}
                                             </span>
                                         </div>
@@ -999,7 +1009,7 @@ const Shop = () => {
                                 </div>
 
                                 {/* Size Comparison Visual */}
-                                <div className={`p-4 rounded-xl border-2 transition-colors duration-500 ${colorClasses[fitStatus.color]}`}>
+                                <div className={`p - 4 rounded - xl border - 2 transition - colors duration - 500 ${colorClasses[fitStatus.color]} `}>
                                     <div className="flex items-center justify-between mb-3">
                                         <div className="flex items-center gap-2">
                                             <fitStatus.icon size={24} />
@@ -1020,20 +1030,20 @@ const Shop = () => {
                                                 <div
                                                     className="absolute h-full bg-blue-300 rounded-full"
                                                     style={{
-                                                        left: `${(productSizeMin / 50) * 100}%`,
-                                                        width: `${((productSizeMax - productSizeMin + 1) / 50) * 100}%`
+                                                        left: `${(productSizeMin / 50) * 100}% `,
+                                                        width: `${((productSizeMax - productSizeMin + 1) / 50) * 100}% `
                                                     }}
                                                 />
                                             )}
                                             {/* Plushie Marker */}
                                             <div
-                                                className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full border-2 border-white shadow-lg ${fitStatus.color === 'green' ? 'bg-green-500' :
+                                                className={`absolute top - 1 / 2 - translate - y - 1 / 2 w - 5 h - 5 rounded - full border - 2 border - white shadow - lg ${fitStatus.color === 'green' ? 'bg-green-500' :
                                                     fitStatus.color === 'yellow' ? 'bg-yellow-500' :
                                                         fitStatus.color === 'orange' ? 'bg-orange-500' :
                                                             fitStatus.color === 'red' ? 'bg-red-500' : 'bg-gray-500'
-                                                    }`}
+                                                    } `}
                                                 style={{
-                                                    left: `calc(${Math.min(100, Math.max(0, (plushieHeight / 50) * 100))}% - 10px)`
+                                                    left: `calc(${Math.min(100, Math.max(0, (plushieHeight / 50) * 100))} % - 10px)`
                                                 }}
                                             />
                                         </div>
@@ -1043,11 +1053,11 @@ const Shop = () => {
                                                 <span className="text-gray-600">{t('productTarget')} {productSizeMin}〜{productSizeMax}cm</span>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <div className={`w-3 h-3 rounded ${fitStatus.color === 'green' ? 'bg-green-500' :
+                                                <div className={`w - 3 h - 3 rounded ${fitStatus.color === 'green' ? 'bg-green-500' :
                                                     fitStatus.color === 'yellow' ? 'bg-yellow-500' :
                                                         fitStatus.color === 'orange' ? 'bg-orange-500' :
                                                             fitStatus.color === 'red' ? 'bg-red-500' : 'bg-gray-500'
-                                                    }`}></div>
+                                                    } `}></div>
                                                 <span className="text-gray-600">{selectedPlushie?.name}: {plushieHeight}cm</span>
                                             </div>
                                         </div>
@@ -1074,18 +1084,13 @@ const Shop = () => {
                     </div>
                 )}
 
-                {/* 3D Virtual Fitting Preview — 開発環境のみ */}
-                {import.meta.env.DEV && (
+                {/* 3D着せ替えプレビュー (商品カラー抽出シミュレーション) */}
+                {product && (
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
                         <VirtualFitting3D
-                            measurements={selectedPlushie?.measurements || {}}
-                            sizeInfo={product?.rawSizeInfo || {}}
-                            fitStatus={product ? (product.fit?.status || fitStatus.status || 'unknown') : 'unknown'}
-                            productName={product?.name}
-                            productImage={product?.image}
-                            plushieName={selectedPlushie?.name}
-                            language={language}
-                            clothingType={product?.rawSizeInfo?.clothingType}
+                            plushie={selectedPlushie}
+                            product={product}
+                            isInteractive={true}
                         />
                     </div>
                 )}
@@ -1137,7 +1142,7 @@ const Shop = () => {
                                 }} />
                                 <p className="text-sm font-bold text-purple-700">🤖 AIが試着画像を生成中...</p>
                                 <p className="text-xs text-gray-400 mt-1">通常5〜15秒かかります</p>
-                                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                                <style>{`@keyframes spin { to { transform: rotate(360deg); } } `}</style>
                             </div>
                         )}
 

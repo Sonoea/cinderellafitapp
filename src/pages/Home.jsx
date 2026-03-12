@@ -6,6 +6,30 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collectionGroup, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
+// Helper to get country flag from location string
+const getLocationFlag = (location) => {
+    if (!location) return '🌐';
+    const loc = location.toLowerCase();
+    if (loc.includes('日本') || loc.includes('japan') || loc.includes('tokyo') || loc.includes('osaka') || loc.includes('kyoto') || loc.includes('shibuya') || loc.includes('iwate') || loc.includes('hokkaido') ||
+        loc.includes('東京') || loc.includes('大阪') || loc.includes('京都') || loc.includes('渋谷') || loc.includes('岩手') || loc.includes('北海道') || loc.includes('札幌') || loc.includes('福岡') || loc.includes('横浜') ||
+        loc.includes('神奈川') || loc.includes('兵库') || loc.includes('兵庫') || loc.includes('愛知') || loc.includes('千葉') || loc.includes('埼玉') || loc.includes('広島') || loc.includes('仙台') || loc.includes('名古屋')) return '🇯🇵';
+    if (loc.includes('usa') || loc.includes('america') || loc.includes('new york') || loc.includes('ny') || loc.includes('la') || loc.includes('los angeles')) return '🇺🇸';
+    if (loc.includes('france') || loc.includes('paris')) return '🇫🇷';
+    if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom')) return '🇬🇧';
+    if (loc.includes('korea') || loc.includes('seoul')) return '🇰🇷';
+    if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing')) return '🇨🇳';
+    if (loc.includes('taiwan')) return '🇹🇼';
+    if (loc.includes('germany') || loc.includes('berlin')) return '🇩🇪';
+    if (loc.includes('italy') || loc.includes('rome')) return '🇮🇹';
+    if (loc.includes('spain') || loc.includes('madrid')) return '🇪🇸';
+    if (loc.includes('canada')) return '🇨🇦';
+    if (loc.includes('australia') || loc.includes('sydney')) return '🇦🇺';
+    if (loc.includes('singapore')) return '🇸🇬';
+    if (loc.includes('thailand') || loc.includes('bangkok')) return '🇹🇭';
+    if (loc.includes('vietnam')) return '🇻🇳';
+    return '🌐';
+};
+
 const Home = () => {
     const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie, userAddedPlushieCount } = useApp();
     const { currentUser } = useAuth();
@@ -220,6 +244,80 @@ const Home = () => {
                 </div>
             )}
 
+            {/* AI Stylist Feature Highlight */}
+            <Link
+                to="/ai-stylist"
+                className="block rounded-2xl p-4 mb-4 hover-scale"
+                style={{
+                    background: 'linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    boxShadow: '0 8px 32px rgba(26, 26, 46, 0.4)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}
+            >
+                {/* Decorative background elements */}
+                <div style={{
+                    position: 'absolute',
+                    top: '-30px',
+                    right: '-20px',
+                    width: '120px',
+                    height: '120px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(232,149,106,0.3) 0%, rgba(232,149,106,0) 70%)',
+                    zIndex: 0
+                }}></div>
+                <div style={{
+                    position: 'absolute',
+                    bottom: '-20px',
+                    left: '-10px',
+                    width: '80px',
+                    height: '80px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, rgba(79,138,139,0.3) 0%, rgba(79,138,139,0) 70%)',
+                    zIndex: 0
+                }}></div>
+
+                <div className="flex items-center gap-4 relative z-10">
+                    <div style={{
+                        width: '48px',
+                        height: '48px',
+                        borderRadius: '16px',
+                        background: 'linear-gradient(135deg, #E8956A 0%, #D4A490 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '24px',
+                        boxShadow: '0 4px 12px rgba(232, 149, 106, 0.4)',
+                        border: '1px solid rgba(255,255,255,0.2)'
+                    }}>
+                        ✨
+                    </div>
+                    <div className="flex-1">
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+                            <span style={{
+                                fontSize: '10px',
+                                fontWeight: '800',
+                                color: '#E8956A',
+                                letterSpacing: '0.1em',
+                                textTransform: 'uppercase'
+                            }}>
+                                New Feature
+                            </span>
+                        </div>
+                        <h3 style={{ fontSize: '18px', fontWeight: '800', color: 'white', letterSpacing: '-0.02em', marginBottom: '4px' }}>
+                            {language === 'jp' ? 'AIスタイリストに相談' : 'Ask AI Stylist'}
+                        </h3>
+                        <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.7)', lineHeight: '1.4' }}>
+                            {language === 'jp'
+                                ? 'ぬいのサイズと気分に合わせた、最高のコーデをご提案！'
+                                : 'Get perfect outfit recommendations for your plushie!'}
+                        </p>
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '18px' }}>→</div>
+                </div>
+            </Link>
+
             {/* How to Use - Quick Guide */}
             <Link to="/guide" className="block rounded-2xl p-4 mb-4 hover-scale" style={{
                 background: 'white',
@@ -415,7 +513,7 @@ const Home = () => {
                                     onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(232, 244, 245, 0.6)'}
                                     onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
                                 >
-                                    <div className="flex-shrink-0">
+                                    <div className="flex-shrink-0 relative">
                                         {post.userIcon && !post.userIcon.includes('placeholder') ? (
                                             <img src={post.userIcon} alt="" style={{
                                                 width: '22px',

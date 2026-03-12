@@ -538,7 +538,8 @@ const Home = () => {
                                             </div>
                                         )}
                                         {/* Circular location flag next to icon */}
-                                        <div className="absolute -top-1 -right-2 w-5 h-5 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-[8px] scale-90 overflow-hidden z-20">
+                                        <div className="absolute -top-1 -right-2 w-5 h-5 rounded-full bg-white border-2 border-red-500 shadow-sm flex items-center justify-center text-[8px] scale-90 overflow-hidden z-20">
+                                            <span className="absolute -left-1 opacity-20">!</span>
                                             {getLocationFlag(post.location)}
                                         </div>
                                     </div>

@@ -149,6 +149,9 @@ const Home = () => {
 
     return (
         <div className="flex flex-col gap-2">
+            <div style={{ background: '#ff4444', color: 'white', padding: '8px', textAlign: 'center', fontSize: '12px', fontWeight: 'bold', borderRadius: '8px', marginBottom: '8px' }}>
+                DEBUG MODE: VERSION 1.1 (FLAG FIX) - IF YOU SEE THIS, REFRESH ONCE
+            </div>
             <header className="flex justify-between items-center py-2">
                 <div>
                     <h1 style={{ color: 'var(--primary-dark)', fontSize: '20px', fontWeight: '800', letterSpacing: '-0.03em', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -537,9 +540,8 @@ const Home = () => {
                                                 <Users size={12} style={{ color: 'var(--primary)' }} />
                                             </div>
                                         )}
-                                        {/* Circular location flag next to icon */}
-                                        <div className="absolute -top-1 -right-2 w-5 h-5 rounded-full bg-white border-2 border-red-500 shadow-sm flex items-center justify-center text-[8px] scale-90 overflow-hidden z-20">
-                                            <span className="absolute -left-1 opacity-20">!</span>
+                                        {/* Circular location flag next to icon - ENLARGED FOR DEBUG */}
+                                        <div className="absolute -top-2 -right-3 w-8 h-8 rounded-full bg-red-600 border-2 border-white shadow-lg flex items-center justify-center text-[12px] z-50 animate-pulse">
                                             {getLocationFlag(post.location)}
                                         </div>
                                     </div>

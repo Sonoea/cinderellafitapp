@@ -518,16 +518,16 @@ const Home = () => {
                                     <div className="flex-shrink-0 relative">
                                         {post.userIcon && !post.userIcon.includes('placeholder') ? (
                                             <img src={post.userIcon} alt="" style={{
-                                                width: '22px',
-                                                height: '22px',
+                                                width: '24px',
+                                                height: '24px',
                                                 borderRadius: '8px',
                                                 objectFit: 'cover',
                                                 border: '1px solid var(--gray-200)'
                                             }} />
                                         ) : (
                                             <div style={{
-                                                width: '22px',
-                                                height: '22px',
+                                                width: '24px',
+                                                height: '24px',
                                                 borderRadius: '8px',
                                                 background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%)',
                                                 display: 'flex',
@@ -537,6 +537,10 @@ const Home = () => {
                                                 <Users size={12} style={{ color: 'var(--primary)' }} />
                                             </div>
                                         )}
+                                        {/* Circular location flag next to icon */}
+                                        <div className="absolute -top-1 -right-2 w-5 h-5 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-[8px] scale-90 overflow-hidden z-20">
+                                            {getLocationFlag(post.location)}
+                                        </div>
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <p style={{ color: 'var(--text-main)', fontSize: '11px', lineHeight: '1.4' }}>

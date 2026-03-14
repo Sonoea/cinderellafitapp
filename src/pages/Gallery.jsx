@@ -157,6 +157,8 @@ const Gallery = () => {
                             userName: data.userName || null,
                             userIcon: data.userIcon || '',
                             purchaseType: data.purchaseType || '',
+                            patternImage: data.patternImage || null,
+                            referenceUrl: data.referenceUrl || '',
                             shopName: safeHostname(data.url || data.shopUrl),
                             date: safeDate(data.createdAt),
                         });
@@ -683,6 +685,11 @@ const Gallery = () => {
                                                     post.purchaseType === 'retail' ? `🏪 ${language === 'jp' ? '店舗' : 'Retail'}` :
                                                         `🪡 ${language === 'jp' ? 'ハンドメイド' : 'Handmade'}`}
                                             </span>
+                                            {(post.patternImage || post.referenceUrl) && (
+                                                <span className="ml-1 text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full w-fit border border-orange-200 shadow-sm animate-pulse">
+                                                    📖 {language === 'jp' ? '型紙あり' : 'Pattern'}
+                                                </span>
+                                            )}
                                         </div>
                                     )}
                                     <ExpandableText text={post.comment} onHashtagClick={handleHashtagClick} />
@@ -783,6 +790,44 @@ const Gallery = () => {
                                                 </a>
                                             ))}
                                         </div>
+                                    </div>
+                                )}
+
+                                {/* Handmade Details */}
+                                {(selectedItem.patternImage || selectedItem.referenceUrl) && (
+                                    <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
+                                        <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
+                                            <span>📖</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                                        </h4>
+
+                                        {selectedItem.patternImage && (
+                                            <div className="space-y-2">
+                                                <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図' : 'Pattern Image'}</p>
+                                                <div className="relative group">
+                                                    <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {selectedItem.referenceUrl && (
+                                            <div className="space-y-2">
+                                                <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '作り方の参考' : 'Reference Link'}</p>
+                                                <a
+                                                    href={selectedItem.referenceUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-center justify-between w-full p-3 bg-white rounded-xl border border-orange-100 hover:border-orange-300 transition-all group shadow-sm"
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2 bg-orange-100 rounded-lg text-orange-600 group-hover:scale-110 transition-transform">
+                                                            <ExternalLink size={14} />
+                                                        </div>
+                                                        <span className="text-sm font-bold text-orange-700 truncate max-w-[200px]">{selectedItem.referenceUrl}</span>
+                                                    </div>
+                                                    <ArrowRight size={14} className="text-orange-300 group-hover:translate-x-1 transition-transform" />
+                                                </a>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
 

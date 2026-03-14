@@ -414,6 +414,8 @@ const Closet = () => {
         shopName: safeHostname(item.url),
         fitRating: item.fitRating || '',
         comment: item.comment,
+        patternImage: item.patternImage || null,
+        referenceUrl: item.referenceUrl || '',
         date: safeDate(item.createdAt),
         likes: item.likes || 0,
         isOwn: true,
@@ -811,7 +813,9 @@ const Closet = () => {
                                   purchaseType: selectedItem.purchaseType || '',
                                   url: selectedItem.url || '',
                                   url2: selectedItem.url2 || '',
-                                  url3: selectedItem.url3 || ''
+                                  url3: selectedItem.url3 || '',
+                                  patternImage: selectedItem.patternImage || null,
+                                  referenceUrl: selectedItem.referenceUrl || ''
                                 });
                               }}
                               className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
@@ -947,273 +951,354 @@ const Closet = () => {
                       )}
                     </div>
 
-                    {/* Purchase Type Section */}
-                    <div>
-                      <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('purchaseTypeLabel') || '入手方法'}</h4>
-                      {isEditing ? (
-                        <div className="flex gap-2">
-                          {[
-                            { id: '', label: t('notSet') || '未設定', icon: '➖' },
-                            { id: 'online', label: t('categoryOnline'), icon: '🌐' },
-                            { id: 'retail', label: t('categoryRetail'), icon: '🏪' },
-                            { id: 'handmade', label: t('categoryHandmade'), icon: '🪡' }
-                          ].map((cat) => (
-                            <button
-                              key={cat.id}
-                              type="button"
-                              onClick={() => setEditData({ ...editData, purchaseType: cat.id })}
-                              className={`flex-1 p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${editData.purchaseType === cat.id
-                                ? 'bg-primary text-white border-primary shadow-lg scale-105'
-                                : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
-                                }`}
-                            >
-                              <span className="text-xl">{cat.icon}</span>
-                              <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      ) : (
-                        selectedItem.purchaseType ? (
-                          <span className="inline-flex items-center gap-1.5 text-sm font-bold bg-gray-100 text-gray-600 px-3 py-1.5 rounded-xl">
-                            {selectedItem.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
-                              selectedItem.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
-                                `🪡 ${t('categoryHandmade')}`}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-gray-400 italic">{t('notSet') || '未設定'}</span>
-                        )
-                      )}
-                    </div>
+                  </div>
 
-                    {/* Author's Note Section */}
-                    <div>
-                      <h4 className="text-sm font-black text-gray-400 uppercase mb-2 flex items-center gap-2">
-                        <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                        <span>投稿者のひとこと（アイテム説明）</span>
-                      </h4>
-                      {isEditing ? (
-                        <div className="space-y-1">
-                          <div className="flex justify-end">
-                            <span className={`text-[10px] font-bold ${editData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
-                              {editData.comment.length} / 500
-                            </span>
-                          </div>
-                          <textarea
-                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
-                            placeholder={t('commentPlaceholder')}
-                            value={editData.comment}
-                            maxLength={500}
-                            onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
-                          />
-                        </div>
-                      ) : (
-                        selectedItem.comment && (
-                          <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
-                            {selectedItem.comment}
-                          </p>
-                        )
-                      )}
-                    </div>
-
-                    {/* Comments Section (Existing Logic kept for owned items) */}
-                    {selectedItem.isPublic && !isEditing && (
-                      <div ref={commentsRef} className="pt-8 border-t-2 border-dashed border-gray-100 mt-6 scroll-mt-6">
-                        <h4 className="text-base font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-500 text-white p-4 rounded-2xl shadow-md">
-                          <div className="flex items-center gap-3">
-                            <MessageCircle size={22} className="text-blue-500" />
-                            <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>
-                            <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">
-                              {itemComments[selectedItem.compositeId]?.length || 0}
-                            </span>
-                          </div>
+                  {/* Handmade Specific Fields (Edit Mode) */}
+                  {isEditing && editData.purchaseType === 'handmade' && (
+                    <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
+                          <span>🪡</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
                         </h4>
+                        <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{language === 'jp' ? '任意' : 'Optional'}</span>
+                      </div>
 
-                        <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                          {(itemComments[selectedItem.compositeId] || []).length > 0 ? (
-                            (itemComments[selectedItem.compositeId] || []).map((comment) => (
-                              <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2 group/comment">
-                                <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
-                                <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">
-                                  <div className="flex items-center justify-between mb-1">
-                                    <span className="text-xs font-bold text-gray-900">{comment.userName}</span>
-                                    <div className="flex items-center gap-2">
-                                      <span className="text-[10px] text-gray-400">
-                                        {comment.createdAt?.seconds
-                                          ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
-                                          : new Date(comment.createdAt).toLocaleDateString()}
-                                      </span>
-                                      {currentUser?.uid === comment.userId && !editingCommentId && (
-                                        <div className="flex items-center gap-1 opacity-0 group-hover/comment:opacity-100 transition-all">
-                                          <button
-                                            onClick={() => {
-                                              setEditingCommentId(comment.id);
-                                              setEditingCommentText(comment.text);
-                                            }}
-                                            className="p-1 text-gray-300 hover:text-blue-500 transition-all"
-                                            title="編集"
-                                          >
-                                            <Edit2 size={12} />
-                                          </button>
-                                          <button
-                                            onClick={() => {
-                                              if (window.confirm("このコメントを削除しますか？")) {
-                                                deleteComment(selectedItem.id, selectedItem.userId, comment.id);
-                                              }
-                                            }}
-                                            className="p-1 text-gray-300 hover:text-red-400 transition-all"
-                                            title="削除"
-                                          >
-                                            <Trash2 size={12} />
-                                          </button>
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-
-                                  {editingCommentId === comment.id ? (
-                                    <div className="space-y-2 mt-2">
-                                      <textarea
-                                        value={editingCommentText}
-                                        onChange={(e) => setEditingCommentText(e.target.value)}
-                                        className="w-full p-2 bg-gray-50 rounded-lg border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-20 resize-none"
-                                        placeholder="コメントを編集..."
-                                      />
-                                      <div className="flex justify-end gap-2">
-                                        <button
-                                          onClick={() => {
-                                            setEditingCommentId(null);
-                                            setEditingCommentText('');
-                                          }}
-                                          className="px-3 py-1 text-[10px] font-bold text-gray-400 hover:text-gray-600"
-                                        >
-                                          キャンセル
-                                        </button>
-                                        <button
-                                          onClick={() => updateComment(selectedItem.id, selectedItem.userId, comment.id)}
-                                          disabled={!editingCommentText.trim() || isUpdatingComment}
-                                          className="px-3 py-1 bg-primary text-white rounded-lg text-[10px] font-bold shadow-sm hover:brightness-110 disabled:opacity-50"
-                                        >
-                                          {isUpdatingComment ? '保存中...' : '保存する'}
-                                        </button>
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <p className="text-sm text-gray-700 leading-relaxed break-words">
-                                      {comment.text}
-                                    </p>
-                                  )}
-
-                                  {/* Heart reaction button */}
-                                  <div className="flex items-center gap-1 mt-2 pt-1.5 border-t border-gray-50">
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        toggleCommentHeart(selectedItem.id, selectedItem.userId, comment.id);
-                                      }}
-                                      className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold transition-all active:scale-90 ${(comment.heartedBy || []).includes(currentUser?.uid)
-                                        ? 'bg-pink-50 text-pink-500 ring-1 ring-pink-200'
-                                        : 'bg-gray-50 text-gray-400 hover:bg-pink-50 hover:text-pink-400'
-                                        }`}
-                                    >
-                                      <Heart
-                                        size={12}
-                                        fill={(comment.heartedBy || []).includes(currentUser?.uid) ? 'currentColor' : 'none'}
-                                        strokeWidth={2.5}
-                                      />
-                                      <span>{comment.hearts || (comment.heartedBy || []).length || ''}</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
-                          ) : (
-                            <div className="text-center py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">
-                              <p className="text-sm text-gray-400 font-medium italic">{t('noCommentsYet') || 'まだコメントがありません'}</p>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Comment Form */}
-                        {currentUser ? (
-                          <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-inner">
-                            <div className="flex items-center gap-2 mb-3">
-                              <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
-                                <Plus size={14} /> {t('addCommentLabel') || 'コメントを投稿する'}
-                              </span>
-                            </div>
-                            <div className="flex gap-2 items-end">
-                              <div className="flex-1 relative group">
-                                <textarea
-                                  value={commentText}
-                                  onChange={(e) => setCommentText(e.target.value)}
-                                  placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
-                                  className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
-                                  maxLength={200}
-                                />
-                                <div className="absolute bottom-2 right-2 flex items-center gap-2">
-                                  <span className={`text-[9px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
-                                    {commentText.length}/200
-                                  </span>
-                                </div>
-                              </div>
-                              <button
-                                onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
-                                disabled={!commentText.trim() || isSubmittingComment}
-                                className="bg-primary text-white p-4 rounded-xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-24 w-14 flex flex-col items-center justify-center gap-2 group active:scale-95"
-                              >
-                                {isSubmittingComment ? (
-                                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                ) : (
-                                  <>
-                                    <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                    <span className="text-[10px] font-bold">送信</span>
-                                  </>
-                                )}
-                              </button>
-                            </div>
+                      {/* Pattern Upload */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図をアップ' : 'Upload Pattern'}</label>
+                        {!editData.patternImage ? (
+                          <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
+                            <input
+                              type="file"
+                              onChange={async (e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  try {
+                                    const compressed = await compressImage(file);
+                                    setEditData({ ...editData, patternImage: compressed });
+                                  } catch { alert('Failed to load image'); }
+                                }
+                              }}
+                              className="absolute inset-0 opacity-0 cursor-pointer"
+                              accept="image/*"
+                            />
+                            <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
+                            <p className="text-orange-400 font-bold text-[9px]">{language === 'jp' ? 'タップして画像を選択' : 'Tap to select image'}</p>
                           </div>
                         ) : (
-                          <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
-                            <p className="text-sm text-gray-500 font-bold mb-3">{t('loginToComment') || 'コメントするにはログインが必要です'}</p>
-                            <Link to="/settings" className="inline-block px-6 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
-                              {t('goToLogin') || 'ログイン・設定へ'}
-                            </Link>
+                          <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
+                            <img src={editData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
+                                {language === 'jp' ? '選び直す' : 'Change'}
+                                <input
+                                  type="file"
+                                  onChange={async (e) => {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                      try {
+                                        const compressed = await compressImage(file);
+                                        setEditData({ ...editData, patternImage: compressed });
+                                      } catch { alert('Failed to load image'); }
+                                    }
+                                  }}
+                                  className="hidden"
+                                  accept="image/*"
+                                />
+                              </label>
+                            </div>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setEditData({ ...editData, patternImage: null }); }}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-sm"
+                            >
+                              <span className="text-[10px] leading-none">✕</span>
+                            </button>
                           </div>
                         )}
                       </div>
-                    )}
 
-                    {/* Save / Cancel Buttons */}
-                    {isEditing && (
-                      <div className="flex gap-3 mt-2">
-                        <button
-                          onClick={() => setIsEditing(false)}
-                          className="flex-1 py-4 rounded-xl border-2 border-gray-200 text-gray-500 font-bold text-base hover:bg-gray-50 transition-colors"
-                        >
-                          {t('cancel') || 'キャンセル'}
-                        </button>
-                        <button
-                          onClick={() => {
-                            updateClosetItem(selectedItem.id.replace('local-', ''), editData);
-                            setSelectedItem({ ...selectedItem, ...editData });
-                            setIsEditing(false);
-                          }}
-                          className="flex-1 py-4 rounded-xl bg-primary text-white font-bold text-base shadow-md hover:opacity-90 transition-all active:scale-95"
-                        >
-                          ✓ {t('save') || '保存'}
-                        </button>
+                      {/* Reference URL */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{language === 'jp' ? '作り方の参考URL' : 'Reference URL'}</label>
+                        <input
+                          type="url"
+                          className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                          placeholder="https://..."
+                          value={editData.referenceUrl}
+                          onChange={(e) => setEditData({ ...editData, referenceUrl: e.target.value })}
+                        />
                       </div>
+                    </div>
+                  )}
+
+                  {/* Handmade Specific Fields (View Mode) */}
+                  {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl) && (
+                    <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
+                      <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
+                        <span>📖</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                      </h4>
+
+                      {selectedItem.patternImage && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図' : 'Pattern Image'}</p>
+                          <div className="relative group">
+                            <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
+                          </div>
+                        </div>
+                      )}
+
+                      {selectedItem.referenceUrl && (
+                        <div className="space-y-2">
+                          <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '作り方の参考' : 'Reference Link'}</p>
+                          <a
+                            href={selectedItem.referenceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-between w-full p-3 bg-white rounded-xl border border-orange-100 hover:border-orange-300 transition-all group shadow-sm"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-orange-100 rounded-lg text-orange-600 group-hover:scale-110 transition-transform">
+                                <ExternalLink size={14} />
+                              </div>
+                              <span className="text-sm font-bold text-orange-700 truncate max-w-[200px]">{selectedItem.referenceUrl}</span>
+                            </div>
+                            <span className="text-orange-300 flex items-center group-hover:translate-x-1 transition-transform">→</span>
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Author's Note Section */}
+                  <div>
+                    <h4 className="text-sm font-black text-gray-400 uppercase mb-2 flex items-center gap-2">
+                      <Star size={14} className="text-yellow-400 fill-yellow-400" />
+                      <span>投稿者のひとこと（アイテム説明）</span>
+                    </h4>
+                    {isEditing ? (
+                      <div className="space-y-1">
+                        <div className="flex justify-end">
+                          <span className={`text-[10px] font-bold ${editData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
+                            {editData.comment.length} / 500
+                          </span>
+                        </div>
+                        <textarea
+                          className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                          placeholder={t('commentPlaceholder')}
+                          value={editData.comment}
+                          maxLength={500}
+                          onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
+                        />
+                      </div>
+                    ) : (
+                      selectedItem.comment && (
+                        <p className="text-gray-700 bg-yellow-50/50 p-4 rounded-xl border border-yellow-100">
+                          {selectedItem.comment}
+                        </p>
+                      )
                     )}
                   </div>
+
+                  {/* Comments Section (Existing Logic kept for owned items) */}
+                  {selectedItem.isPublic && !isEditing && (
+                    <div ref={commentsRef} className="pt-8 border-t-2 border-dashed border-gray-100 mt-6 scroll-mt-6">
+                      <h4 className="text-base font-black text-gray-800 uppercase mb-4 flex items-center justify-between bg-blue-500 text-white p-4 rounded-2xl shadow-md">
+                        <div className="flex items-center gap-3">
+                          <MessageCircle size={22} className="text-blue-500" />
+                          <span className="tracking-widest">{t('commentsTitle') || 'コメントを読み書きする'}</span>
+                          <span className="bg-white border-2 border-blue-200 px-2.5 py-0.5 rounded-full text-xs font-black text-blue-600 shadow-sm">
+                            {itemComments[selectedItem.compositeId]?.length || 0}
+                          </span>
+                        </div>
+                      </h4>
+
+                      <div className="space-y-4 mb-8 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                        {(itemComments[selectedItem.compositeId] || []).length > 0 ? (
+                          (itemComments[selectedItem.compositeId] || []).map((comment) => (
+                            <div key={comment.id} className="flex gap-3 items-start animate-in slide-in-from-bottom-2 group/comment">
+                              <UserAvatar src={comment.userIcon} className="w-9 h-9 flex-shrink-0 border-2 border-white shadow-sm" alt="" />
+                              <div className="flex-1 bg-white p-3 rounded-2xl rounded-tl-none shadow-sm border border-gray-50">
+                                <div className="flex items-center justify-between mb-1">
+                                  <span className="text-xs font-bold text-gray-900">{comment.userName}</span>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-[10px] text-gray-400">
+                                      {comment.createdAt?.seconds
+                                        ? new Date(comment.createdAt.seconds * 1000).toLocaleDateString()
+                                        : new Date(comment.createdAt).toLocaleDateString()}
+                                    </span>
+                                    {currentUser?.uid === comment.userId && !editingCommentId && (
+                                      <div className="flex items-center gap-1 opacity-0 group-hover/comment:opacity-100 transition-all">
+                                        <button
+                                          onClick={() => {
+                                            setEditingCommentId(comment.id);
+                                            setEditingCommentText(comment.text);
+                                          }}
+                                          className="p-1 text-gray-300 hover:text-blue-500 transition-all"
+                                          title="編集"
+                                        >
+                                          <Edit2 size={12} />
+                                        </button>
+                                        <button
+                                          onClick={() => {
+                                            if (window.confirm("このコメントを削除しますか？")) {
+                                              deleteComment(selectedItem.id, selectedItem.userId, comment.id);
+                                            }
+                                          }}
+                                          className="p-1 text-gray-300 hover:text-red-400 transition-all"
+                                          title="削除"
+                                        >
+                                          <Trash2 size={12} />
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                {editingCommentId === comment.id ? (
+                                  <div className="space-y-2 mt-2">
+                                    <textarea
+                                      value={editingCommentText}
+                                      onChange={(e) => setEditingCommentText(e.target.value)}
+                                      className="w-full p-2 bg-gray-50 rounded-lg border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-20 resize-none"
+                                      placeholder="コメントを編集..."
+                                    />
+                                    <div className="flex justify-end gap-2">
+                                      <button
+                                        onClick={() => {
+                                          setEditingCommentId(null);
+                                          setEditingCommentText('');
+                                        }}
+                                        className="px-3 py-1 text-[10px] font-bold text-gray-400 hover:text-gray-600"
+                                      >
+                                        キャンセル
+                                      </button>
+                                      <button
+                                        onClick={() => updateComment(selectedItem.id, selectedItem.userId, comment.id)}
+                                        disabled={!editingCommentText.trim() || isUpdatingComment}
+                                        className="px-3 py-1 bg-primary text-white rounded-lg text-[10px] font-bold shadow-sm hover:brightness-110 disabled:opacity-50"
+                                      >
+                                        {isUpdatingComment ? '保存中...' : '保存する'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-gray-700 leading-relaxed break-words">
+                                    {comment.text}
+                                  </p>
+                                )}
+
+                                {/* Heart reaction button */}
+                                <div className="flex items-center gap-1 mt-2 pt-1.5 border-t border-gray-50">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      toggleCommentHeart(selectedItem.id, selectedItem.userId, comment.id);
+                                    }}
+                                    className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold transition-all active:scale-90 ${(comment.heartedBy || []).includes(currentUser?.uid)
+                                      ? 'bg-pink-50 text-pink-500 ring-1 ring-pink-200'
+                                      : 'bg-gray-50 text-gray-400 hover:bg-pink-50 hover:text-pink-400'
+                                      }`}
+                                  >
+                                    <Heart
+                                      size={12}
+                                      fill={(comment.heartedBy || []).includes(currentUser?.uid) ? 'currentColor' : 'none'}
+                                      strokeWidth={2.5}
+                                    />
+                                    <span>{comment.hearts || (comment.heartedBy || []).length || ''}</span>
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 bg-gray-50/50 rounded-2xl border-2 border-dashed border-gray-100">
+                            <p className="text-sm text-gray-400 font-medium italic">{t('noCommentsYet') || 'まだコメントがありません'}</p>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Comment Form */}
+                      {currentUser ? (
+                        <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 shadow-inner">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-xs font-bold text-blue-600 flex items-center gap-1">
+                              <Plus size={14} /> {t('addCommentLabel') || 'コメントを投稿する'}
+                            </span>
+                          </div>
+                          <div className="flex gap-2 items-end">
+                            <div className="flex-1 relative group">
+                              <textarea
+                                value={commentText}
+                                onChange={(e) => setCommentText(e.target.value)}
+                                placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
+                                className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
+                                maxLength={200}
+                              />
+                              <div className="absolute bottom-2 right-2 flex items-center gap-2">
+                                <span className={`text-[9px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
+                                  {commentText.length}/200
+                                </span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
+                              disabled={!commentText.trim() || isSubmittingComment}
+                              className="bg-primary text-white p-4 rounded-xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-24 w-14 flex flex-col items-center justify-center gap-2 group active:scale-95"
+                            >
+                              {isSubmittingComment ? (
+                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              ) : (
+                                <>
+                                  <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                                  <span className="text-[10px] font-bold">送信</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="bg-gray-50 p-4 rounded-2xl text-center border border-gray-100">
+                          <p className="text-sm text-gray-500 font-bold mb-3">{t('loginToComment') || 'コメントするにはログインが必要です'}</p>
+                          <Link to="/settings" className="inline-block px-6 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm">
+                            {t('goToLogin') || 'ログイン・設定へ'}
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Save / Cancel Buttons */}
+                  {isEditing && (
+                    <div className="flex gap-3 mt-2">
+                      <button
+                        onClick={() => setIsEditing(false)}
+                        className="flex-1 py-4 rounded-xl border-2 border-gray-200 text-gray-500 font-bold text-base hover:bg-gray-50 transition-colors"
+                      >
+                        {t('cancel') || 'キャンセル'}
+                      </button>
+                      <button
+                        onClick={() => {
+                          updateClosetItem(selectedItem.id.replace('local-', ''), editData);
+                          setSelectedItem({ ...selectedItem, ...editData });
+                          setIsEditing(false);
+                        }}
+                        className="flex-1 py-4 rounded-xl bg-primary text-white font-bold text-base shadow-md hover:opacity-90 transition-all active:scale-95"
+                      >
+                        ✓ {t('save') || '保存'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
+        </div>
         </Portal>
-      )}
-    </div>
+  )
+}
+    </div >
   );
 };
 

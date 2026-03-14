@@ -69,7 +69,7 @@ const Closet = () => {
   // Debugging log for production crash
   console.log("Closet component rendering...");
 
-  const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t } = useApp();
+  const { plushies = [], updatePlushie, closetItems = [], addClosetItem, updateClosetItem, deleteClosetItem, t, language } = useApp();
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -951,6 +951,43 @@ const Closet = () => {
                       )}
                     </div>
 
+                    {/* Purchase Type Section */}
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('purchaseTypeLabel') || '入手方法'}</h4>
+                      {isEditing ? (
+                        <div className="flex gap-2">
+                          {[
+                            { id: '', label: t('notSet') || '未設定', icon: '➖' },
+                            { id: 'online', label: t('categoryOnline'), icon: '🌐' },
+                            { id: 'retail', label: t('categoryRetail'), icon: '🏪' },
+                            { id: 'handmade', label: t('categoryHandmade'), icon: '🪡' }
+                          ].map((cat) => (
+                            <button
+                              key={cat.id}
+                              type="button"
+                              onClick={() => setEditData({ ...editData, purchaseType: cat.id })}
+                              className={`flex-1 p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${editData.purchaseType === cat.id
+                                ? 'bg-primary text-white border-primary shadow-lg scale-105'
+                                : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
+                                }`}
+                            >
+                              <span className="text-xl">{cat.icon}</span>
+                              <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        selectedItem.purchaseType ? (
+                          <span className="inline-flex items-center gap-1.5 text-sm font-bold bg-gray-100 text-gray-600 px-3 py-1.5 rounded-xl">
+                            {selectedItem.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                              selectedItem.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                `🪡 ${t('categoryHandmade')}`}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-gray-400 italic">{t('notSet') || '未設定'}</span>
+                        )
+                      )}
+                    </div>
                   </div>
 
                   {/* Handmade Specific Fields (Edit Mode) */}
@@ -1294,11 +1331,9 @@ const Closet = () => {
               </div>
             </div>
           </div>
-        </div>
         </Portal>
-  )
-}
-    </div >
+      )}
+    </div>
   );
 };
 

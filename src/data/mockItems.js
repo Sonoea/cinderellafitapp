@@ -2,7 +2,7 @@
 // Mock data for physical plushie clothing items
 
 export const STYLE_TYPES = {
-    MODE: 'mode',
+    MODE: 'mode', // Haute Couture / Law Roach Style
     CASUAL: 'casual',
     FORMAL: 'formal',
     CUTE: 'cute',
@@ -17,167 +17,307 @@ export const ITEM_CATEGORIES = {
 };
 
 export const MOCK_ITEMS = [
-    // --- MODE ---
+    // --- MODE (Cool, Sophisticated) ---
     {
         id: 'mode-top-1',
-        name: 'オーバーサイズ モノトーンシャツ',
-        category: ITEM_CATEGORIES.TOP,
+        name: 'WEGO 10cm ぬいジャージセット（ボトムス単品）',
+        aiPrompt: 'blue track pants with white stripes, sporty fashion',
+        category: ITEM_CATEGORIES.BOTTOM,
         style: [STYLE_TYPES.MODE, STYLE_TYPES.CASUAL],
         sizeRange: { minHeight: 10, maxHeight: 15 },
-        price: '¥2,500',
-        imageUrl: 'https://images.unsplash.com/photo-1596755094514-f87e32f85e2c?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/mode-top-1',
-        shopName: 'Mode Nui Nui',
+        price: '¥1,599',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25SS06-G0070sub01.jpg',
+        purchaseUrl: 'https://wego.jp/products/lg25ss06-g0070',
+        shopName: 'WEGO ONLINE STORE',
+    },
+    {
+        id: 'mode-set-black',
+        name: 'Little Closet 10cm 執事ブラックセット',
+        aiPrompt: 'elegant black butler suit, formal black vest and white shirt, black tie',
+        category: ITEM_CATEGORIES.SET,
+        style: [STYLE_TYPES.MODE, STYLE_TYPES.FORMAL],
+        sizeRange: { minHeight: 10, maxHeight: 12 },
+        price: '¥2,400',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Little Closet',
     },
     {
         id: 'mode-hat-1',
-        name: 'レザー風 バケットハット',
+        name: 'WEGO ぬいシアーバケットハット',
+        aiPrompt: 'black sheer bucket hat, cool streetwear accessory',
         category: ITEM_CATEGORIES.HAT,
         style: [STYLE_TYPES.MODE],
         sizeRange: { minHeight: 8, maxHeight: 20 },
-        price: '¥1,500',
-        imageUrl: 'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/mode-hat-1',
-        shopName: 'Mode Nui Nui',
+        price: '¥880',
+        imageUrl: 'https://cdn.shopify.com/s/files/1/0578/9456/8136/files/LG24SS03-G0095sub03.JPG',
+        purchaseUrl: 'https://wego.jp/products/lg25aw11-g0181',
+        shopName: 'WEGO ONLINE STORE',
     },
     {
-        id: 'mode-acc-1',
-        name: 'シルバーチェーン ネックレス',
+        id: 'mode-acc-chrome',
+        name: 'WEGO ぬいチェーンネックレスシルバー',
+        aiPrompt: 'chunky silver chain necklace, cool streetwear jewelry',
         category: ITEM_CATEGORIES.ACCESSORY,
         style: [STYLE_TYPES.MODE],
         sizeRange: { minHeight: 5, maxHeight: 30 },
-        price: '¥800',
-        imageUrl: 'https://images.unsplash.com/photo-1599643478524-fb66f7cefc11?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/mode-acc-1',
-        shopName: 'Nui Accessories',
+        price: '¥550',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25AW10-G0173sub07.jpg',
+        purchaseUrl: 'https://wego.jp/products/lg25aw10-g0240',
+        shopName: 'WEGO ONLINE STORE',
+    },
+    {
+        id: 'mode-top-vest',
+        name: 'Little Closet 10cm用 フェイクレザーベスト',
+        aiPrompt: 'cool black faux leather vest, high-fashion streetwear',
+        category: ITEM_CATEGORIES.TOP,
+        style: [STYLE_TYPES.MODE],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥1,400',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Little Closet',
+    },
+    {
+        id: 'couture-blazer-structural',
+        name: 'Law Roach Inspired 10cm Structural Blazer',
+        aiPrompt: 'architectural sharp-shouldered black blazer, high-fashion structural tailoring, avant-garde couture',
+        category: ITEM_CATEGORIES.SET,
+        style: [STYLE_TYPES.MODE],
+        sizeRange: { minHeight: 10, maxHeight: 12 },
+        price: '¥3,800',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Couture Studio',
+    },
+    {
+        id: 'couture-set-emerald',
+        name: 'Law Roach Inspired 10cm Emerald Satin Set',
+        aiPrompt: 'luxurious emerald green satin structural gown, bold color blocking, red carpet fashion',
+        category: ITEM_CATEGORIES.SET,
+        style: [STYLE_TYPES.MODE],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥4,500',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Couture Studio',
+    },
+    {
+        id: 'couture-hat-fascinator',
+        name: 'Architectural Fascinator Hat',
+        aiPrompt: 'bold architectural high-fashion headpiece, geometric fascinator, dramatic couture hat',
+        category: ITEM_CATEGORIES.HAT,
+        style: [STYLE_TYPES.MODE],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥2,200',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Couture Studio',
     },
 
-    // --- CASUAL ---
+    // --- CASUAL (Relaxed, Everyday) ---
     {
         id: 'casual-set-1',
-        name: 'デニムサロペット＆Tシャツセット',
+        name: 'WEGO 10cm ぬいデニムオーバーオールセット',
+        aiPrompt: 'classic blue denim overalls, white t-shirt underneath, casual cute outfit',
         category: ITEM_CATEGORIES.SET,
         style: [STYLE_TYPES.CASUAL, STYLE_TYPES.CUTE],
         sizeRange: { minHeight: 10, maxHeight: 16 },
-        price: '¥3,200',
-        imageUrl: 'https://images.unsplash.com/photo-1516762689617-e1cffcef479d?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/casual-set-1',
-        shopName: 'Nui Casual',
+        price: '¥1,999',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25AW10-G0172sub02.jpg',
+        purchaseUrl: 'https://wego.jp/products/lg25aw10-g0172',
+        shopName: 'WEGO ONLINE STORE',
+    },
+    {
+        id: 'casual-top-hoodie',
+        name: 'Little Closet 10cm用 ゆるふわパーカー',
+        aiPrompt: 'oversized cozy soft pink hoodie, casual relaxed streetwear',
+        category: ITEM_CATEGORIES.SET,
+        style: [STYLE_TYPES.CASUAL],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥1,540',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/63345864',
+        shopName: 'Little Closet',
+    },
+    {
+        id: 'casual-hat-2',
+        name: 'WEGO ぬいニット帽',
+        aiPrompt: 'cozy knitted beanie hat, casual winter accessory',
+        category: ITEM_CATEGORIES.HAT,
+        style: [STYLE_TYPES.CASUAL],
+        sizeRange: { minHeight: 8, maxHeight: 15 },
+        price: '¥770',
+        imageUrl: 'https://cdn.shopify.com/s/files/1/0578/9456/8136/files/LG24SS03-G0095sub03.JPG',
+        purchaseUrl: 'https://wego.jp/products/lg24ss03-g0095',
+        shopName: 'WEGO ONLINE STORE',
     },
     {
         id: 'casual-acc-1',
-        name: 'キャンバストートバッグ ミニ',
+        name: 'WEGO 10cm ぬいリュック',
+        aiPrompt: 'small cute backpack accessory worn on the back',
         category: ITEM_CATEGORIES.ACCESSORY,
         style: [STYLE_TYPES.CASUAL],
         sizeRange: { minHeight: 10, maxHeight: 20 },
-        price: '¥1,200',
-        imageUrl: 'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/casual-acc-1',
-        shopName: 'Nui Casual',
+        price: '¥1,499',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25AW10-G0173sub07.jpg',
+        purchaseUrl: 'https://wego.jp/products/lg25aw10-g0173',
+        shopName: 'WEGO ONLINE STORE',
     },
     {
-        id: 'casual-hat-1',
-        name: 'コーデュロイ キャップ',
-        category: ITEM_CATEGORIES.HAT,
+        id: 'casual-set-sporty',
+        name: 'WEGO 10cm ぬいスポーティセットアップ',
+        aiPrompt: 'red and white sporty track suit, casual athletic wear',
+        category: ITEM_CATEGORIES.SET,
         style: [STYLE_TYPES.CASUAL],
         sizeRange: { minHeight: 10, maxHeight: 15 },
-        price: '¥1,800',
-        imageUrl: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/casual-hat-1',
-        shopName: 'Nui Casual',
+        price: '¥1,999',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25AW10-G0172sub02.jpg',
+        purchaseUrl: 'https://wego.jp/products/lg25aw10-g0172',
+        shopName: 'WEGO ONLINE STORE',
     },
 
-    // --- FORMAL ---
+    // --- FORMAL (Dressed up) ---
     {
         id: 'formal-set-1',
-        name: 'クラシックタキシード 3点セット',
+        name: 'WEGO 10cm ぬいリボンメイドセット',
+        aiPrompt: 'cute black and white maid dress with white apron, formal cute outfit',
+        category: ITEM_CATEGORIES.SET,
+        style: [STYLE_TYPES.FORMAL, STYLE_TYPES.CUTE],
+        sizeRange: { minHeight: 10, maxHeight: 18 },
+        price: '¥1,599',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25AW10-G0174sub03.jpg',
+        purchaseUrl: 'https://wego.jp/products/lg25aw10-g0174',
+        shopName: 'WEGO ONLINE STORE',
+    },
+    {
+        id: 'formal-dress-tux',
+        name: 'Little Closet 10cm タキシードセット',
+        aiPrompt: 'elegant luxury tuxedo suit, white shirt, black bow tie, formal gentleman attire',
         category: ITEM_CATEGORIES.SET,
         style: [STYLE_TYPES.FORMAL],
-        sizeRange: { minHeight: 13, maxHeight: 18 },
-        price: '¥4,500',
-        imageUrl: 'https://images.unsplash.com/photo-1593030103066-0093718efeb9?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/formal-set-1',
-        shopName: 'Nui Formal',
+        sizeRange: { minHeight: 10, maxHeight: 12 },
+        price: '¥2,800',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Little Closet',
     },
     {
-        id: 'formal-acc-1',
-        name: '蝶ネクタイ (ワインレッド)',
+        id: 'formal-acc-shoe',
+        name: 'Little Closet 10cm用 ローファー',
+        aiPrompt: 'shiny black leather loafer shoes',
         category: ITEM_CATEGORIES.ACCESSORY,
-        style: [STYLE_TYPES.FORMAL],
-        sizeRange: { minHeight: 8, maxHeight: 25 },
-        price: '¥900',
-        imageUrl: 'https://images.unsplash.com/photo-1582719471384-eb54e2230538?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/formal-acc-1',
-        shopName: 'Nui Formal',
-    },
-    {
-        id: 'formal-acc-2',
-        name: '本革風 ミニシューズ',
-        category: ITEM_CATEGORIES.ACCESSORY,
-        style: [STYLE_TYPES.FORMAL],
-        sizeRange: { minHeight: 12, maxHeight: 18 },
-        price: '¥2,200',
-        imageUrl: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/formal-acc-2',
-        shopName: 'Nui Shoes',
+        style: [STYLE_TYPES.FORMAL, STYLE_TYPES.MODE],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥1,650',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/63345864',
+        shopName: 'Little Closet',
     },
 
-    // --- CUTE ---
+    // --- CUTE (Adorable) ---
     {
-        id: 'cute-top-1',
-        name: 'フリルフラワー ワンピース',
-        category: ITEM_CATEGORIES.TOP,
+        id: 'cute-set-bear',
+        name: 'Little Closet ぬいくまさん着ぐるみ',
+        aiPrompt: 'fluffy brown teddy bear onesie costume, cute fluffy hoodie suit',
+        category: ITEM_CATEGORIES.SET,
         style: [STYLE_TYPES.CUTE],
-        sizeRange: { minHeight: 10, maxHeight: 15 },
-        price: '¥2,800',
-        imageUrl: 'https://images.unsplash.com/photo-1515347619252-7bfbaf9d1dc9?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/cute-top-1',
-        shopName: 'Cute Nui Nui',
+        sizeRange: { minHeight: 9, maxHeight: 14 },
+        price: '¥1,980',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Little Closet',
     },
     {
         id: 'cute-hat-1',
-        name: 'うさ耳 もこもこ帽子',
+        name: 'WEGO ぬいきぐるみ (トナカイ)',
+        aiPrompt: 'cute reindeer costume hood with antlers, cozy cute hat',
         category: ITEM_CATEGORIES.HAT,
-        style: [STYLE_TYPES.CUTE],
-        sizeRange: { minHeight: 9, maxHeight: 15 },
-        price: '¥2,000',
-        imageUrl: 'https://images.unsplash.com/photo-1533669145229-87360216b0a7?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/cute-hat-1',
-        shopName: 'Cute Nui Nui',
+        style: [STYLE_TYPES.CUTE, STYLE_TYPES.CASUAL],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥1,099',
+        imageUrl: 'https://wego.jp/cdn/shop/files/LG25AW11-G0227main021.jpg?v=1762912974&width=500',
+        purchaseUrl: 'https://wego.jp/products/lg25aw11-g0227',
+        shopName: 'WEGO ONLINE STORE',
     },
     {
-        id: 'cute-acc-1',
-        name: 'いちごのポシェット',
+        id: 'cute-acc-pouch',
+        name: 'Little Closet 10cm用 くまさんポシェット',
         category: ITEM_CATEGORIES.ACCESSORY,
-        style: [STYLE_TYPES.CUTE, STYLE_TYPES.CASUAL],
+        style: [STYLE_TYPES.CUTE],
         sizeRange: { minHeight: 10, maxHeight: 18 },
-        price: '¥1,500',
-        imageUrl: 'https://images.unsplash.com/photo-1591561954557-26941169b49e?q=80&w=400&h=400&auto=format&fit=crop',
-        purchaseUrl: 'https://example.com/item/cute-acc-1',
-        shopName: 'Cute Nui Nui',
+        price: '¥1,320',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Little Closet',
+    },
+    {
+        id: 'cute-hat-bunny',
+        name: 'Little Closet ぬい耳うさぎさんぼうし',
+        aiPrompt: 'white fluffy bunny ear hat, cute soft headwear',
+        category: ITEM_CATEGORIES.HAT,
+        style: [STYLE_TYPES.CUTE],
+        sizeRange: { minHeight: 10, maxHeight: 15 },
+        price: '¥1,200',
+        imageUrl: 'https://base-ec2if.akamaized.net/images/item/origin/881add3e6b0067863a545186e22b9ca2.jpg?width=500',
+        purchaseUrl: 'https://littlecloset.shopselect.net/items/54784260',
+        shopName: 'Little Closet',
     },
 ];
 
-// Helper to get random items that match size and style
-export const getRecommendations = (plushieHeight, desiredStyle, count = 3) => {
-    const minH = plushieHeight * 0.8;
-    const maxH = plushieHeight * 1.2;
-
+/**
+ * Enhanced logic to get diverse and "optimal" recommendations:
+ * 1. Filter by size and style.
+ * 2. Group by category to ensure variety.
+ * 3. Pick a "Main Item" (SET or TOP/BOTTOM) first.
+ * 4. Fill remaining slots with unique accessory categories (HAT, ACCESSORY).
+ */
+export const getRecommendations = (plushieHeight, desiredStyle, count = 4) => {
+    // 1. Filter valid items
     const matched = MOCK_ITEMS.filter(item => {
-        // Basic size check (if item has strict size range)
         if (item.sizeRange) {
             if (plushieHeight < item.sizeRange.minHeight || plushieHeight > item.sizeRange.maxHeight) {
                 return false;
             }
         }
-        // Style check
         return item.style.includes(desiredStyle);
     });
 
-    // Shuffle array
-    const shuffled = matched.sort(() => 0.5 - Math.random());
+    // Shuffle pool
+    const pool = matched.sort(() => 0.5 - Math.random());
 
-    // Attempt to pick diverse categories if possible (e.g. 1 top/set, 1 hat, 1 accessory)
-    // For simplicity right now, just return top 'count' items.
-    return shuffled.slice(0, count);
+    const selected = [];
+    const usedCategories = new Set();
+
+    // 2. Pick the "Main Item" (Set or Top/Bottom combination)
+    // We prioritize SET because it's a complete look for AI rendering.
+    const mainItem = pool.find(i => i.category === ITEM_CATEGORIES.SET) ||
+        pool.find(i => i.category === ITEM_CATEGORIES.TOP) ||
+        pool[0];
+
+    if (mainItem) {
+        selected.push(mainItem);
+        usedCategories.add(mainItem.category);
+    }
+
+    // 3. Diversify remaining slots
+    for (const item of pool) {
+        if (selected.length >= count) break;
+        if (selected.find(s => s.id === item.id)) continue;
+
+        // Try to avoid duplicate categories for maximum style variety
+        if (!usedCategories.has(item.category)) {
+            selected.push(item);
+            usedCategories.add(item.category);
+        }
+    }
+
+    // 4. Fill if still empty (allow category repeat if pool is small)
+    for (const item of pool) {
+        if (selected.length >= count) break;
+        if (selected.find(s => s.id === item.id)) continue;
+        selected.push(item);
+    }
+
+    return selected;
 };

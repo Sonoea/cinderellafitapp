@@ -65,12 +65,11 @@ export const AppProvider = ({ children }) => {
       if (currentUser) {
         // Logged in: Load from Firestore
         try {
-          const q = collection(db, "users", currentUser.uid, "plushies");
-          const querySnapshot = await getDocs(q);
+          const q1 = collection(db, "users", currentUser.uid, "plushies");
+          const snap1 = await getDocs(q1);
+
           const loadedPlushies = [];
-          querySnapshot.forEach((doc) => {
-            loadedPlushies.push(doc.data());
-          });
+          snap1.forEach(doc => loadedPlushies.push(doc.data()));
 
           if (loadedPlushies.length > 0) {
             // Restore default plushie (ID 2) if missing — Unae-san is a shared default for all users
@@ -108,7 +107,10 @@ export const AppProvider = ({ children }) => {
             }
           }
         } catch (error) {
-          console.error("Error loading loadedPlushies from Firestore:", error);
+          console.error("[AppContext] Error loading plushies from Firestore:", error);
+          if (error.code === 'permission-denied') {
+            console.warn("[AppContext] Permission denied for plushies. Are rules deployed?");
+          }
         }
       } else {
         // Guest: Load from localStorage
@@ -255,12 +257,13 @@ export const AppProvider = ({ children }) => {
     const loadClosetItems = async () => {
       if (currentUser) {
         try {
-          const q = collection(db, "users", currentUser.uid, "closetItems");
-          const querySnapshot = await getDocs(q);
+          const q1 = collection(db, "users", currentUser.uid, "closetItems");
+          const q2 = collection(db, "users", currentUser.uid, "クローゼットアイテム");
+          const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+
           const loadedItems = [];
-          querySnapshot.forEach((docSnap) => {
-            loadedItems.push(docSnap.data());
-          });
+          snap1.forEach(docSnap => loadedItems.push(docSnap.data()));
+          snap2.forEach(docSnap => loadedItems.push(docSnap.data()));
 
           if (loadedItems.length > 0) {
             setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
@@ -299,7 +302,10 @@ export const AppProvider = ({ children }) => {
             }
           }
         } catch (error) {
-          console.error("Error loading closetItems from Firestore:", error);
+          console.error("[AppContext] Error loading closetItems from Firestore:", error);
+          if (error.code === 'permission-denied') {
+            console.warn("[AppContext] Permission denied for closetItems. Check collectionGroup rules.");
+          }
         }
       } else {
         // Fallback to local storage for guest

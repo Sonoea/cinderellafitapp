@@ -984,7 +984,7 @@ app.post('/api/ai-tryon', async (req, res) => {
 
 // ==== AI Stylist — Replicate API ====
 app.post('/api/ai-stylist-gen', async (req, res) => {
-    const { plushieImage, garmentImage, styleLabel } = req.body;
+    const { plushieImage, maskImage, garmentImage, styleLabel, plushieMeasurements, garmentName, garmentPrompt } = req.body;
 
     if (!plushieImage || !garmentImage) {
         return res.status(400).json({
@@ -1000,54 +1000,229 @@ app.post('/api/ai-stylist-gen', async (req, res) => {
     }
 
     try {
-        console.log(`[AI Stylist] Starting prediction for style: ${styleLabel}`);
+        const effectiveGarmentPrompt = garmentPrompt || garmentName || 'outfit'
+        console.log(`[AI Stylist] Starting prediction for style: ${styleLabel} with prompt: ${effectiveGarmentPrompt}`);
 
         // Initialize Replicate client
         const replicate = new Replicate({
             auth: apiToken,
         });
 
-        // Let's use Flux Schnell which is extremely stable and doesn't suffer from Invalid Version errors.
+        // Use Stability AI's SDXL image-to-image model.
+        // To preserve the character "Unae-san", we lower the prompt_strength and 
+        // focus the prompt on "wearing the outfit" while keeping the "original character".
         try {
+            const heightCm = plushieMeasurements?.height ? `${plushieMeasurements.height}cm` : 'tiny';
+            const waistCm = plushieMeasurements?.waist ? `${plushieMeasurements.waist}cm` : '';
+            const sizeDesc = waistCm ? `${heightCm} tall and ${waistCm} waist` : heightCm;
+
+            // --- HIGH FIDELITY VIRTUAL TRY-ON (IDM-VTON) ---
+            // We use cuuupid/idm-vton which is a state-of-the-art model for virtual try-on.
+            // It excels at preserving the subject (plushie) while precisely wrapping the garment.
+            // --- ROBUST SUBJECT-PRESERVING STYLING ---
+            console.log('[AI Stylist] Calling Cinematic SDXL Recovery via replicate.run...');
+
+            const toBuffer = (dataUri, name) => {
+                if (!dataUri) return null;
+                const parts = dataUri.split(',');
+                if (parts.length < 2) return null;
+                const base64Content = parts[1];
+                return Buffer.from(base64Content, 'base64');
+            };
+
+            const plushieBuffer = toBuffer(plushieImage, 'plushieImage');
+            if (!plushieBuffer) {
+                throw new Error('Invalid plushie image data');
+            }
+
+            // --- ENHANCED STYLE-SPECIFIC PROMPT LOGIC ---
+            let styleFlavor = "";
+            const style = String(styleLabel || 'casual').toLowerCase();
+
+            if (style.includes('mode')) {
+                styleFlavor = "High-fashion, monochromatic tones, avant-garde studio setting, dramatic shadows, sharp lighting, sophisticated mood.";
+            } else if (style.includes('casual')) {
+                styleFlavor = "Warm natural sunlight, soft bokeh background, relaxed lifestyle photography, cozy and approachable vibe.";
+            } else if (style.includes('formal')) {
+                styleFlavor = "Luxurious red carpet elegance, glittering gala background, professional studio lighting, rich textures.";
+            } else if (style.includes('cute')) {
+                styleFlavor = "Bright and airy, pastel color palette, soft-focus dreamy atmosphere, cheerful and adorable setting.";
+            }
+
+            const maskBuffer = maskImage ? toBuffer(maskImage, 'maskImage') : null;
+
+            // --- SURGICAL INPAINTING PROMPT ENGINE ---
+            // We must force PHOTOREALISM to prevent the model from turning the plushie into a cartoon or blueprint.
+            const prompt = `RAW photo, highly detailed 8k photography of a real black fluffy plushie toy wearing precisely ${garmentPrompt || garmentName || 'outfit'}. ${styleFlavor} Photorealistic fabric textures, naturally draped, real photograph, sharp focus, masterpiece.`;
+            const negative_prompt = "illustration, drawing, painting, digital art, 3d render, cartoon, anime, graphic, stylized, glowing, neon, blueprint, sketch, line art, wireframe, bear face, animal snout, ears, eyes, changed face, back view, side view, looking away, blurry, lowres, distorted, human features, human proportions, changed character, plastic surgery, pink cheeks, blush, extra clothing, accessories not mentioned";
+
+            // Using replicate.run with inpainting mask support
             const output = await replicate.run(
-                "black-forest-labs/flux-schnell",
+                "stability-ai/sdxl:39ed52f2a78e934b3ba6e2a89f5b1c712de7dfea535525255b1aa35c5565e08b",
                 {
                     input: {
-                        prompt: `A cute plushie wearing the clothes from this image: ${garmentImage}. Fashion photography, high quality. Style: ${styleLabel}`,
-                        aspect_ratio: "3:4",
-                        output_format: "webp",
-                        output_quality: 90
+                        prompt: prompt,
+                        image: plushieBuffer,
+                        mask: maskBuffer || undefined, // Surgical Mask: Protects face, inpaint body
+                        // CRITICAL: lower prompt_strength to force the model to stick strictly to the input image's reality.
+                        // 0.82 was way too high and allowed the model to invent an entire new art style (blueprint/neon).
+                        // 0.4 - 0.6 is Usually the sweet spot for just changing clothes on an existing photo.
+                        prompt_strength: 0.55,
+                        num_outputs: 1,
+                        guidance_scale: 8.5, // Slightly higher guidance to force adherence to "photorealistic clothing"
+                        num_inference_steps: 50,
+                        negative_prompt: negative_prompt,
+                        scheduler: "K_EULER"
                     }
                 }
             );
 
-            console.log('[AI Stylist] Prediction finished:', output);
+            const finalOutput = Array.isArray(output) ? output[0] : output;
 
-            // Output from IDM-VTON / Flux is typically an array with the URL or directly the string URL
-            const imageUrl = typeof output === 'string' ? output : (output && output.length > 0 ? output[0] : null);
+            let finalImageUrl = "";
+            if (finalOutput && finalOutput.locked !== undefined) {
+                // Parse ReadableStream to base64
+                const chunks = [];
+                for await (const chunk of finalOutput) {
+                    chunks.push(chunk);
+                }
+                const buffer = Buffer.concat(chunks);
+                const base64 = buffer.toString('base64');
+                finalImageUrl = `data:image/jpeg;base64,${base64}`;
+            } else {
+                finalImageUrl = typeof finalOutput === 'string' ? finalOutput : (finalOutput.url ? finalOutput.url() : '');
+            }
 
-            if (!imageUrl) {
-                throw new Error('Prediction failed or did not return an image URL. Raw response: ' + JSON.stringify(output));
+            console.log('[AI Stylist] SDXL run complete.');
+
+            if (!finalImageUrl) {
+                throw new Error('AI generation returned no valid image URL or stream.');
             }
 
             return res.json({
                 success: true,
-                resultImage: imageUrl
+                imageUrl: finalImageUrl,
+                use2D: false,
+                message: "Cinematic AI Styling restored."
             });
 
         } catch (apiError) {
-            console.error('[AI Stylist] Replicate API Error (likely billing/rate limit). Returning fallback image.', apiError.message);
-            // Return a mock success response with the placeholder image used previously when API fails
-            return res.json({
-                success: true,
-                resultImage: garmentImage,
-                warning: 'Replicate API error. Showing placeholder.'
+            console.error('[AI Stylist] Replicate API Error:', apiError.message);
+
+            // Forward the actual error so the frontend can catch the Billing/Payment required lock.
+            return res.status(500).json({
+                success: false,
+                error: apiError.message
             });
         }
 
     } catch (error) {
         console.error('[AI Stylist] Error:', error.response?.data || error.message);
         res.json({ success: false, error: 'AIスタイリング処理中にエラーが発生しました。' });
+    }
+});
+
+// ============================================================================
+// RED CARPET AI GENERATOR (SDXL Img2Img for Gallery)
+// ============================================================================
+app.post('/api/red-carpet-gen', async (req, res) => {
+    const { imageUrl, style = 'glamorous' } = req.body;
+
+    if (!imageUrl) {
+        return res.status(400).json({ success: false, error: 'Image URL is required' });
+    }
+
+    const apiToken = process.env.REPLICATE_API_TOKEN;
+    if (!apiToken) {
+        return res.status(500).json({ success: false, error: 'Replicate API Token is not configured.' });
+    }
+
+    try {
+        console.log(`[Red Carpet AI] Starting prediction for image, style: ${style}`);
+        console.log(`[Red Carpet AI] Input URL: ${imageUrl?.substring(0, 100)}${imageUrl?.length > 100 ? '...' : ''}`);
+
+        const replicate = new Replicate({
+            auth: apiToken,
+        });
+
+        // Ensure imageUrl is a string and valid
+        const validImageUrl = String(imageUrl || '');
+        if (!validImageUrl.startsWith('http') && !validImageUrl.startsWith('data:image')) {
+            throw new Error('Invalid image URL format. Must be http or data URI.');
+        }
+
+        // Detailed cinematic prompt matching the "Theater/Ballroom" vision
+        let styleFlavor = "elegant tuxedo or a sparkling gala dress";
+        if (style === 'cute') styleFlavor = "adorable fancy party dress with ribbons and lace";
+        if (style === 'cool') styleFlavor = "sleek designer suit and cool accessories";
+
+        const prompt = `A cinematic masterpiece of a plushie character at a grand "Red Carpet Premiere Ceremony 2026" in a luxurious theater ballroom. 
+        The plushie is standing on a white circular podium. 
+        Wearing ${styleFlavor}. 
+        The background is a grand theater with golden ornaments, red velvet curtains, and paparazzi crowds with many camera flashes and spotlights. 
+        Billboard signs in the background saying "CEREMONY 2026". 
+        Celebratory atmosphere, high-end commercial photography, 8k resolution, photorealistic, sharp focus on the plushie's original form.`;
+
+        const negative_prompt = "lowres, blurry, distorted face, extra limbs, human hands, human skin, text errors, watermark, low quality, illustration, painting, drawing, cartoon, anime";
+
+        console.log('[Red Carpet AI] Calling Replicate SDXL img2img...');
+
+        // Using Replicate's standard stability-ai/sdxl img2img
+        // Version check: ensure this version supports img2img with 'image' input
+        const output = await replicate.run(
+            "stability-ai/sdxl:39ed52f2a78e934b3ba6e24ee33373c959d6549d00f8a1729b1d1c5a32ec2e1d", // Ensure this CID is correct for SDXL img2img
+            {
+                input: {
+                    prompt: prompt,
+                    image: validImageUrl,
+                    prompt_strength: 0.55,
+                    num_outputs: 1,
+                    guidance_scale: 8.5,
+                    num_inference_steps: 40,
+                    negative_prompt: negative_prompt,
+                    scheduler: "K_EULER"
+                }
+            }
+        );
+
+        const finalOutput = Array.isArray(output) ? output[0] : output;
+
+        let finalImageUrl = "";
+        if (finalOutput && typeof finalOutput.getReader === 'function') {
+            // Handle ReadableStream if returned
+            const chunks = [];
+            for await (const chunk of finalOutput) {
+                chunks.push(chunk);
+            }
+            const buffer = Buffer.concat(chunks);
+            const base64 = buffer.toString('base64');
+            finalImageUrl = `data:image/jpeg;base64,${base64}`;
+        } else {
+            finalImageUrl = typeof finalOutput === 'string' ? finalOutput : (finalOutput?.url ? (typeof finalOutput.url === 'function' ? finalOutput.url() : finalOutput.url) : '');
+        }
+
+        console.log('[Red Carpet AI] SDXL run complete.');
+
+        if (!finalImageUrl) {
+            console.error('[Red Carpet AI] No output image generated. Output:', JSON.stringify(finalOutput));
+            throw new Error('AI generation returned no valid image URL.');
+        }
+
+        return res.json({
+            success: true,
+            imageUrl: finalImageUrl,
+            message: "Red Carpet image generated successfully."
+        });
+
+    } catch (error) {
+        console.error('[Red Carpet AI] API Error Details:', error);
+        console.error('[Red Carpet AI] Replicate Error Detail:', error.response?.data || 'No response data');
+
+        return res.status(500).json({
+            success: false,
+            error: error.message || 'Failed to generate red carpet image',
+            detail: error.response?.data || null
+        });
     }
 });
 

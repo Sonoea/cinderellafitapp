@@ -14,7 +14,7 @@ import Login from './pages/Login';
 import Guide from './pages/Guide';
 import Gallery from './pages/Gallery';
 import UserProfile from './pages/UserProfile';
-import AIStylist from './pages/AIStylist';
+import MapGallery from './pages/MapGallery';
 
 // Lazy load Closet to prevent circular dependency/initialization issues
 const Closet = lazy(() => import('./pages/Closet'));
@@ -37,13 +37,25 @@ function App() {
                     </Suspense>
                   </ErrorBoundary>
                 } />
-                <Route path="/gallery" element={<Gallery />} />
-                <Route path="/gallery/:profileSlug" element={<UserProfile />} />
+                <Route path="/gallery" element={
+                  <ErrorBoundary>
+                    <Gallery />
+                  </ErrorBoundary>
+                } />
+                <Route path="/map" element={
+                  <ErrorBoundary>
+                    <MapGallery />
+                  </ErrorBoundary>
+                } />
+                <Route path="/gallery/:profileSlug" element={
+                  <ErrorBoundary>
+                    <UserProfile />
+                  </ErrorBoundary>
+                } />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/guide" element={<Guide />} />
-                <Route path="/ai-stylist" element={<AIStylist />} />
               </Routes>
             </main>
             <BottomNav />

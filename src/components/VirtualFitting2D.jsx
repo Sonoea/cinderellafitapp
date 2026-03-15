@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ZoomIn, RotateCw, Move } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
 const VirtualFitting2D = ({
     plushieImage,
@@ -7,88 +6,61 @@ const VirtualFitting2D = ({
     productName,
     language = 'ja'
 }) => {
-    // 衣服の配置状態
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [scale, setScale] = useState(1);
-    const [rotation, setRotation] = useState(0);
+    // Canvas処理後の背景透過画像URL
+    const [processedProductUrl, setProcessedProductUrl] = useState(null);
 
-    // ドラッグ状態
-    const [isDragging, setIsDragging] = useState(false);
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-
-    const containerRef = useRef(null);
-    const clothRef = useRef(null);
-
-    // 翻訳ヘルパー
-    const t = useCallback((key) => {
-        const texts = {
-            jp: {
-                size: 'サイズ・拡大縮小',
-                angle: '傾き・角度',
-                hint: '服をドラッグして位置を調整できます',
-            },
-            en: {
-                size: 'Size / Scale',
-                angle: 'Tilt / Rotation',
-                hint: 'Drag the clothing to adjust position',
-            }
-        };
-        // languageがjpかjaかenなどをよしなに処理
-        const langKey = language === 'en' ? 'en' : 'jp';
-        return texts[langKey]?.[key] || texts.jp[key];
-    }, [language]);
-
-    // リセット用
-    const resetTransform = () => {
-        setPosition({ x: 0, y: 0 });
-        setScale(1.0);
-        setRotation(0);
-    };
-
-    // 初期化時のリセット（画像が変わった時）
+    // Canvasによる高精度な白背景透過処理 (ルマキー合成アルゴリズム)
     useEffect(() => {
-        resetTransform();
-    }, [productImage, plushieImage]);
+        if (!productImage) return;
 
-    // マウス/タッチドラッグのハンドラ
-    const handlePointerDown = (e) => {
-        setIsDragging(true);
-        // クライアント座標を取得（タッチとマウス両対応）
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const img = new Image();
+        img.crossOrigin = 'Anonymous'; // CORS対策
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
 
-        setDragStart({
-            x: clientX - position.x,
-            y: clientY - position.y
-        });
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
 
-        // デフォルトのドラッグ挙動をキャンセル（スマホスクロール防止）
-        if (e.cancelable) e.preventDefault();
-    };
+            // RGBの各値がすべて閾値以上の「明るいピクセル（白・薄いグレー系背景）」を対象とする
+            // Tighter threshold to catch off-white backgrounds
+            const threshold = 200;
 
-    const handlePointerMove = (e) => {
-        if (!isDragging) return;
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const a = data[i + 3];
 
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                if (a > 0) {
+                    if (r > threshold && g > threshold && b > threshold) {
+                        const luma = (r + g + b) / 3;
+                        // Background pixels: make them fully transparent
+                        data[i + 3] = 0;
+                    }
+                }
+            }
 
-        setPosition({
-            x: clientX - dragStart.x,
-            y: clientY - dragStart.y
-        });
-    };
+            ctx.putImageData(imageData, 0, 0);
+            setProcessedProductUrl(canvas.toDataURL('image/png'));
+        };
+        img.onerror = () => {
+            console.error("Failed to load product image for processing, falling back to original");
+            setProcessedProductUrl(productImage);
+        };
+        img.src = productImage;
 
-    const handlePointerUp = () => {
-        setIsDragging(false);
-    };
+    }, [productImage]);
 
     return (
         <div className="flex flex-col gap-4">
             {/* プレビュー枠 */}
             <div
-                ref={containerRef}
-                className="relative w-full bg-gray-50 rounded-xl overflow-hidden shadow-inner border border-gray-200"
-                style={{ aspectRatio: '4/5', minHeight: '350px', touchAction: 'none' }} // インラインスタイルで強制的に高さを確保する
+                className="relative w-full bg-white rounded-xl overflow-hidden shadow-inner flex items-center justify-center p-4"
+                style={{ aspectRatio: '1/1', maxHeight: '400px', touchAction: 'none' }}
             >
                 {/* ぬいぐるみのベース画像 */}
                 {plushieImage ? (
@@ -103,109 +75,34 @@ const VirtualFitting2D = ({
                     </div>
                 )}
 
-                {/* 操作ヒントのオーバーレイ */}
-                <div className="absolute top-3 inset-x-0 flex justify-center pointer-events-none z-20">
-                    <div className="bg-black/50 backdrop-blur-sm text-white text-[10px] px-3 py-1.5 rounded-full flex items-center gap-1.5">
-                        <Move size={12} />
-                        {t('hint')}
-                    </div>
-                </div>
-
-                {/* 商品（服）の画像（オーバーレイ合成） */}
-                {productImage && (
-                    <div
-                        className="absolute inset-0 w-full h-full flex items-center justify-center overflow-visible"
-                        onMouseDown={handlePointerDown}
-                        onMouseMove={handlePointerMove}
-                        onMouseUp={handlePointerUp}
-                        onMouseLeave={handlePointerUp}
-                        onTouchStart={handlePointerDown}
-                        onTouchMove={handlePointerMove}
-                        onTouchEnd={handlePointerUp}
-                    >
-                        <img
-                            ref={clothRef}
-                            src={productImage}
-                            alt={productName || "Clothing"}
-                            className="w-[60%] object-contain" // 初期サイズを少し小さく
-                            style={{
-                                transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
-                                transformOrigin: 'center center',
-                                cursor: isDragging ? 'grabbing' : 'grab',
-                                // 背景をそのまま不透明なシールとして表示し、常に最上位にする
-                                transition: isDragging ? 'none' : 'transform 0.1s ease-out',
-                                position: 'relative',
-                                zIndex: 10
-                            }}
-                            draggable="false" // ブラウザデフォルトの画像ドラッグを無効化
-                        />
+                {/* 自動調整された商品（服）の画像（オーバーレイ合成） */}
+                {processedProductUrl && (
+                    <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center pointer-events-none">
+                        {/* 服を少し下げて顔を隠さないようにする */}
+                        <div style={{ transform: 'translateY(15%)' }}>
+                            <img
+                                src={processedProductUrl}
+                                alt={productName || "Clothing"}
+                                className="object-contain"
+                                style={{
+                                    width: '240px', // ぬいぐるみのサイズに合わせて固定
+                                    height: 'auto',
+                                    position: 'relative',
+                                    zIndex: 10,
+                                    // Canvasで抜けきらなかった薄いグレー等を強制的に飛ばすための安全弁
+                                    mixBlendMode: 'darken',
+                                    filter: 'drop-shadow(0px 8px 12px rgba(0,0,0,0.15)) brightness(1.05)', // 立体感と明るさ補正
+                                }}
+                                draggable="false"
+                            />
+                        </div>
                     </div>
                 )}
             </div>
 
-            {/* 操作コントローラー */}
-            <div className="bg-gray-50 p-4 rounded-xl space-y-4 text-sm mt-2 border border-gray-100">
-                {/* スケールスライダー */}
-                <div className="flex items-center gap-3">
-                    <div className="text-gray-500 w-6 flex justify-center">
-                        <ZoomIn size={16} />
-                    </div>
-                    <div className="flex-1 flex flex-col gap-1">
-                        <div className="flex justify-between text-xs text-gray-400">
-                            <span>縮小</span>
-                            <span className="font-bold text-gray-600">{t('size')}</span>
-                            <span>拡大</span>
-                        </div>
-                        <input
-                            type="range"
-                            min="0.3"
-                            max="2.5"
-                            step="0.05"
-                            value={scale}
-                            onChange={(e) => setScale(parseFloat(e.target.value))}
-                            className="w-full accent-indigo-500"
-                        />
-                    </div>
-                </div>
-
-                {/* 回転スライダー */}
-                <div className="flex items-center gap-3">
-                    <div className="text-gray-500 w-6 flex justify-center">
-                        <RotateCw size={16} />
-                    </div>
-                    <div className="flex-1 flex flex-col gap-1">
-                        <div className="flex justify-between text-xs text-gray-400">
-                            <span>左回転</span>
-                            <span className="font-bold text-gray-600">{t('angle')}</span>
-                            <span>右回転</span>
-                        </div>
-                        <input
-                            type="range"
-                            min="-45"
-                            max="45"
-                            step="1"
-                            value={rotation}
-                            onChange={(e) => setRotation(parseFloat(e.target.value))}
-                            className="w-full accent-indigo-500"
-                        />
-                    </div>
-                </div>
-
-                {/* リセットボタン（変更がある場合のみ表示） */}
-                {(position.x !== 0 || position.y !== 0 || scale !== 1 || rotation !== 0) && (
-                    <div className="flex justify-end pt-2">
-                        <button
-                            onClick={resetTransform}
-                            className="text-xs text-indigo-500 hover:text-indigo-700 font-medium px-3 py-1 bg-indigo-50 rounded-full transition-colors"
-                        >
-                            {language === 'ja' ? '初期位置に戻す' : 'Reset Position'}
-                        </button>
-                    </div>
-                )}
-            </div>
-
-            <div className="text-[10px] text-gray-400 text-center px-4 leading-relaxed">
-                ※画像は平面合成のため、服飾本来の立体感とは見え方が異なる場合があります。
+            <div className="text-[10px] text-gray-400 text-center px-4 leading-relaxed bg-gray-50 py-3 rounded-lg border border-gray-100">
+                ※システムがサイズに合わせて自動フィッティングを行いました。<br />
+                平面合成のため、本来の立体感とは見え方が異なります。
             </div>
         </div>
     );

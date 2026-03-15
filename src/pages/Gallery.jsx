@@ -63,9 +63,22 @@ const renderTextWithHashtags = (text, onHashtagClick) => {
     });
 };
 
-const ExpandableText = ({ text, maxLength = 90, onHashtagClick }) => {
+const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSentence = false }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     if (!text) return null;
+
+    if (showOnlyFirstSentence) {
+        // Find the first occurrence of Japanese or English sentence ending punctuation
+        const sentenceEndMatch = text.match(/([。！？.!?\n])/);
+        let firstSentence = text;
+        if (sentenceEndMatch) {
+            firstSentence = text.slice(0, sentenceEndMatch.index + 1);
+        }
+        // If it's still too long, truncate it
+        const displayedText = firstSentence.length > 80 ? `${firstSentence.slice(0, 80)}...` : firstSentence;
+        return <p className="text-xs text-gray-600 mb-1 line-clamp-2" style={{ minHeight: '32px' }}>{renderTextWithHashtags(displayedText, onHashtagClick)}</p>;
+    }
+
     if (text.length <= maxLength) return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{renderTextWithHashtags(text, onHashtagClick)}</p>;
     return (
         <div className="mb-2">
@@ -615,35 +628,35 @@ const Gallery = () => {
                 ) : (
                     <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
                         {filteredItems.map((post) => (
-                            <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden break-inside-avoid ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
-                                {/* Header */}
-                                <div className="p-2 flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <div className="relative">
+                            <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
+                                {/* Header - Strict fixed height and tiny fonts for uniformity */}
+                                <div className="p-2 flex items-center justify-between h-[52px] overflow-hidden">
+                                    <div className="flex items-center gap-1.5 overflow-hidden flex-1">
+                                        <div className="relative flex-shrink-0">
                                             <UserAvatar
                                                 src={post.userIcon}
-                                                className="w-8 h-8"
+                                                className="w-7 h-7"
                                                 alt={post.userName}
                                                 onClick={post.profileSlug ? () => navigate(`/gallery/${post.profileSlug}`) : undefined}
                                             />
-                                            {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-primary rounded-full flex items-center justify-center ring-2 ring-white"><Star size={8} className="text-white fill-white" /></div>}
+                                            {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-1 ring-white shadow-sm"><Star size={7} className="text-white fill-white" /></div>}
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-bold text-gray-800 truncate max-w-[100px]">
+                                        <div className="overflow-hidden min-w-0">
+                                            <p className="text-[10px] font-bold text-gray-800 truncate leading-tight">
                                                 {post.profileSlug ? (
                                                     <Link to={`/gallery/${post.profileSlug}`} className="hover:text-primary transition-colors">{post.userName}</Link>
                                                 ) : post.userName}
                                             </p>
-                                            <div className="flex items-center gap-1 text-[10px] text-gray-400">
-                                                <span className="truncate max-w-[80px]">{post.plushieName}</span>
-                                                {post.plushieHeight && <span className="bg-gray-100 px-1 rounded text-gray-500 whitespace-nowrap">{post.plushieHeight}cm</span>}
+                                            <div className="flex items-center gap-1 text-[9px] text-gray-400 leading-none mt-0.5">
+                                                <span className="truncate inline-block max-w-full">{post.plushieName}</span>
+                                                {post.plushieHeight && <span className="flex-shrink-0 opacity-70">| {post.plushieHeight}cm</span>}
                                             </div>
                                         </div>
                                     </div>
                                     {post.location && (
-                                        <div className="flex items-center gap-1 text-[10px] text-blue-400">
-                                            <MapPin size={10} />
-                                            <span className="truncate max-w-[50px]">{post.location}</span>
+                                        <div className="flex items-center gap-0.5 text-[9px] text-blue-400 flex-shrink-0 ml-1 bg-blue-50/50 px-1.5 py-0.5 rounded-full border border-blue-100/50">
+                                            <MapPin size={8} />
+                                            <span className="truncate max-w-[42px] font-medium inline-block align-middle">{post.location}</span>
                                         </div>
                                     )}
                                 </div>
@@ -656,47 +669,51 @@ const Gallery = () => {
                                     </div>
                                 </div>
 
-                                {/* Social bar */}
-                                <div className="flex items-center justify-between bg-white" style={{ padding: '8px 12px', borderBottom: '1px solid #f5f5f5' }}>
-                                    <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(post.id, post.userId, post.compositeId); }}
-                                        className="flex items-center gap-1 transition-all"
-                                        style={{ color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                                        <Heart size={18} fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
-                                        <span className="font-bold" style={{ fontSize: '12px' }}>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
-                                    </button>
-                                    <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShouldScrollToComments(true); setSelectedItem(post); }}
-                                        className="flex items-center gap-1 text-gray-400 transition-all"
-                                        style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                                        <MessageCircle size={18} strokeWidth={2.5} />
-                                        <span className="font-bold" style={{ fontSize: '12px' }}>{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
-                                    </button>
-                                    <span style={{ fontSize: '18px', lineHeight: 1 }}>
+                                {/* Social bar - Explicit height for row alignment */}
+                                <div className="flex items-center justify-between bg-white h-[40px] px-3 border-b border-gray-50">
+                                    <div className="flex items-center gap-3">
+                                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(post.id, post.userId, post.compositeId); }}
+                                            className="flex items-center gap-1 transition-all"
+                                            style={{ color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                                            <Heart size={16} fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
+                                            <span className="font-bold text-[11px]">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                                        </button>
+                                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShouldScrollToComments(true); setSelectedItem(post); }}
+                                            className="flex items-center gap-1 text-gray-400 transition-all"
+                                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                                            <MessageCircle size={16} strokeWidth={2.5} />
+                                            <span className="font-bold text-[11px]">{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
+                                        </button>
+                                    </div>
+                                    <span className="text-base" style={{ lineHeight: 1 }}>
                                         {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
                                     </span>
                                 </div>
 
-                                {/* Content */}
-                                <div className="p-2">
-                                    <h3 className="font-bold text-sm text-gray-800 mb-1">{post.itemName}</h3>
-                                    {post.purchaseType && (
-                                        <div style={{ marginBottom: '4px' }}>
-                                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full w-fit">
-                                                {post.purchaseType === 'online' ? `🌐 ${language === 'jp' ? 'オンライン' : 'Online'}` :
-                                                    post.purchaseType === 'retail' ? `🏪 ${language === 'jp' ? '店舗' : 'Retail'}` :
-                                                        `🪡 ${language === 'jp' ? 'ハンドメイド' : 'Handmade'}`}
-                                            </span>
-                                            {(post.patternImage || post.referenceUrl) && (
-                                                <span className="ml-1 text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full w-fit border border-orange-200 shadow-sm animate-pulse">
-                                                    📖 {language === 'jp' ? '型紙あり' : 'Pattern'}
+                                {/* Content - Fixed height for uniform grid */}
+                                <div className="p-2 h-[94px] flex flex-col justify-between">
+                                    <div className="overflow-hidden">
+                                        <h3 className="font-bold text-sm text-gray-800 mb-1 truncate">{post.itemName}</h3>
+                                        {post.purchaseType && (
+                                            <div className="flex items-center gap-1 mb-1.5 overflow-hidden">
+                                                <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
+                                                    {post.purchaseType === 'online' ? `🌐 ${language === 'jp' ? 'オンライン' : 'Online'}` :
+                                                        post.purchaseType === 'retail' ? `🏪 ${language === 'jp' ? '店舗' : 'Retail'}` :
+                                                            `🪡 ${language === 'jp' ? 'ハンドメイド' : 'Handmade'}`}
                                                 </span>
-                                            )}
-                                        </div>
-                                    )}
-                                    <ExpandableText text={post.comment} onHashtagClick={handleHashtagClick} />
+                                                {(post.patternImage || post.referenceUrl) && (
+                                                    <span className="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full whitespace-nowrap border border-orange-200 shadow-sm animate-pulse flex-shrink-0">
+                                                        📖 {language === 'jp' ? '型紙あり' : 'Pattern'}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        )}
+                                        <ExpandableText text={post.comment} onHashtagClick={handleHashtagClick} showOnlyFirstSentence={true} />
+                                    </div>
                                     {post.shopName && (
-                                        <div className="bg-gray-50 px-2 py-1 rounded-lg inline-flex items-center gap-1 text-[10px] text-gray-500" style={{ marginTop: '4px' }}>
-                                            <Shirt size={10} />
-                                            {language === 'jp' ? '購入元' : 'From'}: <span className="font-bold">{post.shopName}</span>
+                                        <div className="bg-gray-50 px-2 py-0.5 rounded flex items-center gap-1 text-[9px] text-gray-500 overflow-hidden truncate">
+                                            <Shirt size={9} className="flex-shrink-0" />
+                                            <span className="truncate">{post.shopName}</span>
                                         </div>
                                     )}
                                 </div>

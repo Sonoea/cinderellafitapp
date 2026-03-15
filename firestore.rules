@@ -1,29 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Global collectionGroups (Cleaned)
+    match /{path=**}/closetItems/{itemId} {
+      allow read: if true;
+    }
+    match /{path=**}/クローゼットアイテム/{itemId} {
+      allow read: if true;
+    }
+    match /{path=**}/plushies/{itemId} {
+      allow read: if true;
+    }
+    match /{path=**}/ぬいぐるみ/{itemId} {
+      allow read: if true;
+    }
 
     match /users/{userId} {
       allow read: if true;
       allow write: if request.auth != null && request.auth.uid == userId;
 
-      match /plushies/{plushieId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-
       match /closetItems/{itemId} {
-        allow read: if true;
+        allow read: if (request.auth != null && request.auth.uid == userId) || (resource != null && resource.data.isPublic == true);
         allow create, delete: if request.auth != null && request.auth.uid == userId;
-        // 投稿者本人はすべて更新可、他ユーザーはlikes/commentCountのみ更新可
         allow update: if request.auth != null && (
           request.auth.uid == userId ||
           request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentCount'])
         );
-
+        
         match /likes/{likeId} {
           allow read: if true;
           allow write: if request.auth != null;
         }
-
         match /comments/{commentId} {
           allow read: if true;
           allow create: if request.auth != null;
@@ -31,27 +38,37 @@ service cloud.firestore {
             (request.auth.uid == resource.data.userId || request.auth.uid == userId);
         }
       }
-    }
 
-    // ギャラリー全体表示用（collectionGroup クエリ対応）
-    match /{path=**}/closetItems/{itemId} {
-      allow read: if true;
-      allow update: if request.auth != null &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentCount']);
-    }
+      match /クローゼットアイテム/{itemId} {
+        allow read: if (request.auth != null && request.auth.uid == userId) || (resource != null && resource.data.isPublic == true);
+        allow create, delete: if request.auth != null && request.auth.uid == userId;
+        allow update: if request.auth != null && (
+          request.auth.uid == userId ||
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['likes', 'commentCount'])
+        );
+        
+        match /likes/{likeId} {
+          allow read: if true;
+          allow write: if request.auth != null;
+        }
+        match /comments/{commentId} {
+          allow read: if true;
+          allow create: if request.auth != null;
+          allow update, delete: if request.auth != null &&
+            (request.auth.uid == resource.data.userId || request.auth.uid == userId);
+        }
+      }
 
-    match /{path=**}/likes/{likeId} {
-      allow read: if true;
-      allow write: if request.auth != null;
+      match /plushies/{plushieId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
+      match /ぬいぐるみ/{plushieId} {
+        allow read: if true;
+        allow write: if request.auth != null && request.auth.uid == userId;
+      }
     }
-
-    match /{path=**}/comments/{commentId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if request.auth != null &&
-        request.auth.uid == resource.data.userId;
-    }
-
+    
     match /profileSlugs/{slug} {
       allow read: if true;
       allow write: if request.auth != null;

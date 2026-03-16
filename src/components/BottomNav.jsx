@@ -15,7 +15,6 @@ const BottomNav = () => {
         { to: '/', icon: Home, label: t('navHome') },
         { to: '/shop', icon: ShoppingBag, label: t('navShop') },
         { to: '/closet', icon: Shirt, label: t('navCloset') },
-        { to: '/map', icon: Globe, label: t('navMap') },
         { to: '/gallery', icon: Users, label: t('navGallery') || (t('language') === 'jp' ? 'ギャラリー' : 'Gallery') },
     ];
 

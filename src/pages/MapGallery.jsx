@@ -213,7 +213,13 @@ const GlobeScene = ({ posts, onSelect, selectedPost }) => {
 const MapGallery = () => {
     const { language, t } = useApp();
     const navigate = useNavigate();
-    const [posts, setPosts] = useState([]);
+
+    useEffect(() => {
+        // Redirect if this page is accessed accidentally
+        navigate('/');
+    }, [navigate]);
+
+    return null;
     const [selectedPost, setSelectedPost] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 

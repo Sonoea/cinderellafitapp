@@ -14,7 +14,7 @@ import Login from './pages/Login';
 import Guide from './pages/Guide';
 import Gallery from './pages/Gallery';
 import UserProfile from './pages/UserProfile';
-import MapGallery from './pages/MapGallery';
+// import MapGallery from './pages/MapGallery';
 
 // Lazy load Closet to prevent circular dependency/initialization issues
 const Closet = lazy(() => import('./pages/Closet'));
@@ -42,11 +42,14 @@ function App() {
                     <Gallery />
                   </ErrorBoundary>
                 } />
+                {/*
                 <Route path="/map" element={
                   <ErrorBoundary>
                     <MapGallery />
                   </ErrorBoundary>
                 } />
+                */}
+
                 <Route path="/gallery/:profileSlug" element={
                   <ErrorBoundary>
                     <UserProfile />

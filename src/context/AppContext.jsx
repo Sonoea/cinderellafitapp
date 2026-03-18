@@ -262,35 +262,27 @@ export const AppProvider = ({ children }) => {
           const q1 = collection(db, "users", currentUser.uid, "closetItems");
           const q2 = collection(db, "users", currentUser.uid, "クローゼットアイテム");
           const q3 = collection(db, "users", currentUser.uid, "closet");
-
-          // Safety fallback: search everything
+          const q4 = collection(db, "users", currentUser.uid, "クローゼット");
+          const q5 = collection(db, "users", currentUser.uid, "items");
           const qG1 = collectionGroup(db, 'closetItems');
           const qG2 = collectionGroup(db, 'クローゼットアイテム');
 
-          const [s1, s2, s3, sG1, sG2] = await Promise.all([
-            getDocs(q1), getDocs(q2), getDocs(q3),
-            getDocs(qG1).catch(() => ({ size: 0, forEach: () => { } })),
-            getDocs(qG2).catch(() => ({ size: 0, forEach: () => { } }))
+          const EMPTY = { forEach: () => { } };
+          const snaps = await Promise.all([
+            getDocs(q1).catch(() => EMPTY), getDocs(q2).catch(() => EMPTY),
+            getDocs(q3).catch(() => EMPTY), getDocs(q4).catch(() => EMPTY),
+            getDocs(q5).catch(() => EMPTY), getDocs(qG1).catch(() => EMPTY),
+            getDocs(qG2).catch(() => EMPTY)
           ]);
 
           const loaded = [];
+          snaps.forEach(s => s.forEach(d => {
+            const data = d.data();
+            if (data && (data.userId === currentUser.uid || data.ownerUid === currentUser.uid || d.ref.path.includes(currentUser.uid))) {
+              loaded.push({ ...data, id: d.id });
+            }
+          }));
 
-          // Direct paths
-          [s1, s2, s3].forEach(snap => {
-            snap.forEach(d => loaded.push({ ...d.data(), id: d.id }));
-          });
-
-          // Fallback scan (only items matching current user UID)
-          [sG1, sG2].forEach(snap => {
-            snap.forEach(d => {
-              const data = d.data();
-              if (data && (data.userId === currentUser.uid || data.ownerUid === currentUser.uid)) {
-                loaded.push({ ...data, id: d.id });
-              }
-            });
-          });
-
-          // Deduplicate
           const seen = new Set();
           const uniqueItems = [];
           loaded.forEach(item => {

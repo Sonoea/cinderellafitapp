@@ -530,7 +530,7 @@ const Closet = () => {
             <div className="flex justify-between items-center mb-2 px-1">
               <h1 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
                 {t('myCloset')}
-                <span className="text-[10px] font-normal text-gray-200">v1.2.3</span>
+                <span className="text-[10px] font-normal text-gray-200">v1.2.4</span>
               </h1>
             </div>
 
@@ -538,13 +538,13 @@ const Closet = () => {
             <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar px-1">
               <button
                 onClick={() => setActivePlushieId('all')}
-                style={{ width: '70px', minWidth: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: '70px', minWidth: '70px' }}
                 className={`flex-shrink-0 py-1.5 rounded-full text-xs font-black transition-all border shadow-sm ${activePlushieId === 'all'
                   ? 'bg-gray-800 text-white border-gray-800 ring-2 ring-gray-100'
                   : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                   }`}
               >
-                <span>すべて</span>
+                すべて
               </button>
               {plushies.map(p => (
                 <button
@@ -567,13 +567,13 @@ const Closet = () => {
             <div className="flex gap-2 mb-2 overflow-x-auto pb-2 no-scrollbar px-1">
               <button
                 onClick={() => setActiveFitRating('all')}
-                style={{ width: '70px', minWidth: '70px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ width: '70px', minWidth: '70px' }}
                 className={`flex-shrink-0 py-1.5 rounded-full text-xs font-black transition-all border shadow-sm ${activeFitRating === 'all'
                   ? 'bg-gray-800 text-white border-gray-800 ring-2 ring-gray-100'
                   : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                   }`}
               >
-                <span>すべて</span>
+                すべて
               </button>
               {[1, 2, 3].map(rating => (
                 <button

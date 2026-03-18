@@ -257,42 +257,55 @@ export const AppProvider = ({ children }) => {
     const loadClosetItems = async () => {
       if (currentUser) {
         try {
-          console.log(`[AppContext] Fetching closet for user: ${currentUser.uid} (${currentUser.email})`);
+          console.log(`[AppContext] Final data recovery for: ${currentUser.uid}`);
+
           const q1 = collection(db, "users", currentUser.uid, "closetItems");
           const q2 = collection(db, "users", currentUser.uid, "クローゼットアイテム");
           const q3 = collection(db, "users", currentUser.uid, "closet");
-          const qG1 = query(collectionGroup(db, 'closetItems'), where('userId', '==', currentUser.uid));
-          const qG2 = query(collectionGroup(db, 'クローゼットアイテム'), where('userId', '==', currentUser.uid));
 
-          const [snap1, snap2, snap3, snapG1, snapG2] = await Promise.all([
+          // Safety fallback: search everything
+          const qG1 = collectionGroup(db, 'closetItems');
+          const qG2 = collectionGroup(db, 'クローゼットアイテム');
+
+          const [s1, s2, s3, sG1, sG2] = await Promise.all([
             getDocs(q1), getDocs(q2), getDocs(q3),
             getDocs(qG1).catch(() => ({ size: 0, forEach: () => { } })),
             getDocs(qG2).catch(() => ({ size: 0, forEach: () => { } }))
           ]);
 
-          console.log(`[AppContext] DB results for ${currentUser.uid}: d1=${snap1.size}, d2=${snap2.size}, d3=${snap3.size}, g1=${snapG1.size}, g2=${snapG2.size}`);
+          const loaded = [];
 
-          const loadedItems = [];
-          [snap1, snap2, snap3, snapG1, snapG2].forEach(snap => {
-            snap.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
+          // Direct paths
+          [s1, s2, s3].forEach(snap => {
+            snap.forEach(d => loaded.push({ ...d.data(), id: d.id }));
           });
 
-          // Deduplicate if needed (by doc ID)
+          // Fallback scan (only items matching current user UID)
+          [sG1, sG2].forEach(snap => {
+            snap.forEach(d => {
+              const data = d.data();
+              if (data && (data.userId === currentUser.uid || data.ownerUid === currentUser.uid)) {
+                loaded.push({ ...data, id: d.id });
+              }
+            });
+          });
+
+          // Deduplicate
+          const seen = new Set();
           const uniqueItems = [];
-          const seenIds = new Set();
-          loadedItems.forEach(item => {
-            if (item && item.id && !seenIds.has(item.id)) {
-              seenIds.add(item.id);
+          loaded.forEach(item => {
+            if (item && item.id && !seen.has(item.id)) {
+              seen.add(item.id);
               uniqueItems.push(item);
             }
           });
 
           if (uniqueItems.length > 0) {
-            console.log(`[AppContext] Setting ${uniqueItems.length} unique closet items`);
+            console.log(`[AppContext] SUCCESS: Found ${uniqueItems.length} unique items.`);
             setClosetItems(uniqueItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
           } else {
-            console.warn(`[AppContext] No items found in any of the 3 collections for ${currentUser.uid}`);
-            // Firestore is empty — check if there's local data to migrate
+            console.warn(`[AppContext] No items found in Firestore for ${currentUser.uid}. Checking local...`);
+            // Last resort: migration
             const savedLocal = localStorage.getItem('my_closet_v2');
             let localItems = [];
             try {
@@ -301,7 +314,6 @@ export const AppProvider = ({ children }) => {
             } catch (e) { localItems = []; }
 
             if (localItems.length > 0) {
-              console.log(`Migrating ${localItems.length} closet items from localStorage for ${currentUser.uid}...`);
               const migratedItems = [];
               for (const item of localItems) {
                 const migratedItem = {
@@ -314,7 +326,7 @@ export const AppProvider = ({ children }) => {
                   await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(migratedItem.id)), migratedItem);
                   migratedItems.push(migratedItem);
                 } catch (e) {
-                  console.error("Migration error (closet item):", e);
+                  console.error("Migration error:", e);
                 }
               }
               setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
@@ -324,21 +336,16 @@ export const AppProvider = ({ children }) => {
             }
           }
         } catch (error) {
-          console.error("[AppContext] Error loading closetItems from Firestore:", error);
+          console.error("[AppContext] Error loading closet items:", error);
         }
       } else {
-        // Fallback to local storage for guest
+        // Guest mode
         const saved = localStorage.getItem('my_closet_v2');
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-            const guestItems = Array.isArray(parsed) ? parsed.filter(item => !item.userId) : [];
-            setClosetItems(guestItems);
-            if (Array.isArray(parsed) && guestItems.length !== parsed.length) {
-              localStorage.setItem('my_closet_v2', JSON.stringify(guestItems));
-            }
+            setClosetItems(Array.isArray(parsed) ? parsed.filter(item => !item.userId) : []);
           } catch (e) {
-            console.error("Failed to parse local closet items", e);
             setClosetItems([]);
           }
         } else {
@@ -346,12 +353,12 @@ export const AppProvider = ({ children }) => {
         }
       }
     };
+
     loadClosetItems();
   }, [currentUser]);
 
   // Sync to LocalStorage (Backup/Guest)
   useEffect(() => {
-    // SECURITY FIX: Do not save to localStorage if we just logged out.
     const isLoggingOut = prevUser && !currentUser;
     if (!currentUser && !isLoggingOut) {
       try {
@@ -369,14 +376,12 @@ export const AppProvider = ({ children }) => {
       ...item
     };
 
-    // Attach user info so Gallery can display who posted the item
     if (currentUser) {
       newItem.userId = currentUser.uid;
       newItem.userName = currentUser.displayName || '';
       newItem.userIcon = currentUser.photoURL || '';
     }
 
-    // Optimistic Update
     const newItems = [newItem, ...closetItems];
     setClosetItems(newItems);
 
@@ -385,22 +390,17 @@ export const AppProvider = ({ children }) => {
         await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(newItem.id)), newItem);
       } catch (e) {
         console.error("Error adding closet item to Firestore: ", e);
-        // revert? or just alert
         alert("クラウドへの保存に失敗しました。");
       }
     }
   };
 
   const updateClosetItem = async (id, updates) => {
-    // Optimistic Update
     const newItems = closetItems.map(item => String(item.id) === String(id) ? { ...item, ...updates } : item);
     setClosetItems(newItems);
 
     if (currentUser) {
       try {
-        // Need to merge updates with existing item logic or just send updates?
-        // setDoc with merge: true is safest if we just send the whole item again or specific fields
-        // Let's find the full updated object to be safe
         const updatedItem = newItems.find(i => String(i.id) === String(id));
         if (updatedItem) {
           await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(id)), updatedItem, { merge: true });
@@ -413,7 +413,6 @@ export const AppProvider = ({ children }) => {
   };
 
   const deleteClosetItem = async (id) => {
-    // Optimistic Update
     const newItems = closetItems.filter(item => String(item.id) !== String(id));
     setClosetItems(newItems);
 

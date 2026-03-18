@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { translations } from '../translations';
 import { db } from '../firebase/config';
-import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, doc, setDoc, getDocs, deleteDoc, query, where, collectionGroup } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
 const AppContext = createContext();
 
@@ -261,15 +261,21 @@ export const AppProvider = ({ children }) => {
           const q1 = collection(db, "users", currentUser.uid, "closetItems");
           const q2 = collection(db, "users", currentUser.uid, "クローゼットアイテム");
           const q3 = collection(db, "users", currentUser.uid, "closet");
+          const qG1 = query(collectionGroup(db, 'closetItems'), where('userId', '==', currentUser.uid));
+          const qG2 = query(collectionGroup(db, 'クローゼットアイテム'), where('userId', '==', currentUser.uid));
 
-          const [snap1, snap2, snap3] = await Promise.all([getDocs(q1), getDocs(q2), getDocs(q3)]);
+          const [snap1, snap2, snap3, snapG1, snapG2] = await Promise.all([
+            getDocs(q1), getDocs(q2), getDocs(q3),
+            getDocs(qG1).catch(() => ({ size: 0, forEach: () => { } })),
+            getDocs(qG2).catch(() => ({ size: 0, forEach: () => { } }))
+          ]);
 
-          console.log(`[AppContext] Query Results for ${currentUser.uid}: q1=${snap1.size}, q2=${snap2.size}, q3=${snap3.size}`);
+          console.log(`[AppContext] DB results for ${currentUser.uid}: d1=${snap1.size}, d2=${snap2.size}, d3=${snap3.size}, g1=${snapG1.size}, g2=${snapG2.size}`);
 
           const loadedItems = [];
-          snap1.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
-          snap2.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
-          snap3.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
+          [snap1, snap2, snap3, snapG1, snapG2].forEach(snap => {
+            snap.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
+          });
 
           // Deduplicate if needed (by doc ID)
           const uniqueItems = [];

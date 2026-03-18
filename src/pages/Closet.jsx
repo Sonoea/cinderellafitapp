@@ -595,7 +595,7 @@ const Closet = () => {
                     <div className="text-4xl">{isFiltered ? '🔍' : '👗'}</div>
                     <div className="text-center">
                       <p className="font-black text-gray-800">
-                        {isFiltered ? t('noItems') : t('noItemsYet')}
+                        {isFiltered ? t('noItemsResult') : t('noItemsYet')}
                       </p>
                       <p className="text-xs text-gray-400 mt-1">
                         {isFiltered ? t('noItemsSub') : t('noItemsSub')}

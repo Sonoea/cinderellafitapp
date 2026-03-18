@@ -262,8 +262,8 @@ export const AppProvider = ({ children }) => {
           const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
 
           const loadedItems = [];
-          snap1.forEach(docSnap => loadedItems.push(docSnap.data()));
-          snap2.forEach(docSnap => loadedItems.push(docSnap.data()));
+          snap1.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
+          snap2.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
 
           if (loadedItems.length > 0) {
             setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));

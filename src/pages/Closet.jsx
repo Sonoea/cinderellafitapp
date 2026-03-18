@@ -513,9 +513,17 @@ const Closet = () => {
       <div className="px-4 mt-4">
         {/* === ITEMS LIST === */}
         <div className="fade-in">
-          <div className="bg-gray-50 px-4 py-2 rounded-lg mb-4 text-xs text-gray-500 flex items-start gap-2">
-            <span className="text-lg">💡</span>
-            <p>{currentUser ? t('closetTabHelp') : t('closetTabHelpGuest')}</p>
+          <div className="bg-blue-50/50 border border-blue-100 px-4 py-3 rounded-xl mb-4 text-[11px] text-blue-600 flex items-start gap-3 shadow-sm">
+            <span className="text-base flex-shrink-0">💡</span>
+            <div>
+              <p className="font-bold mb-1 leading-tight">{currentUser ? t('closetTabHelp') : t('closetTabHelpGuest')}</p>
+              {closetItems.some(i => i.galleryOnly) && (
+                <p className="text-orange-500 font-bold flex items-center gap-1 mt-1">
+                  <span>⚠️</span>
+                  <span>ギャラリーのみに表示中のアイテムが {closetItems.filter(i => i.galleryOnly).length} 件あります</span>
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -523,12 +531,12 @@ const Closet = () => {
             <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar px-1">
               <button
                 onClick={() => setActivePlushieId('all')}
-                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border ${activePlushieId === 'all'
-                  ? 'bg-gray-800 text-white border-gray-800'
-                  : 'bg-white text-gray-500 border-gray-200'
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border shadow-sm ${activePlushieId === 'all'
+                  ? 'bg-gray-800 text-white border-gray-800 ring-2 ring-gray-100'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                   }`}
               >
-                All
+                {t('categoryAll')}
               </button>
               {plushies.map(p => (
                 <button
@@ -551,12 +559,12 @@ const Closet = () => {
             <div className="flex gap-2 mb-2 overflow-x-auto pb-2 no-scrollbar px-1">
               <button
                 onClick={() => setActiveFitRating('all')}
-                className={`flex-shrink-0 px-3 py-1 rounded-lg text-xs font-bold transition-all border ${activeFitRating === 'all'
-                  ? 'bg-gray-800 text-white border-gray-800'
-                  : 'bg-white text-gray-500 border-gray-200'
+                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all border shadow-sm ${activeFitRating === 'all'
+                  ? 'bg-gray-800 text-white border-gray-800 ring-2 ring-gray-100'
+                  : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                   }`}
               >
-                All
+                {t('categoryAll')}
               </button>
               {[1, 2, 3].map(rating => (
                 <button
@@ -581,17 +589,36 @@ const Closet = () => {
               const timelineItems = filteredItems;
 
               if (timelineItems.length === 0) {
+                const isFiltered = activePlushieId !== 'all' || activeFitRating !== 'all';
                 return (
-                  <div className="grid grid-cols-2 gap-3 mb-6">
-                    <button
-                      onClick={() => setShowAddModal(true)}
-                      className="aspect-square bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
-                    >
-                      <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
-                        <Plus size={24} className="text-primary" />
-                      </div>
-                      <span className="text-xs font-bold">{t('addNewOutfit')}</span>
-                    </button>
+                  <div className="flex flex-col items-center justify-center py-12 px-6 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100 space-y-4">
+                    <div className="text-4xl">{isFiltered ? '🔍' : '👗'}</div>
+                    <div className="text-center">
+                      <p className="font-black text-gray-800">
+                        {isFiltered ? t('noItems') : t('noItemsYet')}
+                      </p>
+                      <p className="text-xs text-gray-400 mt-1">
+                        {isFiltered ? t('noItemsSub') : t('noItemsSub')}
+                      </p>
+                    </div>
+
+                    {isFiltered ? (
+                      <button
+                        onClick={() => { setActivePlushieId('all'); setActiveFitRating('all'); }}
+                        className="bg-white text-primary border border-primary/20 px-6 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-primary/5 transition-all flex items-center gap-2"
+                      >
+                        <X size={14} />
+                        {t('categoryAll')}を表示する
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setShowAddModal(true)}
+                        className="bg-primary text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-primary/20 flex items-center gap-2"
+                      >
+                        <Plus size={16} />
+                        {t('addNewOutfit')}
+                      </button>
+                    )}
                   </div>
                 );
               }

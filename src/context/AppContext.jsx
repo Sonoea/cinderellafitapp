@@ -257,17 +257,35 @@ export const AppProvider = ({ children }) => {
     const loadClosetItems = async () => {
       if (currentUser) {
         try {
+          console.log(`[AppContext] Fetching closet for user: ${currentUser.uid} (${currentUser.email})`);
           const q1 = collection(db, "users", currentUser.uid, "closetItems");
           const q2 = collection(db, "users", currentUser.uid, "クローゼットアイテム");
-          const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)]);
+          const q3 = collection(db, "users", currentUser.uid, "closet");
+
+          const [snap1, snap2, snap3] = await Promise.all([getDocs(q1), getDocs(q2), getDocs(q3)]);
+
+          console.log(`[AppContext] Query Results for ${currentUser.uid}: q1=${snap1.size}, q2=${snap2.size}, q3=${snap3.size}`);
 
           const loadedItems = [];
           snap1.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
           snap2.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
+          snap3.forEach(docSnap => loadedItems.push({ ...docSnap.data(), id: docSnap.id }));
 
-          if (loadedItems.length > 0) {
-            setClosetItems(loadedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+          // Deduplicate if needed (by doc ID)
+          const uniqueItems = [];
+          const seenIds = new Set();
+          loadedItems.forEach(item => {
+            if (item && item.id && !seenIds.has(item.id)) {
+              seenIds.add(item.id);
+              uniqueItems.push(item);
+            }
+          });
+
+          if (uniqueItems.length > 0) {
+            console.log(`[AppContext] Setting ${uniqueItems.length} unique closet items`);
+            setClosetItems(uniqueItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
           } else {
+            console.warn(`[AppContext] No items found in any of the 3 collections for ${currentUser.uid}`);
             // Firestore is empty — check if there's local data to migrate
             const savedLocal = localStorage.getItem('my_closet_v2');
             let localItems = [];
@@ -277,8 +295,7 @@ export const AppProvider = ({ children }) => {
             } catch (e) { localItems = []; }
 
             if (localItems.length > 0) {
-              // Migrate local data to Firestore with userId attached
-              console.log(`Migrating ${localItems.length} closet items from localStorage to Firestore...`);
+              console.log(`Migrating ${localItems.length} closet items from localStorage for ${currentUser.uid}...`);
               const migratedItems = [];
               for (const item of localItems) {
                 const migratedItem = {
@@ -295,7 +312,6 @@ export const AppProvider = ({ children }) => {
                 }
               }
               setClosetItems(migratedItems.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-              // Clear local data after successful migration
               localStorage.removeItem('my_closet_v2');
             } else {
               setClosetItems([]);
@@ -303,9 +319,6 @@ export const AppProvider = ({ children }) => {
           }
         } catch (error) {
           console.error("[AppContext] Error loading closetItems from Firestore:", error);
-          if (error.code === 'permission-denied') {
-            console.warn("[AppContext] Permission denied for closetItems. Check collectionGroup rules.");
-          }
         }
       } else {
         // Fallback to local storage for guest
@@ -313,13 +326,8 @@ export const AppProvider = ({ children }) => {
         if (saved) {
           try {
             const parsed = JSON.parse(saved);
-            // SECURITY FIX: Filter out items that have a userId (meaning they belong to a logged-in user)
-            // This cleans up any data that might have leaked into localStorage during previous sessions.
             const guestItems = Array.isArray(parsed) ? parsed.filter(item => !item.userId) : [];
-
             setClosetItems(guestItems);
-
-            // If we filtered out items, update localStorage immediately to clean up the leak
             if (Array.isArray(parsed) && guestItems.length !== parsed.length) {
               localStorage.setItem('my_closet_v2', JSON.stringify(guestItems));
             }
@@ -327,6 +335,8 @@ export const AppProvider = ({ children }) => {
             console.error("Failed to parse local closet items", e);
             setClosetItems([]);
           }
+        } else {
+          setClosetItems([]);
         }
       }
     };

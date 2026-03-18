@@ -536,7 +536,7 @@ const Closet = () => {
                   : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                   }`}
               >
-                {t('categoryAll')}
+                すべて
               </button>
               {plushies.map(p => (
                 <button
@@ -564,7 +564,7 @@ const Closet = () => {
                   : 'bg-white text-gray-500 border-gray-200 hover:border-gray-300'
                   }`}
               >
-                {t('categoryAll')}
+                すべて
               </button>
               {[1, 2, 3].map(rating => (
                 <button
@@ -608,7 +608,7 @@ const Closet = () => {
                         className="bg-white text-primary border border-primary/20 px-6 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-primary/5 transition-all flex items-center gap-2"
                       >
                         <X size={14} />
-                        {t('categoryAll')}を表示する
+                        {t('categoryAll') || 'すべて'}を表示する
                       </button>
                     ) : (
                       <button

@@ -530,7 +530,7 @@ const Closet = () => {
             <div className="flex justify-between items-center mb-2 px-1">
               <h1 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
                 {t('myCloset')}
-                <span className="text-[10px] font-normal text-gray-200">v1.2.5</span>
+                <span className="text-[10px] font-normal text-gray-200">v1.2.6</span>
               </h1>
             </div>
 
@@ -678,7 +678,8 @@ const Closet = () => {
                         {groupIndex === 0 && (
                           <button
                             onClick={() => setShowAddModal(true)}
-                            className="aspect-square bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
+                            className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
+                            style={{ aspectRatio: '1/1' }}
                           >
                             <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
                               <Plus size={24} className="text-primary" />
@@ -693,7 +694,7 @@ const Closet = () => {
                             onClick={() => setSelectedItem(item)}
                             className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
                           >
-                            <div className="aspect-square bg-gray-100 relative">
+                            <div className="relative w-full h-full bg-gray-100" style={{ aspectRatio: '1/1' }}>
                               <img src={item.imageUrl} alt={item.itemName} className="w-full h-full object-cover" />
                               {item.isPublic && (
                                 <div className="absolute top-2 right-2 flex gap-1">

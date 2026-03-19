@@ -215,6 +215,18 @@ export const translations = {
         purchaseTypeLabel: "Purchase Type",
         notSet: "Not Set",
 
+        // Closet Categories
+        catTops: "Tops",
+        catBottoms: "Bottoms",
+        catDress: "Dress",
+        catOuter: "Coat/Outer",
+        catHat: "Hat",
+        catAccessory: "Accessory",
+        catShoes: "Shoes",
+        catBag: "Bag",
+        catOther: "Other",
+        selectCategory: "Select Category",
+
         cm: "cm",
         closetTabHelp: "Upload photos to save your collection. Public items appear in the 'Gallery' tab!",
         urlPlaceholder1: "e.g. Dress",
@@ -353,6 +365,18 @@ export const translations = {
         categoryHandmade: "手作り",
         purchaseTypeLabel: "購入方法",
         notSet: "未設定",
+
+        // クローゼットカテゴリー
+        catTops: "トップス",
+        catBottoms: "ボトムス",
+        catDress: "ドレス・ワンピ",
+        catOuter: "アウター・コート",
+        catHat: "帽子",
+        catAccessory: "アクセ・小物",
+        catShoes: "靴",
+        catBag: "バッグ",
+        catOther: "その他",
+        selectCategory: "カテゴリーを選択",
 
         cm: "cm",
         closetTabHelp: "写真をアップしてコーデを保存！公開にすると「ギャラリー」でみんなにシェアできます。",

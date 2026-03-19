@@ -24,6 +24,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         url3: '',
         patternImage: null,
         referenceUrl: '',
+        category: 'other', // Default category
     });
 
     // Load initial item data if provided (for editing)
@@ -215,6 +216,36 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                         value={formData.location}
                                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                     />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectCategory')}</label>
+                                <div className="grid grid-cols-3 gap-2">
+                                    {[
+                                        { id: 'hat', label: t('catHat'), icon: '👒' },
+                                        { id: 'tops', label: t('catTops'), icon: '👕' },
+                                        { id: 'dress', label: t('catDress'), icon: '👗' },
+                                        { id: 'outer', label: t('catOuter'), icon: '🧥' },
+                                        { id: 'bottoms', label: t('catBottoms'), icon: '👖' },
+                                        { id: 'shoes', label: t('catShoes'), icon: '👟' },
+                                        { id: 'bag', label: t('catBag'), icon: '👜' },
+                                        { id: 'accessory', label: t('catAccessory'), icon: '🎀' },
+                                        { id: 'other', label: t('catOther'), icon: '✨' }
+                                    ].map((cat) => (
+                                        <button
+                                            key={cat.id}
+                                            type="button"
+                                            onClick={() => setFormData({ ...formData, category: cat.id })}
+                                            className={`p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${formData.category === cat.id
+                                                ? 'bg-primary/10 text-primary border-primary shadow-sm scale-105'
+                                                : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
+                                                }`}
+                                        >
+                                            <span className="text-xl">{cat.icon}</span>
+                                            <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 

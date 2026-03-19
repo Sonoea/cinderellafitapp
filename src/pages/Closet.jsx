@@ -530,7 +530,7 @@ const Closet = () => {
             <div className="flex justify-between items-center mb-2 px-1">
               <h1 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
                 {t('myCloset')}
-                <span className="text-[10px] font-normal text-gray-200">v1.2.6</span>
+                <span className="text-[10px] font-normal text-gray-200">v1.2.7</span>
               </h1>
             </div>
 
@@ -676,16 +676,17 @@ const Closet = () => {
                       <div className="grid grid-cols-2 gap-3 mb-6">
                         {/* Add Button only in the very first group */}
                         {groupIndex === 0 && (
-                          <button
-                            onClick={() => setShowAddModal(true)}
-                            className="bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
-                            style={{ aspectRatio: '1/1' }}
-                          >
-                            <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
-                              <Plus size={24} className="text-primary" />
-                            </div>
-                            <span className="text-xs font-bold">{t('addNewOutfit')}</span>
-                          </button>
+                          <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+                            <button
+                              onClick={() => setShowAddModal(true)}
+                              className="absolute inset-0 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
+                            >
+                              <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
+                                <Plus size={24} className="text-primary" />
+                              </div>
+                              <span className="text-xs font-bold">{t('addNewOutfit')}</span>
+                            </button>
+                          </div>
                         )}
 
                         {groupItems.map(item => (
@@ -694,8 +695,8 @@ const Closet = () => {
                             onClick={() => setSelectedItem(item)}
                             className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
                           >
-                            <div className="relative w-full h-full bg-gray-100" style={{ aspectRatio: '1/1' }}>
-                              <img src={item.imageUrl} alt={item.itemName} className="w-full h-full object-cover" />
+                            <div className="relative w-full bg-gray-100" style={{ paddingBottom: '100%' }}>
+                              <img src={item.imageUrl} alt={item.itemName} className="absolute inset-0 w-full h-full object-cover" />
                               {item.isPublic && (
                                 <div className="absolute top-2 right-2 flex gap-1">
                                   <button

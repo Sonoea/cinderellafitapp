@@ -260,6 +260,18 @@ export const translations = {
         guideButton: "User Guide",
         cancel: "Cancel",
         save: "Save",
+
+        // Wardrobe
+        wardrobeTitle: "Signature Wardrobe",
+        topShelf: "Top Shelf",
+        topShelfSub: "Accessories & Bags",
+        hangingShelf: "Wardrobe",
+        hangingShelfSub: "Dresses & Outerwear",
+        bottomShelf: "Display Rack",
+        bottomShelfSub: "Bottoms & Footwear",
+        otherShelf: "Storage Box",
+        otherShelfSub: "Uncategorized Items",
+        vacantSpace: "Vacant Space",
     },
     jp: {
         // Nav
@@ -524,5 +536,17 @@ export const translations = {
         matchGood: "ゆったり着れそう（少し大きめ）",
         matchBad: "小さすぎるかも... ⚠️",
         estimatedSize: "推定サイズ",
+
+        // Wardrobe
+        wardrobeTitle: "シグネチャー・ワードローブ",
+        topShelf: "トップ・シェルフ",
+        topShelfSub: "アクセサリー・バッグ",
+        hangingShelf: "ワードローブ",
+        hangingShelfSub: "アウター・ドレス",
+        bottomShelf: "シューズ・ラック",
+        bottomShelfSub: "ボトムス・靴",
+        otherShelf: "ストレージ・ボックス",
+        otherShelfSub: "未分類のアイテム",
+        vacantSpace: "空きスペース",
     }
 };

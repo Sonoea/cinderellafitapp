@@ -676,6 +676,7 @@ const Closet = () => {
                     <VisualCloset
                       items={timelineItems}
                       onSelectItem={setSelectedItem}
+                      updateClosetItem={updateClosetItem}
                       t={t}
                     />
                   ) : (

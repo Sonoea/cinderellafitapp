@@ -13,6 +13,7 @@ const BottomNav = () => {
 
     const navItems = [
         { to: '/', icon: Home, label: t('navHome') },
+        { to: '/closet?add=true', icon: Camera, label: t('addNewOutfit') || '登録' },
         { to: '/closet', icon: Shirt, label: t('navCloset') },
         { to: '/gallery', icon: Users, label: t('navGallery') || (t('language') === 'jp' ? 'ギャラリー' : 'Gallery') },
     ];

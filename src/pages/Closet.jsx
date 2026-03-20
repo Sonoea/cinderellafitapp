@@ -124,20 +124,25 @@ const Closet = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
 
-  // Handle deeplink to specific item
+  // Handle deeplink to specific item or add modal
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const itemId = params.get('itemId');
+    const shouldAdd = params.get('add') === 'true';
+
+    if (shouldAdd) {
+      setShowAddModal(true);
+      // Clean up URL
+      navigate('/closet', { replace: true });
+    }
 
     if (itemId && closetItems.length > 0) {
-      // Logic to find and open item if needed
       const found = closetItems.find(i => `local-${i.id}` === itemId || i.id === itemId);
       if (found) {
-        // Transform to match selectedItem structure if needed, or just set it
-        // But we wait for filtering?
+        setSelectedItem(found);
       }
     }
-  }, [location.search, closetItems]);
+  }, [location.search, closetItems, navigate]);
 
   // Fetch Likes & Comments for an item
   const fetchEngagement = async (itemId, ownerUid) => {

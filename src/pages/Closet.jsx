@@ -529,12 +529,30 @@ const Closet = () => {
           </div>
 
           <div className="space-y-4">
-            <div className="flex justify-between items-center mb-2 px-1">
-              <h1 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
-                {t('myCloset')}
-                <span className="text-[10px] font-normal text-gray-200">v1.2.7</span>
-              </h1>
-            </div>
+            <h1 className="text-2xl font-black text-gray-800 tracking-tight flex items-center gap-2">
+              {t('myCloset')}
+              <span className="text-[10px] font-normal text-gray-200">v1.2.7</span>
+            </h1>
+
+            {/* Local Development Only: Wardrobe Toggle */}
+            {import.meta.env.DEV && (
+              <div className="bg-gray-100 p-1 rounded-xl flex gap-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
+                >
+                  <LayoutGrid size={14} />
+                  <span className="text-[10px]">{t('items') || 'リスト'}</span>
+                </button>
+                <button
+                  onClick={() => setViewMode('shelf')}
+                  className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'shelf' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
+                >
+                  <Library size={14} />
+                  <span className="text-[10px]">ワードローブ</span>
+                </button>
+              </div>
+            )}
 
             {/* --- Plushie Filter Chips --- */}
             <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar px-1">
@@ -654,94 +672,101 @@ const Closet = () => {
 
               return (
                 <div className="pb-48">
-                  {Object.entries(timelineItems.reduce((acc, item) => {
-                    let key = '----.--';
-                    try {
-                      // Group by YYYY.MM
-                      const d = new Date(item.createdAt);
-                      if (!isNaN(d.getTime())) {
-                        key = `${d.getFullYear()}.${(d.getMonth() + 1).toString().padStart(2, '0')}`;
-                      } else if (item.date) {
-                        const parts = item.date.split('-');
-                        if (parts.length >= 2) key = `${parts[0]}.${parts[1]}`;
-                      }
-                    } catch (e) { }
-                    if (!acc[key]) acc[key] = [];
-                    acc[key].push(item);
-                    return acc;
-                  }, {})).sort((a, b) => b[0].localeCompare(a[0])).map(([key, groupItems], groupIndex) => (
-                    <div key={key}>
-                      <h3 className="text-xs font-black text-gray-400 mb-3 ml-1 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
-                        {key}
-                      </h3>
-                      <div className="grid grid-cols-2 gap-3 mb-6">
-                        {/* Add Button only in the very first group */}
-                        {groupIndex === 0 && (
-                          <div className="relative w-full" style={{ paddingBottom: '100%' }}>
-                            <button
-                              onClick={() => setShowAddModal(true)}
-                              className="absolute inset-0 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
-                            >
-                              <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
-                                <Plus size={24} className="text-primary" />
-                              </div>
-                              <span className="text-xs font-bold">{t('addNewOutfit')}</span>
-                            </button>
-                          </div>
-                        )}
+                  {import.meta.env.DEV && viewMode === 'shelf' ? (
+                    <VisualCloset
+                      items={timelineItems}
+                      onSelectItem={setSelectedItem}
+                      t={t}
+                    />
+                  ) : (
+                    Object.entries(timelineItems.reduce((acc, item) => {
+                      let key = '----.--';
+                      try {
+                        // Group by YYYY.MM
+                        const d = new Date(item.createdAt);
+                        if (!isNaN(d.getTime())) {
+                          key = `${d.getFullYear()}.${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                        } else if (item.date) {
+                          const parts = item.date.split('-');
+                          if (parts.length >= 2) key = `${parts[0]}.${parts[1]}`;
+                        }
+                      } catch (e) { }
+                      if (!acc[key]) acc[key] = [];
+                      acc[key].push(item);
+                      return acc;
+                    }, {})).sort((a, b) => b[0].localeCompare(a[0])).map(([key, groupItems], groupIndex) => (
+                      <div key={key}>
+                        <h3 className="text-xs font-black text-gray-400 mb-3 ml-1 flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 bg-gray-300 rounded-full"></div>
+                          {key}
+                        </h3>
+                        <div className="grid grid-cols-2 gap-3 mb-6">
+                          {/* Add Button only in the very first group */}
+                          {groupIndex === 0 && (
+                            <div className="relative w-full" style={{ paddingBottom: '100%' }}>
+                              <button
+                                onClick={() => setShowAddModal(true)}
+                                className="absolute inset-0 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all group"
+                              >
+                                <div className="bg-white p-3 rounded-full shadow-sm group-hover:scale-110 transition-transform mb-2">
+                                  <Plus size={24} className="text-primary" />
+                                </div>
+                                <span className="text-xs font-bold">{t('addNewOutfit')}</span>
+                              </button>
+                            </div>
+                          )}
 
-                        {groupItems.map(item => (
-                          <div
-                            key={item.id}
-                            onClick={() => setSelectedItem(item)}
-                            className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
-                          >
-                            <div className="relative w-full bg-gray-100" style={{ paddingBottom: '100%' }}>
-                              <img src={item.imageUrl} alt={item.itemName} className="absolute inset-0 w-full h-full object-cover" />
-                              {item.isPublic ? (
-                                <div className="absolute top-2 right-2 flex gap-1">
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (window.confirm('この写真をマイコーデから非表示にし、ギャラリーのみに表示しますか？')) {
-                                        updateClosetItem(item.id.replace('local-', ''), { galleryOnly: true });
-                                      }
-                                    }}
-                                    className="bg-black/50 text-white p-1.5 rounded-full backdrop-blur-sm hover:bg-red-500/70 transition-colors"
-                                    title="マイコーデから非表示"
-                                  >
-                                    <EyeOff size={12} />
-                                  </button>
-                                  <div className="bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
-                                    <Share2 size={12} />
+                          {groupItems.map(item => (
+                            <div
+                              key={item.id}
+                              onClick={() => setSelectedItem(item)}
+                              className="bg-white rounded-xl overflow-hidden shadow-sm border border-gray-100 relative group cursor-pointer active:scale-95 transition-transform"
+                            >
+                              <div className="relative w-full bg-gray-100" style={{ paddingBottom: '100%' }}>
+                                <img src={item.imageUrl} alt={item.itemName} className="absolute inset-0 w-full h-full object-cover" />
+                                {item.isPublic ? (
+                                  <div className="absolute top-2 right-2 flex gap-1">
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (window.confirm('この写真をマイコーデから非表示にし、ギャラリーのみに表示しますか？')) {
+                                          updateClosetItem(item.id.replace('local-', ''), { galleryOnly: true });
+                                        }
+                                      }}
+                                      className="bg-black/50 text-white p-1.5 rounded-full backdrop-blur-sm hover:bg-red-500/70 transition-colors"
+                                      title="マイコーデから非表示"
+                                    >
+                                      <EyeOff size={12} />
+                                    </button>
+                                    <div className="bg-black/50 text-white p-1 rounded-full backdrop-blur-sm">
+                                      <Share2 size={12} />
+                                    </div>
                                   </div>
-                                </div>
-                              ) : (
-                                <div className="absolute top-2 right-2 flex gap-1">
-                                  <div className="bg-black/40 text-white p-1.5 rounded-full backdrop-blur-sm flex items-center gap-1">
-                                    <Lock size={12} />
-                                    <span className="text-[10px] font-bold pr-1">{t('privateOnly') || '非公開'}</span>
+                                ) : (
+                                  <div className="absolute top-2 right-2 flex gap-1">
+                                    <div className="bg-black/40 text-white p-1.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                                      <Lock size={12} />
+                                      <span className="text-[10px] font-bold pr-1">{t('privateOnly') || '非公開'}</span>
+                                    </div>
                                   </div>
+                                )}
+                                <div className={`absolute bottom-3 left-2 px-1.5 py-0.5 rounded-full text-xs shadow-sm flex items-center justify-center ${item.fitRating === 2 ? 'bg-green-500' :
+                                  item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
+                                  }`}>
+                                  {(t('fitLabelsShort')?.[item.fitRating - 1] || '😊').split(' ')[0]}
                                 </div>
-                              )}
-                              <div className={`absolute bottom-3 left-2 px-1.5 py-0.5 rounded-full text-xs shadow-sm flex items-center justify-center ${item.fitRating === 2 ? 'bg-green-500' :
-                                item.fitRating === 1 ? 'bg-red-400' : 'bg-yellow-500'
-                                }`}>
-                                {(t('fitLabelsShort')?.[item.fitRating - 1] || '😊').split(' ')[0]}
+                              </div>
+                              <div className="p-2">
+                                <h4 className="font-bold text-sm truncate">{item.itemName || 'Untitled'}</h4>
+                                <p className="text-xs text-gray-400 truncate">
+                                  {item.date}
+                                </p>
                               </div>
                             </div>
-                            <div className="p-2">
-                              <h4 className="font-bold text-sm truncate">{item.itemName || 'Untitled'}</h4>
-                              <p className="text-xs text-gray-400 truncate">
-                                {item.date}
-                              </p>
-                            </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )))}
                 </div>
               );
             })()}

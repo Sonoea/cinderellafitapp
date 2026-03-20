@@ -19,7 +19,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         comment: '',
         location: '',
         purchaseType: '',
-        isPublic: !!currentUser, // Default to true only if logged in
+        isPublic: false, // Default to private for better privacy
         url2: '',
         url3: '',
         patternImage: null,

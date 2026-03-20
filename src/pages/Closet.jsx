@@ -77,7 +77,7 @@ const Closet = () => {
   // State for real user name from Firestore (to fix "You" issue)
   const [firestoreUserName, setFirestoreUserName] = useState(null);
   const [firestorePhotoURL, setFirestorePhotoURL] = useState(null);
-  const [viewMode, setViewMode] = useState('list'); // 'list' or 'shelf'
+  const [viewMode, setViewMode] = useState('shelf'); // 'list' or 'shelf'
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -535,25 +535,22 @@ const Closet = () => {
               <span className="text-[10px] font-normal text-gray-200">v1.2.7</span>
             </h1>
 
-            {/* Local Development Only: Wardrobe Toggle */}
-            {import.meta.env.DEV && (
-              <div className="bg-gray-100 p-1 rounded-xl flex gap-1">
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
-                >
-                  <LayoutGrid size={14} />
-                  <span className="text-[10px]">{t('items') || 'リスト'}</span>
-                </button>
-                <button
-                  onClick={() => setViewMode('shelf')}
-                  className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'shelf' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
-                >
-                  <Library size={14} />
-                  <span className="text-[10px]">ワードローブ</span>
-                </button>
-              </div>
-            )}
+            <div className="bg-gray-100 p-1 rounded-xl flex gap-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
+              >
+                <LayoutGrid size={14} />
+                <span className="text-[10px]">{t('items') || 'リスト'}</span>
+              </button>
+              <button
+                onClick={() => setViewMode('shelf')}
+                className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'shelf' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
+              >
+                <Library size={14} />
+                <span className="text-[10px]">ワードローブ</span>
+              </button>
+            </div>
 
             {/* --- Plushie Filter Chips --- */}
             <div className="flex gap-2 mb-4 overflow-x-auto pb-2 no-scrollbar px-1">

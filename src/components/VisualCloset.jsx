@@ -143,8 +143,8 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
     }, [draggingItem, dragOverZone, updateClosetItem]);
 
     const handlePointerDown = (e, item) => {
-        e.preventDefault();
-        e.stopPropagation();
+        // Don't preventDefault yet, as it might block clicks
+        // e.stopPropagation(); // REMOVED: allow bubbling to shelf onClick
         setDraggingItem(item);
         setPointerPos({ x: e.clientX, y: e.clientY });
     };
@@ -207,34 +207,51 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                     background: isSuccess ? 'radial-gradient(circle at center, #FFFDF5 0%, #FFF5E0 100%)' : 'white'
                 }}>
 
-                    {/* Shelf Background Texture */}
+                    {/* Shelf Background Texture & Thematic Overlays */}
                     <div style={{ position: 'absolute', inset: 0, opacity: 0.03, background: 'repeating-linear-gradient(45deg, #000, #000 1px, transparent 1px, transparent 10px)', pointerEvents: 'none' }}></div>
+
+                    {/* Category Specific Decorations */}
+                    {isHanging && (
+                        <div style={{ position: 'absolute', top: '20px', left: '10%', right: '10%', height: '4px', background: 'linear-gradient(to bottom, #AA771C, #D4AF37)', borderRadius: '2px', zIndex: 5, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}></div>
+                    )}
+
+                    {zone === 'shoes' && (
+                        <div style={{ position: 'absolute', bottom: '10px', left: '10%', right: '10%', height: '40%', border: '1px solid #E8E4D9', borderTop: '2px solid #D4AF37', borderRadius: '4px', background: 'linear-gradient(to bottom, #FDFCF9, #F5F2E9)', opacity: 0.6, zIndex: 1 }}>
+                            <div style={{ position: 'absolute', top: '5px', left: '5px', width: '20px', height: '8px', background: '#D4AF37', borderRadius: '1px', opacity: 0.4 }}></div>
+                        </div>
+                    )}
+
+                    {cats.includes('jewelry') || cats.includes('glasses') || cats.includes('scarf') ? (
+                        <div style={{ position: 'absolute', inset: '15%', border: '1px solid #D4AF37', borderRadius: '8px', background: 'rgba(212, 175, 55, 0.03)', zIndex: 1 }}>
+                            <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'radial-gradient(circle, #D4AF37 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
+                        </div>
+                    ) : null}
 
                     {count > 0 && !isSelectedMode && (
                         <div style={{
                             position: 'absolute', top: '8px', right: '8px', zIndex: 110,
-                            backgroundColor: '#D4AF37', color: 'white', padding: '2px 10px', borderRadius: '50px',
+                            backgroundColor: '#4A351D', color: '#D4AF37', padding: '2px 10px', borderRadius: '50px',
                             fontSize: '11px', fontWeight: '900', boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                            border: '1.5px solid white', display: 'flex', alignItems: 'center', gap: '3px',
+                            border: '1.5px solid #D4AF37', display: 'flex', alignItems: 'center', gap: '3px',
                             animation: isSuccess ? 'pulse-gold 0.5s repeat-3' : 'none'
                         }}>
-                            {count}
+                            <Tag size={10} /> {count}
                         </div>
                     )}
 
                     {isSelectedMode && (
                         <div style={{
-                            position: 'absolute', inset: '10px', background: 'rgba(212, 175, 55, 0.95)',
+                            position: 'absolute', inset: '10px', background: 'rgba(74, 53, 29, 0.9)',
                             borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            color: 'white', zIndex: 120, border: '3px solid white', animation: 'pulse-button 0.8s infinite alternate'
+                            color: '#D4AF37', zIndex: 120, border: '2px solid #D4AF37', animation: 'pulse-button 0.8s infinite alternate'
                         }}>
                             <Plus size={isSmall ? 18 : 32} strokeWidth={5} />
-                            <div style={{ fontSize: isSmall ? '9px' : '12px', fontWeight: '900', marginTop: '4px', letterSpacing: '0.1em' }}>ここに置く</div>
+                            <div style={{ fontSize: isSmall ? '9px' : '12px', fontWeight: '900', marginTop: '4px', letterSpacing: '0.1em' }}>PLACE</div>
                         </div>
                     )}
 
                     {(isSelectedMode || isHover || isSuccess) && (
-                        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(212,175,55,0.12)', zIndex: 1, animation: isSuccess ? 'none' : 'magnetic-glow 1s infinite' }}></div>
+                        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(212,175,55,0.08)', zIndex: 1, animation: isSuccess ? 'none' : 'magnetic-glow 1s infinite' }}></div>
                     )}
 
                     {isSuccess && (
@@ -253,16 +270,21 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                                 <div
                                     onPointerDown={(e) => handlePointerDown(e, displayItem)}
                                     style={{
-                                        position: 'relative', width: '90%', height: '90%', zIndex: 10, cursor: 'grab', pointerEvents: 'auto'
+                                        position: 'relative', width: '85%', height: '85%', zIndex: 10, cursor: 'grab', pointerEvents: 'auto'
                                     }}
                                 >
-                                    <img src={displayItem.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.25))' }} />
                                     {isHanging && (
-                                        <div style={{ position: 'absolute', top: '-22px', left: '50%', transform: 'translateX(-50%)', width: '12px', height: '22px', borderLeft: '3px solid #AA771C', borderTop: '3px solid #AA771C', borderRadius: '8px 8px 0 0' }}></div>
+                                        <div style={{ position: 'absolute', top: '-18px', left: '50%', transform: 'translateX(-50%)', width: '14px', height: '20px', borderLeft: '2.5px solid #AA771C', borderTop: '2.5px solid #AA771C', borderRadius: '10px 10px 0 0', zIndex: 5 }}></div>
                                     )}
+                                    <img
+                                        src={displayItem.imageUrl}
+                                        draggable="false"
+                                        onDragStart={(e) => e.preventDefault()}
+                                        style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 15px 35px rgba(0,0,0,0.25))' }}
+                                    />
                                 </div>
                             ) : (
-                                <div style={{ opacity: isSelectedMode ? 0 : 0.1 }}>
+                                <div style={{ opacity: isSelectedMode ? 0 : 0.08 }}>
                                     <Star size={isSmall ? 18 : 36} fill="#D4AF37" color="#D4AF37" />
                                 </div>
                             )}
@@ -350,7 +372,8 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                             <div style={{ fontSize: '10px', color: '#888', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em' }}>WARDROBE</div>
                             <div style={{ display: 'flex', gap: '10px' }}>
                                 <PhotoShelf label={t('catOnePiece')} zone="hang-1" cats={['onepiece', 'dress']} isHanging={true} />
-                                <PhotoShelf label={"コート・スポーツウェア"} zone="hang-2" cats={['outer', 'blouse', 'sportswear']} isHanging={true} />
+                                <PhotoShelf label={t('catCoat')} zone="hang-2" cats={['outer', 'coat']} isHanging={true} />
+                                <PhotoShelf label={t('catSport')} zone="hang-3" cats={['sport', 'sportswear', 'jersey']} isHanging={true} />
                             </div>
                             <div style={{ display: 'flex', gap: '10px', height: '85px' }}>
                                 <PhotoShelf label={t('catBottoms')} zone="bottoms" cats={['skirt', 'pants']} isSmall={true} />

@@ -5,7 +5,7 @@ import { AppContext } from '../context/AppContext';
 /**
  * 夢見る看板 (v11.0 - シンプル化)
  */
-const BoutiqueLogo = ({ total, t }) => (
+const WardrobeLogo = ({ total, t }) => (
     <div style={{ position: 'relative', marginBottom: '35px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
         <div style={{ position: 'absolute', top: '-12px', display: 'flex', gap: '50px', zIndex: 0 }}>
             <div style={{ width: '22px', height: '22px', backgroundColor: '#FFF', border: '2px solid #D4AF37', borderRadius: '50%', opacity: 0.6 }}></div>
@@ -17,7 +17,7 @@ const BoutiqueLogo = ({ total, t }) => (
             boxShadow: '0 12px 30px rgba(0,0,0,0.06)', zIndex: 1, position: 'relative', display: 'flex', alignItems: 'center', gap: '15px'
         }}>
             <h1 style={{ fontSize: '20px', color: '#4A351D', letterSpacing: '0.1em', fontWeight: '900', textAlign: 'center', margin: 0, fontFamily: 'serif' }}>
-                CinderellaFit Boutique ✨
+                CinderellaFit wardrobe
             </h1>
             <div style={{ height: '24px', width: '1px', backgroundColor: '#F0EEE9' }}></div>
             <div style={{
@@ -313,7 +313,7 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
     return (
         <div style={{ minHeight: '100vh', background: '#FDFBFA', padding: '40px 10px 220px', display: 'flex', flexDirection: 'column', alignItems: 'center', overflow: 'hidden', touchAction: 'none' }}>
 
-            <BoutiqueLogo total={totalCount} t={t} />
+            <WardrobeLogo total={totalCount} t={t} />
 
             <div style={{ position: 'relative', width: '100%', maxWidth: '390px' }}>
                 <PlushieMascot />

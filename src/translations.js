@@ -54,7 +54,7 @@ export const translations = {
         storageQuotaExceeded: "Storage full! The image is too large to save. We've tried to compress it, but it's still too big.",
 
         // Shop
-        boutique: "Size Checker",
+        boutique: "wardrobe",
         shopSubtitle: "Enter product URL to check fit for your plushie",
         step1Title: "1. Select Plushie",
         step2Title: "2. Enter Product URL",
@@ -460,7 +460,7 @@ export const translations = {
 
 
         // Shop
-        boutique: "サイズチェッカー",
+        boutique: "ワードローブ判定",
         shopSubtitle: "商品URLを入力して、ぬいぐるみに合うかチェック",
         step1Title: "1. ぬいぐるみを選択",
         step2Title: "2. 商品URLを入力",

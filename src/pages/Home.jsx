@@ -311,13 +311,13 @@ const Home = () => {
                             justifyContent: 'center',
                             fontSize: '22px'
                         }}>
-                            🔍
+                            👗
                         </div>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {language === 'jp' ? '2. URL入力' : '2. Enter URL'}
+                            {language === 'jp' ? '2. 登録' : '2. Register'}
                         </p>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {language === 'jp' ? '服のURLを貼る' : 'Paste URL'}
+                            {language === 'jp' ? '服を撮影して保存' : 'Save outfit photo'}
                         </p>
                     </div>
                     <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
@@ -336,10 +336,10 @@ const Home = () => {
                             ✨
                         </div>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {language === 'jp' ? '3. フィット確認' : '3. Check Fit'}
+                            {language === 'jp' ? '3. 公開' : '3. Share'}
                         </p>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {language === 'jp' ? 'サイズ判定表示' : 'See result'}
+                            {language === 'jp' ? 'ギャラリーでシェア' : 'Share to gallery'}
                         </p>
                     </div>
                 </div>
@@ -598,29 +598,6 @@ const Home = () => {
                                     <Pencil size={16} strokeWidth={2.5} />
                                 </Link>
                             </div>
-
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    navigate(`/shop?plushie=${plushie.id}`);
-                                }}
-                                style={{
-                                    width: '100%',
-                                    padding: '12px',
-                                    borderRadius: '10px',
-                                    background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
-                                    color: 'white',
-                                    fontWeight: '600',
-                                    fontSize: '13px',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    marginTop: 'auto',
-                                    boxShadow: '0 2px 8px rgba(61, 122, 127, 0.25)',
-                                    letterSpacing: '0.01em'
-                                }}
-                            >
-                                {t('findClothes')}
-                            </button>
                         </div>
                     ))}
 

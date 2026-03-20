@@ -59,32 +59,7 @@ const Guide = () => {
                         </div>
                     </div>
 
-                    {/* Step 2: Fit Check (Sparkles) */}
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
-                        <div
-                            style={{
-                                position: 'absolute',
-                                bottom: '-20px',
-                                right: '-20px',
-                                opacity: 0.05,
-                                transform: 'rotate(12deg)',
-                                pointerEvents: 'none'
-                            }}
-                        >
-                            <Sparkles size={150} />
-                        </div>
-                        <div className="relative z-10">
-                            <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mb-4 text-yellow-600">
-                                <Sparkles size={24} />
-                            </div>
-                            <h3 className="font-bold text-lg mb-2">{t('guideStep2Title')}</h3>
-                            <p className="text-sm text-gray-500 leading-relaxed">
-                                {t('guideStep2Desc')}
-                            </p>
-                        </div>
-                    </div>
-
-                    {/* Step 3: Closet (Camera) */}
+                    {/* Step 2: Closet (Camera) */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
                         <div
                             style={{
@@ -109,7 +84,7 @@ const Guide = () => {
                         </div>
                     </div>
 
-                    {/* Step 4: Gallery (Share) */}
+                    {/* Step 3: Gallery (Share) */}
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 relative overflow-hidden">
                         <div
                             style={{

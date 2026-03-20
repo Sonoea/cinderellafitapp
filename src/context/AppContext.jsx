@@ -3,7 +3,7 @@ import { translations } from '../translations';
 import { db } from '../firebase/config';
 import { collection, doc, setDoc, getDocs, deleteDoc, query, where, collectionGroup } from 'firebase/firestore';
 import { useAuth } from './AuthContext';
-const AppContext = createContext();
+export const AppContext = createContext();
 
 // Helper to track previous value
 function usePrevious(value) {
@@ -33,6 +33,9 @@ const DEFAULT_PLUSHIE = {
 };
 
 export const AppProvider = ({ children }) => {
+  const { currentUser } = useAuth(); // Moved to top to avoid TDZ error
+  const prevUser = usePrevious(currentUser);
+
   // Language State
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('app_language') || 'jp';
@@ -54,10 +57,25 @@ export const AppProvider = ({ children }) => {
     setLanguage(prev => prev === 'en' ? 'jp' : 'en');
   };
 
+  // Custom Category Names (v11.2)
+  const [customCategoryNames, setCustomCategoryNames] = useState(() => {
+    const saved = localStorage.getItem('custom_category_names');
+    return saved ? JSON.parse(saved) : { custom1: '', custom2: '' };
+  });
+
+  useEffect(() => {
+    localStorage.setItem('custom_category_names', JSON.stringify(customCategoryNames));
+
+    // Also save to Firestore if user is logged in
+    if (currentUser) {
+      setDoc(doc(db, "users", currentUser.uid, "settings", "wardrobe"), {
+        customCategoryNames
+      }, { merge: true }).catch(err => console.error("Error saving custom names:", err));
+    }
+  }, [customCategoryNames, currentUser]);
+
   // Plushie State
   const [plushies, setPlushies] = useState([]);
-  const { currentUser } = useAuth(); // Get current user
-  const prevUser = usePrevious(currentUser);
 
   // Load from localStorage (Guest) or Firestore (User)
   useEffect(() => {
@@ -423,7 +441,8 @@ export const AppProvider = ({ children }) => {
       plushies, addPlushie, updatePlushie, deletePlushie,
       closetItems, addClosetItem, updateClosetItem, deleteClosetItem,
       language, setLanguage, toggleLanguage, t,
-      userPlan, setUserPlan, plushieLimit, canAddPlushie, userAddedPlushieCount
+      userPlan, setUserPlan, plushieLimit, canAddPlushie, userAddedPlushieCount,
+      customCategoryNames, setCustomCategoryNames
     }}>
       {children}
     </AppContext.Provider>

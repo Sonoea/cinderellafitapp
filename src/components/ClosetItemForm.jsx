@@ -1,12 +1,12 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Camera, MapPin, Unlock, Lock } from 'lucide-react';
-import { compressImage } from '../utils/imageUtils';
+import React, { useState, useEffect, useContext, useRef } from 'react';
+import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag } from 'lucide-react';
+import { AppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
-import { useApp } from '../context/AppContext';
+import { compressImage } from '../utils/imageUtils';
 
 const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel }) => {
     const { currentUser } = useAuth();
-    const { language } = useApp();
+    const { customCategoryNames } = useContext(AppContext);
     const scrollContainerRef = useRef(null);
     const [image, setImage] = useState(null);
     const [showUrl2, setShowUrl2] = useState(false);
@@ -140,7 +140,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                     </div>
 
                     {/* 2. Form Fields (Always Visible) */}
-                    <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''}`}>
+                    <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''} `}>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
@@ -223,14 +223,23 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectCategory')}</label>
                                 <div className="grid grid-cols-3 gap-2">
                                     {[
+                                        { id: 'onepiece', label: t('catOnePiece'), icon: '👗' },
+                                        { id: 'sportswear', label: t('catSportswear'), icon: '🎽' },
+                                        { id: 'outer', label: t('catCoat'), icon: '🧥' },
+                                        { id: 'blouse', label: t('catBlouse'), icon: '👚' },
+                                        { id: 'camera', label: t('catCamera'), icon: '📷' },
+                                        { id: 'tshirt', label: t('catTshirt'), icon: '👕' },
+                                        { id: 'skirt', label: t('catSkirt'), icon: '👗' },
+                                        { id: 'pants', label: t('catPants'), icon: '👖' },
                                         { id: 'hat', label: t('catHat'), icon: '👒' },
-                                        { id: 'tops', label: t('catTops'), icon: '👕' },
-                                        { id: 'dress', label: t('catDress'), icon: '👗' },
-                                        { id: 'outer', label: t('catOuter'), icon: '🧥' },
-                                        { id: 'bottoms', label: t('catBottoms'), icon: '👖' },
-                                        { id: 'shoes', label: t('catShoes'), icon: '👟' },
-                                        { id: 'bag', label: t('catBag'), icon: '👜' },
-                                        { id: 'accessory', label: t('catAccessory'), icon: '🎀' },
+                                        { id: 'bag_hand', label: t('catBagHand'), icon: '👜' },
+                                        { id: 'bag_back', label: t('catBagBack'), icon: '🎒' },
+                                        { id: 'jewelry', label: t('catJewelry'), icon: '💍' },
+                                        { id: 'glasses', label: t('catGlasses'), icon: '👓' },
+                                        { id: 'scarf', label: t('catScarf'), icon: '🧣' },
+                                        { id: 'shoes', label: t('catShoes'), icon: <ArrowDownCircle size={16} /> },
+                                        { id: 'custom1', label: customCategoryNames.custom1 || t('catCustom1'), icon: <Tag size={16} /> },
+                                        { id: 'custom2', label: customCategoryNames.custom2 || t('catCustom2'), icon: <Tag size={16} /> },
                                         { id: 'other', label: t('catOther'), icon: '✨' }
                                     ].map((cat) => (
                                         <button
@@ -314,14 +323,11 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                 key={rating}
                                                 type="button"
                                                 onClick={() => setFormData({ ...formData, fitRating: rating })}
-                                                className={`
-                                                  flex-1 p-3 rounded-xl transition-all duration-200 relative
+                                                className={`flex-1 p-3 rounded-xl transition-all duration-200 relative
                                                   ${isSelected
                                                         ? 'bg-primary text-white border-primary scale-110 shadow-lg ring-4 ring-primary/20'
-                                                        : 'bg-white hover:bg-gray-100 opacity-60 border-gray-200'}
-                                                  active:scale-95
-                                                  border-2
-                                                `}
+                                                        : 'bg-white hover:bg-gray-100 opacity-60 border-gray-200'
+                                                    } active:scale-95 border-2`}
                                             >
                                                 <span className={`text-3xl block text-center mb-1 ${isSelected ? '' : 'grayscale'}`}>{emojis[rating - 1]}</span>
                                                 <p className={`text-[10px] text-center font-bold ${isSelected ? 'text-white' : 'text-gray-400'}`}>
@@ -388,7 +394,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                             <div>
                                 <div className="flex justify-between items-center mb-1">
                                     <label className="block text-xs font-bold text-gray-700">{t('commentLabel')}</label>
-                                    <span className={`text-[10px] font-bold ${formData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'}`}>
+                                    <span className={`text-[10px] font-bold ${formData.comment.length >= 500 ? 'text-red-500' : 'text-gray-400'} `}>
                                         {formData.comment.length} / 500
                                     </span>
                                 </div>
@@ -401,9 +407,9 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 ></textarea>
                             </div>
 
-                            <div className={`flex items-center justify-between bg-blue-50 p-3 rounded-xl ${!currentUser ? 'opacity-60 grayscale' : ''}`}>
+                            <div className={`flex items-center justify-between bg-blue-50 p-3 rounded-xl ${!currentUser ? 'opacity-60 grayscale' : ''} `}>
                                 <div className="flex items-center gap-2">
-                                    <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
+                                    <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'} `}>
                                         {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
                                     </div>
                                     <div className="text-xs">

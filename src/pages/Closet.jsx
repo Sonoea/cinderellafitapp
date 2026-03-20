@@ -424,7 +424,8 @@ const Closet = () => {
         compositeId,
         isPublic: item.isPublic,
         galleryOnly: item.galleryOnly,
-        createdAt: item.createdAt
+        createdAt: item.createdAt,
+        category: item.category || 'other'
       };
     });
 
@@ -672,7 +673,7 @@ const Closet = () => {
 
               return (
                 <div className="pb-48">
-                  {import.meta.env.DEV && viewMode === 'shelf' ? (
+                  {viewMode === 'shelf' ? (
                     <VisualCloset
                       items={timelineItems}
                       onSelectItem={setSelectedItem}

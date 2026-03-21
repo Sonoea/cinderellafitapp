@@ -7,25 +7,20 @@ import { AppContext } from '../context/AppContext';
  */
 const WardrobeLogo = ({ total, t }) => (
     <div style={{ position: 'relative', marginBottom: '35px', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%' }}>
-        <div style={{ position: 'absolute', top: '-12px', display: 'flex', gap: '50px', zIndex: 0 }}>
-            <div style={{ width: '22px', height: '22px', backgroundColor: '#FFF', border: '2px solid #D4AF37', borderRadius: '50%', opacity: 0.6 }}></div>
-            <div style={{ width: '22px', height: '22px', backgroundColor: '#FFF', border: '2px solid #D4AF37', borderRadius: '50%', opacity: 0.6 }}></div>
-        </div>
-
         <div style={{
-            backgroundColor: '#FFF', padding: '12px 35px', borderRadius: '50px', border: '3px solid #FDFCF9',
-            boxShadow: '0 12px 30px rgba(0,0,0,0.06)', zIndex: 1, position: 'relative', display: 'flex', alignItems: 'center', gap: '15px'
+            backgroundColor: '#FFF', padding: '12px 35px', borderRadius: '24px', border: '2px solid #E0DCD8',
+            boxShadow: '0 8px 16px rgba(0,0,0,0.03)', zIndex: 1, position: 'relative', display: 'flex', alignItems: 'center', gap: '15px'
         }}>
-            <h1 style={{ fontSize: '20px', color: '#4A351D', letterSpacing: '0.1em', fontWeight: '900', textAlign: 'center', margin: 0, fontFamily: 'serif' }}>
+            <h1 style={{ fontSize: '18px', color: '#3D7A7F', letterSpacing: '0.05em', fontWeight: '900', textAlign: 'center', margin: 0 }}>
                 CinderellaFit wardrobe
             </h1>
-            <div style={{ height: '24px', width: '1px', backgroundColor: '#F0EEE9' }}></div>
+            <div style={{ height: '24px', width: '1px', backgroundColor: '#E0DCD8' }}></div>
             <div style={{
-                display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: '#FFF9E6', px: '10px', borderRadius: '15px', padding: '4px 10px',
-                border: '1px solid #D4AF37'
+                display: 'flex', alignItems: 'center', gap: '5px', backgroundColor: '#F8FAF9', px: '10px', borderRadius: '15px', padding: '4px 10px',
+                border: '1px solid #3D7A7F'
             }}>
-                <Box size={14} color="#D4AF37" fill="#D4AF37" />
-                <span style={{ fontSize: '11px', fontWeight: '900', color: '#4A351D' }}>Collection: {total}</span>
+                <Tag size={12} color="#3D7A7F" fill="#3D7A7F" />
+                <span style={{ fontSize: '10px', fontWeight: '900', color: '#3D7A7F' }}>COLLECTION: {total}</span>
             </div>
         </div>
     </div>
@@ -34,43 +29,6 @@ const WardrobeLogo = ({ total, t }) => (
 /**
  * マスコット
  */
-const PlushieMascot = ({ isActive }) => (
-    <div style={{
-        position: 'absolute', bottom: '15px', right: '-25px', zIndex: 60,
-        transform: isActive ? 'rotate(-10deg) scale(1.15)' : 'rotate(-3deg)',
-        transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-        pointerEvents: 'none'
-    }}>
-        <div style={{ position: 'relative', width: '80px', height: '80px' }}>
-            {isActive && (
-                <div style={{ position: 'absolute', top: '-15px', left: '-15px', zIndex: 70, animation: 'fade-in 0.3s' }}>
-                    <Sparkles size={40} color="#D4AF37" fill="#D4AF37" />
-                </div>
-            )}
-            <svg viewBox="0 0 100 100" style={{ width: '100%', height: '100%', filter: 'drop-shadow(0 15px 20px rgba(0,0,0,0.12))' }}>
-                <circle cx="50" cy="50" r="45" fill="#F8F3E9" stroke="#E5E1D1" strokeWidth="2" />
-                <circle cx="35" cy="20" r="14" fill="#F8F3E9" stroke="#E5E1D1" strokeWidth="2" />
-                <circle cx="65" cy="20" r="14" fill="#F8F3E9" stroke="#E5E1D1" strokeWidth="2" />
-
-                {/* Eyes - Dynamic */}
-                {isActive ? (
-                    <>
-                        <path d="M30 42 Q35 32 40 42" stroke="#4A351D" strokeWidth="4" fill="none" strokeLinecap="round" />
-                        <path d="M60 42 Q65 32 70 42" stroke="#4A351D" strokeWidth="4" fill="none" strokeLinecap="round" />
-                    </>
-                ) : (
-                    <>
-                        <circle cx="35" cy="42" r="6" fill="#4A351D" />
-                        <circle cx="65" cy="42" r="6" fill="#4A351D" />
-                    </>
-                )}
-
-                {/* Mouth - Sweeter expression when active */}
-                <path d={isActive ? "M35 60 Q50 72 65 60" : "M40 58 Q50 65 60 58"} stroke="#4A351D" strokeWidth="4" fill="none" strokeLinecap="round" />
-            </svg>
-        </div>
-    </div>
-);
 
 const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
     const { customCategoryNames, setCustomCategoryNames } = useContext(AppContext);
@@ -220,43 +178,49 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                 }}
             >
                 <div style={{
-                    position: 'relative', height: isHanging ? '280px' : isSmall ? '82px' : '145px',
-                    backgroundColor: isSuccess ? '#FFFDF5' : '#FFFEFB',
-                    border: '1.5px solid',
-                    borderColor: (isHover || (isSelectedMode && isHover)) ? '#D4AF37' : '#E8E4D9',
-                    borderRadius: '16px',
-                    boxShadow: (isHover || (isSelectedMode && isHover)) ? '0 20px 50px rgba(212,175,55,0.3)' : isSuccess ? '0 0 50px rgba(212,175,55,0.7)' : 'inset 0 4px 12px rgba(0,0,0,0.03)',
-                    overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.3s',
-                    background: isSuccess ? 'radial-gradient(circle at center, #FFFDF5 0%, #FFF5E0 100%)' : 'white'
+                    position: 'relative', height: isHanging ? '300px' : isSmall ? '90px' : '160px',
+                    backgroundColor: 'white',
+                    borderRadius: '24px',
+                    boxShadow: (isHover || (isSelectedMode && isHover)) ? '0 25px 50px rgba(61,122,127,0.2)' : isSuccess ? '0 0 60px rgba(61,122,127,0.5)' : 'inset 0 15px 35px rgba(0,0,0,0.05)',
+                    overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28)',
+                    background: isSuccess ? 'radial-gradient(circle at center, #F5FDFD 0%, #E8F4F5 100%)' : 'white',
+                    border: '2px solid #E0DCD8'
                 }}>
 
-                    {/* Shelf Background Texture & Thematic Overlays */}
-                    <div style={{ position: 'absolute', inset: 0, opacity: 0.03, background: 'repeating-linear-gradient(45deg, #000, #000 1px, transparent 1px, transparent 10px)', pointerEvents: 'none' }}></div>
+                    {/* Physical Shelf Board (The "Shelf" itself) */}
+                    <div style={{
+                        position: 'absolute', bottom: 0, left: 0, right: 0, height: '15px',
+                        backgroundColor: '#FAF3E0', borderTop: '2px solid #E8DCC2',
+                        zIndex: 10, borderRadius: '0 0 35px 35px'
+                    }}></div>
 
-                    {/* Category Specific Decorations */}
+                    {/* Cavity Depth Shadows */}
+                    <div style={{ position: 'absolute', inset: 0, boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.05)', pointerEvents: 'none' }}></div>
+
+                    {/* Category Specific 3D Details */}
                     {isHanging && (
-                        <div style={{ position: 'absolute', top: '20px', left: '10%', right: '10%', height: '4px', background: 'linear-gradient(to bottom, #AA771C, #D4AF37)', borderRadius: '2px', zIndex: 5, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}></div>
+                        <>
+                            {/* 3D Hanging Rod */}
+                            <div style={{ position: 'absolute', top: '30px', left: 0, right: 0, height: '10px', background: 'linear-gradient(to bottom, #B8B2AC, white 50%, #B8B2AC)', zIndex: 5, boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}></div>
+                            {/* Hanger Silhouettes */}
+                            {[25, 45, 65, 80].map(pos => (
+                                <div key={pos} style={{ position: 'absolute', top: '38px', left: `${pos}%`, width: '30px', height: '20px', border: '1.5px solid #E0DCD8', borderBottom: 'none', borderRadius: '15px 15px 0 0', opacity: 0.4, zIndex: 4 }}></div>
+                            ))}
+                        </>
                     )}
 
                     {zone === 'shoes' && (
-                        <div style={{ position: 'absolute', bottom: '10px', left: '10%', right: '10%', height: '40%', border: '1px solid #E8E4D9', borderTop: '2px solid #D4AF37', borderRadius: '4px', background: 'linear-gradient(to bottom, #FDFCF9, #F5F2E9)', opacity: 0.6, zIndex: 1 }}>
-                            <div style={{ position: 'absolute', top: '5px', left: '5px', width: '20px', height: '8px', background: '#D4AF37', borderRadius: '1px', opacity: 0.4 }}></div>
+                        <div style={{ position: 'absolute', bottom: '15px', left: 0, right: 0, height: '35%', background: 'linear-gradient(to bottom, #FFF, #FDFCF9)', borderTop: '2px solid #E0DCD8', opacity: 0.9, zIndex: 5 }}>
+                            <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: '12px', height: '12px', borderRadius: '50%', border: '2px solid #E0DCD8' }}></div>
                         </div>
                     )}
-
-                    {cats.includes('jewelry') || cats.includes('glasses') || cats.includes('scarf') ? (
-                        <div style={{ position: 'absolute', inset: '15%', border: '1px solid #D4AF37', borderRadius: '8px', background: 'rgba(212, 175, 55, 0.03)', zIndex: 1 }}>
-                            <div style={{ position: 'absolute', inset: 0, opacity: 0.1, background: 'radial-gradient(circle, #D4AF37 1px, transparent 1px)', backgroundSize: '10px 10px' }}></div>
-                        </div>
-                    ) : null}
 
                     {count > 0 && !isSelectedMode && (
                         <div style={{
                             position: 'absolute', top: '8px', right: '8px', zIndex: 110,
-                            backgroundColor: '#4A351D', color: '#D4AF37', padding: '2px 10px', borderRadius: '50px',
-                            fontSize: '11px', fontWeight: '900', boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                            border: '1.5px solid #D4AF37', display: 'flex', alignItems: 'center', gap: '3px',
-                            animation: isSuccess ? 'pulse-gold 0.5s repeat-3' : 'none'
+                            backgroundColor: '#3D7A7F', color: 'white', padding: '2px 10px', borderRadius: '50px',
+                            fontSize: '11px', fontWeight: '900', boxShadow: '0 4px 10px rgba(61,122,127,0.15)',
+                            border: '1.5px solid white', display: 'flex', alignItems: 'center', gap: '3px'
                         }}>
                             <Tag size={10} /> {count}
                         </div>
@@ -264,9 +228,9 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
 
                     {isSelectedMode && (
                         <div style={{
-                            position: 'absolute', inset: '10px', background: 'rgba(74, 53, 29, 0.9)',
-                            borderRadius: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                            color: '#D4AF37', zIndex: 120, border: '2px solid #D4AF37', animation: 'pulse-button 0.8s infinite alternate'
+                            position: 'absolute', inset: '10px', background: 'rgba(61, 122, 127, 0.9)',
+                            borderRadius: '12px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                            color: 'white', zIndex: 120, border: '2px solid white', animation: 'pulse-button 0.8s infinite alternate'
                         }}>
                             <Plus size={isSmall ? 18 : 32} strokeWidth={5} />
                             <div style={{ fontSize: isSmall ? '9px' : '12px', fontWeight: '900', marginTop: '4px', letterSpacing: '0.1em' }}>PLACE</div>
@@ -274,13 +238,13 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                     )}
 
                     {(isSelectedMode || isHover || isSuccess) && (
-                        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(212,175,55,0.08)', zIndex: 1, animation: isSuccess ? 'none' : 'magnetic-glow 1s infinite' }}></div>
+                        <div style={{ position: 'absolute', inset: 0, backgroundColor: 'rgba(61,122,127,0.03)', zIndex: 1, animation: isSuccess ? 'none' : 'magnetic-glow 1s infinite' }}></div>
                     )}
 
                     {isSuccess && (
                         <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 150 }}>
-                            <div style={{ animation: 'firework 1s ease-out forwards', opacity: 1, color: '#D4AF37' }}>
-                                <Sparkles size={72} fill="#D4AF37" />
+                            <div style={{ animation: 'firework 1s ease-out forwards', opacity: 1, color: '#3D7A7F' }}>
+                                <Sparkles size={72} fill="#3D7A7F" />
                             </div>
                         </div>
                     )}
@@ -308,16 +272,16 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                                 </div>
                             ) : (
                                 <div style={{ opacity: isSelectedMode ? 0 : 0.08 }}>
-                                    <Star size={isSmall ? 18 : 36} fill="#D4AF37" color="#D4AF37" />
+                                    <Heart size={isSmall ? 18 : 36} fill="#3D7A7F" color="#3D7A7F" />
                                 </div>
                             )}
                         </div>
                     </div>
                 </div>
 
-                {/* Unified Gold Name-plate (v12.0) */}
+                {/* Integrated Label Tag */}
                 <div style={{
-                    marginTop: '10px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px',
+                    marginTop: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '4px',
                     opacity: isSelectedMode ? 0.3 : 1, transition: 'all 0.3s'
                 }}>
                     <div
@@ -328,26 +292,26 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                             }
                         }}
                         style={{
-                            backgroundColor: '#FBF8F1', border: '1.5px solid #D4AF37', borderRadius: '4px',
-                            padding: '3px 14px', fontSize: '11px', fontWeight: '900', color: '#4A351D',
-                            boxShadow: '0 4px 10px rgba(0,0,0,0.06)', letterSpacing: '0.05em', cursor: count > 0 ? 'pointer' : 'default',
-                            display: 'flex', alignItems: 'center', gap: '6px', transition: 'all 0.2s',
+                            backgroundColor: '#F5F5F3', border: '1px solid #E0DCD8', borderRadius: '6px',
+                            padding: '4px 12px', fontSize: '10px', fontWeight: '800', color: '#6B7680',
+                            boxShadow: '0 2px 5px rgba(0,0,0,0.02)', letterSpacing: '0.02em', cursor: count > 0 ? 'pointer' : 'default',
+                            display: 'flex', alignItems: 'center', gap: '5px', transition: 'all 0.2s',
                             position: 'relative'
                         }}
-                        onMouseEnter={e => { if (count > 0) { e.currentTarget.style.backgroundColor = '#D4AF37'; e.currentTarget.style.color = 'white'; } }}
-                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#FBF8F1'; e.currentTarget.style.color = '#4A351D'; }}
+                        onMouseEnter={e => { if (count > 0) { e.currentTarget.style.backgroundColor = '#3D7A7F'; e.currentTarget.style.color = 'white'; e.currentTarget.style.borderColor = '#3D7A7F'; } }}
+                        onMouseLeave={e => { e.currentTarget.style.backgroundColor = '#F5F5F3'; e.currentTarget.style.color = '#6B7680'; e.currentTarget.style.borderColor = '#E0DCD8'; }}
                     >
                         {finalLabel}
-                        {count > 0 && <span style={{ fontSize: '9px', opacity: 0.7 }}>▼</span>}
+                        {count > 0 && <span style={{ fontSize: '8px', opacity: 0.5 }}>▼</span>}
                     </div>
 
                     {customKey && (
                         <div onClick={(e) => { e.stopPropagation(); handleRename(customKey); }}
                             style={{
-                                cursor: 'pointer', pointerEvents: 'auto', backgroundColor: 'white', border: '1px solid #E8E4D9',
-                                width: '20px', height: '20px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                cursor: 'pointer', pointerEvents: 'auto', backgroundColor: 'white', border: '1px solid #E0DCD8',
+                                width: '18px', height: '18px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center'
                             }}>
-                            <Edit2 size={10} color="#D4AF37" />
+                            <Edit2 size={9} color="#3D7A7F" />
                         </div>
                     )}
                 </div>
@@ -361,40 +325,34 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
             <WardrobeLogo total={totalCount} t={t} />
 
             <div style={{ position: 'relative', width: '100%', maxWidth: '420px', margin: '0 auto', padding: '0 15px' }}>
-                <PlushieMascot isActive={!!draggingItem || !!selectedPlacingItem} />
 
-                {/* --- The Closet Cabinet Structure (Architectural Wardrobe v12.2) --- */}
-                <div style={{ position: 'relative', filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.15))' }}>
+                {/* --- The Closet Cabinet Structure (Soft & Dreamy v12.5) --- */}
+                <div style={{ position: 'relative' }}>
 
-                    {/* Cabinet Top Crown (Bold architectural cornice) */}
-                    <div style={{ height: '40px', width: '110%', marginLeft: '-5%', backgroundColor: '#FDFCF9', border: '3px solid #D4AF37', borderBottom: '8px solid #AA771C', borderRadius: '15px 15px 5px 5px', position: 'relative', zIndex: 10, overflow: 'hidden' }}>
-                        <div style={{ position: 'absolute', inset: '6px', border: '1px solid rgba(212,175,55,0.4)', borderRadius: '10px' }}></div>
+                    {/* Solid Minimalist Furniture Top */}
+                    <div style={{ height: '20px', width: '100%', backgroundColor: '#E0DCD8', borderRadius: '4px 4px 0 0', position: 'relative', zIndex: 10 }}>
+                        <div style={{ position: 'absolute', top: '-10px', left: '10%', right: '10%', height: '10px', backgroundColor: '#B8B2AC', borderRadius: '8px 8px 0 0' }}></div>
                     </div>
 
-                    {/* Main Cabinet Body with Thick Pillars */}
+                    {/* Sophisticated Wardrobe Body */}
                     <div style={{
-                        backgroundColor: '#F7F4EB',
-                        padding: '24px',
-                        border: '18px solid #FDFCF9',
+                        backgroundColor: 'white',
+                        padding: '30px 25px',
+                        border: '12px solid #E0DCD8',
                         borderTop: 'none',
-                        borderBottom: '20px solid #FDFCF9',
-                        boxShadow: 'inset 0 10px 40px rgba(0,0,0,0.08)',
+                        borderBottom: '16px solid #E0DCD8',
+                        boxShadow: '0 30px 60px -10px rgba(0,0,0,0.05)',
                         borderRadius: '0 0 40px 40px',
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '25px',
+                        gap: '40px',
                         position: 'relative',
-                        zIndex: 2,
-                        backgroundImage: 'linear-gradient(90deg, #E5E1D1 0%, #FDFCF9 8%, #FDFCF9 92%, #E5E1D1 100%)' // Side pillars shadow effect
+                        zIndex: 2
                     }}>
-                        {/* Golden Inner Trim */}
-                        <div style={{ position: 'absolute', inset: '-6px', border: '3px solid #D4AF37', borderRadius: '0 0 25px 25px', opacity: 0.15, pointerEvents: 'none' }}></div>
-                        <div style={{ position: 'absolute', inset: '-12px', border: '1px solid #D4AF37', borderRadius: '0 0 35px 35px', opacity: 0.08, pointerEvents: 'none' }}></div>
-
-                        <div style={{ display: 'flex', gap: '12px' }}>
-                            <div style={{ width: '40%', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ fontSize: '10px', color: '#888', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em' }}>ACCESSORIES</div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div style={{ display: 'flex', gap: '20px' }}>
+                            <div style={{ width: '40%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ fontSize: '10px', color: '#B8B2AC', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em' }}>ACCESSORIES</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                                     <PhotoShelf label={t('catHat')} zone="hat" cats={['hat']} isSmall={true} />
                                     <PhotoShelf label={t('catJewelry')} zone="jewelry" cats={['jewelry']} isSmall={true} />
                                     <PhotoShelf label={t('catGlasses')} zone="glasses" cats={['glasses']} isSmall={true} />
@@ -405,14 +363,14 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                                     <PhotoShelf label={t('catShoes')} zone="shoes" cats={['shoes']} isSmall={true} />
                                 </div>
                             </div>
-                            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ fontSize: '10px', color: '#888', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em' }}>WARDROBE</div>
-                                <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ flexGrow: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                <div style={{ fontSize: '10px', color: '#B8B2AC', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em' }}>WARDROBE</div>
+                                <div style={{ display: 'flex', gap: '15px' }}>
                                     <PhotoShelf label={t('catOnePiece')} zone="hang-1" cats={['onepiece', 'dress']} isHanging={true} />
                                     <PhotoShelf label={t('catCoat')} zone="hang-2" cats={['outer', 'coat']} isHanging={true} />
                                     <PhotoShelf label={t('catSport')} zone="hang-3" cats={['sport', 'sportswear', 'jersey']} isHanging={true} />
                                 </div>
-                                <div style={{ display: 'flex', gap: '10px', height: '85px' }}>
+                                <div style={{ display: 'flex', gap: '15px', height: '105px' }}>
                                     <PhotoShelf label={t('catBottoms')} zone="bottoms" cats={['skirt', 'pants']} isSmall={true} />
                                     <PhotoShelf label={t('catTops')} zone="tops" cats={['knit', 'tshirt']} isSmall={true} />
                                 </div>
@@ -420,30 +378,27 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                         </div>
 
                         <div style={{ marginTop: '5px' }}>
-                            <div style={{ fontSize: '10px', color: '#D4AF37', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                            <div style={{ fontSize: '10px', color: '#B8B2AC', textAlign: 'center', fontWeight: '900', letterSpacing: '0.2em', marginBottom: '12px' }}>
                                 CUSTOM COLLECTIONS
                             </div>
-                            <div style={{ display: 'flex', gap: '10px' }}>
+                            <div style={{ display: 'flex', gap: '15px' }}>
                                 <PhotoShelf label={t('catCustom1')} zone="custom1" cats={['custom1']} isSmall={true} customKey="custom1" />
                                 <PhotoShelf label={t('catCustom2')} zone="custom2" cats={['custom2']} isSmall={true} customKey="custom2" />
                             </div>
                         </div>
                     </div>
 
-                    {/* Cabinet Base / Legs */}
-                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 50px', marginTop: '-12px', position: 'relative', zIndex: 1 }}>
-                        <div style={{ width: '30px', height: '24px', backgroundColor: '#E5E1D1', borderRadius: '0 0 15px 15px', border: '3px solid #D4AF37', borderTop: 'none', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.1)' }}></div>
-                        <div style={{ width: '30px', height: '24px', backgroundColor: '#E5E1D1', borderRadius: '0 0 15px 15px', border: '3px solid #D4AF37', borderTop: 'none', boxShadow: 'inset 0 -5px 10px rgba(0,0,0,0.1)' }}></div>
+                    {/* Elegant Minimalist Base */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 80px', marginTop: '-4px', position: 'relative', zIndex: 1 }}>
+                        <div style={{ width: '40px', height: '12px', backgroundColor: '#B8B2AC', borderRadius: '0 0 4px 4px' }}></div>
+                        <div style={{ width: '40px', height: '12px', backgroundColor: '#B8B2AC', borderRadius: '0 0 4px 4px' }}></div>
                     </div>
 
-                    {/* Organized Popup (Wardrobe Edition) */}
+                    {/* Organized Popup (Sophisticated Edition) */}
                     {organizedData && (
-                        <div style={{ position: 'absolute', top: '15%', left: '0', right: '0', zIndex: 999, textAlign: 'center', pointerEvents: 'none' }}>
-                            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '4px', backgroundColor: '#4A351D', color: '#D4AF37', padding: '15px 35px', borderRadius: '25px', fontWeight: '900', fontSize: '16px', boxShadow: '0 20px 60px rgba(0,0,0,0.5)', border: '2.5px solid #D4AF37', animation: 'success-pop 0.5s' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <Check size={24} strokeWidth={4} /> 「{organizedData.name}」を整理！
-                                </div>
-                                <div style={{ fontSize: '11px', color: '#FFF9E6', letterSpacing: '0.1em' }}>場所: {organizedData.shelf}</div>
+                        <div style={{ position: 'absolute', top: '30%', left: '0', right: '0', zIndex: 999, textAlign: 'center', pointerEvents: 'none' }}>
+                            <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: '8px', backgroundColor: '#3D7A7F', color: 'white', padding: '18px 45px', borderRadius: '16px', fontWeight: '900', fontSize: '16px', boxShadow: '0 25px 60px rgba(61,122,127,0.3)', border: '4px solid white', animation: 'success-pop 0.5s' }}>
+                                <Check size={28} strokeWidth={4} /> {organizedData.name} を整理！
                             </div>
                         </div>
                     )}
@@ -460,11 +415,11 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                     }}
                 >
                     {sorted['unorganized']?.length > 0 && (
-                        <div style={{ textAlign: 'center', backgroundColor: (selectedPlacingItem || draggingItem) ? '#4A351D' : '#D4AF37', color: 'white', padding: '16px', borderRadius: '40px', fontSize: '15px', fontWeight: '900', marginBottom: '25px', boxShadow: '0 12px 35px rgba(0,0,0,0.2)', animation: 'bounce 2s infinite' }}>
+                        <div style={{ textAlign: 'center', backgroundColor: (selectedPlacingItem || draggingItem) ? '#3D7A7F' : '#E0DCD8', color: 'white', padding: '16px', borderRadius: '16px', fontSize: '14px', fontWeight: '800', marginBottom: '25px', boxShadow: '0 12px 35px rgba(0,0,0,0.05)', animation: 'bounce 2s infinite' }}>
                             {draggingItem ? "移動中！離すとここへ戻ります ✨" : selectedPlacingItem ? "いま選択中！棚のボタンを押してね" : "お洋服を掴んで棚へ運ぼう！"}
                         </div>
                     )}
-                    <div style={{ backgroundColor: 'rgba(255,255,255,0.7)', backdropFilter: 'blur(10px)', borderRadius: '35px', padding: '30px', border: dragOverZone === 'unorganized-box' ? '4px solid #D4AF37' : '4px dashed #D1CDC0', minHeight: '180px', display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center' }}>
+                    <div style={{ backgroundColor: 'white', borderRadius: '24px', padding: '30px', border: dragOverZone === 'unorganized-box' ? '4px solid #3D7A7F' : '2px dashed #E0DCD8', minHeight: '180px', display: 'flex', flexWrap: 'wrap', gap: '20px', justifyContent: 'center', boxShadow: '0 10px 30px rgba(0,0,0,0.02)' }}>
                         {sorted['unorganized']?.length > 0 ? sorted['unorganized'].map(item => {
                             const isSelected = selectedPlacingItem?.id === item.id;
                             const isDraggingNow = draggingItem?.id === item.id;
@@ -475,17 +430,17 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                                     style={{
                                         cursor: 'grab', position: 'relative',
                                         opacity: isDraggingNow ? 0.3 : 1,
-                                        transform: isSelected ? 'scale(1.2) translateY(-10px)' : 'none',
+                                        transform: isSelected ? 'scale(1.15) translateY(-5px)' : 'none',
                                         transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
                                     }}
                                 >
-                                    <div style={{ width: '85px', height: '85px', borderRadius: '24px', overflow: 'hidden', border: isSelected ? '6px solid #D4AF37' : '3px solid white', boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}>
+                                    <div style={{ width: '80px', height: '80px', borderRadius: '16px', overflow: 'hidden', border: isSelected ? '4px solid #3D7A7F' : '3px solid #F8F9FA', boxShadow: '0 8px 16px rgba(0,0,0,0.08)' }}>
                                         <img src={item.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     </div>
                                 </div>
                             );
                         }) : (
-                            <div style={{ opacity: 0.3, textAlign: 'center', padding: '40px' }}><Star size={50} fill="#D4AF37" color="#D4AF37" /><p style={{ fontWeight: '900' }}>すべて整理されました！✨</p></div>
+                            <div style={{ opacity: 0.3, textAlign: 'center', padding: '40px' }}><Heart size={50} fill="#3D7A7F" color="#3D7A7F" /><p style={{ fontWeight: '800', marginTop: '10px' }}>すべて整理されました！✨</p></div>
                         )}
                     </div>
                 </div>
@@ -497,7 +452,7 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                         filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))', animation: 'float 0.3s ease-in-out'
                     }}>
                         <img src={draggingItem.imageUrl} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
-                        <div style={{ position: 'absolute', top: '-10px', right: '-10px' }}><Sparkles color="#D4AF37" fill="#D4AF37" size={30} /></div>
+                        <div style={{ position: 'absolute', top: '-10px', right: '-10px' }}><Sparkles color="#3D7A7F" fill="#3D7A7F" size={30} /></div>
                     </div>
                 )}
 
@@ -517,7 +472,7 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                                 <div>
                                     <h2 style={{ fontSize: '24px', fontWeight: '900', color: '#4A351D', margin: 0 }}>{openShelf.label}</h2>
-                                    <p style={{ fontSize: '12px', color: '#D4AF37', fontWeight: '800', margin: '4px 0 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                    <p style={{ fontSize: '12px', color: '#3D7A7F', fontWeight: '800', margin: '4px 0 0 0', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                                         {openShelf.cats.flatMap(c => sorted[c] || []).length} Items in Showcase
                                     </p>
                                 </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag } from 'lucide-react';
+import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { compressImage } from '../utils/imageUtils';
@@ -344,26 +344,26 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                                            <span>🪡</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                                            <span>🪡</span> {t('handmadeMaterials') || 'Handmade Materials'}
                                         </h4>
-                                        <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{language === 'jp' ? '任意' : 'Optional'}</span>
+                                        <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{t('optional') || 'Optional'}</span>
                                     </div>
 
                                     {/* Pattern Upload */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図をアップ' : 'Upload Pattern'}</label>
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('uploadPattern') || 'Upload Pattern'}</label>
                                         {!formData.patternImage ? (
                                             <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
                                                 <input type="file" onChange={handlePatternUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
                                                 <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
-                                                <p className="text-orange-400 font-bold text-[9px]">{language === 'jp' ? 'タップして画像を選択' : 'Tap to select image'}</p>
+                                                <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelectImage') || 'Tap to select image'}</p>
                                             </div>
                                         ) : (
                                             <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
                                                 <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
                                                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                                     <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
-                                                        {language === 'jp' ? '選び直す' : 'Change'}
+                                                        {t('change') || 'Change'}
                                                         <input type="file" onChange={handlePatternUpload} className="hidden" accept="image/*" />
                                                     </label>
                                                 </div>
@@ -379,7 +379,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
 
                                     {/* Reference URL */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{language === 'jp' ? '作り方の参考URL' : 'Reference URL'}</label>
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrl') || 'Reference URL'}</label>
                                         <input
                                             type="url"
                                             className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
@@ -445,8 +445,8 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                     disabled={!image || isSaving}
                     style={{
                         width: '100%',
-                        backgroundColor: (image && !isSaving) ? '#FBBF24' : '#E5E7EB',
-                        color: (image && !isSaving) ? '#000000' : '#9CA3AF',
+                        backgroundColor: (image && !isSaving) ? '#3D7A7F' : '#E5E7EB',
+                        color: (image && !isSaving) ? '#FFFFFF' : '#9CA3AF',
                         fontWeight: 'bold',
                         padding: '16px',
                         borderRadius: '16px',
@@ -455,7 +455,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '8px',
-                        boxShadow: (image && !isSaving) ? '0 4px 12px rgba(251, 191, 36, 0.4)' : 'none',
+                        boxShadow: (image && !isSaving) ? '0 8px 24px rgba(61, 122, 127, 0.25)' : 'none',
                         cursor: (image && !isSaving) ? 'pointer' : 'not-allowed',
                         transition: 'all 0.2s',
                         opacity: isSaving ? 0.7 : 1

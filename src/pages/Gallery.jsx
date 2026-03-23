@@ -785,7 +785,7 @@ const Gallery = () => {
                                 </div>
 
                                 {/* Comment */}
-                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} onHashtagClick={handleHashtagClick} />}
+                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={handleHashtagClick} />}
 
                                 {/* Shop info */}
                                 {/* Shop info */}

@@ -38,32 +38,6 @@ const UserAvatar = ({ src, alt, className }) => {
   );
 };
 
-const ExpandableText = ({ text, maxLength = 90 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  if (!text) return null;
-  if (text.length <= maxLength) {
-    return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{text}</p>;
-  }
-
-  return (
-    <div className="mb-2">
-      <p className="text-xs text-gray-600 whitespace-pre-wrap">
-        {isExpanded ? text : `${text.slice(0, maxLength)}...`}
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            setIsExpanded(!isExpanded);
-          }}
-          className="ml-1 text-blue-500 font-bold hover:underline inline-block"
-        >
-          {isExpanded ? ' 閉じる' : ' 続きを読む'}
-        </button>
-      </p>
-    </div>
-  );
-};
 
 // --- MAIN CLOSET COMPONENT ---
 const Closet = () => {

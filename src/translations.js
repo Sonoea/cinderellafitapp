@@ -222,6 +222,15 @@ export const translations = {
         hasPatternFilter: "With Pattern",
         linkFallback: (n) => `Product Page ${n}`,
         boughtFromLinks: "Links",
+        userNotFound: "User not found",
+        profileDeleted: "This profile does not exist or has been removed.",
+        backToGallery: "Back to Gallery",
+        userGalleryTitle: (name) => `${name}'s Gallery`,
+        yourProfile: "Your Profile",
+        publicOutfitsCount: (count) => `${count} public outfits`,
+        shareProfile: "Share Profile",
+        copiedToast: "Copied!",
+        noPublicOutfits: "No public outfits yet",
 
         // Measure & Scanner
         editPlushie: "Edit Plushie",
@@ -655,6 +664,15 @@ export const translations = {
         hasPatternFilter: "型紙あり",
         linkFallback: (n) => `商品ページ ${n}`,
         boughtFromLinks: "購入先リンク",
+        userNotFound: "ユーザーが見つかりません",
+        profileDeleted: "このプロフィールは存在しないか、削除されました。",
+        backToGallery: "ギャラリーに戻る",
+        userGalleryTitle: (name) => `${name}さんのギャラリー`,
+        yourProfile: "あなたのプロフィール",
+        publicOutfitsCount: (count) => `${count} 件の公開コーデ`,
+        shareProfile: "プロフィールをシェア",
+        copiedToast: "コピーしました！",
+        noPublicOutfits: "まだ公開コーデはありません",
 
         // 計測 & スキャナー
         editPlushie: "ぬいぐるみを編集",

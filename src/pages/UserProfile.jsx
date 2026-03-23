@@ -38,7 +38,7 @@ const renderTextWithHashtags = (text, onHashtagClick) => {
     });
 };
 
-const ExpandableText = ({ text, maxLength = 90, onHashtagClick }) => {
+const ExpandableText = ({ text, maxLength = 90, onHashtagClick, t }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     if (!text) return null;
     if (text.length <= maxLength) return <p className="text-xs text-gray-600 mb-2 whitespace-pre-wrap">{renderTextWithHashtags(text, onHashtagClick)}</p>;
@@ -47,7 +47,7 @@ const ExpandableText = ({ text, maxLength = 90, onHashtagClick }) => {
             <p className="text-xs text-gray-600 whitespace-pre-wrap">
                 {renderTextWithHashtags(isExpanded ? text : `${text.slice(0, maxLength)}...`, onHashtagClick)}
                 <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsExpanded(!isExpanded); }} className="ml-1 text-blue-500 font-bold hover:underline inline-block">
-                    {isExpanded ? ' 閉じる' : ' 続きを読む'}
+                    {isExpanded ? t('readLess') : t('readMore')}
                 </button>
             </p>
         </div>
@@ -57,7 +57,7 @@ const ExpandableText = ({ text, maxLength = 90, onHashtagClick }) => {
 const UserProfile = () => {
     const { profileSlug } = useParams();
     const { currentUser } = useAuth();
-    const { language } = useApp();
+    const { language, t } = useApp();
     const navigate = useNavigate();
 
     // User profile data
@@ -201,7 +201,7 @@ const UserProfile = () => {
 
     const toggleLike = async (itemId, ownerUid) => {
         if (!currentUser) {
-            if (window.confirm(language === 'jp' ? 'いいねするにはログインが必要です。ログインしますか？' : 'Login required. Go to login?')) navigate('/login');
+            if (window.confirm(t('loginRequiredLike'))) navigate('/login');
             return;
         }
         const bareId = String(itemId).replace(/^local-/, '');
@@ -247,14 +247,14 @@ const UserProfile = () => {
 
     const submitComment = async (itemId, ownerUid) => {
         if (!currentUser) {
-            if (window.confirm(language === 'jp' ? 'コメントするにはログインが必要です。ログインしますか？' : 'Login required. Go to login?')) navigate('/login');
+            if (window.confirm(t('loginRequiredComment'))) navigate('/login');
             return;
         }
         if (!commentText.trim() || isSubmittingComment) return;
         setIsSubmittingComment(true);
         try {
             const bareId = String(itemId).replace(/^local-/, '');
-            let userName = currentUser.displayName || 'Guest';
+            let userName = currentUser.displayName || t('guest');
             let userIcon = currentUser.photoURL || '';
             try {
                 const uDoc = await getDoc(doc(db, 'users', currentUser.uid));
@@ -351,7 +351,7 @@ const UserProfile = () => {
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center">
                     <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto mb-3"></div>
-                    <p className="text-sm text-gray-400">{language === 'jp' ? '読み込み中...' : 'Loading...'}</p>
+                    <p className="text-sm text-gray-400">{t('loading')}</p>
                 </div>
             </div>
         );
@@ -361,11 +361,10 @@ const UserProfile = () => {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
                 <div className="text-center space-y-4">
-                    <div className="text-5xl">😢</div>
-                    <h2 className="text-xl font-bold text-gray-800">{language === 'jp' ? 'ユーザーが見つかりません' : 'User not found'}</h2>
-                    <p className="text-sm text-gray-400">{language === 'jp' ? 'このプロフィールは存在しないか、削除されました。' : 'This profile does not exist or has been removed.'}</p>
+                    <h2 className="text-xl font-bold text-gray-800">{t('userNotFound')}</h2>
+                    <p className="text-sm text-gray-400">{t('profileDeleted')}</p>
                     <Link to="/gallery" className="inline-block px-4 py-2 bg-primary text-white rounded-xl font-bold text-sm hover:bg-primary/90 transition-colors">
-                        {language === 'jp' ? 'ギャラリーに戻る' : 'Back to Gallery'}
+                        {t('backToGallery')}
                     </Link>
                 </div>
             </div>
@@ -377,14 +376,14 @@ const UserProfile = () => {
     return (
         <div className="pb-48">
             <Helmet>
-                <title>{profileUser ? `${profileUser.displayName}さんのギャラリー | CinderellaFit` : 'ユーザープロフィール | CinderellaFit'}</title>
-                <meta name="description" content={profileUser ? `${profileUser.displayName}さんの公開コーディネートをチェックしよう！` : 'CinderellaFit ユーザープロフィール'} />
-                <meta property="og:title" content={profileUser ? `${profileUser.displayName}さんのギャラリー | CinderellaFit` : 'CinderellaFit'} />
-                <meta property="og:description" content={profileUser ? `${profileUser.displayName}さんの公開コーディネートをチェックしよう！` : 'CinderellaFit ユーザープロフィール'} />
+                <title>{profileUser ? `${t('userGalleryTitle', profileUser.displayName)} | CinderellaFit` : `CinderellaFit`}</title>
+                <meta name="description" content={profileUser ? t('userGalleryTitle', profileUser.displayName) : 'CinderellaFit'} />
+                <meta property="og:title" content={profileUser ? `${t('userGalleryTitle', profileUser.displayName)} | CinderellaFit` : 'CinderellaFit'} />
+                <meta property="og:description" content={profileUser ? t('userGalleryTitle', profileUser.displayName) : 'CinderellaFit'} />
                 <meta property="og:image" content={profileUser?.photoURL || 'https://cinderellafitapp.vercel.app/ogp-default.png'} />
                 <meta property="og:url" content={window.location.href} />
-                <meta name="twitter:title" content={profileUser ? `${profileUser.displayName}さんのギャラリー | CinderellaFit` : 'CinderellaFit'} />
-                <meta name="twitter:description" content={profileUser ? `${profileUser.displayName}さんの公開コーディネートをチェックしよう！` : 'CinderellaFit ユーザープロフィール'} />
+                <meta name="twitter:title" content={profileUser ? `${t('userGalleryTitle', profileUser.displayName)} | CinderellaFit` : 'CinderellaFit'} />
+                <meta name="twitter:description" content={profileUser ? t('userGalleryTitle', profileUser.displayName) : 'CinderellaFit'} />
                 <meta name="twitter:image" content={profileUser?.photoURL || 'https://cinderellafitapp.vercel.app/ogp-default.png'} />
             </Helmet>
 
@@ -405,11 +404,11 @@ const UserProfile = () => {
                     <h2 className="text-xl font-black text-gray-800 mb-1">{profileUser?.displayName}</h2>
                     {isOwnProfile && (
                         <span className="inline-block text-[10px] font-bold bg-primary/10 text-primary px-2 py-0.5 rounded-full mb-2">
-                            {language === 'jp' ? 'あなたのプロフィール' : 'Your Profile'}
+                            {t('yourProfile')}
                         </span>
                     )}
                     <p className="text-sm text-gray-400 mb-4">
-                        {userItems.length} {language === 'jp' ? '件の公開コーデ' : 'public outfits'}
+                        {t('publicOutfitsCount', userItems.length)}
                     </p>
 
                     <button
@@ -420,8 +419,8 @@ const UserProfile = () => {
                     >
                         <Share2 size={14} />
                         {copied
-                            ? (language === 'jp' ? 'コピーしました！' : 'Copied!')
-                            : (language === 'jp' ? 'プロフィールをシェア' : 'Share Profile')}
+                            ? t('copiedToast')
+                            : t('shareProfile')}
                     </button>
                 </div>
             </div>
@@ -431,7 +430,7 @@ const UserProfile = () => {
                 {userItems.length === 0 ? (
                     <div className="text-center py-16 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100">
                         <div className="text-4xl mb-3">📭</div>
-                        <p className="font-bold text-gray-600">{language === 'jp' ? 'まだ公開コーデはありません' : 'No public outfits yet'}</p>
+                        <p className="font-bold text-gray-600">{t('noPublicOutfits')}</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-2 gap-3 mb-20">
@@ -504,12 +503,12 @@ const UserProfile = () => {
                                     <span style={{ fontSize: '28px' }}>{['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}</span>
                                 </div>
 
-                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} onHashtagClick={(tag) => navigate(`/gallery?search=${encodeURIComponent(tag)}`)} />}
+                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={(tag) => navigate(`/gallery?search=${encodeURIComponent(tag)}`)} />}
 
                                 {selectedItem.shopName && (
                                     <div className="bg-gray-50 p-3 rounded-xl flex items-center gap-2 text-sm text-gray-500">
                                         <Shirt size={16} />
-                                        <span>{language === 'jp' ? '購入元' : 'From'}: <strong>{selectedItem.shopName}</strong></span>
+                                        <span>{t('boughtFrom')}: <strong>{selectedItem.shopName}</strong></span>
                                     </div>
                                 )}
 
@@ -517,7 +516,7 @@ const UserProfile = () => {
                                 <div ref={commentsRef}>
                                     <h4 className="font-bold text-sm text-gray-600 mb-3 flex items-center gap-2">
                                         <MessageCircle size={16} />
-                                        {language === 'jp' ? 'コメント' : 'Comments'}
+                                        {t('commentsTitle')}
                                         <span className="text-xs text-gray-400">({itemComments[selectedItem.compositeId]?.length || 0})</span>
                                     </h4>
 
@@ -551,7 +550,7 @@ const UserProfile = () => {
                                     {currentUser ? (
                                         <div className="flex gap-2">
                                             <textarea value={commentText} onChange={(e) => setCommentText(e.target.value)}
-                                                placeholder={language === 'jp' ? 'コメントを入力...' : 'Write a comment...'}
+                                                placeholder={t('commentPlaceholder')}
                                                 className="flex-1 bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
                                                 rows={2} />
                                             <button onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
@@ -562,7 +561,7 @@ const UserProfile = () => {
                                         </div>
                                     ) : (
                                         <Link to="/login" className="block text-center text-xs text-primary font-bold bg-primary/5 py-3 rounded-xl">
-                                            {language === 'jp' ? 'ログインしてコメントする' : 'Login to comment'}
+                                            {t('loginToComment')}
                                         </Link>
                                     )}
                                 </div>

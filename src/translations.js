@@ -231,6 +231,9 @@ export const translations = {
         shareProfile: "Share Profile",
         copiedToast: "Copied!",
         noPublicOutfits: "No public outfits yet",
+        handmadeMaterials: "Handmade Materials",
+        patternImageLabel: "Pattern Image",
+        referenceLinkLabel: "Reference Link",
 
         // Measure & Scanner
         editPlushie: "Edit Plushie",
@@ -396,6 +399,7 @@ export const translations = {
         closetTabHelpGuest: "Upload photos to save your outfits! Sign in to share them in the Gallery.",
         loginToShare: "Login required to share publicly",
         galleryTabHelp: "See everyone's outfits! Upload yours from the 'My Outfits' tab.",
+        galleryMetaDesc: "Check out plushie outfit coordinates posted by users!",
         galleryTabHelpGuest: "Sign in to see everyone's outfits and share your own!",
         plushiesTabHelp: "Register your plushies here to link them to outfits.",
         tapToTakePhoto: "Tap to Take or Upload Photo",
@@ -673,6 +677,9 @@ export const translations = {
         shareProfile: "プロフィールをシェア",
         copiedToast: "コピーしました！",
         noPublicOutfits: "まだ公開コーデはありません",
+        handmadeMaterials: "ハンドメイド資料",
+        patternImageLabel: "型紙・製作図",
+        referenceLinkLabel: "作り方の参考",
 
         // 計測 & スキャナー
         editPlushie: "ぬいぐるみを編集",
@@ -727,6 +734,7 @@ export const translations = {
         closetTabHelpGuest: "写真をアップしてコーデを保存！ログインすると「ギャラリー」でみんなにシェアできます。",
         loginToShare: "公開するにはログインが必要です",
         galleryTabHelp: "みんなのコーデをチェック！自分の写真は「マイコーデ」タブから追加できます。",
+        galleryMetaDesc: "ユーザーのみなさんが投稿したぬいぐるみのお洋服コーディネートをチェック！",
         galleryTabHelpGuest: "ログインするとみんなのコーデが見られます。自分のコーデもシェアしよう！",
         plushiesTabHelp: "ぬいぐるみを登録して、コーデ写真と紐付けよう。",
         tapToTakePhoto: "写真を撮る / アルバムから選択",

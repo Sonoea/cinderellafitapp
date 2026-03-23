@@ -511,9 +511,9 @@ const Gallery = () => {
         <div className="pb-48">
             <Helmet>
                 <title>{t('everyonesGallery')} | CinderellaFit</title>
-                <meta name="description" content={language === 'jp' ? 'ユーザーのみなさんが投稿したぬいぐるみのお洋服コーディネートをチェック！' : 'Check out plushie outfit coordinates posted by users!'} />
+                <meta name="description" content={t('galleryMetaDesc')} />
                 <meta property="og:title" content={t('everyonesGallery')} />
-                <meta property="og:description" content={language === 'jp' ? 'ユーザーのみなさんが投稿したぬいぐるみのお洋服コーディネートをチェック！' : 'Check out plushie outfit coordinates posted by users!'} />
+                <meta property="og:description" content={t('galleryMetaDesc')} />
                 <meta property="og:url" content={window.location.href} />
             </Helmet>
             {/* Header */}
@@ -831,12 +831,12 @@ const Gallery = () => {
                                 {(selectedItem.patternImage || selectedItem.referenceUrl) && (
                                     <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
                                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                                            <span>📖</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                                            <span>📖</span> {t('handmadeMaterials')}
                                         </h4>
 
                                         {selectedItem.patternImage && (
                                             <div className="space-y-2">
-                                                <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図' : 'Pattern Image'}</p>
+                                                <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{t('patternImageLabel')}</p>
                                                 <div className="relative group">
                                                     <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
                                                 </div>
@@ -845,7 +845,7 @@ const Gallery = () => {
 
                                         {selectedItem.referenceUrl && (
                                             <div className="space-y-2">
-                                                <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '作り方の参考' : 'Reference Link'}</p>
+                                                <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{t('referenceLinkLabel')}</p>
                                                 <a
                                                     href={selectedItem.referenceUrl}
                                                     target="_blank"
@@ -869,7 +869,7 @@ const Gallery = () => {
                                 <div ref={commentsRef}>
                                     <h4 className="font-bold text-sm text-gray-600 mb-3 flex items-center gap-2">
                                         <MessageCircle size={16} />
-                                        {language === 'jp' ? 'コメント' : 'Comments'}
+                                        {t('commentsTitle')}
                                         <span className="text-xs text-gray-400">({itemComments[selectedItem.compositeId]?.length || 0})</span>
                                     </h4>
 
@@ -910,7 +910,7 @@ const Gallery = () => {
                                             <textarea
                                                 value={commentText}
                                                 onChange={(e) => setCommentText(e.target.value)}
-                                                placeholder={language === 'jp' ? 'コメントを入力...' : 'Write a comment...'}
+                                                placeholder={t('commentPlaceholder')}
                                                 className="flex-1 bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
                                                 rows={2}
                                             />
@@ -924,7 +924,7 @@ const Gallery = () => {
                                         </div>
                                     ) : (
                                         <Link to="/login" className="block text-center text-xs text-primary font-bold bg-primary/5 py-3 rounded-xl hover:bg-primary/10 transition-colors">
-                                            {language === 'jp' ? 'ログインしてコメントする' : 'Login to comment'}
+                                            {t('loginToComment')}
                                         </Link>
                                     )}
                                 </div>

@@ -602,7 +602,6 @@ const Gallery = () => {
                                 ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
                                 : 'bg-white text-orange-400 border-orange-200'}`}
                         >
-                            <span>📖</span>
                             <span className="whitespace-nowrap">{t('hasPatternFilter')}</span>
                         </button>
                     </div>

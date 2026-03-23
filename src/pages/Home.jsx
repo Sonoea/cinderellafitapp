@@ -20,7 +20,7 @@ const getLocationFlag = (location) => {
         if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom')) return '🇬🇧';
         if (loc.includes('korea') || loc.includes('seoul')) return '🇰🇷';
         if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing')) return '🇨🇳';
-        if (loc.includes('taiwan')) return '🇹🇼';
+        if (loc.includes('taiwan') || loc.includes('台湾')) return '🇹🇼';
         if (loc.includes('germany') || loc.includes('berlin')) return '🇩🇪';
         if (loc.includes('italy') || loc.includes('rome')) return '🇮🇹';
         if (loc.includes('spain') || loc.includes('madrid')) return '🇪🇸';
@@ -62,8 +62,8 @@ const Home = () => {
 
                         items.push({
                             id: doc.id,
-                            userName: data.userName || 'ゲスト',
-                            itemName: data.itemName || data.name || 'コーデ',
+                            userName: data.userName || t('guestUser'),
+                            itemName: data.itemName || data.name || t('clothing'),
                             createdAt: data.createdAt || '',
                             userIcon: data.userIcon || '',
                             plushieName: data.plushieName || '',
@@ -142,10 +142,10 @@ const Home = () => {
             const diffMin = Math.floor(diffMs / 60000);
             const diffHour = Math.floor(diffMs / 3600000);
             const diffDay = Math.floor(diffMs / 86400000);
-            if (diffMin < 1) return language === 'jp' ? 'たった今' : 'Just now';
-            if (diffMin < 60) return language === 'jp' ? `${diffMin}分前` : `${diffMin}m ago`;
-            if (diffHour < 24) return language === 'jp' ? `${diffHour}時間前` : `${diffHour}h ago`;
-            if (diffDay < 7) return language === 'jp' ? `${diffDay}日前` : `${diffDay}d ago`;
+            if (diffMin < 1) return t('justNow');
+            if (diffMin < 60) return t('timeAgo', diffMin, language === 'jp' ? '分' : 'm');
+            if (diffHour < 24) return t('timeAgo', diffHour, language === 'jp' ? '時間' : 'h');
+            if (diffDay < 7) return t('timeAgo', diffDay, language === 'jp' ? '日' : 'd');
             return date.toLocaleDateString();
         } catch {
             return '';
@@ -172,12 +172,10 @@ const Home = () => {
                         </span>
                     </h1>
                     <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600', marginTop: '1px', letterSpacing: '-0.01em' }}>
-                        {language === 'jp' ? 'サイズ失敗、もうしない。' : 'Never buy the wrong size again'}
+                        {t('appSubtitle')}
                     </p>
                     <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '1px' }}>
-                        {language === 'jp'
-                            ? 'ぬいぐるみ服のサイズ比較・判断支援アプリ'
-                            : 'Size comparison tool for plushie clothing'}
+                        {t('appDescription')}
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -202,7 +200,7 @@ const Home = () => {
                     >
                         <Settings size={14} style={{ color: 'var(--primary)' }} />
                         <span style={{ fontSize: '11px', fontWeight: '600', color: 'var(--primary)' }}>
-                            {language === 'jp' ? '設定・ガイド' : 'Settings & Guide'}
+                            {t('settingsAndGuide')}
                         </span>
                     </Link>
                 </div>
@@ -226,12 +224,10 @@ const Home = () => {
                         </div>
                         <div className="flex-1">
                             <h3 style={{ color: 'white', fontWeight: '700', fontSize: '12px', marginBottom: '0' }}>
-                                {language === 'jp' ? 'デバイス間でデータを同期' : 'Sync Your Data'}
+                                {t('syncDataTitle')}
                             </h3>
                             <p style={{ color: 'rgba(255, 255, 255, 0.95)', fontSize: '10px' }}>
-                                {language === 'jp'
-                                    ? 'ログインして、どこからでもぬいぐるみを管理'
-                                    : 'Login to manage your plushies anywhere'}
+                                {t('syncDataDesc')}
                             </p>
                         </div>
                     </div>
@@ -246,7 +242,7 @@ const Home = () => {
                         }}
                     >
                         <LogIn size={14} />
-                        {language === 'jp' ? 'ログイン / 新規登録' : 'Login / Sign Up'}
+                        {t('login') || 'Login / Sign Up'}
                     </Link>
                 </div>
             )}
@@ -270,10 +266,10 @@ const Home = () => {
                 }}>
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '14px' }}>📖</span>
-                        {language === 'jp' ? 'かんたん3ステップ' : 'Easy 3 Steps'}
+                        {t('easy3Steps')}
                     </span>
                     <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '600' }}>
-                        {language === 'jp' ? '詳しく見る' : 'Details'} →
+                        {t('details')} →
                     </span>
                 </h3>
                 <div className="flex justify-between gap-2">
@@ -292,10 +288,10 @@ const Home = () => {
                             🧸
                         </div>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {language === 'jp' ? '1. 採寸' : '1. Measure'}
+                            {t('step1TitleRaw')}
                         </p>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {language === 'jp' ? 'ぬいのサイズ登録' : 'Register size'}
+                            {t('step1DescRaw')}
                         </p>
                     </div>
                     <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
@@ -314,10 +310,10 @@ const Home = () => {
                             👗
                         </div>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {language === 'jp' ? '2. 登録' : '2. Register'}
+                            {t('step2TitleRaw')}
                         </p>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {language === 'jp' ? '服を撮影して保存' : 'Save outfit photo'}
+                            {t('step2DescRaw')}
                         </p>
                     </div>
                     <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
@@ -336,10 +332,10 @@ const Home = () => {
                             ✨
                         </div>
                         <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {language === 'jp' ? '3. 公開' : '3. Share'}
+                            {t('step3TitleRaw')}
                         </p>
                         <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {language === 'jp' ? 'ギャラリーでシェア' : 'Share to gallery'}
+                            {t('step3DescRaw')}
                         </p>
                     </div>
                 </div>
@@ -371,7 +367,7 @@ const Home = () => {
                     </div>
                     <div className="flex-1">
                         <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            {language === 'jp' ? 'マイクローゼット' : 'My Closet'}
+                            {t('myCloset')}
                             <span style={{
                                 fontSize: '8px',
                                 fontWeight: '700',
@@ -383,9 +379,7 @@ const Home = () => {
                             }}>NEW</span>
                         </h3>
                         <p style={{ fontSize: '9px', color: 'var(--text-light)', marginTop: '0' }}>
-                            {language === 'jp'
-                                ? 'お気に入りのコーデを登録してシェアしよう！'
-                                : 'Save & share your favorite outfits!'}
+                            {t('closetTabHelp')}
                         </p>
                     </div>
                     <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
@@ -412,7 +406,7 @@ const Home = () => {
                                 letterSpacing: '-0.01em'
                             }}>
                                 <span>🔔</span>
-                                {language === 'jp' ? 'みんなの最新コーデ' : 'Latest Outfits'}
+                                {t('latestOutfits')}
                             </h3>
                             <Link
                                 to="/gallery"
@@ -425,7 +419,7 @@ const Home = () => {
                                     gap: '2px'
                                 }}
                             >
-                                {language === 'jp' ? 'もっと見る' : 'See all'}
+                                {t('seeAll')}
                                 <span>→</span>
                             </Link>
                         </div>
@@ -492,9 +486,9 @@ const Home = () => {
                                     <div className="flex-1 min-w-0">
                                         <p style={{ color: 'var(--text-main)', fontSize: '11px', lineHeight: '1.4' }}>
                                             <span className="font-semibold">{post.userName}</span>
-                                            {language === 'jp' ? 'が' : ' shared '}
+                                            {t('sharedAction')}
                                             <span className="font-semibold" style={{ color: 'var(--primary)' }}>{post.itemName}</span>
-                                            {language === 'jp' ? 'を公開' : ''}
+                                            {t('sharedSuffix')}
                                         </p>
                                     </div>
                                     <span style={{ fontSize: '9px', color: 'var(--text-light)', flexShrink: 0, whiteSpace: 'nowrap', fontWeight: 400 }}>
@@ -518,7 +512,7 @@ const Home = () => {
                             {t('plushieCount', userAddedPlushieCount, plushieLimit)}
                             {plushieLimit !== Infinity && (
                                 <span style={{ marginLeft: '4px', color: 'var(--secondary)' }}>
-                                    {language === 'jp' ? '（現状）' : '(Current)'}
+                                    {t('currentLabel')}
                                 </span>
                             )}
                         </p>
@@ -588,7 +582,7 @@ const Home = () => {
                                 <Link
                                     to={`/measure?edit=${plushie.id}`}
                                     className="absolute top-0 right-0 p-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200 z-20"
-                                    title={language === 'jp' ? 'サイズを編集' : 'Edit Size'}
+                                    title={t('editSizeTitle')}
                                     style={{
                                         background: 'white',
                                         color: 'var(--primary)',
@@ -629,7 +623,7 @@ const Home = () => {
                     style={{ fontSize: '11px', color: 'var(--text-light)' }}
                     className="hover:text-primary transition-colors"
                 >
-                    {language === 'jp' ? 'プライバシーポリシー・利用規約' : 'Privacy Policy & Terms'}
+                    {t('privacyPolicyTerms')}
                 </Link>
             </footer>
         </div >

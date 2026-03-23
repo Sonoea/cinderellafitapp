@@ -71,7 +71,7 @@ const Measure = () => {
         if (file) {
             // 10MB Limit
             if (file.size > 10 * 1024 * 1024) {
-                alert(language === 'jp' ? "画像サイズが大きすぎます（最大10MB）" : "Image size too large (Max 10MB)");
+                alert(t('imageTooLarge'));
                 return;
             }
 
@@ -80,7 +80,7 @@ const Measure = () => {
                 setFormData({ ...formData, image: compressedDataUrl });
             } catch (error) {
                 console.error("Image processing failed", error);
-                alert(language === 'jp' ? "画像の処理に失敗しました" : "Failed to process image");
+                alert(t('imageProcessError'));
             }
         }
     };
@@ -148,7 +148,7 @@ const Measure = () => {
 
     return (
         <div className="flex flex-col h-full fade-in pb-20">
-            <h2 className="mb-4">{isEditMode ? (language === 'jp' ? 'ぬいぐるみを編集' : 'Edit Plushie') : t('newMeasurement')}</h2>
+            <h2 className="mb-4">{isEditMode ? t('editPlushie') : t('newMeasurement')}</h2>
 
             {/* AI Scan Button - 目立つ位置 */}
             {!isEditMode && (
@@ -164,7 +164,7 @@ const Measure = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" style={{ animation: 'shimmer 3s ease infinite', backgroundSize: '200% 100%' }} />
                     <Sparkles size={24} className="relative z-10" />
                     <span className="relative z-10">
-                        {language === 'jp' ? '✨ AIスキャンで自動採寸' : '✨ AI Auto-Measure'}
+                        {t('aiAutoMeasure')}
                     </span>
                     <Scan size={20} className="relative z-10 opacity-60" />
                 </button>
@@ -189,7 +189,7 @@ const Measure = () => {
                             onChange={handleImageChange}
                         />
                     </label>
-                    <span className="text-xs font-bold text-gray-400 mt-1">{t('uploadPhoto') || '写真をアップロード'}</span>
+                    <span className="text-xs font-bold text-gray-400 mt-1">{t('uploadPhoto')}</span>
                     <span className="text-[10px] text-gray-400 mt-0.5">(Max 10MB)</span>
                 </div>
                 <div>
@@ -301,7 +301,7 @@ const Measure = () => {
                     className="mt-4 w-full py-4 rounded-xl text-white font-bold text-lg shadow-lg hover-scale"
                     style={{ backgroundColor: 'var(--primary)' }}
                 >
-                    {isEditMode ? (language === 'jp' ? '更新する' : 'Update') : t('saveProfile')}
+                    {isEditMode ? t('updateBtn') : t('saveProfile')}
                 </button>
 
                 {isEditMode && (
@@ -311,13 +311,13 @@ const Measure = () => {
                             onClick={() => navigate('/')}
                             className="w-full py-2 rounded-xl text-gray-400 font-bold hover:bg-gray-100"
                         >
-                            {language === 'jp' ? 'キャンセル' : 'Cancel'}
+                            {t('cancelBtn')}
                         </button>
 
                         <button
                             type="button"
                             onClick={() => {
-                                if (window.confirm(language === 'jp' ? '本当に削除しますか？' : 'Are you sure you want to delete this plushie?')) {
+                                if (window.confirm(t('deleteConfirmPlushie'))) {
                                     deletePlushie(Number(editId));
                                     navigate('/');
                                 }
@@ -325,7 +325,7 @@ const Measure = () => {
                             className="w-full py-3 rounded-xl text-red-500 font-bold hover:bg-red-50 flex items-center justify-center gap-2 mt-2"
                         >
                             <Trash2 size={18} />
-                            {language === 'jp' ? 'このぬいぐるみを削除' : 'Delete Plushie'}
+                            {t('deletePlushieBtn')}
                         </button>
                     </>
                 )}
@@ -335,6 +335,7 @@ const Measure = () => {
             {showScanner && (
                 <CameraScanner
                     language={language}
+                    t={t}
                     onMeasurementsDetected={handleScanResults}
                     onClose={() => setShowScanner(false)}
                 />

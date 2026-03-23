@@ -468,7 +468,7 @@ const Closet = () => {
           </h2>
           <Link to="/gallery" className="flex items-center gap-1.5 text-xs font-bold bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-full hover:bg-primary/5 hover:text-primary hover:border-primary/30 transition-all shadow-sm">
             <Users size={14} />
-            <span>みんなのギャラリー</span>
+            <span>{t('everyonesGallery')}</span>
           </Link>
         </div>
       </div>
@@ -553,7 +553,7 @@ const Closet = () => {
                 className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'shelf' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
               >
                 <Library size={14} />
-                <span className="text-[10px]">ワードローブ</span>
+                <span className="text-[10px]">{t('wardrobeTitle')}</span>
               </button>
             </div>
 
@@ -576,7 +576,7 @@ const Closet = () => {
                   fontWeight: '900'
                 }}
               >
-                <b>すべて</b>
+                <b>{t('categoryAll')}</b>
               </button>
               {plushies.map(p => (
                 <button
@@ -614,7 +614,7 @@ const Closet = () => {
                   fontWeight: '900'
                 }}
               >
-                <b>すべて</b>
+                <b>{t('categoryAll')}</b>
               </button>
               {[1, 2, 3].map(rating => (
                 <button

@@ -11,22 +11,7 @@ import VirtualFitting3D from '../components/VirtualFitting3D';
 const API_BASE = import.meta.env.DEV ? 'https://cinderellafitapp.vercel.app' : '';
 
 const Shop = () => {
-    const { plushies, language, setLanguage } = useApp();
-
-    // ユーザーの要望により、Shop画面では強制的に日本語に統一する
-    useEffect(() => {
-        if (language !== 'jp' && setLanguage) {
-            setLanguage('jp');
-        }
-    }, [language, setLanguage]);
-    const t = (key) => {
-        const keys = key.split('.');
-        let value = translations[language];
-        for (const k of keys) {
-            value = value?.[k];
-        }
-        return value || key;
-    };
+    const { plushies, language, t } = useApp();
 
     const [selectedId, setSelectedId] = useState(plushies[0]?.id || null);
     const [url, setUrl] = useState('');
@@ -69,18 +54,18 @@ const Shop = () => {
                 ctx.drawImage(img, 0, 0);
                 resolve(canvas.toDataURL('image/png'));
             };
-            img.onerror = () => reject(new Error('画像の読み込みに失敗しました'));
+            img.onerror = () => reject(new Error(t('imageLoadError')));
             img.src = src;
         });
     };
 
     const handleAiTryon = async () => {
         if (!selectedPlushie?.image) {
-            setAiTryonError('ぬいぐるみのプロフィール写真を設定してください');
+            setAiTryonError(t('plushiePhotoRequired'));
             return;
         }
         if (!product) {
-            setAiTryonError('先に商品URLを分析してください');
+            setAiTryonError(t('analyzeUrlFirst'));
             return;
         }
         setAiTryonLoading(true);
@@ -161,7 +146,7 @@ const Shop = () => {
             }
 
             if (!garmentImg) {
-                setAiTryonError('商品画像を取得できませんでした。この商品のAI試着には対応していない可能性があります。');
+                setAiTryonError(t('aiTryonNoImage'));
                 setAiTryonLoading(false);
                 return;
             }
@@ -204,10 +189,10 @@ const Shop = () => {
             if (data.success) {
                 setAiTryonResult(data.resultImage);
             } else {
-                setAiTryonError(data.error || 'AI試着に失敗しました');
+                setAiTryonError(data.error || t('aiTryonGenericError'));
             }
         } catch (err) {
-            setAiTryonError('通信エラーが発生しました: ' + err.message);
+            setAiTryonError(t('networkError') + ': ' + err.message);
         } finally {
             setAiTryonLoading(false);
         }
@@ -275,7 +260,7 @@ const Shop = () => {
                 if (response.status === 422) {
                     const errData = await response.json();
                     if (errData.error === 'MERCARI_SHOPS_NOT_SUPPORTED') {
-                        throw new Error(errData.message + '商品説明をコピーして手動で入力してください。');
+                        throw new Error(errData.message + t('mercariNotSupported'));
                     }
                 }
 
@@ -349,7 +334,7 @@ const Shop = () => {
 
                 setProduct({
                     url: url,
-                    name: data.product?.title || '商品',
+                    name: data.product?.title || t('productPlaceholder'),
                     description: data.product?.description,
                     image: data.product?.image,
                     originalImageUrl: data.product?.image,
@@ -405,9 +390,9 @@ const Shop = () => {
 
             setProduct({
                 url: url,
-                name: '商品',
+                name: t('productPlaceholder'),
                 detectedSize: '',
-                error: error.message || 'サーバーに接続できませんでした。手動でサイズを入力してください。',
+                error: error.message || t('serverError'),
             });
         }
     };
@@ -479,7 +464,7 @@ const Shop = () => {
 
                 setProduct({
                     url: url || null,
-                    name: manualProductName || '手動入力した商品',
+                    name: manualProductName || t('productPlaceholder'),
                     description: manualText.substring(0, 200),
                     image: null,
                     detectedSize: sizeText,
@@ -493,8 +478,8 @@ const Shop = () => {
             } else {
                 setProduct({
                     url: null,
-                    name: manualProductName || '商品',
-                    error: data.error || 'テキストからサイズを検出できませんでした',
+                    name: manualProductName || t('productPlaceholder'),
+                    error: data.error || t('aiTryonGenericError'),
                 });
             }
         } catch (error) {
@@ -587,13 +572,13 @@ const Shop = () => {
                             onClick={() => setInputMode('url')}
                             className={`flex - 1 py - 2 px - 3 rounded - lg text - xs font - bold transition ${inputMode === 'url' ? 'bg-white text-primary shadow-sm' : 'text-gray-500 hover:text-gray-700'} `}
                         >
-                            🔗 URL入力
+                            🔗 {t('urlInputMode')}
                         </button>
                         <button
                             onClick={() => setInputMode('photo')}
                             className={`flex - 1 py - 2 px - 3 rounded - lg text - xs font - bold transition ${inputMode === 'photo' ? 'bg-white text-purple-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'} `}
                         >
-                            📷 写真で入力
+                            📷 {t('photoInputMode')}
                         </button>
                     </div>
 
@@ -711,17 +696,17 @@ const Shop = () => {
                             <div className="border-2 border-dashed border-purple-300 rounded-xl p-4 text-center bg-purple-50/50">
                                 {photoImage ? (
                                     <div className="relative">
-                                        <img src={photoImage} alt="商品写真" className="max-h-48 mx-auto rounded-lg object-contain" />
+                                        <img src={photoImage} alt={t('productPlaceholder')} className="max-h-48 mx-auto rounded-lg object-contain" />
                                         <button onClick={() => setPhotoImage(null)} className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full text-xs flex items-center justify-center">✕</button>
-                                        <p className="text-[10px] text-green-600 mt-1 font-bold">✅ 写真がセットされました</p>
+                                        <p className="text-[10px] text-green-600 mt-1 font-bold">✅ {t('photoSelected')}</p>
                                     </div>
                                 ) : (
                                     <div>
                                         <div className="text-3xl mb-2">📷</div>
-                                        <p className="text-xs text-purple-700 font-bold mb-2">商品の写真をアップロード</p>
+                                        <p className="text-xs text-purple-700 font-bold mb-2">{t('uploadProductPhoto')}</p>
                                         <div className="flex gap-2 justify-center">
                                             <label className="px-4 py-2 bg-purple-600 text-white rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-700 transition">
-                                                カメラで撮影
+                                                {t('takePhoto')}
                                                 <input type="file" accept="image/*" capture="environment" style={{ display: 'none' }} onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
@@ -740,7 +725,7 @@ const Shop = () => {
                                                 }} />
                                             </label>
                                             <label className="px-4 py-2 bg-white text-purple-600 border border-purple-300 rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-50 transition">
-                                                アルバムから選択
+                                                {t('selectFromAlbum')}
                                                 <input type="file" accept="image/*" style={{ display: 'none' }} onChange={(e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
@@ -764,22 +749,22 @@ const Shop = () => {
                             </div>
 
                             {/* 商品名 */}
-                            <input type="text" value={photoProductName} onChange={(e) => setPhotoProductName(e.target.value)} placeholder="商品名（例: ジャージ上下 イエロー）" className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
+                            <input type="text" value={photoProductName} onChange={(e) => setPhotoProductName(e.target.value)} placeholder={t('productNamePlaceholder')} className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
 
                             {/* サイズ入力 */}
                             <div className="bg-gray-50 rounded-xl p-3">
-                                <p className="text-xs font-bold text-gray-700 mb-2">📏 サイズ情報（わかる範囲でOK）</p>
+                                <p className="text-xs font-bold text-gray-700 mb-2">📏 {t('sizeInfoTitleRaw')}</p>
                                 <div className="grid grid-cols-3 gap-2">
                                     <div>
-                                        <label className="text-[10px] text-gray-500 block mb-1">首周り(cm)</label>
+                                        <label className="text-[10px] text-gray-500 block mb-1">{t('neckLabel')}(cm)</label>
                                         <input type="number" value={photoSizeNeck} onChange={(e) => setPhotoSizeNeck(e.target.value)} placeholder="例: 11" className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] text-gray-500 block mb-1">ウエスト(cm)</label>
+                                        <label className="text-[10px] text-gray-500 block mb-1">{t('waistLabel')}(cm)</label>
                                         <input type="number" value={photoSizeWaist} onChange={(e) => setPhotoSizeWaist(e.target.value)} placeholder="例: 13" className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
                                     </div>
                                     <div>
-                                        <label className="text-[10px] text-gray-500 block mb-1">着丈(cm)</label>
+                                        <label className="text-[10px] text-gray-500 block mb-1">{t('lengthLabel')}(cm)</label>
                                         <input type="number" value={photoSizeLength} onChange={(e) => setPhotoSizeLength(e.target.value)} placeholder="例: 10" className="w-full px-2 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300" />
                                     </div>
                                 </div>
@@ -793,8 +778,8 @@ const Shop = () => {
                                     const waist = parseFloat(photoSizeWaist) || 0;
                                     const length = parseFloat(photoSizeLength) || 0;
                                     const sizeInfo = { targetPlushieSize: 0, sizeRanges: [], dimensions: neck || waist || length ? [{ neck, width: waist, length, itemLength: length }] : [], measurements: { neck, waist, length }, clothingType: 'tops' };
-                                    if (waist > 0) { const estimated = Math.round(waist / Math.PI * 2 * 3); setProductSizeMin(Math.max(estimated - 3, 5)); setProductSizeMax(estimated + 3); setProductTargetSize(`${estimated} cm前後（推定）`); }
-                                    setProduct({ url: null, name: photoProductName || '商品（写真入力）', description: `首周り:${neck || '不明'}cm ウエスト:${waist || '不明'}cm 着丈:${length || '不明'} cm`, image: photoImage, originalImageUrl: null, detectedSize: waist ? `ウエスト${waist} cm` : '', rawSizeInfo: sizeInfo });
+                                    if (waist > 0) { const estimated = Math.round(waist / Math.PI * 2 * 3); setProductSizeMin(Math.max(estimated - 3, 5)); setProductSizeMax(estimated + 3); setProductTargetSize(`${estimated} cm ${t('estimatedLabel')}`); }
+                                    setProduct({ url: null, name: photoProductName || t('productPlaceholder'), description: `${t('neck')}:${neck || '不明'}cm ${t('waist')}:${waist || '不明'}cm ${t('length')}:${length || '不明'} cm`, image: photoImage, originalImageUrl: null, detectedSize: waist ? `${t('waist')}${waist} cm` : '', rawSizeInfo: sizeInfo });
                                     setAiTryonResult(null); setAiTryonError(null);
                                 }}
                                 disabled={!photoImage}
@@ -1100,14 +1085,14 @@ const Shop = () => {
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
                         <div className="flex items-center gap-2 mb-3">
                             <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">✨</div>
-                            <h2 className="font-bold text-gray-800">AI試着</h2>
+                            <h2 className="font-bold text-gray-800">{t('aiTryonHeading')}</h2>
                             <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">β</span>
                         </div>
 
                         {!aiTryonResult && !aiTryonLoading && (
                             <div className="text-center">
                                 <p className="text-xs text-gray-500 mb-3">
-                                    AIが{selectedPlushie?.name || 'ぬいぐるみ'}に商品を着せた画像を生成します（5〜15秒）
+                                    {t('aiTryonDesc', selectedPlushie?.name || t('guest'))}
                                 </p>
                                 <button
                                     onClick={handleAiTryon}
@@ -1120,11 +1105,11 @@ const Shop = () => {
                                         cursor: selectedPlushie?.image ? 'pointer' : 'not-allowed',
                                     }}
                                 >
-                                    ✨ AI試着する
+                                    {t('aiTryonBtn')}
                                 </button>
                                 {!selectedPlushie?.image && (
                                     <p className="text-[10px] text-orange-500 mt-2">
-                                        ⚠️ ぬいぐるみのプロフィール写真を設定してください
+                                        ⚠️ {t('plushiePhotoRequired')}
                                     </p>
                                 )}
                             </div>
@@ -1140,8 +1125,8 @@ const Shop = () => {
                                     animation: 'spin 1s linear infinite',
                                     margin: '0 auto 12px',
                                 }} />
-                                <p className="text-sm font-bold text-purple-700">🤖 AIが試着画像を生成中...</p>
-                                <p className="text-xs text-gray-400 mt-1">通常5〜15秒かかります</p>
+                                <p className="text-sm font-bold text-purple-700">{t('aiTryonLoadingMsg')}</p>
+                                <p className="text-xs text-gray-400 mt-1">{t('aiTryonLoadingSub')}</p>
                                 <style>{`@keyframes spin { to { transform: rotate(360deg); } } `}</style>
                             </div>
                         )}
@@ -1159,12 +1144,12 @@ const Shop = () => {
                                         border: '2px solid #e5e7eb',
                                     }}
                                 />
-                                <p className="text-xs text-green-600 font-bold mt-2">✅ AI試着完了！</p>
+                                <p className="text-xs text-green-600 font-bold mt-2">{t('aiTryonComplete')}</p>
                                 <button
                                     onClick={() => { setAiTryonResult(null); setAiTryonError(null); }}
                                     className="mt-2 text-xs text-purple-600 underline"
                                 >
-                                    もう一度試す
+                                    {t('tryAgain')}
                                 </button>
                             </div>
                         )}
@@ -1176,7 +1161,7 @@ const Shop = () => {
                                     onClick={() => setAiTryonError(null)}
                                     className="mt-1 text-xs text-red-500 underline"
                                 >
-                                    閉じる
+                                    {t('close')}
                                 </button>
                             </div>
                         )}

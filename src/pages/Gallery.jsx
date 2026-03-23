@@ -33,7 +33,7 @@ const getLocationFlag = (location) => {
     if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom')) return '🇬🇧';
     if (loc.includes('korea') || loc.includes('seoul')) return '🇰🇷';
     if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing')) return '🇨🇳';
-    if (loc.includes('taiwan')) return '🇹🇼';
+    if (loc.includes('taiwan') || loc.includes('台湾')) return '🇹🇼';
     if (loc.includes('germany') || loc.includes('berlin')) return '🇩🇪';
     if (loc.includes('italy') || loc.includes('rome')) return '🇮🇹';
     if (loc.includes('spain') || loc.includes('madrid')) return '🇪🇸';
@@ -63,7 +63,7 @@ const renderTextWithHashtags = (text, onHashtagClick) => {
     });
 };
 
-const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSentence = false }) => {
+const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSentence = false, t }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     if (!text) return null;
 
@@ -85,7 +85,7 @@ const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSen
             <p className="text-xs text-gray-600 whitespace-pre-wrap">
                 {renderTextWithHashtags(isExpanded ? text : `${text.slice(0, maxLength)}...`, onHashtagClick)}
                 <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIsExpanded(!isExpanded); }} className="ml-1 text-blue-500 font-bold hover:underline inline-block">
-                    {isExpanded ? ' 閉じる' : ' 続きを読む'}
+                    {isExpanded ? t('readLess') : t('readMore')}
                 </button>
             </p>
         </div>
@@ -121,6 +121,7 @@ const Gallery = () => {
     const [filterMySize, setFilterMySize] = useState(false);
     const [sizeFilterPlushieId, setSizeFilterPlushieId] = useState('all');
     const [filterCategory, setFilterCategory] = useState('all');
+    const [filterHasPattern, setFilterHasPattern] = useState(false);
 
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
@@ -209,8 +210,7 @@ const Gallery = () => {
                 const uniqueUserIds = [...new Set(uniqueItems.map(item => item.userId).filter(Boolean))];
                 resolveUserProfiles(uniqueUserIds);
             } catch (error) {
-                console.error("Error fetching gallery:", error);
-                setGalleryError(language === 'jp' ? 'データの取得に失敗しました。再読み込みしてください。' : 'Failed to load gallery. Please refresh.');
+                setGalleryError(t('loadErrorGallery'));
                 setPublicItems([]);
             } finally {
                 setIsLoading(false);
@@ -289,7 +289,7 @@ const Gallery = () => {
     // Toggle like - uses actual subcollection count instead of increment
     const toggleLike = async (itemId, ownerUid, existingCompositeId) => {
         if (!currentUser) {
-            if (window.confirm(language === 'jp' ? 'いいねするにはログインが必要です。ログインしますか？' : 'Login required to like. Go to login?')) {
+            if (window.confirm(t('loginRequiredLike'))) {
                 navigate('/login');
             }
             return;
@@ -347,7 +347,7 @@ const Gallery = () => {
     // Submit comment - syncs commentCount from actual subcollection count
     const submitComment = async (itemId, ownerUid) => {
         if (!currentUser) {
-            if (window.confirm(language === 'jp' ? 'コメントするにはログインが必要です。ログインしますか？' : 'Login required to comment. Go to login?')) {
+            if (window.confirm(t('loginRequiredComment'))) {
                 navigate('/login');
             }
             return;
@@ -380,7 +380,7 @@ const Gallery = () => {
             setCommentText('');
         } catch (e) {
             console.error("Error submitting comment:", e);
-            alert(language === 'jp' ? "コメントの送信に失敗しました" : "Failed to submit comment");
+            alert(t('commentSendError'));
         } finally {
             setIsSubmittingComment(false);
         }
@@ -493,9 +493,12 @@ const Gallery = () => {
             let matchesCategory = true;
             if (filterCategory !== 'all') matchesCategory = item.purchaseType === filterCategory;
 
-            return matchesSearch && matchesSize && matchesCategory;
+            let matchesPatternFilter = true;
+            if (filterHasPattern) matchesPatternFilter = !!(item.patternImage || item.referenceUrl);
+
+            return matchesSearch && matchesSize && matchesCategory && matchesPatternFilter;
         });
-    }, [processedItems, searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, plushies]);
+    }, [processedItems, searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, filterHasPattern, plushies]);
 
     // Hashtag click handler: close modal + search by tag
     const handleHashtagClick = (tag) => {
@@ -507,9 +510,9 @@ const Gallery = () => {
     return (
         <div className="pb-48">
             <Helmet>
-                <title>{language === 'jp' ? 'みんなのギャラリー | CinderellaFit' : "Everyone's Gallery | CinderellaFit"}</title>
+                <title>{t('everyonesGallery')} | CinderellaFit</title>
                 <meta name="description" content={language === 'jp' ? 'ユーザーのみなさんが投稿したぬいぐるみのお洋服コーディネートをチェック！' : 'Check out plushie outfit coordinates posted by users!'} />
-                <meta property="og:title" content={language === 'jp' ? 'みんなのギャラリー | CinderellaFit' : "Everyone's Gallery | CinderellaFit"} />
+                <meta property="og:title" content={t('everyonesGallery')} />
                 <meta property="og:description" content={language === 'jp' ? 'ユーザーのみなさんが投稿したぬいぐるみのお洋服コーディネートをチェック！' : 'Check out plushie outfit coordinates posted by users!'} />
                 <meta property="og:url" content={window.location.href} />
             </Helmet>
@@ -518,12 +521,12 @@ const Gallery = () => {
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-2xl font-black flex items-center gap-2">
                         <Users size={22} className="text-primary" />
-                        {language === 'jp' ? 'みんなのギャラリー' : "Everyone's Gallery"}
+                        {t('everyonesGallery')}
                     </h2>
                     {!currentUser && (
                         <Link to="/login" className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold shadow-sm hover:bg-primary/90 transition-colors">
                             <LogIn size={14} />
-                            {language === 'jp' ? 'ログイン' : 'Login'}
+                            {t('login')}
                         </Link>
                     )}
                 </div>
@@ -536,7 +539,7 @@ const Gallery = () => {
                             type="text"
                             className="w-full bg-gray-50 pl-12 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
                             style={{ paddingLeft: '48px' }}
-                            placeholder={language === 'jp' ? 'アイテム・ユーザー名で検索' : 'Search items or users'}
+                            placeholder={t('gallerySearchPlaceholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
@@ -551,7 +554,7 @@ const Gallery = () => {
                                     ? 'bg-gray-800 text-white border-gray-800'
                                     : 'bg-white text-gray-500 border-gray-200'}`}
                             >
-                                {language === 'jp' ? 'すべて' : 'All'}
+                                {t('all')}
                             </button>
                             {plushies.map(p => (
                                 <button
@@ -568,7 +571,7 @@ const Gallery = () => {
                                             <div className="w-full h-full flex items-center justify-center text-[10px]">🧸</div>
                                         )}
                                     </div>
-                                    <span className="whitespace-nowrap">{p.name} {language === 'jp' ? 'サイズ' : 'Size'}</span>
+                                    <span className="whitespace-nowrap">{p.name} {t('size')}</span>
                                 </button>
                             ))}
                         </div>
@@ -577,10 +580,10 @@ const Gallery = () => {
                     {/* Category Filter */}
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                         {[
-                            { id: 'all', label: language === 'jp' ? '全カテゴリー' : 'All Cats', icon: '✨' },
-                            { id: 'online', label: language === 'jp' ? 'オンライン' : 'Online', icon: '🌐' },
-                            { id: 'retail', label: language === 'jp' ? '店舗' : 'Retail', icon: '🏪' },
-                            { id: 'handmade', label: language === 'jp' ? 'ハンドメイド' : 'Handmade', icon: '🪡' }
+                            { id: 'all', label: t('allCategories'), icon: '✨' },
+                            { id: 'online', label: t('onlineShop'), icon: '🌐' },
+                            { id: 'retail', label: t('retailShop'), icon: '🏪' },
+                            { id: 'handmade', label: t('handmade'), icon: '🪡' }
                         ].map((cat) => (
                             <button
                                 key={cat.id}
@@ -593,6 +596,15 @@ const Gallery = () => {
                                 <span className="whitespace-nowrap">{cat.label}</span>
                             </button>
                         ))}
+                        <button
+                            onClick={() => setFilterHasPattern(!filterHasPattern)}
+                            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterHasPattern
+                                ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
+                                : 'bg-white text-orange-400 border-orange-200'}`}
+                        >
+                            <span>📖</span>
+                            <span className="whitespace-nowrap">{t('hasPatternFilter')}</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -601,7 +613,7 @@ const Gallery = () => {
                 {isLoading ? (
                     <div className="text-center py-16">
                         <div className="animate-spin w-8 h-8 border-3 border-primary border-t-transparent rounded-full mx-auto mb-3"></div>
-                        <p className="text-sm text-gray-400">{language === 'jp' ? '読み込み中...' : 'Loading...'}</p>
+                        <p className="text-sm text-gray-400">{t('loading')}</p>
                     </div>
                 ) : galleryError ? (
                     <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-xl text-xs text-yellow-700 flex items-center gap-2">
@@ -610,18 +622,18 @@ const Gallery = () => {
                 ) : filteredItems.length === 0 ? (
                     <div className="text-center py-16 bg-gray-50/50 rounded-3xl border-2 border-dashed border-gray-100 flex flex-col items-center justify-center space-y-3">
                         <div className="text-4xl">🔍</div>
-                        <p className="font-black text-gray-800">{language === 'jp' ? 'お探しのアイテムは見つかりません' : 'No items found'}</p>
+                        <p className="font-black text-gray-800">{t('noItemsFound')}</p>
                         <p className="text-xs text-gray-400 mt-1">
-                            {(searchTerm || filterMySize || filterCategory !== 'all')
-                                ? (language === 'jp' ? 'フィルター条件を変更して試してみてください' : 'Try changing filter conditions')
-                                : (language === 'jp' ? 'まだ投稿がありません' : 'No posts yet')}
+                            {(searchTerm || filterMySize || filterCategory !== 'all' || filterHasPattern)
+                                ? t('changeFilterHint')
+                                : t('noPostsYet')}
                         </p>
-                        {(searchTerm || filterMySize || filterCategory !== 'all') && (
+                        {(searchTerm || filterMySize || filterCategory !== 'all' || filterHasPattern) && (
                             <button
-                                onClick={() => { setSearchTerm(''); setFilterMySize(false); setSizeFilterPlushieId('all'); setFilterCategory('all'); }}
+                                onClick={() => { setSearchTerm(''); setFilterMySize(false); setSizeFilterPlushieId('all'); setFilterCategory('all'); setFilterHasPattern(false); }}
                                 className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"
                             >
-                                {language === 'jp' ? '全てのフィルターをリセット' : 'Reset all filters'}
+                                {t('resetFiltersBtn')}
                             </button>
                         )}
                     </div>
@@ -664,9 +676,14 @@ const Gallery = () => {
                                 {/* Image */}
                                 <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
                                     <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
-                                    <div className="absolute" style={{ top: 6, right: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
+                                    <div className="absolute" style={{ top: 6, left: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
                                         {post.date}
                                     </div>
+                                    {(post.patternImage || post.referenceUrl) && (
+                                        <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
+                                            {t('hasPattern')}
+                                        </div>
+                                    )}
                                 </div>
 
                                 {/* Social bar - Explicit height for row alignment */}
@@ -697,18 +714,18 @@ const Gallery = () => {
                                         {post.purchaseType && (
                                             <div className="flex items-center gap-1 mb-1.5 overflow-hidden">
                                                 <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-                                                    {post.purchaseType === 'online' ? `🌐 ${language === 'jp' ? 'オンライン' : 'Online'}` :
-                                                        post.purchaseType === 'retail' ? `🏪 ${language === 'jp' ? '店舗' : 'Retail'}` :
-                                                            `🪡 ${language === 'jp' ? 'ハンドメイド' : 'Handmade'}`}
+                                                    {post.purchaseType === 'online' ? `🌐 ${t('onlineShop')}` :
+                                                        post.purchaseType === 'retail' ? `🏪 ${t('retailShop')}` :
+                                                            `🪡 ${t('handmade')}`}
                                                 </span>
                                                 {(post.patternImage || post.referenceUrl) && (
-                                                    <span className="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full whitespace-nowrap border border-orange-200 shadow-sm animate-pulse flex-shrink-0">
-                                                        📖 {language === 'jp' ? '型紙あり' : 'Pattern'}
+                                                    <span className="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full whitespace-nowrap border border-orange-200 shadow-sm flex-shrink-0">
+                                                        {t('hasPattern')}
                                                     </span>
                                                 )}
                                             </div>
                                         )}
-                                        <ExpandableText text={post.comment} onHashtagClick={handleHashtagClick} showOnlyFirstSentence={true} />
+                                        <ExpandableText text={post.comment} t={t} onHashtagClick={handleHashtagClick} showOnlyFirstSentence={true} />
                                     </div>
                                     {post.shopName && (
                                         <div className="bg-gray-50 px-2 py-0.5 rounded flex items-center gap-1 text-[9px] text-gray-500 overflow-hidden truncate">
@@ -775,13 +792,13 @@ const Gallery = () => {
                                 {(selectedItem.url || selectedItem.url2 || selectedItem.url3) && (
                                     <div className="space-y-2">
                                         <h4 className="text-xs font-bold text-gray-400 uppercase ml-1">
-                                            {language === 'jp' ? '購入先リンク' : 'Bought From'}
+                                            {t('boughtFromLinks')}
                                         </h4>
                                         <div className="flex flex-col gap-2">
                                             {[
-                                                { url: selectedItem.url, label: selectedItem.shopName || safeHostname(selectedItem.url) || (language === 'jp' ? '商品ページ 1' : 'Link 1') },
-                                                { url: selectedItem.url2, label: safeHostname(selectedItem.url2) || (language === 'jp' ? '商品ページ 2' : 'Link 2') },
-                                                { url: selectedItem.url3, label: safeHostname(selectedItem.url3) || (language === 'jp' ? '商品ページ 3' : 'Link 3') }
+                                                { url: selectedItem.url, label: selectedItem.shopName || safeHostname(selectedItem.url) || t('linkFallback', 1) },
+                                                { url: selectedItem.url2, label: safeHostname(selectedItem.url2) || t('linkFallback', 2) },
+                                                { url: selectedItem.url3, label: safeHostname(selectedItem.url3) || t('linkFallback', 3) }
                                             ].filter(link => link.url).map((link, index) => (
                                                 <a
                                                     key={index}

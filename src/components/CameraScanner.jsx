@@ -2,7 +2,7 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Camera, X, RotateCcw, Scan, CheckCircle, AlertTriangle, Sparkles, CircleDot, ZoomIn } from 'lucide-react';
 import { estimateMeasurements, drawMeasurementOverlay } from '../utils/measureAI';
 
-const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => {
+const CameraScanner = ({ onMeasurementsDetected, onClose, t, language = 'jp' }) => {
     const [phase, setPhase] = useState('guide'); // guide, camera, scanning, result
     const [cameraStream, setCameraStream] = useState(null);
     const [capturedImage, setCapturedImage] = useState(null);
@@ -11,12 +11,6 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
     const [scanProgress, setScanProgress] = useState(0);
     const [error, setError] = useState(null);
     const [facingMode, setFacingMode] = useState('environment');
-
-    const videoRef = useRef(null);
-    const canvasRef = useRef(null);
-    const overlayCanvasRef = useRef(null);
-
-    const t = useCallback((jp, en) => language === 'jp' ? jp : en, [language]);
 
     // カメラの起動
     const startCamera = useCallback(async () => {
@@ -37,10 +31,7 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
             }
         } catch (err) {
             console.error('Camera error:', err);
-            setError(t(
-                'カメラにアクセスできません。カメラの許可を確認してください。',
-                'Cannot access camera. Please check camera permissions.'
-            ));
+            setError(t('cameraAccessError'));
         }
     }, [facingMode, t]);
 
@@ -167,7 +158,7 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                 } catch (err) {
                     clearInterval(progressInterval);
                     console.error('Scan error:', err);
-                    setError(t('スキャンに失敗しました。もう一度お試しください。', 'Scan failed. Please try again.'));
+                    setError(t('scanFailError'));
                     setPhase('camera');
                 }
             }, 500);
@@ -207,7 +198,7 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
             <div className="flex items-center justify-between p-4 bg-black/50 backdrop-blur-md">
                 <h2 className="text-white font-bold text-lg flex items-center gap-2">
                     <Sparkles size={20} className="text-yellow-400" />
-                    {t('AIスキャン', 'AI Scan')}
+                    {t('aiScan')}
                 </h2>
                 <button onClick={onClose} className="text-white/80 hover:text-white p-2">
                     <X size={24} />
@@ -225,13 +216,10 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                 <Scan size={36} className="text-white" />
                             </div>
                             <h3 className="text-white text-xl font-bold mb-2">
-                                {t('ぬいぐるみを撮影しよう', 'Scan Your Plushie')}
+                                {t('scanPlushieTitle')}
                             </h3>
                             <p className="text-white/60 text-sm">
-                                {t(
-                                    'カメラでぬいぐるみを撮影するだけで、AIが自動で寸法を測定します。',
-                                    'Just take a photo and AI will measure your plushie automatically.'
-                                )}
+                                {t('scanPlushieDesc')}
                             </p>
                         </div>
 
@@ -241,13 +229,10 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                 <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center flex-shrink-0 text-sm font-bold">1</div>
                                 <div>
                                     <p className="text-white text-sm font-bold">
-                                        {t('基準物を用意', 'Prepare Reference')}
+                                        {t('step1RefTitle')}
                                     </p>
                                     <p className="text-white/50 text-xs">
-                                        {t(
-                                            '10円玉をぬいぐるみの横に置いてください（精度UP）',
-                                            'Place a 10-yen coin next to your plushie (for accuracy)'
-                                        )}
+                                        {t('step1RefDesc')}
                                     </p>
                                 </div>
                             </div>
@@ -256,13 +241,10 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                 <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0 text-sm font-bold">2</div>
                                 <div>
                                     <p className="text-white text-sm font-bold">
-                                        {t('正面から撮影', 'Take Front Photo')}
+                                        {t('step2FrontTitle')}
                                     </p>
                                     <p className="text-white/50 text-xs">
-                                        {t(
-                                            'ぬいぐるみの全身が映るように正面から撮ってください',
-                                            'Take a front photo showing the full body'
-                                        )}
+                                        {t('step2FrontDesc')}
                                     </p>
                                 </div>
                             </div>
@@ -271,13 +253,10 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                 <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0 text-sm font-bold">3</div>
                                 <div>
                                     <p className="text-white text-sm font-bold">
-                                        {t('明るい場所で', 'Good Lighting')}
+                                        {t('step3LightTitle')}
                                     </p>
                                     <p className="text-white/50 text-xs">
-                                        {t(
-                                            '白い背景の上に置くと精度が上がります',
-                                            'Place on a white background for better accuracy'
-                                        )}
+                                        {t('step3LightDesc')}
                                     </p>
                                 </div>
                             </div>
@@ -290,12 +269,12 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 active:scale-95 transition-all flex items-center justify-center gap-2"
                             >
                                 <Camera size={22} />
-                                {t('カメラで撮影', 'Open Camera')}
+                                {t('openCameraBtn')}
                             </button>
 
                             <label className="w-full py-3 rounded-2xl bg-white/10 text-white/80 font-bold text-sm hover:bg-white/20 transition-all flex items-center justify-center gap-2 cursor-pointer">
                                 <ZoomIn size={18} />
-                                {t('アルバムから選択', 'Choose from Album')}
+                                {t('selectFromAlbum')}
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -329,7 +308,7 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                             {/* 中央ガイド枠 */}
                             <div className="absolute inset-8 border-2 border-white/30 rounded-3xl">
                                 <div className="absolute -top-1 left-1/2 -translate-x-1/2 bg-black/60 text-white text-xs px-3 py-1 rounded-full backdrop-blur-sm">
-                                    {t('ぬいぐるみを枠内に収めてね', 'Place plushie inside frame')}
+                                    {t('insideFrameHint')}
                                 </div>
                             </div>
 
@@ -339,7 +318,7 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                     <CircleDot size={16} className="text-yellow-400" />
                                 </div>
                                 <span className="text-yellow-400 text-xs font-bold bg-black/60 px-2 py-1 rounded-lg backdrop-blur-sm">
-                                    {t('10円玉', '10¥')}
+                                    {t('tenYenMarker')}
                                 </span>
                             </div>
 
@@ -398,10 +377,10 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                             </div>
 
                             <h3 className="text-white text-xl font-bold mb-2">
-                                {t('AI分析中...', 'AI Analyzing...')}
+                                {t('aiAnalyzing')}
                             </h3>
                             <p className="text-white/60 text-sm mb-6">
-                                {t('ぬいぐるみの寸法を測定しています', 'Measuring plushie dimensions')}
+                                {t('measuringMsg')}
                             </p>
 
                             {/* プログレスバー */}
@@ -435,12 +414,12 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                                 {referenceDetected ? (
                                     <>
                                         <CheckCircle size={14} />
-                                        {t('高精度', 'High Accuracy')}
+                                        {t('highAccuracy')}
                                     </>
                                 ) : (
                                     <>
                                         <AlertTriangle size={14} />
-                                        {t('推定値', 'Estimated')}
+                                        {t('estimatedValue')}
                                     </>
                                 )}
                             </div>
@@ -450,28 +429,25 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                         <div className="p-4 space-y-4">
                             <h3 className="text-white text-lg font-bold flex items-center gap-2">
                                 <Sparkles size={18} className="text-yellow-400" />
-                                {t('推定できた寸法', 'Detected Measurements')}
+                                {t('detectedMeasurementsTitle')}
                             </h3>
 
                             {!referenceDetected && (
                                 <div className="bg-yellow-500/20 text-yellow-300 rounded-xl p-3 text-xs">
-                                    ⚠️ {t(
-                                        '基準物（10円玉）が検出されませんでした。値は概算です。下の数値を手動で修正できます。',
-                                        'Reference object not detected. Values are approximate. You can adjust below.'
-                                    )}
+                                    ⚠️ {t('scanApproxWarning')}
                                 </div>
                             )}
 
                             <div className="grid grid-cols-2 gap-3">
                                 {[
-                                    { key: 'height', label: t('身長', 'Height'), icon: '📏' },
-                                    { key: 'waist', label: t('胴囲', 'Waist'), icon: '⭕' },
-                                    { key: 'head', label: t('頭囲', 'Head'), icon: '🧠' },
-                                    { key: 'neck', label: t('首周り', 'Neck'), icon: '🔗' },
-                                    { key: 'shoulder', label: t('肩幅', 'Shoulder'), icon: '↔️' },
-                                    { key: 'arm', label: t('腕', 'Arm'), icon: '💪' },
-                                    { key: 'armGirth', label: t('腕周り', 'Arm Girth'), icon: '🔄' },
-                                    { key: 'leg', label: t('脚', 'Leg'), icon: '🦵' },
+                                    { key: 'height', label: t('height'), icon: '📏' },
+                                    { key: 'waist', label: t('waist'), icon: '⭕' },
+                                    { key: 'head', label: t('head'), icon: '🧠' },
+                                    { key: 'neck', label: t('neck'), icon: '🔗' },
+                                    { key: 'shoulder', label: t('shoulder'), icon: '↔️' },
+                                    { key: 'arm', label: t('armLabel'), icon: '💪' },
+                                    { key: 'armGirth', label: t('armGirthLabel'), icon: '🔄' },
+                                    { key: 'leg', label: t('legLabel'), icon: '🦵' },
                                 ].map(({ key, label, icon }) => (
                                     <div key={key} className="bg-white/10 rounded-xl p-3 backdrop-blur-sm">
                                         <div className="flex items-center gap-1.5 mb-1">
@@ -509,14 +485,14 @@ const CameraScanner = ({ onMeasurementsDetected, onClose, language = 'jp' }) => 
                         className="flex-1 py-4 rounded-2xl bg-white/10 text-white font-bold text-sm hover:bg-white/20 transition-all flex items-center justify-center gap-2"
                     >
                         <RotateCcw size={18} />
-                        {t('撮り直す', 'Retake')}
+                        {t('retake')}
                     </button>
                     <button
                         onClick={confirmMeasurements}
                         className="flex-[2] py-4 rounded-2xl bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold text-lg shadow-lg shadow-indigo-500/30 hover:shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
                         <CheckCircle size={20} />
-                        {t('この寸法を使う', 'Use These')}
+                        {t('useTheseBtn')}
                     </button>
                 </div>
             )}

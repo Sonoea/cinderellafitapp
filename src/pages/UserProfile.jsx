@@ -67,6 +67,7 @@ const UserProfile = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [notFound, setNotFound] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [isCopying, setIsCopying] = useState(false);
 
     // Social state
     const [itemLikes, setItemLikes] = useState({});
@@ -346,6 +347,16 @@ const UserProfile = () => {
         }
     };
 
+    const handleCopyPostLink = (item) => {
+        const url = `${window.location.origin}/gallery/post/${item.compositeId || item.id}`;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(() => {
+                setIsCopying(true);
+                setTimeout(() => setIsCopying(false), 2000);
+            });
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[60vh]">
@@ -500,8 +511,51 @@ const UserProfile = () => {
                                         <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} />
                                         <span>{itemLikes[selectedItem.compositeId]?.count ?? 0}</span>
                                     </button>
+                                    
+                                    <button
+                                        onClick={() => handleCopyPostLink(selectedItem)}
+                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs transition-all ${isCopying
+                                            ? 'bg-green-500 text-white shadow-md'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'}`}
+                                    >
+                                        <Share2 size={16} />
+                                        <span>{isCopying ? t('linkCopied') : t('copyLink')}</span>
+                                    </button>
+
+                                    <div className="flex-1"></div>
                                     <span style={{ fontSize: '28px' }}>{['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}</span>
                                 </div>
+
+                                {/* Reference / Inspired By */}
+                                {(selectedItem.referencedPostId || selectedItem.referencePostUrl) && (
+                                    <div className="bg-orange-50/50 border border-orange-100 p-3 rounded-xl flex items-center gap-3">
+                                        <div className="bg-orange-100 p-2 rounded-lg">
+                                            <Star size={16} className="text-orange-500 fill-orange-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">{t('inspiredBy')}</p>
+                                            <div className="flex items-center gap-1 mt-0.5">
+                                                {selectedItem.referencedPostId ? (
+                                                    <Link 
+                                                        to={`/gallery/post/${selectedItem.referencedPostId}`} 
+                                                        className="text-sm font-bold text-orange-600 hover:underline truncate"
+                                                        onClick={() => {
+                                                            setSelectedItem(null);
+                                                            navigate(`/gallery/post/${selectedItem.referencedPostId}`);
+                                                        }}
+                                                    >
+                                                        {selectedItem.referencedUserName ? `@${selectedItem.referencedUserName}` : t('originalPost')}
+                                                    </Link>
+                                                ) : (
+                                                    <a href={selectedItem.referencePostUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-orange-600 hover:underline truncate flex items-center gap-1">
+                                                        {selectedItem.referencePostUrl}
+                                                        <ExternalLink size={12} />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={(tag) => navigate(`/gallery?search=${encodeURIComponent(tag)}`)} />}
 

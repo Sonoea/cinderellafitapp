@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock } from 'lucide-react';
+import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock, Star } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { compressImage } from '../utils/imageUtils';
+import { db } from '../firebase/config';
+import { doc, getDoc } from 'firebase/firestore';
 
 const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel }) => {
     const { currentUser } = useAuth();
@@ -24,6 +26,9 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         url3: '',
         patternImage: null,
         referenceUrl: '',
+        referencePostUrl: '', // New: Specifically for another gallery post
+        referencedPostId: '', // New: Parsed ID from URL
+        referencedUserName: '', // New: Name of original author
         category: 'other', // Default category
     });
 
@@ -377,9 +382,9 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                         )}
                                     </div>
 
-                                    {/* Reference URL */}
+                                    {/* Reference URL (General) */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrl') || 'Reference URL'}</label>
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceLinkLabel')}</label>
                                         <input
                                             type="url"
                                             className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
@@ -387,6 +392,54 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             value={formData.referenceUrl}
                                             onChange={(e) => setFormData({ ...formData, referenceUrl: e.target.value })}
                                         />
+                                    </div>
+
+                                    {/* Reference Gallery Post URL */}
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel')}</label>
+                                        <input
+                                            type="url"
+                                            className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                                            placeholder={t('referenceUrlPlaceholder')}
+                                            value={formData.referencePostUrl}
+                                            onChange={async (e) => {
+                                                const url = e.target.value;
+                                                const match = url.match(/\/gallery\/post\/([^/?#]+)/);
+                                                const postId = match ? match[1] : '';
+                                                
+                                                let userName = '';
+                                                if (postId && postId.includes('_')) {
+                                                    try {
+                                                        const ownerUid = postId.split('_')[0];
+                                                        const userDoc = await getDoc(doc(db, 'users', ownerUid));
+                                                        if (userDoc.exists()) {
+                                                            userName = userDoc.data().displayName || '';
+                                                        }
+                                                    } catch (err) {
+                                                        console.error("Error fetching referenced user:", err);
+                                                    }
+                                                }
+                                                
+                                                setFormData({ 
+                                                    ...formData, 
+                                                    referencePostUrl: url, 
+                                                    referencedPostId: postId,
+                                                    referencedUserName: userName
+                                                });
+                                            }}
+                                        />
+                                        {formData.referencedPostId && (
+                                            <div className="flex items-center justify-between mt-1 px-1">
+                                                <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
+                                                    <span>✅</span> {t('postDetected') || 'Post detected!'}
+                                                </p>
+                                                {formData.referencedUserName && (
+                                                    <p className="text-[9px] text-orange-500 font-bold">
+                                                        @{formData.referencedUserName}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             )}

@@ -55,6 +55,11 @@ function App() {
                     <UserProfile />
                   </ErrorBoundary>
                 } />
+                <Route path="/gallery/post/:postId" element={
+                  <ErrorBoundary>
+                    <Gallery />
+                  </ErrorBoundary>
+                } />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />

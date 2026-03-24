@@ -4,7 +4,7 @@ import { collectionGroup, query, where, getDocs, doc, getDoc, setDoc, deleteDoc,
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
 
@@ -122,6 +122,8 @@ const Gallery = () => {
     const [sizeFilterPlushieId, setSizeFilterPlushieId] = useState('all');
     const [filterCategory, setFilterCategory] = useState('all');
     const [filterHasPattern, setFilterHasPattern] = useState(false);
+    const { postId } = useParams();
+    const [isCopying, setIsCopying] = useState(false);
 
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
@@ -445,7 +447,63 @@ const Gallery = () => {
                 setTimeout(() => { commentsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }); setShouldScrollToComments(false); }, 300);
             }
         }
-    }, [selectedItem]);
+    }, [selectedItem, shouldScrollToComments]);
+
+    // Deep link handling: Open specific post if postId is in URL
+    useEffect(() => {
+        if (postId && !selectedItem && publicItems.length > 0) {
+            const item = publicItems.find(i => i.id === postId || i.compositeId === postId);
+            if (item) {
+                setSelectedItem(item);
+            } else {
+                // If not in publicItems, try fetching directly
+                const fetchSinglePost = async () => {
+                    try {
+                        // Extract ownerUid if it's a compositeId (e.g. uid_id)
+                        let targetId = postId;
+                        let ownerUid = null;
+                        if (postId.includes('_')) {
+                            [ownerUid, targetId] = postId.split('_');
+                        }
+
+                        if (ownerUid) {
+                            const docRef = doc(db, 'users', ownerUid, 'closetItems', targetId);
+                            const docSnap = await getDoc(docRef);
+                            if (docSnap.exists()) {
+                                const data = docSnap.data();
+                                const uDoc = await getDoc(doc(db, 'users', ownerUid));
+                                const userData = uDoc.data() || {};
+                                setSelectedItem({
+                                    id: docSnap.id,
+                                    compositeId: postId,
+                                    ...data,
+                                    userId: ownerUid,
+                                    imageUrl: data.imageUrl || data.image,
+                                    userName: userData.displayName || data.userName,
+                                    userIcon: userData.photoURL || data.userIcon,
+                                    profileSlug: userData.profileSlug,
+                                    date: safeDate(data.createdAt),
+                                });
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Error fetching single post for deep link:", e);
+                    }
+                };
+                fetchSinglePost();
+            }
+        }
+    }, [postId, publicItems]);
+
+    const handleCopyLink = (item) => {
+        const url = `${window.location.origin}/gallery/post/${item.compositeId || item.id}`;
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url).then(() => {
+                setIsCopying(true);
+                setTimeout(() => setIsCopying(false), 2000);
+            });
+        }
+    };
 
     // Process items with profiles
     const processedItems = React.useMemo(() => {
@@ -780,8 +838,53 @@ const Gallery = () => {
                                         <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} />
                                         <span>{itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0}</span>
                                     </button>
+                                    
+                                    <button
+                                        onClick={() => handleCopyLink(selectedItem)}
+                                        className={`flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs transition-all ${isCopying
+                                            ? 'bg-green-500 text-white shadow-md'
+                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'}`}
+                                    >
+                                        <Share2 size={16} />
+                                        <span>{isCopying ? t('linkCopied') : t('copyLink')}</span>
+                                    </button>
+
+                                    <div className="flex-1"></div>
                                     <span style={{ fontSize: '28px' }}>{['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}</span>
                                 </div>
+
+                                {/* Reference / Inspired By */}
+                                {(selectedItem.referencedPostId || selectedItem.referencePostUrl) && (
+                                    <div className="bg-orange-50/50 border border-orange-100 p-3 rounded-xl flex items-center gap-3">
+                                        <div className="bg-orange-100 p-2 rounded-lg">
+                                            <Star size={16} className="text-orange-500 fill-orange-500" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">{t('inspiredBy')}</p>
+                                            <div className="flex items-center gap-1 mt-0.5">
+                                                {selectedItem.referencedPostId ? (
+                                                    <Link 
+                                                        to={`/gallery/post/${selectedItem.referencedPostId}`} 
+                                                        className="text-sm font-bold text-orange-600 hover:underline truncate"
+                                                        onClick={() => {
+                                                            // For deep link to work within the same page, we might need to close and let useEffect handle it
+                                                            // But simpler is to just navigate or manually set
+                                                            setSelectedItem(null);
+                                                            navigate(`/gallery/post/${selectedItem.referencedPostId}`);
+                                                        }}
+                                                    >
+                                                        {selectedItem.referencedUserName ? `@${selectedItem.referencedUserName}` : t('originalPost')}
+                                                    </Link>
+                                                ) : (
+                                                    <a href={selectedItem.referencePostUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-orange-600 hover:underline truncate flex items-center gap-1">
+                                                        {selectedItem.referencePostUrl}
+                                                        <ExternalLink size={12} />
+                                                    </a>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Comment */}
                                 {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={handleHashtagClick} />}

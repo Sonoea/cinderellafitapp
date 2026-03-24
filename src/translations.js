@@ -243,6 +243,7 @@ export const translations = {
         handmadeMaterials: "Handmade Materials",
         patternImageLabel: "Pattern Image",
         referenceLinkLabel: "Reference Link",
+        optional: "Optional",
 
         // Measure & Scanner
         editPlushie: "Edit Plushie",
@@ -698,6 +699,7 @@ export const translations = {
         handmadeMaterials: "ハンドメイド資料",
         patternImageLabel: "型紙・製作図",
         referenceLinkLabel: "作り方の参考",
+        optional: "任意",
 
         // 計測 & スキャナー
         editPlushie: "ぬいぐるみを編集",

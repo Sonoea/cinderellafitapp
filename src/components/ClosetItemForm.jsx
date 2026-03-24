@@ -21,7 +21,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         comment: '',
         location: '',
         purchaseType: '',
-        isPublic: false, // Default to private for better privacy
+        isPublic: true, // Default to public as requested
         url2: '',
         url3: '',
         patternImage: null,
@@ -225,41 +225,43 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                             </div>
 
                             <div>
-                                <label className="block text-xs font-bold text-gray-700 mb-2">{t('selectCategory')}</label>
-                                <div className="grid grid-cols-3 gap-2">
-                                    {[
-                                        { id: 'onepiece', label: t('catOnePiece'), icon: '👗' },
-                                        { id: 'sportswear', label: t('catSportswear'), icon: '🎽' },
-                                        { id: 'outer', label: t('catCoat'), icon: '🧥' },
-                                        { id: 'blouse', label: t('catBlouse'), icon: '👚' },
-                                        { id: 'camera', label: t('catCamera'), icon: '📷' },
-                                        { id: 'tshirt', label: t('catTshirt'), icon: '👕' },
-                                        { id: 'skirt', label: t('catSkirt'), icon: '👗' },
-                                        { id: 'pants', label: t('catPants'), icon: '👖' },
-                                        { id: 'hat', label: t('catHat'), icon: '👒' },
-                                        { id: 'bag_hand', label: t('catBagHand'), icon: '👜' },
-                                        { id: 'bag_back', label: t('catBagBack'), icon: '🎒' },
-                                        { id: 'jewelry', label: t('catJewelry'), icon: '💍' },
-                                        { id: 'glasses', label: t('catGlasses'), icon: '👓' },
-                                        { id: 'scarf', label: t('catScarf'), icon: '🧣' },
-                                        { id: 'shoes', label: t('catShoes'), icon: <ArrowDownCircle size={16} /> },
-                                        { id: 'custom1', label: customCategoryNames.custom1 || t('catCustom1'), icon: <Tag size={16} /> },
-                                        { id: 'custom2', label: customCategoryNames.custom2 || t('catCustom2'), icon: <Tag size={16} /> },
-                                        { id: 'other', label: t('catOther'), icon: '✨' }
-                                    ].map((cat) => (
-                                        <button
-                                            key={cat.id}
-                                            type="button"
-                                            onClick={() => setFormData({ ...formData, category: cat.id })}
-                                            className={`p-2 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${formData.category === cat.id
-                                                ? 'bg-primary/10 text-primary border-primary shadow-sm scale-105'
-                                                : 'border-gray-100 bg-gray-50 text-gray-400 grayscale'
-                                                }`}
-                                        >
-                                            <span className="text-xl">{cat.icon}</span>
-                                            <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
-                                        </button>
-                                    ))}
+                                <label className="block text-xs font-bold text-gray-700 mb-2">
+                                    {t('selectCategory')} <span className="text-[10px] font-normal text-gray-400 ml-1">({t('optional')})</span>
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        value={formData.category}
+                                        onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                        className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm appearance-none cursor-pointer pr-10"
+                                    >
+                                        {[
+                                            { id: 'other', label: t('catOther'), icon: '✨' },
+                                            { id: 'onepiece', label: t('catOnePiece'), icon: '👗' },
+                                            { id: 'sportswear', label: t('catSportswear'), icon: '🎽' },
+                                            { id: 'outer', label: t('catCoat'), icon: '🧥' },
+                                            { id: 'blouse', label: t('catBlouse'), icon: '👚' },
+                                            { id: 'camera', label: t('catCamera'), icon: '📷' },
+                                            { id: 'tshirt', label: t('catTshirt'), icon: '👕' },
+                                            { id: 'skirt', label: t('catSkirt'), icon: '👗' },
+                                            { id: 'pants', label: t('catPants'), icon: '👖' },
+                                            { id: 'hat', label: t('catHat'), icon: '👒' },
+                                            { id: 'bag_hand', label: t('catBagHand'), icon: '👜' },
+                                            { id: 'bag_back', label: t('catBagBack'), icon: '🎒' },
+                                            { id: 'jewelry', label: t('catJewelry'), icon: '💍' },
+                                            { id: 'glasses', label: t('catGlasses'), icon: '👓' },
+                                            { id: 'scarf', label: t('catScarf'), icon: '🧣' },
+                                            { id: 'shoes', label: t('catShoes'), icon: '👠' },
+                                            { id: 'custom1', label: customCategoryNames.custom1 || t('catCustom1'), icon: '🏷️' },
+                                            { id: 'custom2', label: customCategoryNames.custom2 || t('catCustom2'), icon: '🏷️' },
+                                        ].map((cat) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.icon} {cat.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                        <ArrowDownCircle size={18} />
+                                    </div>
                                 </div>
                             </div>
 

@@ -83,10 +83,6 @@ const Guide = () => {
                             key={idx}
                             className={`group relative z-10 bg-white rounded-[28px] p-6 border border-[#F0EBE3] shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden`}
                         >
-                            {/* Decorative Background Icon */}
-                            <div className="absolute -bottom-6 -right-6 text-gray-100 group-hover:text-primary/5 transition-colors duration-500 rotate-12 opacity-40">
-                                {React.cloneElement(step.icon, { size: 120 })}
-                            </div>
 
                             <div className="flex gap-5 relative z-10">
                                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} shadow-lg flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>

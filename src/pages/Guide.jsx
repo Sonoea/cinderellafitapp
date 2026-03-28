@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, BookOpen, Camera, Share2, Ruler, Sparkles, Tag } from 'lucide-react';
+import { ArrowLeft, BookOpen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 
@@ -8,99 +8,164 @@ const Guide = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="pb-24 bg-[#FCFBF7] min-h-screen">
+        <div style={{ minHeight: '100vh', background: '#FAFAF8', paddingBottom: '6rem' }}>
             {/* Header */}
-            <div className="sticky top-0 bg-[#FCFBF7]/80 backdrop-blur-md z-30 p-4 border-b border-[#F0EBE3] flex items-center gap-4">
-                <button
-                    onClick={() => navigate(-1)}
-                    className="w-10 h-10 rounded-full bg-white shadow-sm border border-[#F0EBE3] flex items-center justify-center hover:bg-gray-50 transition-all hover:scale-105 active:scale-95"
-                >
-                    <ArrowLeft size={18} className="text-gray-600" />
+            <div style={{
+                position: 'sticky', top: 0, zIndex: 30,
+                background: 'rgba(250,250,248,0.92)',
+                backdropFilter: 'blur(12px)',
+                borderBottom: '1px solid #F0EBE3',
+                padding: '14px 16px',
+                display: 'flex', alignItems: 'center', gap: 12
+            }}>
+                <button onClick={() => navigate(-1)} style={{
+                    width: 38, height: 38, borderRadius: '50%',
+                    border: '1px solid #E5E7EB', background: 'white',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                }}>
+                    <ArrowLeft size={17} color="#6B7280" />
                 </button>
-                <h1 className="text-xl font-black text-gray-800 tracking-tight flex items-center gap-2">
-                    <span className="bg-primary/10 p-1.5 rounded-lg">
-                        <BookOpen size={20} className="text-primary" />
-                    </span>
+                <h1 style={{ fontSize: 19, fontWeight: 900, color: '#1F2937', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <BookOpen size={19} color="var(--primary)" />
                     {t('guideTitle')}
                 </h1>
             </div>
 
-            <div className="p-5 space-y-8 max-w-2xl mx-auto">
+            <div style={{ padding: '20px 16px', maxWidth: 560, margin: '0 auto' }}>
+
                 {/* Intro Hero */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-[#F5F1E9] to-[#EAE4D8] p-8 rounded-[32px] border border-white/50 shadow-inner">
-                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/5 rounded-full blur-3xl" />
-                    <div className="relative z-10 text-center">
-                        <div className="inline-block px-3 py-1 bg-white/50 backdrop-blur-sm rounded-full text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-3 border border-white/20">
-                            Premium Experience
+                <div style={{
+                    background: 'linear-gradient(135deg, #4F8A8B 0%, #3d7a7f 100%)',
+                    borderRadius: 24, padding: '28px 24px',
+                    textAlign: 'center', marginBottom: 28, color: 'white'
+                }}>
+                    <div style={{ fontSize: 36, marginBottom: 10 }}>🧸✨</div>
+                    <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 8, letterSpacing: '-0.02em' }}>
+                        CinderellaFit
+                    </h2>
+                    <p style={{ fontSize: 13, lineHeight: 1.8, opacity: 0.92 }}>
+                        {t('guideIntro')}
+                    </p>
+                </div>
+
+                {/* Main Steps */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+
+                    {/* Step 1 - Core */}
+                    <div style={{
+                        background: 'white', border: '1px solid #E8E4DC',
+                        borderRadius: 18, padding: '18px 16px',
+                        display: 'flex', gap: 14, alignItems: 'flex-start',
+                        boxShadow: '0 2px 8px rgba(79,138,139,0.08)'
+                    }}>
+                        <div style={{
+                            width: 44, height: 44, borderRadius: 12,
+                            background: 'linear-gradient(135deg, #4F8A8B, #3d7a7f)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, fontSize: 20
+                        }}>📏</div>
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 10, fontWeight: 800, color: '#4F8A8B', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Step 1</p>
+                            <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1F2937', marginBottom: 5, lineHeight: 1.3 }}>
+                                {t('guideStep1Title')}
+                            </h3>
+                            <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>
+                                {t('guideStep1Desc')}
+                            </p>
                         </div>
-                        <h2 className="font-black text-2xl text-gray-800 mb-3 tracking-tight">CinderellaFit</h2>
-                        <p className="text-sm text-gray-600 leading-relaxed font-medium">
-                            {t('guideIntro')}
-                        </p>
                     </div>
-                </div>
 
-                {/* Steps Stepper */}
-                <div className="space-y-4 relative">
-                    {/* Vertical connecting line */}
-                    <div className="absolute left-[39px] top-6 bottom-6 w-[2px] bg-gradient-to-b from-primary/20 via-primary/10 to-transparent z-0 hidden sm:block" />
-
-                    {[
-                        {
-                            title: t('guideStep1Title'),
-                            desc: t('guideStep1Desc'),
-                            icon: <Ruler size={24} />,
-                            gradient: 'linear-gradient(135deg, #3B82F6, #06B6D4)',
-                            num: 1
-                        },
-                        {
-                            title: t('guideStep2Title'),
-                            desc: t('guideStep2Desc'),
-                            icon: <Tag size={24} />,
-                            gradient: 'linear-gradient(135deg, #10B981, #14B8A6)',
-                            num: 2
-                        },
-                        {
-                            title: t('guideStep3Title'),
-                            desc: t('guideStep3Desc'),
-                            icon: <Sparkles size={24} />,
-                            gradient: 'linear-gradient(135deg, #A855F7, #6366F1)',
-                            num: 3
-                        },
-                        {
-                            title: t('guideStep4Title'),
-                            desc: t('guideStep4Desc'),
-                            icon: <Share2 size={24} />,
-                            gradient: 'linear-gradient(135deg, #EC4899, #F43F5E)',
-                            num: 4
-                        }
-                    ].map((step, idx) => (
-                        <div
-                            key={idx}
-                            className="group relative z-10 bg-white rounded-[28px] p-6 border border-[#F0EBE3] shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden"
-                        >
-                            <div className="flex gap-4 relative z-10">
-                                <div
-                                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300"
-                                    style={{ background: step.gradient }}
-                                >
-                                    {step.icon}
-                                </div>
-                                <div className="pt-1 flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-1.5">
-                                        <span className="text-[10px] font-black text-primary uppercase tracking-widest opacity-60">Step {step.num}</span>
-                                    </div>
-                                    <h3 className="font-black text-lg text-gray-800 mb-2 leading-tight tracking-tight">
-                                        {step.title}
-                                    </h3>
-                                    <p className="text-sm text-gray-500 leading-relaxed">
-                                        {step.desc}
-                                    </p>
-                                </div>
+                    {/* Step 2 - Optional (subtle) */}
+                    <div style={{
+                        background: '#FAFAFA', border: '1px dashed #E0DBD3',
+                        borderRadius: 18, padding: '14px 16px',
+                        display: 'flex', gap: 14, alignItems: 'flex-start',
+                    }}>
+                        <div style={{
+                            width: 40, height: 40, borderRadius: 10,
+                            background: '#F0EBE3',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, fontSize: 18
+                        }}>🏷️</div>
+                        <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                                <p style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Step 2</p>
+                                <span style={{
+                                    fontSize: 9, fontWeight: 700, background: '#F0EBE3',
+                                    color: '#9CA3AF', padding: '1px 6px', borderRadius: 20
+                                }}>任意</span>
                             </div>
+                            <h3 style={{ fontSize: 14, fontWeight: 700, color: '#6B7280', marginBottom: 4, lineHeight: 1.3 }}>
+                                {t('guideStep2Title')}
+                            </h3>
+                            <p style={{ fontSize: 12, color: '#9CA3AF', lineHeight: 1.6 }}>
+                                {t('guideStep2Desc')}
+                            </p>
                         </div>
-                    ))}
+                    </div>
+
+                    {/* Step 3 - Core */}
+                    <div style={{
+                        background: 'white', border: '1px solid #E8E4DC',
+                        borderRadius: 18, padding: '18px 16px',
+                        display: 'flex', gap: 14, alignItems: 'flex-start',
+                        boxShadow: '0 2px 8px rgba(79,138,139,0.08)'
+                    }}>
+                        <div style={{
+                            width: 44, height: 44, borderRadius: 12,
+                            background: 'linear-gradient(135deg, #8B5CF6, #6366F1)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, fontSize: 20
+                        }}>✨</div>
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 10, fontWeight: 800, color: '#8B5CF6', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Step 3</p>
+                            <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1F2937', marginBottom: 5, lineHeight: 1.3 }}>
+                                {t('guideStep3Title')}
+                            </h3>
+                            <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>
+                                {t('guideStep3Desc')}
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Step 4 - Core */}
+                    <div style={{
+                        background: 'white', border: '1px solid #E8E4DC',
+                        borderRadius: 18, padding: '18px 16px',
+                        display: 'flex', gap: 14, alignItems: 'flex-start',
+                        boxShadow: '0 2px 8px rgba(79,138,139,0.08)'
+                    }}>
+                        <div style={{
+                            width: 44, height: 44, borderRadius: 12,
+                            background: 'linear-gradient(135deg, #EC4899, #F43F5E)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            flexShrink: 0, fontSize: 20
+                        }}>🌸</div>
+                        <div style={{ flex: 1 }}>
+                            <p style={{ fontSize: 10, fontWeight: 800, color: '#EC4899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Step 4</p>
+                            <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1F2937', marginBottom: 5, lineHeight: 1.3 }}>
+                                {t('guideStep4Title')}
+                            </h3>
+                            <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.7 }}>
+                                {t('guideStep4Desc')}
+                            </p>
+                        </div>
+                    </div>
+
                 </div>
+
+                {/* Footer tip */}
+                <div style={{
+                    marginTop: 24, padding: '14px 16px',
+                    background: '#F0F9F9', borderRadius: 14,
+                    border: '1px solid #D1EAE8',
+                    textAlign: 'center'
+                }}>
+                    <p style={{ fontSize: 12, color: '#4F8A8B', fontWeight: 600, lineHeight: 1.7 }}>
+                        💡 サイズ情報の登録がなくても、クローゼットとギャラリーはご利用いただけます。まずは気軽にスタートしてみてください！
+                    </p>
+                </div>
+
             </div>
         </div>
     );

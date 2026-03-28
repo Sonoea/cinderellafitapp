@@ -157,8 +157,7 @@ const Gallery = () => {
                 const q = query(
                     collectionGroup(db, 'closetItems'),
                     where('isPublic', '==', true),
-                    orderBy('createdAt', 'desc'),
-                    limit(150)
+                    limit(300)
                 );
                 const querySnapshot = await getDocs(q);
                 const items = [];

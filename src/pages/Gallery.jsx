@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { collectionGroup, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, orderBy, updateDoc, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collectionGroup, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, addDoc, serverTimestamp, collection, orderBy, updateDoc, increment, arrayUnion, arrayRemove, limit } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';

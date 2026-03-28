@@ -811,14 +811,25 @@ const Closet = () => {
 
                 <div className="modal-content-wrapper bg-white">
                   <div className="modal-scroll-area">
-                    <div className="relative">
+                    <div className="relative overflow-hidden">
                       <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
-                        <h2 className="text-xl font-bold">{selectedItem.itemName || selectedItem.name}</h2>
-                      </div>
                     </div>
 
-                    <div className="p-6 space-y-6">
+                    <div className="p-6 sm:p-8 space-y-6">
+                      {/* Item Title */}
+                      <div>
+                        <h2 className="text-xl sm:text-2xl font-black text-gray-900 leading-snug mb-1.5 break-words pr-8">{selectedItem.itemName || selectedItem.name}</h2>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <div className="flex items-center gap-1.5 text-blue-500 font-bold text-[11px] bg-blue-50 px-2 py-0.5 rounded-md">
+                            <span>🌐</span>
+                            <span>{selectedItem.location || t('myLocation') || 'My Place'}</span>
+                          </div>
+                          <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider bg-gray-50 px-2 py-0.5 rounded-md">
+                            {safeDate(selectedItem.createdAt)}
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Status Section */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm text-gray-500">

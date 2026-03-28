@@ -501,10 +501,22 @@ const UserProfile = () => {
                         </button>
 
                         <div style={{ overflowY: 'auto', flex: 1 }}>
-                            <img src={selectedItem.imageUrl} alt="" className="w-full aspect-square object-cover" />
+                            <div className="relative overflow-hidden">
+                                <img src={selectedItem.imageUrl} alt="" className="w-full aspect-square object-cover" />
+                                <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-bold z-10">
+                                    {selectedItem.date || t('recently')}
+                                </div>
+                            </div>
 
-                            <div className="p-6 space-y-4">
-                                <h2 className="text-lg font-bold">{selectedItem.itemName}</h2>
+                            <div className="p-6 sm:p-8 space-y-6">
+                                <div>
+                                    <h2 className="text-xl sm:text-2xl font-black text-gray-900 leading-snug mb-1.5 break-words pr-8">
+                                        {selectedItem.itemName || selectedItem.name}
+                                    </h2>
+                                    <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider bg-gray-50 px-2 py-0.5 rounded-md inline-block">
+                                        {selectedItem.date || t('recently')}
+                                    </div>
+                                </div>
 
                                 {/* Like */}
                                 <div className="flex items-center gap-3">

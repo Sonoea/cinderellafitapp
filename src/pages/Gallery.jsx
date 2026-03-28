@@ -803,27 +803,28 @@ const Gallery = () => {
                                 </div>
 
                                 {/* Content - Fixed height for uniform grid */}
-                                <div className="p-2 h-[94px] flex flex-col justify-between">
-                                    <div className="overflow-hidden">
-                                        <h3 className="font-bold text-sm text-gray-800 mb-1 truncate">{post.itemName}</h3>
+                                <div className="p-2.5 h-[88px] flex flex-col justify-start bg-white border-t border-gray-50/50">
+                                    <div className="overflow-hidden mb-1.5">
+                                        <h3 className="font-extrabold text-[11px] sm:text-xs text-gray-900 leading-tight truncate">
+                                            {post.itemName}
+                                        </h3>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-1.5 overflow-hidden mb-1">
                                         {post.purchaseType && (
-                                            <div className="flex items-center gap-1 mb-1.5 overflow-hidden">
-                                                <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">
-                                                    {post.purchaseType === 'online' ? `🌐 ${t('onlineShop')}` :
-                                                        post.purchaseType === 'retail' ? `🏪 ${t('retailShop')}` :
-                                                            `🪡 ${t('handmade')}`}
-                                                </span>
-                                                {(post.patternImage || post.referenceUrl) && (
-                                                    <span className="text-[9px] font-bold bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded-full whitespace-nowrap border border-orange-200 shadow-sm flex-shrink-0">
-                                                        {t('hasPattern')}
-                                                    </span>
-                                                )}
-                                            </div>
+                                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-md whitespace-nowrap flex-shrink-0 border border-gray-200/50">
+                                                {post.purchaseType === 'online' ? `🌐 ${t('onlineShop')}` :
+                                                    post.purchaseType === 'retail' ? `🏪 ${t('retailShop')}` :
+                                                        `🪡 ${t('handmade')}`}
+                                            </span>
                                         )}
-                                        <ExpandableText text={post.comment} t={t} onHashtagClick={handleHashtagClick} showOnlyFirstSentence={true} />
+                                        {(post.patternImage || post.referenceUrl) && (
+                                            <span className="text-[9px] font-bold bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded-md whitespace-nowrap border border-orange-100 flex-shrink-0">
+                                                {t('hasPattern')}
+                                            </span>
+                                        )}
                                     </div>
                                     {post.shopName && (
-                                        <div className="bg-gray-50 px-2 py-0.5 rounded flex items-center gap-1 text-[9px] text-gray-500 overflow-hidden truncate">
+                                        <div className="mt-auto bg-gray-50 px-2 py-0.5 rounded flex items-center gap-1 text-[9px] text-gray-500 overflow-hidden truncate">
                                             <Shirt size={9} className="flex-shrink-0" />
                                             <span className="truncate">{post.shopName}</span>
                                         </div>
@@ -843,25 +844,40 @@ const Gallery = () => {
                             <X size={20} />
                         </button>
 
-                        <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '24px' }}>
-                            <div className="relative">
+                        <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '32px' }}>
+                            <div className="relative overflow-hidden bg-gray-50 border-b border-gray-100">
                                 <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
-                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">
-                                    <h2 className="text-xl font-bold">{selectedItem.itemName || selectedItem.name}</h2>
-                                </div>
                             </div>
 
-                            <div className="p-6 space-y-4">
+                            <div className="p-6 sm:p-8 space-y-6">
+                                {/* Item Title */}
+                                <div>
+                                    <h2 className="text-xl sm:text-2xl font-black text-gray-900 leading-snug mb-1.5 break-words pr-8">
+                                        {selectedItem.itemName || selectedItem.name}
+                                    </h2>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        {selectedItem.location && (
+                                            <div className="flex items-center gap-1.5 text-blue-500 font-bold text-[11px] bg-blue-50 px-2 py-0.5 rounded-md">
+                                                <span>{getLocationFlag(selectedItem.location)}</span>
+                                                <span>@{selectedItem.location}</span>
+                                            </div>
+                                        )}
+                                        <div className="text-[10px] text-gray-400 font-bold uppercase tracking-wider bg-gray-50 px-2 py-0.5 rounded-md">
+                                            {selectedItem.date || t('recently')}
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* User info */}
-                                <div className="flex items-center gap-3">
-                                    <UserAvatar src={selectedItem.userIcon} className="w-10 h-10" alt={selectedItem.userName} />
+                                <div className="flex items-center gap-3 pt-2 border-t border-gray-50">
+                                    <UserAvatar src={selectedItem.userIcon} className="w-10 h-10 shadow-sm" alt={selectedItem.userName} />
                                     <div>
-                                        <p className="font-bold text-gray-800">
+                                        <p className="font-bold text-gray-800 leading-none mb-1">
                                             {selectedItem.profileSlug ? (
                                                 <Link to={`/gallery/${selectedItem.profileSlug}`} className="hover:text-primary" onClick={() => setSelectedItem(null)}>{selectedItem.userName}</Link>
                                             ) : selectedItem.userName}
                                         </p>
-                                        <p className="text-xs text-gray-400">{selectedItem.date || t('recently')}</p>
+                                        <p className="text-[10px] text-gray-400 font-medium">{t('sharedPostLabel') || '作品投稿'}</p>
                                     </div>
                                 </div>
 

@@ -12,23 +12,40 @@ const getLocationFlag = (location) => {
         if (!location) return '🌐';
         if (typeof location !== 'string') return '❓';
         const loc = location.toLowerCase();
-        if (loc.includes('日本') || loc.includes('japan') || loc.includes('tokyo') || loc.includes('osaka') || loc.includes('kyoto') || loc.includes('shibuya') || loc.includes('iwate') || loc.includes('hokkaido') ||
-            loc.includes('東京') || loc.includes('大阪') || loc.includes('京都') || loc.includes('渋谷') || loc.includes('岩手') || loc.includes('北海道') || loc.includes('札幌') || loc.includes('福岡') || loc.includes('横浜') ||
-            loc.includes('神奈川') || loc.includes('兵库') || loc.includes('兵庫') || loc.includes('愛知') || loc.includes('千葉') || loc.includes('埼玉') || loc.includes('広島') || loc.includes('仙台') || loc.includes('名古屋')) return '🇯🇵';
-        if (loc.includes('usa') || loc.includes('america') || loc.includes('new york') || loc.includes('ny') || loc.includes('la') || loc.includes('los angeles')) return '🇺🇸';
-        if (loc.includes('france') || loc.includes('paris')) return '🇫🇷';
-        if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom')) return '🇬🇧';
-        if (loc.includes('korea') || loc.includes('seoul')) return '🇰🇷';
-        if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing')) return '🇨🇳';
-        if (loc.includes('taiwan') || loc.includes('台湾')) return '🇹🇼';
-        if (loc.includes('germany') || loc.includes('berlin')) return '🇩🇪';
-        if (loc.includes('italy') || loc.includes('rome')) return '🇮🇹';
-        if (loc.includes('spain') || loc.includes('madrid')) return '🇪🇸';
-        if (loc.includes('canada')) return '🇨🇦';
-        if (loc.includes('australia') || loc.includes('sydney')) return '🇦🇺';
-        if (loc.includes('singapore')) return '🇸🇬';
-        if (loc.includes('thailand') || loc.includes('bangkok')) return '🇹🇭';
-        if (loc.includes('vietnam')) return '🇻🇳';
+        
+        // Japan Prefectures (Kanji & Romaji)
+        const japanKeywords = [
+            '日本', 'japan', 'tokyo', 'osaka', 'kyoto', 'shibuya', 'iwate', 'hokkaido',
+            '東京', '大阪', '京都', '渋谷', '岩手', '北海道', '札幌', '福岡', '横浜',
+            '盛岡', 'morioka',
+            '神奈川', '兵库', '兵庫', '愛知', '千葉', '埼玉', '広島', '仙台', '名古屋',
+            '青森', '秋田', '宮城', '山形', '福島', '茨城', '栃木', '群馬', '新潟', '富山', 
+            '石川', '福井', '山梨', '長野', '岐阜', '静岡', '三重', '滋賀', '奈良', '和歌山', 
+            '鳥取', '島根', '岡山', '広島', '山口', '徳島', '香川', '愛媛', '高知', '佐賀', 
+            '長崎', '熊本', '大分', '宮崎', '鹿児島', '沖縄',
+            'aomori', 'akita', 'miyagi', 'yamagata', 'fukushima', 'ibaraki', 'tochigi', 'gunma', 
+            'niigata', 'toyama', 'ishikawa', 'fukui', 'yamanashi', 'nagano', 'gifu', 'shizuoka', 
+            'aichi', 'mie', 'shiga', 'hyogo', 'nara', 'wakayama', 'tottori', 'shimane', 'okayama', 
+            'yamaguchi', 'tokushima', 'kagawa', 'ehime', 'kochi', 'saga', 'nagasaki', 'kumamoto', 
+            'oita', 'miyazaki', 'kagoshima', 'okinawa'
+        ];
+        
+        if (japanKeywords.some(k => loc.includes(k))) return '🇯🇵';
+        if (loc.includes('usa') || loc.includes('america') || loc.includes('new york') || loc.includes('ny') || loc.includes('la') || loc.includes('los angeles') || loc.includes('hawaii') || loc.includes('ハワイ') || loc.includes('hawai‘i')) return '🇺🇸';
+        if (loc.includes('france') || loc.includes('paris') || loc.includes('フランス') || loc.includes('パリ')) return '🇫🇷';
+        if (loc.includes('uk') || loc.includes('london') || loc.includes('england') || loc.includes('united kingdom') || loc.includes('ロンドン') || loc.includes('イギリス') || loc.includes('英国')) return '🇬🇧';
+        if (loc.includes('korea') || loc.includes('seoul') || loc.includes('韓国') || loc.includes('ソウル')) return '🇰🇷';
+        if (loc.includes('china') || loc.includes('shanghai') || loc.includes('beijing') || loc.includes('中国') || loc.includes('上海') || loc.includes('北京')) return '🇨🇳';
+        if (loc.includes('taiwan') || loc.includes('taipei') || loc.includes('台湾') || loc.includes('台北')) return '🇹🇼';
+        if (loc.includes('germany') || loc.includes('berlin') || loc.includes('ドイツ') || loc.includes('ベルリン')) return '🇩🇪';
+        if (loc.includes('italy') || loc.includes('rome') || loc.includes('イタリア') || loc.includes('ローマ')) return '🇮🇹';
+        if (loc.includes('spain') || loc.includes('madrid') || loc.includes('スペイン') || loc.includes('マドリード')) return '🇪🇸';
+        if (loc.includes('canada') || loc.includes('カナダ')) return '🇨🇦';
+        if (loc.includes('australia') || loc.includes('sydney') || loc.includes('オーストラリア') || loc.includes('シドニー')) return '🇦🇺';
+        if (loc.includes('singapore') || loc.includes('シンガポール')) return '🇸🇬';
+        if (loc.includes('thailand') || loc.includes('bangkok') || loc.includes('タイ') || loc.includes('バンコク')) return '🇹🇭';
+        if (loc.includes('vietnam') || loc.includes('ベトナム')) return '🇻🇳';
+        if (loc.includes('hong kong') || loc.includes('香港')) return '🇭🇰';
         return '🌐';
     } catch (e) {
         return '⚠️';
@@ -465,10 +482,10 @@ const Home = () => {
                                         {/* Circular location flag next to icon */}
                                         <div style={{
                                             position: 'absolute',
-                                            top: '-2px',
-                                            right: '-4px',
-                                            width: '13px',
-                                            height: '13px',
+                                            top: '0',
+                                            right: '0',
+                                            width: '15px',
+                                            height: '15px',
                                             background: 'white',
                                             borderRadius: '50%',
                                             display: 'flex',
@@ -476,16 +493,31 @@ const Home = () => {
                                             justifyContent: 'center',
                                             zIndex: 50,
                                             border: '1px solid var(--gray-200)',
-                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                            fontSize: '8px',
-                                            lineHeight: 1
+                                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                            fontSize: '10px',
+                                            lineHeight: 1,
+                                            transform: 'translate(25%, -25%)'
                                         }}>
                                             {getLocationFlag(post.location)}
                                         </div>
                                     </div>
                                     <div className="flex-1 min-w-0">
+                                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
+                                            <span className="font-semibold text-main" style={{ fontSize: '11px' }}>{post.userName}</span>
+                                            {post.location && (
+                                                <span style={{ 
+                                                    fontSize: '9px', 
+                                                    color: 'var(--text-light)', 
+                                                    background: 'var(--gray-50)', 
+                                                    padding: '1px 5px', 
+                                                    borderRadius: '4px',
+                                                    border: '1px solid var(--gray-100)'
+                                                }}>
+                                                    @{post.location}
+                                                </span>
+                                            )}
+                                        </div>
                                         <p style={{ color: 'var(--text-main)', fontSize: '11px', lineHeight: '1.4' }}>
-                                            <span className="font-semibold">{post.userName}</span>
                                             {t('sharedAction')}
                                             <span className="font-semibold" style={{ color: 'var(--primary)' }}>{post.itemName}</span>
                                             {t('sharedSuffix')}

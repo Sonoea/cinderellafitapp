@@ -19,7 +19,7 @@ const Settings = () => {
         } else {
             setImportStatus({
                 success: false,
-                message: language === 'jp' ? 'ログアウトに失敗しました' : 'Logout failed'
+                message: t('logoutFailed')
             });
         }
     };
@@ -50,9 +50,7 @@ const Settings = () => {
 
         setImportStatus({
             success: true,
-            message: language === 'jp'
-                ? 'データをエクスポートしました'
-                : 'Data exported successfully'
+            message: t('exportSuccess')
         });
     };
 
@@ -78,9 +76,7 @@ const Settings = () => {
 
             setImportStatus({
                 success: true,
-                message: language === 'jp'
-                    ? 'データのインポートに成功しました！ページを再読み込みします...'
-                    : 'Data imported successfully! Reloading page...'
+                message: t('importSuccess')
             });
 
             // Reload page to reflect changes
@@ -91,9 +87,7 @@ const Settings = () => {
             console.error('Import error:', error);
             setImportStatus({
                 success: false,
-                message: language === 'jp'
-                    ? `エラー: ${error.message || 'データのインポートに失敗しました'}`
-                    : `Error: ${error.message || 'Failed to import data'}`
+                message: `${t('importError')}: ${error.message || ''}`
             });
         }
     };
@@ -110,9 +104,7 @@ const Settings = () => {
         reader.onerror = () => {
             setImportStatus({
                 success: false,
-                message: language === 'jp'
-                    ? 'ファイルの読み込みに失敗しました'
-                    : 'Failed to read file'
+                message: t('fileReadError')
             });
         };
         reader.readAsText(file);
@@ -123,9 +115,7 @@ const Settings = () => {
         if (!importText.trim()) {
             setImportStatus({
                 success: false,
-                message: language === 'jp'
-                    ? 'データを貼り付けてください'
-                    : 'Please paste data'
+                message: t('pasteJsonPrompt')
             });
             return;
         }
@@ -143,18 +133,10 @@ const Settings = () => {
     };
 
     const getPlanName = () => {
-        if (language === 'jp') {
-            switch (userPlan) {
-                case 'premium': return 'プレミアム';
-                case 'enterprise': return 'エンタープライズ';
-                default: return '無料プラン';
-            }
-        } else {
-            switch (userPlan) {
-                case 'premium': return 'Premium';
-                case 'enterprise': return 'Enterprise';
-                default: return 'Free Plan';
-            }
+        switch (userPlan) {
+            case 'premium': return t('premiumPlan');
+            case 'enterprise': return t('enterprisePlan');
+            default: return t('freePlan');
         }
     };
 
@@ -169,7 +151,7 @@ const Settings = () => {
                     <ArrowLeft size={20} />
                 </button>
                 <h1 className="text-xl font-bold">
-                    {language === 'jp' ? '設定' : 'Settings'}
+                    {t('settings')}
                 </h1>
             </div>
 
@@ -179,7 +161,7 @@ const Settings = () => {
                     <div className="flex items-center gap-2">
                         <Crown size={20} className="text-yellow-500" />
                         <span className="font-bold text-gray-700">
-                            {language === 'jp' ? 'プラン' : 'Plan'}
+                            {t('plan')}
                         </span>
                     </div>
                     <div className={`${getPlanBadgeColor()} text-white px-3 py-1 rounded-full text-xs font-bold`}>
@@ -188,7 +170,7 @@ const Settings = () => {
                 </div>
                 <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">
-                        {language === 'jp' ? 'ぬいぐるみ登録数' : 'Plushies'}
+                        {t('plushies')}
                     </span>
                     <span className="font-bold text-gray-700">
                         {plushies.length} / {plushieLimit === Infinity ? '∞' : plushieLimit}
@@ -202,7 +184,7 @@ const Settings = () => {
                     <div className="flex items-center gap-2">
                         <User size={20} className="text-primary" />
                         <span className="font-bold">
-                            {language === 'jp' ? 'アカウント' : 'Account'}
+                            {t('account')}
                         </span>
                     </div>
                 </div>
@@ -217,18 +199,18 @@ const Settings = () => {
                                 </div>
                                 <div className="flex-1">
                                     <p className="font-bold text-sm text-gray-700">
-                                        {currentUser.displayName || (language === 'jp' ? 'ユーザー' : 'User')}
+                                        {currentUser.displayName || t('user')}
                                     </p>
                                     <p className="text-xs text-gray-500">{currentUser.email}</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2 mt-2">
                                 <div className="px-2 py-1 bg-green-50 text-green-600 rounded-full text-[10px] font-bold">
-                                    {language === 'jp' ? 'ログイン中' : 'Logged In'}
+                                    {t('loggedBy')}
                                 </div>
                                 {currentUser.emailVerified && (
                                     <div className="px-2 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-bold">
-                                        ✓ {language === 'jp' ? '認証済み' : 'Verified'}
+                                        ✓ {t('verified')}
                                     </div>
                                 )}
                             </div>
@@ -242,7 +224,7 @@ const Settings = () => {
                                     <LogOut size={20} className="text-red-600" />
                                 </div>
                                 <span className="font-bold text-sm text-red-600">
-                                    {language === 'jp' ? 'ログアウト' : 'Logout'}
+                                    {t('logout')}
                                 </span>
                             </div>
                         </button>
@@ -259,10 +241,10 @@ const Settings = () => {
                             </div>
                             <div className="text-left">
                                 <p className="font-bold text-sm">
-                                    {language === 'jp' ? 'ログイン' : 'Login'}
+                                    {t('login')}
                                 </p>
                                 <p className="text-xs text-gray-500">
-                                    {language === 'jp' ? 'データを同期' : 'Sync your data'}
+                                    {t('syncData')}
                                 </p>
                             </div>
                         </div>
@@ -277,13 +259,11 @@ const Settings = () => {
                     <div className="flex items-center gap-2">
                         <FileJson size={20} className="text-primary" />
                         <span className="font-bold">
-                            {language === 'jp' ? 'データ管理' : 'Data Management'}
+                            {t('dataManagement')}
                         </span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
-                        {language === 'jp'
-                            ? 'デバイス間でデータを移行できます'
-                            : 'Transfer data between devices'}
+                        {t('transferDataDesc')}
                     </p>
                 </div>
 
@@ -298,10 +278,10 @@ const Settings = () => {
                         </div>
                         <div className="text-left">
                             <p className="font-bold text-sm">
-                                {language === 'jp' ? 'データをエクスポート' : 'Export Data'}
+                                {t('exportData')}
                             </p>
                             <p className="text-xs text-gray-500">
-                                {language === 'jp' ? 'JSONファイルとして保存' : 'Save as JSON file'}
+                                {t('exportJsonDesc')}
                             </p>
                         </div>
                     </div>
@@ -315,10 +295,10 @@ const Settings = () => {
                         </div>
                         <div className="text-left">
                             <p className="font-bold text-sm">
-                                {language === 'jp' ? 'ファイルから' : 'From File'}
+                                {t('importFromFile')}
                             </p>
                             <p className="text-xs text-gray-500">
-                                {language === 'jp' ? 'JSONファイルを選択' : 'Select JSON file'}
+                                {t('selectJsonFile')}
                             </p>
                         </div>
                     </div>
@@ -341,10 +321,10 @@ const Settings = () => {
                         </div>
                         <div className="text-left">
                             <p className="font-bold text-sm">
-                                {language === 'jp' ? 'テキストから' : 'From Text'}
+                                {t('importFromText')}
                             </p>
                             <p className="text-xs text-gray-500">
-                                {language === 'jp' ? 'JSONを貼り付け（推奨）' : 'Paste JSON (Recommended)'}
+                                {t('pasteJsonRecommended')}
                             </p>
                         </div>
                     </div>
@@ -357,12 +337,10 @@ const Settings = () => {
                     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={() => setShowImportModal(false)}>
                         <div className="bg-white rounded-2xl p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
                             <h3 className="font-bold text-lg mb-2">
-                                {language === 'jp' ? 'データをインポート' : 'Import Data'}
+                                {t('importDataTitle')}
                             </h3>
                             <p className="text-xs text-gray-500 mb-4">
-                                {language === 'jp'
-                                    ? 'エクスポートしたJSONデータを下のエリアに貼り付けてください'
-                                    : 'Paste your exported JSON data below'}
+                                {t('pasteDataBelow')}
                             </p>
                             <textarea
                                 value={importText}
@@ -378,13 +356,13 @@ const Settings = () => {
                                     }}
                                     className="flex-1 py-3 rounded-xl bg-gray-100 font-bold text-gray-600 hover:bg-gray-200 transition-colors"
                                 >
-                                    {language === 'jp' ? 'キャンセル' : 'Cancel'}
+                                    {t('cancel')}
                                 </button>
                                 <button
                                     onClick={handleTextImport}
                                     className="flex-1 py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary-dark transition-colors"
                                 >
-                                    {language === 'jp' ? 'インポート' : 'Import'}
+                                    {t('import')}
                                 </button>
                             </div>
                         </div>
@@ -408,7 +386,7 @@ const Settings = () => {
                     <div className="flex items-center gap-2">
                         <Globe size={20} className="text-primary" />
                         <span className="font-bold">
-                            {language === 'jp' ? '言語' : 'Language'}
+                            {t('language')}
                         </span>
                     </div>
                 </div>
@@ -441,7 +419,7 @@ const Settings = () => {
                             <BookOpen size={20} className="text-orange-600" />
                         </div>
                         <span className="font-bold text-sm">
-                            {language === 'jp' ? '使い方ガイド' : 'User Guide'}
+                            {t('guideButton')}
                         </span>
                     </div>
                     <ArrowLeft size={16} className="rotate-180 text-gray-400" />
@@ -455,7 +433,7 @@ const Settings = () => {
                             <Shield size={20} className="text-gray-600" />
                         </div>
                         <span className="font-bold text-sm">
-                            {language === 'jp' ? 'プライバシーポリシー・利用規約' : 'Privacy Policy & Terms'}
+                            {t('privacyPolicyTerms')}
                         </span>
                     </div>
                     <ArrowLeft size={16} className="rotate-180 text-gray-400" />
@@ -467,7 +445,7 @@ const Settings = () => {
                 <p>CinderellaFit v1.0.0</p>
                 <p className="mt-1">© 2026 Unagi Travel</p>
             </div>
-        </div >
+        </div>
     );
 };
 

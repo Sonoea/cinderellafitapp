@@ -172,7 +172,7 @@ const Gallery = () => {
                             id: docSnap.id,
                             compositeId: `${ownerUid}_${docSnap.id}`.replace(/local-/g, ''),
                             ...data, userId: ownerUid, imageUrl,
-                            itemName: data.itemName || data.name || 'Untitled',
+                            itemName: data.itemName || data.name || t('untitled'),
                             plushieName: data.plushieName || data.plushie || '',
                             userName: data.userName || null,
                             userIcon: data.userIcon || '',
@@ -185,11 +185,15 @@ const Gallery = () => {
                     } catch (err) { console.warn("Skipping invalid gallery item:", docSnap.id, err); }
                 });
 
-                items.sort((a, b) => {
-                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                    return dateB - dateA;
-                });
+                // Helper to get time for sorting
+                const getTime = (val) => {
+                    if (!val) return 0;
+                    if (typeof val === 'object' && 'seconds' in val) return val.seconds * 1000;
+                    const d = new Date(val);
+                    return isNaN(d.getTime()) ? 0 : d.getTime();
+                };
+
+                items.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
 
                 // Deduplicate
                 const uniqueItems = [];
@@ -833,8 +837,8 @@ const Gallery = () => {
 
             {/* Detail Modal */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
-                    <div className="modal-responsive relative shadow-2xl bg-white sm:rounded-2xl rounded-t-2xl" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
+                <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
+                    <div className="modal-responsive relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '94vh', display: 'flex', flexDirection: 'column' }}>
                         <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm">
                             <X size={20} />
                         </button>
@@ -857,7 +861,7 @@ const Gallery = () => {
                                                 <Link to={`/gallery/${selectedItem.profileSlug}`} className="hover:text-primary" onClick={() => setSelectedItem(null)}>{selectedItem.userName}</Link>
                                             ) : selectedItem.userName}
                                         </p>
-                                        <p className="text-xs text-gray-400">{selectedItem.date}</p>
+                                        <p className="text-xs text-gray-400">{selectedItem.date || t('recently')}</p>
                                     </div>
                                 </div>
 
@@ -1090,7 +1094,7 @@ const Gallery = () => {
                                                 className="self-end flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl disabled:opacity-50 hover:bg-primary/90 transition-colors text-sm font-bold"
                                             >
                                                 <Send size={14} />
-                                                {language === 'jp' ? '送信' : 'Send'}
+                                                {t('send')}
                                             </button>
                                         </div>
                                     ) : (

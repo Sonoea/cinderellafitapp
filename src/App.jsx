@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { AppProvider, useApp } from './context/AppContext';
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import BottomNav from './components/BottomNav';
@@ -19,6 +19,11 @@ import UserProfile from './pages/UserProfile';
 // Lazy load Closet to prevent circular dependency/initialization issues
 const Closet = lazy(() => import('./pages/Closet'));
 
+const LoadingFallback = () => {
+  const { t } = useApp();
+  return <div className="p-10 text-center">{t('loading')}</div>;
+};
+
 function App() {
   return (
     <AuthProvider>
@@ -32,7 +37,7 @@ function App() {
                 <Route path="/measure" element={<Measure />} />
                 <Route path="/closet" element={
                   <ErrorBoundary>
-                    <Suspense fallback={<div className="p-10 text-center">Loading...</div>}>
+                    <Suspense fallback={<LoadingFallback />}>
                       <Closet />
                     </Suspense>
                   </ErrorBoundary>

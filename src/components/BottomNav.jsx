@@ -34,7 +34,7 @@ const BottomNav = () => {
             justifyContent: 'space-around',
             paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 20px))',
             paddingTop: '10px',
-            zIndex: 9999,
+            zIndex: 100,
             boxShadow: '0 -2px 16px rgba(0,0,0,0.04)'
         }}>
             {navItems.map(({ to, icon, label }) => (

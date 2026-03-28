@@ -1,9 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy, HelpCircle, X, Sparkles } from 'lucide-react';
+import { ExternalLink, Search, CheckCircle, AlertTriangle, XCircle, ChevronDown, Ruler, ShoppingBag, FileText, Copy, HelpCircle, X } from 'lucide-react';
 
-import CameraScanner from '../components/CameraScanner';
 import { translations } from '../translations';
 import VirtualFitting3D from '../components/VirtualFitting3D';
 
@@ -35,168 +34,6 @@ const Shop = () => {
     const [photoSizeNeck, setPhotoSizeNeck] = useState('');
     const [photoSizeWaist, setPhotoSizeWaist] = useState('');
     const [photoSizeLength, setPhotoSizeLength] = useState('');
-
-    // AI試着
-    const [aiTryonResult, setAiTryonResult] = useState(null);
-    const [aiTryonLoading, setAiTryonLoading] = useState(false);
-    const [aiTryonError, setAiTryonError] = useState(null);
-
-    // 画像をdata URIに変換するヘルパー
-    const imageToDataUri = (src) => {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                const ctx = canvas.getContext('2d');
-                ctx.drawImage(img, 0, 0);
-                resolve(canvas.toDataURL('image/png'));
-            };
-            img.onerror = () => reject(new Error(t('imageLoadError')));
-            img.src = src;
-        });
-    };
-
-    const handleAiTryon = async () => {
-        if (!selectedPlushie?.image) {
-            setAiTryonError(t('plushiePhotoRequired'));
-            return;
-        }
-        if (!product) {
-            setAiTryonError(t('analyzeUrlFirst'));
-            return;
-        }
-        setAiTryonLoading(true);
-        setAiTryonError(null);
-        setAiTryonResult(null);
-        try {
-            const clothingType = product?.rawSizeInfo?.clothingType;
-            let category = 'upper_body';
-            if (clothingType === 'dress') category = 'dresses';
-            else if (clothingType === 'bottoms') category = 'lower_body';
-
-            // ぬいぐるみ画像をdata URIに変換
-            let plushieImg = selectedPlushie.image;
-            if (!plushieImg.startsWith('data:')) {
-                try {
-                    plushieImg = await imageToDataUri(plushieImg);
-                } catch {
-                    plushieImg = `${window.location.origin}${plushieImg} `;
-                }
-            }
-
-            // 商品画像の取得（複数フォールバック）
-            let garmentImg = null;
-
-            // 1. product.image（プロキシ済みdata URI）
-            if (product.image && product.image.startsWith('data:')) {
-                garmentImg = product.image;
-            }
-
-            // 2. product.image がURLの場合、プロキシ経由で取得
-            if (!garmentImg && product.image && product.image.startsWith('http')) {
-                try {
-                    const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(product.image)} `);
-                    const proxyData = await proxyRes.json();
-                    if (proxyData.success && proxyData.dataUri) {
-                        garmentImg = proxyData.dataUri;
-                    }
-                } catch { /* continue */ }
-            }
-
-            // 3. originalImageUrl から取得
-            if (!garmentImg && product.originalImageUrl && product.originalImageUrl.startsWith('http')) {
-                try {
-                    const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(product.originalImageUrl)} `);
-                    const proxyData = await proxyRes.json();
-                    if (proxyData.success && proxyData.dataUri) {
-                        garmentImg = proxyData.dataUri;
-                    }
-                } catch { /* continue */ }
-            }
-
-            // 4. 商品URLからページを再分析して画像だけ取得
-            if (!garmentImg && product.url) {
-                try {
-                    const reAnalyze = await fetch(`${API_BASE} /api/check - size`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ url: product.url, plushieHeight: 0 }),
-                    });
-                    const reData = await reAnalyze.json();
-                    if (reData.product?.image) {
-                        // 画像URLをプロキシ
-                        try {
-                            const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(reData.product.image)} `);
-                            const proxyData = await proxyRes.json();
-                            if (proxyData.success && proxyData.dataUri) {
-                                garmentImg = proxyData.dataUri;
-                                // product stateも更新
-                                setProduct(prev => ({ ...prev, image: proxyData.dataUri, originalImageUrl: reData.product.image }));
-                            } else {
-                                garmentImg = reData.product.image;
-                            }
-                        } catch {
-                            garmentImg = reData.product.image;
-                        }
-                    }
-                } catch { /* continue */ }
-            }
-
-            if (!garmentImg) {
-                setAiTryonError(t('aiTryonNoImage'));
-                setAiTryonLoading(false);
-                return;
-            }
-
-            // 画像をリサイズしてペイロードサイズを削減（Vercel 4.5MB制限対策）
-            const resizeForApi = (dataUri, maxSize = 512) => new Promise((resolve) => {
-                if (!dataUri || !dataUri.startsWith('data:')) { resolve(dataUri); return; }
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    let w = img.width, h = img.height;
-                    if (w > maxSize || h > maxSize) {
-                        if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
-                        else { w = Math.round(w * maxSize / h); h = maxSize; }
-                    }
-                    canvas.width = w; canvas.height = h;
-                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-                    resolve(canvas.toDataURL('image/jpeg', 0.7));
-                };
-                img.onerror = () => resolve(dataUri);
-                img.src = dataUri;
-            });
-
-            const [compressedPlushie, compressedGarment] = await Promise.all([
-                resizeForApi(plushieImg),
-                resizeForApi(garmentImg),
-            ]);
-
-            const res = await fetch(`${API_BASE} /api/ai - tryon`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    plushieImage: compressedPlushie,
-                    garmentImage: compressedGarment,
-                    garmentDescription: product.name || 'cute plushie clothing',
-                    category,
-                }),
-            });
-            const data = await res.json();
-            if (data.success) {
-                setAiTryonResult(data.resultImage);
-            } else {
-                setAiTryonError(data.error || t('aiTryonGenericError'));
-            }
-        } catch (err) {
-            setAiTryonError(t('networkError') + ': ' + err.message);
-        } finally {
-            setAiTryonLoading(false);
-        }
-    };
 
 
     const selectedPlushie = plushies.find(p => p.id === selectedId);
@@ -1080,94 +917,6 @@ const Shop = () => {
                     </div>
                 )}
 
-                {/* AI試着セクション — 開発環境のみ */}
-                {import.meta.env.DEV && product && (
-                    <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="w-6 h-6 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white flex items-center justify-center text-xs font-bold">✨</div>
-                            <h2 className="font-bold text-gray-800">{t('aiTryonHeading')}</h2>
-                            <span className="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-bold">β</span>
-                        </div>
-
-                        {!aiTryonResult && !aiTryonLoading && (
-                            <div className="text-center">
-                                <p className="text-xs text-gray-500 mb-3">
-                                    {t('aiTryonDesc', selectedPlushie?.name || t('guest'))}
-                                </p>
-                                <button
-                                    onClick={handleAiTryon}
-                                    disabled={!selectedPlushie?.image}
-                                    className="w-full py-3 rounded-xl font-bold text-white text-sm"
-                                    style={{
-                                        background: selectedPlushie?.image
-                                            ? 'linear-gradient(135deg, #8b5cf6, #ec4899)'
-                                            : '#d1d5db',
-                                        cursor: selectedPlushie?.image ? 'pointer' : 'not-allowed',
-                                    }}
-                                >
-                                    {t('aiTryonBtn')}
-                                </button>
-                                {!selectedPlushie?.image && (
-                                    <p className="text-[10px] text-orange-500 mt-2">
-                                        ⚠️ {t('plushiePhotoRequired')}
-                                    </p>
-                                )}
-                            </div>
-                        )}
-
-                        {aiTryonLoading && (
-                            <div className="text-center py-8">
-                                <div style={{
-                                    width: 40, height: 40,
-                                    border: '4px solid #e5e7eb',
-                                    borderTopColor: '#8b5cf6',
-                                    borderRadius: '50%',
-                                    animation: 'spin 1s linear infinite',
-                                    margin: '0 auto 12px',
-                                }} />
-                                <p className="text-sm font-bold text-purple-700">{t('aiTryonLoadingMsg')}</p>
-                                <p className="text-xs text-gray-400 mt-1">{t('aiTryonLoadingSub')}</p>
-                                <style>{`@keyframes spin { to { transform: rotate(360deg); } } `}</style>
-                            </div>
-                        )}
-
-                        {aiTryonResult && (
-                            <div className="text-center">
-                                <img
-                                    src={aiTryonResult}
-                                    alt="AI試着結果"
-                                    style={{
-                                        width: '100%',
-                                        maxHeight: '400px',
-                                        objectFit: 'contain',
-                                        borderRadius: '12px',
-                                        border: '2px solid #e5e7eb',
-                                    }}
-                                />
-                                <p className="text-xs text-green-600 font-bold mt-2">{t('aiTryonComplete')}</p>
-                                <button
-                                    onClick={() => { setAiTryonResult(null); setAiTryonError(null); }}
-                                    className="mt-2 text-xs text-purple-600 underline"
-                                >
-                                    {t('tryAgain')}
-                                </button>
-                            </div>
-                        )}
-
-                        {aiTryonError && (
-                            <div className="bg-red-50 rounded-xl p-3 mt-2">
-                                <p className="text-xs text-red-600">⚠️ {aiTryonError}</p>
-                                <button
-                                    onClick={() => setAiTryonError(null)}
-                                    className="mt-1 text-xs text-red-500 underline"
-                                >
-                                    {t('close')}
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                )}
-
                 {/* Step 4: Action Buttons */}
                 {product && (
                     <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 fade-in">
@@ -1204,6 +953,7 @@ const Shop = () => {
                         </div>
                     </div>
                 )}
+
 
 
 

@@ -10,11 +10,18 @@ export const safeHostname = (url) => {
 
 export const safeDate = (dateVal) => {
     try {
-        if (!dateVal) return 'Recently';
+        if (!dateVal) return null;
+        
+        // Handle Firestore Timestamp
+        if (dateVal && typeof dateVal === 'object' && 'seconds' in dateVal) {
+            const d = new Date(dateVal.seconds * 1000);
+            return d.toISOString().split('T')[0];
+        }
+        
         const d = new Date(dateVal);
-        if (isNaN(d.getTime())) return 'Recently';
+        if (isNaN(d.getTime())) return null;
         return d.toISOString().split('T')[0];
     } catch (e) {
-        return 'Recently';
+        return null;
     }
 };

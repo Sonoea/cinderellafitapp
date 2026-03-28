@@ -65,7 +65,7 @@ const Guide = () => {
                             flexShrink: 0, fontSize: 20
                         }}>📏</div>
                         <div style={{ flex: 1 }}>
-                            <p style={{ fontSize: 10, fontWeight: 800, color: '#4F8A8B', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Step 1</p>
+                            <p style={{ fontSize: 10, fontWeight: 800, color: '#4F8A8B', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{t('step')} 1</p>
                             <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1F2937', marginBottom: 5, lineHeight: 1.3 }}>
                                 {t('guideStep1Title')}
                             </h3>
@@ -89,11 +89,11 @@ const Guide = () => {
                         }}>🏷️</div>
                         <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                                <p style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Step 2</p>
+                                <p style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', letterSpacing: '0.08em', textTransform: 'uppercase' }}>{t('step')} 2</p>
                                 <span style={{
                                     fontSize: 9, fontWeight: 700, background: '#F0EBE3',
                                     color: '#9CA3AF', padding: '1px 6px', borderRadius: 20
-                                }}>任意</span>
+                                }}>{t('optional')}</span>
                             </div>
                             <h3 style={{ fontSize: 14, fontWeight: 700, color: '#6B7280', marginBottom: 4, lineHeight: 1.3 }}>
                                 {t('guideStep2Title')}
@@ -118,7 +118,7 @@ const Guide = () => {
                             flexShrink: 0, fontSize: 20
                         }}>✨</div>
                         <div style={{ flex: 1 }}>
-                            <p style={{ fontSize: 10, fontWeight: 800, color: '#8B5CF6', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Step 3</p>
+                            <p style={{ fontSize: 10, fontWeight: 800, color: '#8B5CF6', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{t('step')} 3</p>
                             <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1F2937', marginBottom: 5, lineHeight: 1.3 }}>
                                 {t('guideStep3Title')}
                             </h3>
@@ -142,7 +142,7 @@ const Guide = () => {
                             flexShrink: 0, fontSize: 20
                         }}>🌸</div>
                         <div style={{ flex: 1 }}>
-                            <p style={{ fontSize: 10, fontWeight: 800, color: '#EC4899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>Step 4</p>
+                            <p style={{ fontSize: 10, fontWeight: 800, color: '#EC4899', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 4 }}>{t('step')} 4</p>
                             <h3 style={{ fontSize: 15, fontWeight: 800, color: '#1F2937', marginBottom: 5, lineHeight: 1.3 }}>
                                 {t('guideStep4Title')}
                             </h3>
@@ -162,7 +162,7 @@ const Guide = () => {
                     textAlign: 'center'
                 }}>
                     <p style={{ fontSize: 12, color: '#4F8A8B', fontWeight: 600, lineHeight: 1.7 }}>
-                        💡 サイズ情報の登録がなくても、クローゼットとギャラリーはご利用いただけます。まずは気軽にスタートしてみてください！
+                        {t('guideFooterTip')}
                     </p>
                 </div>
 

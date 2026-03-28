@@ -734,63 +734,6 @@ a {
   z-index: 10;
 }
 
-/* ============================
-   Camera Scanner & AI Styles 
-   ============================ */
-
-/* Scan line animation (camera overlay) */
-.camera-scan-line {
-  position: absolute;
-  left: 32px;
-  right: 32px;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.8), transparent);
-  box-shadow: 0 0 12px rgba(99, 102, 241, 0.5), 0 0 30px rgba(99, 102, 241, 0.2);
-  animation: scanLine 2.5s ease-in-out infinite;
-  pointer-events: none;
-  z-index: 5;
-}
-
-@keyframes scanLine {
-  0% {
-    top: 15%;
-    opacity: 0;
-  }
-
-  10% {
-    opacity: 1;
-  }
-
-  90% {
-    opacity: 1;
-  }
-
-  100% {
-    top: 80%;
-    opacity: 0;
-  }
-}
-
-/* Scan overlay (during analysis) */
-.scan-overlay {
-  background: linear-gradient(180deg,
-      transparent 0%,
-      rgba(99, 102, 241, 0.05) 45%,
-      rgba(99, 102, 241, 0.15) 50%,
-      rgba(99, 102, 241, 0.05) 55%,
-      transparent 100%);
-  animation: scanOverlay 2s ease-in-out infinite;
-}
-
-@keyframes scanOverlay {
-  0% {
-    background-position: 0 -200%;
-  }
-
-  100% {
-    background-position: 0 200%;
-  }
-}
 
 /* Pulse animation for scanning */
 @keyframes pulse-ring {

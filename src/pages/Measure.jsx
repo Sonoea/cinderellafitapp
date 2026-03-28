@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Camera, Ruler, ArrowRight, ScanLine, ShoppingBag, CheckCircle, AlertTriangle, Trash2, Sparkles, Scan } from 'lucide-react';
+import { Camera, Ruler, ArrowRight, ShoppingBag, CheckCircle, AlertTriangle, Trash2 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import { compressImage } from '../utils/imageUtils';
-import CameraScanner from '../components/CameraScanner';
 
 const Measure = () => {
     const { addPlushie, updatePlushie, deletePlushie, plushies, t, plushieLimit, language } = useApp();
-    const [showScanner, setShowScanner] = useState(false);
     const navigate = useNavigate();
 
     // Get URL query params to check for edit mode
@@ -38,8 +36,6 @@ const Measure = () => {
         if (isEditMode && plushies.length > 0 && !hasLoaded.current) {
             const targetPlushie = plushies.find(p => String(p.id) === String(editId));
             if (targetPlushie) {
-                // Wrap in timeout to avoid synchronous state update warning (though ref prevents loop)
-                // or just accept that we need to update state based on props/context
                 const dataToLoad = {
                     name: targetPlushie.name,
                     type: targetPlushie.type,
@@ -54,15 +50,10 @@ const Measure = () => {
                     armGirth: targetPlushie.measurements?.armGirth || '',
                     leg: targetPlushie.measurements?.leg || '',
                 };
-
-                // Use functional update or just set it. 
-                // The warning is strict about effects triggering re-renders immediately.
-                // But this is necessary for initialization.
                 setFormData(dataToLoad);
                 hasLoaded.current = true;
             }
         }
-
     }, [isEditMode, editId, plushies]);
 
     // Handle image upload
@@ -106,7 +97,7 @@ const Measure = () => {
             updatePlushie({
                 id: Number(editId),
                 name: formData.name,
-                type: formData.type || 'Unknown',
+                type: formData.type || t('notSet'),
                 image: formData.image || "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80",
                 measurements
             });
@@ -115,7 +106,7 @@ const Measure = () => {
             // Add new
             const success = addPlushie({
                 name: formData.name,
-                type: formData.type || 'Unknown',
+                type: formData.type || t('notSet'),
                 image: formData.image || "https://images.unsplash.com/photo-1582234031754-526487e34ef6?auto=format&fit=crop&w=400&q=80",
                 measurements
             });
@@ -123,52 +114,14 @@ const Measure = () => {
             if (success) {
                 navigate('/');
             } else {
-                alert(t('plushieLimitReached') || `You've reached the limit of ${plushieLimit} plushies.`);
+                alert(t('plushieLimitReached') || `Limit reached (${plushieLimit})`);
             }
         }
-    };
-
-    // Handle AI scan results
-    const handleScanResults = (scanData) => {
-        setFormData(prev => ({
-            ...prev,
-            image: scanData.image || prev.image,
-            height: scanData.height || prev.height,
-            waist: scanData.waist || prev.waist,
-            head: scanData.head || prev.head,
-            neck: scanData.neck || prev.neck,
-            length: scanData.length || prev.length,
-            shoulder: scanData.shoulder || prev.shoulder,
-            arm: scanData.arm || prev.arm,
-            armGirth: scanData.armGirth || prev.armGirth,
-            leg: scanData.leg || prev.leg,
-        }));
-        setShowScanner(false);
     };
 
     return (
         <div className="flex flex-col h-full fade-in pb-20">
             <h2 className="mb-4">{isEditMode ? t('editPlushie') : t('newMeasurement')}</h2>
-
-            {/* AI Scan Button - 目立つ位置 */}
-            {!isEditMode && (
-                <button
-                    type="button"
-                    onClick={() => setShowScanner(true)}
-                    className="ai-scan-btn mb-4 w-full py-5 rounded-2xl text-white font-bold text-lg shadow-lg hover-scale flex items-center justify-center gap-3 relative overflow-hidden"
-                    style={{
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%)',
-                        boxShadow: '0 8px 32px rgba(99, 102, 241, 0.35)',
-                    }}
-                >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" style={{ animation: 'shimmer 3s ease infinite', backgroundSize: '200% 100%' }} />
-                    <Sparkles size={24} className="relative z-10" />
-                    <span className="relative z-10">
-                        {t('aiAutoMeasure')}
-                    </span>
-                    <Scan size={20} className="relative z-10 opacity-60" />
-                </button>
-            )}
 
             <form onSubmit={handleManualSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm fade-in">
                 {/* Image Upload UI */}
@@ -330,19 +283,8 @@ const Measure = () => {
                     </>
                 )}
             </form>
-
-            {/* Camera Scanner Modal */}
-            {showScanner && (
-                <CameraScanner
-                    language={language}
-                    t={t}
-                    onMeasurementsDetected={handleScanResults}
-                    onClose={() => setShowScanner(false)}
-                />
-            )}
         </div>
     );
 };
-
 
 export default Measure;

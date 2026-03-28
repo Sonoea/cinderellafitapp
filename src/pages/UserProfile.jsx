@@ -116,7 +116,7 @@ const UserProfile = () => {
                         ...data,
                         userId: userDoc.id,
                         imageUrl,
-                        itemName: data.itemName || data.name || 'Untitled',
+                        itemName: data.itemName || data.name || t('untitled'),
                         plushieName: data.plushieName || data.plushie || '',
                         purchaseType: data.purchaseType || '',
                         shopName: safeHostname(data.url || data.shopUrl),
@@ -126,11 +126,15 @@ const UserProfile = () => {
                     });
                 });
 
-                items.sort((a, b) => {
-                    const dateA = new Date(a.createdAt || 0).getTime();
-                    const dateB = new Date(b.createdAt || 0).getTime();
-                    return dateB - dateA;
-                });
+                // Helper to get time for sorting
+                const getTime = (val) => {
+                    if (!val) return 0;
+                    if (typeof val === 'object' && 'seconds' in val) return val.seconds * 1000;
+                    const d = new Date(val);
+                    return isNaN(d.getTime()) ? 0 : d.getTime();
+                };
+
+                items.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
 
                 setUserItems(items);
 
@@ -451,7 +455,7 @@ const UserProfile = () => {
                                 <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
                                     <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
                                     <div className="absolute" style={{ top: 6, right: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
-                                        {post.date}
+                                        {post.date || t('recently')}
                                     </div>
                                 </div>
 
@@ -490,13 +494,13 @@ const UserProfile = () => {
 
             {/* Detail Modal */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
-                    <div className="relative shadow-2xl overflow-hidden bg-white rounded-2xl" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '90vh' }}>
-                        <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10">
+                <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
+                    <div className="relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '94vh', display: 'flex', flexDirection: 'column' }}>
+                        <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 transition-colors hover:bg-black/70">
                             <X size={20} />
                         </button>
 
-                        <div style={{ overflowY: 'auto', maxHeight: '90vh' }}>
+                        <div style={{ overflowY: 'auto', flex: 1 }}>
                             <img src={selectedItem.imageUrl} alt="" className="w-full aspect-square object-cover" />
 
                             <div className="p-6 space-y-4">

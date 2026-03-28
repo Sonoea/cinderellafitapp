@@ -68,32 +68,24 @@ const Home = () => {
                             userIcon: data.userIcon || '',
                             plushieName: data.plushieName || '',
                             location: data.location || '',
-                            userId: data.userId // Add userId for profile fetching
+                            userId: data.userId,
+                            imageUrl: data.imageUrl || data.image || ''
                         });
                     } catch (e) { /* skip */ }
                 });
 
-                // Sort by createdAt descending
-                items.sort((a, b) => {
-                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                    return dateB - dateA;
-                });
+                // Helper to get time for sorting
+                const getTime = (val) => {
+                    if (!val) return 0;
+                    if (typeof val === 'object' && 'seconds' in val) return val.seconds * 1000;
+                    const d = new Date(val);
+                    return isNaN(d.getTime()) ? 0 : d.getTime();
+                };
 
-                // Deduplicate items
-                const uniqueItems = [];
+                items.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
+
+                // Deduplicate and filter out items without image
                 const seen = new Set();
-                items.forEach(item => {
-                    if (!item.userId || !item.createdAt) {
-                        uniqueItems.push(item);
-                        return;
-                    }
-                    const key = `${item.userId}-${item.itemName}-${item.imageUrl || item.image}`;
-                    if (!seen.has(key)) {
-                        seen.add(key);
-                        uniqueItems.push(item);
-                    }
-                });
 
                 // Further filter to ensure we show quality posts (with icons if possible)
                 // And exclude specific '誰か' entries if they exist in DB
@@ -143,9 +135,9 @@ const Home = () => {
             const diffHour = Math.floor(diffMs / 3600000);
             const diffDay = Math.floor(diffMs / 86400000);
             if (diffMin < 1) return t('justNow');
-            if (diffMin < 60) return t('timeAgo', diffMin, language === 'jp' ? '分' : 'm');
-            if (diffHour < 24) return t('timeAgo', diffHour, language === 'jp' ? '時間' : 'h');
-            if (diffDay < 7) return t('timeAgo', diffDay, language === 'jp' ? '日' : 'd');
+            if (diffMin < 60) return t('timeAgo', diffMin, t('unitMinute'));
+            if (diffHour < 24) return t('timeAgo', diffHour, t('unitHour'));
+            if (diffDay < 7) return t('timeAgo', diffDay, t('unitDay'));
             return date.toLocaleDateString();
         } catch {
             return '';

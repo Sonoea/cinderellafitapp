@@ -77,7 +77,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                     }
                 }, 100);
             } catch {
-                alert('Failed to load image');
+                alert(t('imageLoadError'));
             }
         }
     };
@@ -89,7 +89,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                 const compressed = await compressImage(file);
                 setFormData({ ...formData, patternImage: compressed });
             } catch {
-                alert('Failed to load pattern image');
+                alert(t('patternLoadError'));
             }
         }
     };
@@ -107,7 +107,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
             await onSave({
                 image,
                 ...formData,
-                plushieName: selectedPlushie ? selectedPlushie.name : 'Unknown',
+                plushieName: selectedPlushie ? selectedPlushie.name : t('notSet'),
                 plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
             });
         } catch (error) {
@@ -409,26 +409,26 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                                            <span>🪡</span> {t('handmadeMaterials') || 'Handmade Materials'}
+                                            <span>🪡</span> {t('handmadeMaterials')}
                                         </h4>
-                                        <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{t('optional') || 'Optional'}</span>
+                                        <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{t('optional')}</span>
                                     </div>
 
                                     {/* Pattern Upload */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('uploadPattern') || 'Upload Pattern'}</label>
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('uploadPattern')}</label>
                                         {!formData.patternImage ? (
                                             <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
                                                 <input type="file" onChange={handlePatternUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
                                                 <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
-                                                <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelectImage') || 'Tap to select image'}</p>
+                                                <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelectImage')}</p>
                                             </div>
                                         ) : (
                                             <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
                                                 <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
                                                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                                     <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
-                                                        {t('change') || 'Change'}
+                                                        {t('change')}
                                                         <input type="file" onChange={handlePatternUpload} className="hidden" accept="image/*" />
                                                     </label>
                                                 </div>
@@ -491,7 +491,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                         {formData.referencedPostId && (
                                             <div className="flex items-center justify-between mt-1 px-1">
                                                 <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
-                                                    <span>✅</span> {t('postDetected') || 'Post detected!'}
+                                                    <span>✅</span> {t('postDetected')}
                                                 </p>
                                                 {formData.referencedUserName && (
                                                     <p className="text-[9px] text-orange-500 font-bold">
@@ -575,7 +575,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                     }}
                 >
                     <span style={{ fontSize: '24px' }}>{isSaving ? '⏳' : '✨'}</span>
-                    <span>{isSaving ? '保存中...' : (image ? t('saveToCloset') : t('choosePhotoFirst'))}</span>
+                    <span>{isSaving ? t('saving') : (image ? t('saveToCloset') : t('choosePhotoFirst'))}</span>
                 </button>
             </div>
         </div>

@@ -1090,7 +1090,7 @@ const Gallery = () => {
                                                 className="self-end flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl disabled:opacity-50 hover:bg-primary/90 transition-colors text-sm font-bold"
                                             >
                                                 <Send size={14} />
-                                                {t('send') || '送信'}
+                                                {language === 'jp' ? '送信' : 'Send'}
                                             </button>
                                         </div>
                                     ) : (

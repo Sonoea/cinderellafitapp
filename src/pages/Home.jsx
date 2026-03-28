@@ -86,6 +86,14 @@ const Home = () => {
 
                 // Deduplicate and filter out items without image
                 const seen = new Set();
+                const uniqueItems = [];
+                items.forEach(item => {
+                    const key = item.id;
+                    if (!seen.has(key)) {
+                        seen.add(key);
+                        uniqueItems.push(item);
+                    }
+                });
 
                 // Further filter to ensure we show quality posts (with icons if possible)
                 // And exclude specific '誰か' entries if they exist in DB

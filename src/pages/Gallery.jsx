@@ -1070,20 +1070,27 @@ const Gallery = () => {
 
                                     {/* Comment input */}
                                     {currentUser ? (
-                                        <div className="flex gap-2">
+                                        <div className="flex flex-col gap-2">
                                             <textarea
                                                 value={commentText}
                                                 onChange={(e) => setCommentText(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                                        e.preventDefault();
+                                                        if (commentText.trim()) submitComment(selectedItem.id, selectedItem.userId);
+                                                    }
+                                                }}
                                                 placeholder={t('commentPlaceholder')}
-                                                className="flex-1 bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
+                                                className="w-full bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
                                                 rows={2}
                                             />
                                             <button
                                                 onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
                                                 disabled={!commentText.trim() || isSubmittingComment}
-                                                className="bg-primary text-white p-2.5 rounded-xl disabled:opacity-50 hover:bg-primary/90 transition-colors"
+                                                className="self-end flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl disabled:opacity-50 hover:bg-primary/90 transition-colors text-sm font-bold"
                                             >
-                                                <Send size={16} />
+                                                <Send size={14} />
+                                                {t('send') || '送信'}
                                             </button>
                                         </div>
                                     ) : (

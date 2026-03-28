@@ -9,8 +9,8 @@ export const translations = {
 
         // Home
         appTitle: "CinderellaFit",
-        appSubtitle: "Never buy the wrong size again",
-        appDescription: "Size comparison tool for plushie clothing",
+        appSubtitle: "Connecting wardrobes worldwide, CinderellaFit for plushies.",
+        appDescription: "Measure, Connect, Accelerate Inspiration.",
         settingsAndGuide: "Settings & Guide",
         syncDataTitle: "Sync Your Data",
         syncDataDesc: "Login to manage your plushies anywhere",
@@ -499,8 +499,8 @@ export const translations = {
 
         // Home
         appTitle: "CinderellaFit",
-        appSubtitle: "サイズ失敗、もうしない。",
-        appDescription: "ぬいぐるみ服のサイズ比較・判断支援アプリ",
+        appSubtitle: "世界中のクローゼットを繋ぐ、ぬいぐるみのためのシンデレラフィット。",
+        appDescription: "測る、繋がる、インスピレーションが加速する。",
         settingsAndGuide: "設定・ガイド",
         syncDataTitle: "デバイス間でデータを同期",
         syncDataDesc: "ログインして、どこからでもぬいぐるみを管理",

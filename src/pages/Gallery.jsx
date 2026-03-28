@@ -833,13 +833,13 @@ const Gallery = () => {
 
             {/* Detail Modal */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
-                    <div className="modal-responsive relative shadow-2xl overflow-hidden bg-white rounded-2xl" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '90vh' }}>
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
+                    <div className="modal-responsive relative shadow-2xl bg-white sm:rounded-2xl rounded-t-2xl" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '92vh', display: 'flex', flexDirection: 'column' }}>
                         <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm">
                             <X size={20} />
                         </button>
 
-                        <div style={{ overflowY: 'auto', maxHeight: '90vh' }}>
+                        <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '24px' }}>
                             <div className="relative">
                                 <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
                                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-20 text-white">

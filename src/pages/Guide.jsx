@@ -50,60 +50,54 @@ const Guide = () => {
                             title: t('guideStep1Title'),
                             desc: t('guideStep1Desc'),
                             icon: <Ruler size={24} />,
-                            color: 'from-blue-500 to-cyan-400',
-                            bg: 'bg-blue-50/50',
+                            gradient: 'linear-gradient(135deg, #3B82F6, #06B6D4)',
                             num: 1
                         },
                         {
                             title: t('guideStep2Title'),
                             desc: t('guideStep2Desc'),
                             icon: <Tag size={24} />,
-                            color: 'from-emerald-500 to-teal-400',
-                            bg: 'bg-emerald-50/50',
+                            gradient: 'linear-gradient(135deg, #10B981, #14B8A6)',
                             num: 2
                         },
                         {
                             title: t('guideStep3Title'),
                             desc: t('guideStep3Desc'),
                             icon: <Sparkles size={24} />,
-                            color: 'from-purple-500 to-indigo-400',
-                            bg: 'bg-purple-50/50',
+                            gradient: 'linear-gradient(135deg, #A855F7, #6366F1)',
                             num: 3
                         },
                         {
                             title: t('guideStep4Title'),
                             desc: t('guideStep4Desc'),
                             icon: <Share2 size={24} />,
-                            color: 'from-pink-500 to-rose-400',
-                            bg: 'bg-pink-50/50',
+                            gradient: 'linear-gradient(135deg, #EC4899, #F43F5E)',
                             num: 4
                         }
                     ].map((step, idx) => (
                         <div
                             key={idx}
-                            className={`group relative z-10 bg-white rounded-[28px] p-6 border border-[#F0EBE3] shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden`}
+                            className="group relative z-10 bg-white rounded-[28px] p-6 border border-[#F0EBE3] shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                         >
-
-                            <div className="flex gap-5 relative z-10">
-                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} shadow-lg flex items-center justify-center text-white flex-shrink-0 group-hover:scale-110 transition-transform duration-300`}>
+                            <div className="flex gap-4 relative z-10">
+                                <div
+                                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-white flex-shrink-0 shadow-md group-hover:scale-110 transition-transform duration-300"
+                                    style={{ background: step.gradient }}
+                                >
                                     {step.icon}
                                 </div>
-                                <div className="pt-1">
+                                <div className="pt-1 flex-1 min-w-0">
                                     <div className="flex items-center gap-2 mb-1.5">
                                         <span className="text-[10px] font-black text-primary uppercase tracking-widest opacity-60">Step {step.num}</span>
-                                        <div className="h-[1px] w-4 bg-primary/20" />
                                     </div>
                                     <h3 className="font-black text-lg text-gray-800 mb-2 leading-tight tracking-tight">
                                         {step.title}
                                     </h3>
-                                    <p className="text-sm text-gray-500 leading-relaxed font-medium">
+                                    <p className="text-sm text-gray-500 leading-relaxed">
                                         {step.desc}
                                     </p>
                                 </div>
                             </div>
-                            
-                            {/* Bottom Accent */}
-                            <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${step.color} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
                         </div>
                     ))}
                 </div>

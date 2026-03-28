@@ -877,7 +877,7 @@ const Gallery = () => {
                                                 <Link to={`/gallery/${selectedItem.profileSlug}`} className="hover:text-primary" onClick={() => setSelectedItem(null)}>{selectedItem.userName}</Link>
                                             ) : selectedItem.userName}
                                         </p>
-                                        <p className="text-[10px] text-gray-400 font-medium">{t('sharedPostLabel') || '作品投稿'}</p>
+                                        {/* Removed label */}
                                     </div>
                                 </div>
 
@@ -915,20 +915,27 @@ const Gallery = () => {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <p className="text-[10px] font-bold text-orange-400 uppercase tracking-wider">{t('inspiredBy')}</p>
-                                            <div className="flex items-center gap-1 mt-0.5">
+                                            <div className="flex items-center gap-2 mt-0.5 overflow-hidden">
                                                 {selectedItem.referencedPostId ? (
-                                                    <Link 
-                                                        to={`/gallery/post/${selectedItem.referencedPostId}`} 
-                                                        className="text-sm font-bold text-orange-600 hover:underline truncate"
-                                                        onClick={() => {
-                                                            // For deep link to work within the same page, we might need to close and let useEffect handle it
-                                                            // But simpler is to just navigate or manually set
-                                                            setSelectedItem(null);
-                                                            navigate(`/gallery/post/${selectedItem.referencedPostId}`);
-                                                        }}
-                                                    >
-                                                        {selectedItem.referencedUserName ? `@${selectedItem.referencedUserName}` : t('originalPost')}
-                                                    </Link>
+                                                    <>
+                                                        <Link 
+                                                            to={`/gallery/post/${selectedItem.referencedPostId}`} 
+                                                            className="text-sm font-bold text-orange-600 hover:underline truncate"
+                                                            onClick={() => {
+                                                                setSelectedItem(null);
+                                                                navigate(`/gallery/post/${selectedItem.referencedPostId}`);
+                                                            }}
+                                                        >
+                                                            {selectedItem.referencedUserName ? `@${selectedItem.referencedUserName}` : t('originalPost')}
+                                                        </Link>
+                                                        <span className="text-orange-200">|</span>
+                                                        <Link 
+                                                            to={`/lookbook/${selectedItem.referencedPostId}`}
+                                                            className="text-[10px] font-black text-orange-500 hover:text-orange-600 flex items-center gap-1 uppercase tracking-tight whitespace-nowrap bg-orange-100/50 px-2 py-0.5 rounded-full"
+                                                        >
+                                                            {t('viewLookbook')} <ArrowRight size={10} />
+                                                        </Link>
+                                                    </>
                                                 ) : (
                                                     <a href={selectedItem.referencePostUrl} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-orange-600 hover:underline truncate flex items-center gap-1">
                                                         {selectedItem.referencePostUrl}
@@ -939,9 +946,39 @@ const Gallery = () => {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Pattern / Lookbook Button */}
+                                {(selectedItem.isPattern || selectedItem.patternImage) && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedItem(null);
+                                            navigate(`/lookbook/${selectedItem.compositeId}`);
+                                        }}
+                                        style={{
+                                            width: '100%',
+                                            marginTop: '16px',
+                                            backgroundColor: '#E8956A', // var(--accent)
+                                            color: 'white',
+                                            fontWeight: '800',
+                                            padding: '16px',
+                                            borderRadius: '24px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '12px',
+                                            boxShadow: '0 10px 20px rgba(232, 149, 106, 0.2)',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Star size={20} fill="white" />
+                                        <span className="text-lg font-bold">{t('viewLookbook')}</span>
+                                    </button>
+                                )}
+
                                 {/* Size Measurements */}
                                 {(selectedItem.waistFlat || selectedItem.clothesLength || selectedItem.cuffWidth) && (
-                                    <div className="bg-gray-50/80 border border-gray-100 p-4 rounded-2xl">
+                                    <div className="bg-gray-50/80 border border-gray-100 p-4 rounded-2xl mt-4">
                                         <div className="flex items-center gap-2 mb-3">
                                             <Tag size={16} className="text-primary" />
                                             <h4 className="text-xs font-black text-gray-800 uppercase tracking-wider">{t('measurementDetails')}</h4>
@@ -1014,9 +1051,27 @@ const Gallery = () => {
                                 {/* Handmade Details */}
                                 {(selectedItem.patternImage || selectedItem.referenceUrl) && (
                                     <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
-                                        <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                                            <span>📖</span> {t('handmadeMaterials')}
-                                        </h4>
+                                        <div className="flex items-center justify-between gap-2">
+                                            <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
+                                                <span>📖</span> {t('handmadeMaterials')}
+                                            </h4>
+                                            
+                                            {/* Integrated Lookbook Link (More Natural) */}
+                                            {(selectedItem.isPattern || selectedItem.patternImage) && (
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedItem(null);
+                                                        navigate(`/lookbook/${selectedItem.compositeId}`);
+                                                    }}
+                                                    className="flex items-center gap-1 text-[10px] font-black text-orange-500 hover:text-orange-600 bg-orange-100/50 px-2 py-1 rounded-full border border-orange-200 transition-all active:scale-95"
+                                                >
+                                                    <Star size={10} fill="currentColor" />
+                                                    {t('viewLookbook')}
+                                                    <ArrowRight size={10} />
+                                                </button>
+                                            )}
+                                        </div>
 
                                         {selectedItem.patternImage && (
                                             <div className="space-y-2">

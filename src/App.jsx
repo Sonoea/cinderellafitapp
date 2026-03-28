@@ -14,6 +14,7 @@ import Login from './pages/Login';
 import Guide from './pages/Guide';
 import Gallery from './pages/Gallery';
 import UserProfile from './pages/UserProfile';
+import Lookbook from './pages/Lookbook';
 // import MapGallery from './pages/MapGallery';
 
 // Lazy load Closet to prevent circular dependency/initialization issues
@@ -69,6 +70,11 @@ function App() {
                 <Route path="/legal" element={<Legal />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/guide" element={<Guide />} />
+                <Route path="/lookbook/:patternId" element={
+                  <ErrorBoundary>
+                    <Lookbook />
+                  </ErrorBoundary>
+                } />
               </Routes>
             </main>
             <BottomNav />

@@ -29,6 +29,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         referencePostUrl: '', // New: Specifically for another gallery post
         referencedPostId: '', // New: Parsed ID from URL
         referencedUserName: '', // New: Name of original author
+        isPattern: false, // New: Mark as a source design
         category: 'other', // Default category
         waistFlat: '',
         clothesLength: '',
@@ -464,8 +465,8 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             value={formData.referencePostUrl}
                                             onChange={async (e) => {
                                                 const url = e.target.value;
-                                                const match = url.match(/\/gallery\/post\/([^/?#]+)/);
-                                                const postId = match ? match[1] : '';
+                                                const match = url.match(/\/(gallery\/post|lookbook)\/([^/?#]+)/);
+                                                const postId = match ? match[2] : '';
                                                 
                                                 let userName = '';
                                                 if (postId && postId.includes('_')) {
@@ -518,6 +519,28 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     maxLength={500}
                                     onChange={(e) => setFormData({ ...formData, comment: e.target.value })}
                                 ></textarea>
+                            </div>
+
+                            {/* Pattern/Lookbook Toggle */}
+                            <div className="flex items-center justify-between bg-orange-50/50 p-3 rounded-xl border border-orange-100/50">
+                                <div className="flex items-center gap-2">
+                                    <div className={`p-2 rounded-full ${formData.isPattern ? 'bg-orange-500 text-white' : 'bg-orange-200 text-white'} `}>
+                                        <Star size={16} fill={formData.isPattern ? "currentColor" : "none"} />
+                                    </div>
+                                    <div className="text-xs">
+                                        <p className="font-bold text-orange-900">{t('isPatternLabel')}</p>
+                                        <p className="text-orange-600/70">{t('isPatternDesc')}</p>
+                                    </div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={formData.isPattern}
+                                        onChange={(e) => setFormData({ ...formData, isPattern: e.target.checked })}
+                                    />
+                                    <div className="w-11 h-6 bg-orange-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
+                                </label>
                             </div>
 
                             <div className={`flex items-center justify-between bg-blue-50 p-3 rounded-xl ${!currentUser ? 'opacity-60 grayscale' : ''} `}>

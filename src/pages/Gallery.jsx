@@ -186,8 +186,8 @@ const Gallery = () => {
                 });
 
                 items.sort((a, b) => {
-                    const dateA = a.date === 'Recently' ? 0 : new Date(a.date).getTime();
-                    const dateB = b.date === 'Recently' ? 0 : new Date(b.date).getTime();
+                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
                     return dateB - dateA;
                 });
 

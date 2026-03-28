@@ -48,8 +48,7 @@ const Home = () => {
             try {
                 const q = query(
                     collectionGroup(db, 'closetItems'),
-                    where('isPublic', '==', true),
-                    limit(20)
+                    where('isPublic', '==', true)
                 );
                 const snapshot = await getDocs(q);
                 const items = [];

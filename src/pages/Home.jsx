@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Globe, LogIn, Sparkles, Settings, Pencil, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { collectionGroup, query, where, getDocs } from 'firebase/firestore';
+import { collectionGroup, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 // Helper to get country flag from location string
@@ -48,7 +48,9 @@ const Home = () => {
             try {
                 const q = query(
                     collectionGroup(db, 'closetItems'),
-                    where('isPublic', '==', true)
+                    where('isPublic', '==', true),
+                    orderBy('createdAt', 'desc'),
+                    limit(20)
                 );
                 const snapshot = await getDocs(q);
                 const items = [];

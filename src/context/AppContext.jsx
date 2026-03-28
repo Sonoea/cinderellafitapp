@@ -282,15 +282,12 @@ export const AppProvider = ({ children }) => {
           const q3 = collection(db, "users", currentUser.uid, "closet");
           const q4 = collection(db, "users", currentUser.uid, "クローゼット");
           const q5 = collection(db, "users", currentUser.uid, "items");
-          const qG1 = collectionGroup(db, 'closetItems');
-          const qG2 = collectionGroup(db, 'クローゼットアイテム');
 
           const EMPTY = { forEach: () => { } };
           const snaps = await Promise.all([
             getDocs(q1).catch(() => EMPTY), getDocs(q2).catch(() => EMPTY),
             getDocs(q3).catch(() => EMPTY), getDocs(q4).catch(() => EMPTY),
-            getDocs(q5).catch(() => EMPTY), getDocs(qG1).catch(() => EMPTY),
-            getDocs(qG2).catch(() => EMPTY)
+            getDocs(q5).catch(() => EMPTY)
           ]);
 
           const loaded = [];

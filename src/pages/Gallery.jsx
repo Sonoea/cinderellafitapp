@@ -154,7 +154,12 @@ const Gallery = () => {
             setIsLoading(true);
             setGalleryError(null);
             try {
-                const q = query(collectionGroup(db, 'closetItems'), where('isPublic', '==', true));
+                const q = query(
+                    collectionGroup(db, 'closetItems'),
+                    where('isPublic', '==', true),
+                    orderBy('createdAt', 'desc'),
+                    limit(150)
+                );
                 const querySnapshot = await getDocs(q);
                 const items = [];
                 querySnapshot.forEach((docSnap) => {
@@ -236,7 +241,11 @@ const Gallery = () => {
         }
         const loadUserLikes = async () => {
             try {
-                const myLikesQuery = query(collectionGroup(db, 'likes'), where('likedBy', '==', currentUser.uid));
+                const myLikesQuery = query(
+                    collectionGroup(db, 'likes'),
+                    where('likedBy', '==', currentUser.uid),
+                    limit(200)
+                );
                 const myLikesSnap = await getDocs(myLikesQuery);
                 const myLikedSet = new Set();
                 myLikesSnap.forEach(d => {

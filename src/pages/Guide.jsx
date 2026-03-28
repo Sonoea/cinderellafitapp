@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, BookOpen, Camera, Share2, Ruler, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, Camera, Share2, Ruler, Sparkles, Tag } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 

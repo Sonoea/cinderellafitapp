@@ -9,8 +9,10 @@ export const translations = {
 
         // Home
         appTitle: "CinderellaFit",
-        appSubtitle: "Connecting wardrobes worldwide, CinderellaFit for plushies.",
+        appSubtitle: "Connecting wardrobes worldwide,\nCinderellaFit for plushies.",
         appDescription: "Measure, Connect, Accelerate Inspiration.",
+        guideTitle: "Usage Guide",
+        guideHeroTitle: "Connecting the World,\nMagic Fit.",
         settingsAndGuide: "Settings & Guide",
         syncDataTitle: "Sync Your Data",
         syncDataDesc: "Login to manage your plushies anywhere",
@@ -499,7 +501,7 @@ export const translations = {
 
         // Home
         appTitle: "CinderellaFit",
-        appSubtitle: "世界中のクローゼットを繋ぐ、ぬいぐるみのためのシンデレラフィット。",
+        appSubtitle: "世界中のクローゼットを繋ぐ、\nぬいぐるみのためのシンデレラフィット。",
         appDescription: "測る、繋がる、インスピレーションが加速する。",
         settingsAndGuide: "設定・ガイド",
         syncDataTitle: "デバイス間でデータを同期",
@@ -768,7 +770,8 @@ export const translations = {
 
         // Guide
         guideTitle: "使い方ガイド",
-        guideIntro: "CinderellaFitへようこそ！アプリの楽しみ方をご紹介します。",
+        guideHeroTitle: "世界を繋ぐ、\n魔法のフィット。",
+        guideIntro: "世界中のクローゼットを繋ぐ、ぬいぐるみのためのシンデレラフィット。\nインスピレーションを形にし、お着替えの新しい楽しみを広げましょう。",
         guideStep1Title: "ぬいぐるみを計測する",
         guideStep1Desc: "まずは身長と胴囲を測りましょう！この2つが分かれば、ほとんどの服でサイズ失敗を防げます。こだわり派の方は、首周りや着丈も登録するとさらに精度が上がります。",
         guideStep2Title: "自分だけの特別なワードローブ",

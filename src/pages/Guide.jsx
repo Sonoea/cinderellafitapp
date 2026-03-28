@@ -216,10 +216,10 @@ const Guide = () => {
                         <Heart size={40} fill="white" />
                     </div>
                     <h2 style={{ fontSize: '32px', fontWeight: 950, color: '#111827', marginBottom: '16px', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
-                        ぬいぐるみが輝く、<br /><span style={{ color: '#4F8A8B' }}>魔法のフィット</span>を見つけよう。
+                        {t('guideHeroTitle') || "世界を繋ぐ、\n魔法のフィット。"}
                     </h2>
-                    <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, maxWidth: '400px', margin: '0 auto' }}>
-                        CinderellaFitは、大切なぬいぐるみとお洋服の「最高の出会い」をサポートする場所です。
+                    <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, maxWidth: '440px', margin: '0 auto', whiteSpace: 'pre-wrap' }}>
+                        {t('guideIntro')}
                     </p>
                 </div>
 

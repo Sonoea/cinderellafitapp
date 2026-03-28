@@ -188,7 +188,7 @@ const Home = () => {
                             Beta
                         </span>
                     </h1>
-                    <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600', marginTop: '1px', letterSpacing: '-0.01em' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--primary)', fontWeight: '600', marginTop: '1px', letterSpacing: '-0.01em', whiteSpace: 'pre-wrap' }}>
                         {t('appSubtitle')}
                     </p>
                     <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '1px' }}>

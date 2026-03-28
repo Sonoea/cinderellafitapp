@@ -517,20 +517,20 @@ const Closet = () => {
               <span className="text-[10px] font-normal text-gray-200">v1.2.7</span>
             </h1>
 
-            <div className="bg-gray-100 p-1 rounded-xl flex gap-1">
+            <div className="bg-gray-100/80 p-1.5 rounded-2xl flex gap-1.5 w-fit border border-gray-200/30">
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
+                className={`py-2 px-5 rounded-xl flex items-center gap-2.5 transition-all duration-300 ${viewMode === 'list' ? 'bg-white shadow-md text-primary font-extrabold translate-y-[-1px]' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                <LayoutGrid size={14} />
-                <span className="text-[10px]">{t('items') || 'リスト'}</span>
+                <LayoutGrid size={18} strokeWidth={2.5} />
+                <span className="text-xs tracking-tight">{t('items') || 'マイコーデ'}</span>
               </button>
               <button
                 onClick={() => setViewMode('shelf')}
-                className={`p-1.5 px-3 rounded-lg flex items-center gap-2 transition-all ${viewMode === 'shelf' ? 'bg-white shadow-sm text-primary font-bold' : 'text-gray-400'}`}
+                className={`py-2 px-5 rounded-xl flex items-center gap-2.5 transition-all duration-300 ${viewMode === 'shelf' ? 'bg-white shadow-md text-primary font-extrabold translate-y-[-1px]' : 'text-gray-400 hover:text-gray-600'}`}
               >
-                <Library size={14} />
-                <span className="text-[10px]">{t('wardrobeTitle')}</span>
+                <Library size={18} strokeWidth={2.5} />
+                <span className="text-xs tracking-tight">{t('wardrobeTitle') || 'ワードローブ'}</span>
               </button>
             </div>
 

@@ -30,6 +30,9 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         referencedPostId: '', // New: Parsed ID from URL
         referencedUserName: '', // New: Name of original author
         category: 'other', // Default category
+        waistFlat: '',
+        clothesLength: '',
+        cuffWidth: '',
     });
 
     // Load initial item data if provided (for editing)
@@ -286,6 +289,61 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             <span className="text-[10px] font-bold leading-tight">{cat.label}</span>
                                         </button>
                                     ))}
+                                </div>
+                            </div>
+
+                            {/* Clothes Specific Size Info */}
+                            <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50 space-y-3">
+                                <div className="flex items-center justify-between mb-1">
+                                    <h4 className="text-xs font-bold text-gray-800 flex items-center gap-2">
+                                        <Tag size={14} className="text-primary" />
+                                        {t('sizeInfoTitleRaw')}
+                                    </h4>
+                                    <span className="text-[10px] text-gray-400 font-bold">{t('optional')}</span>
+                                </div>
+                                <div className="grid grid-cols-3 gap-3">
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1">{t('waistFlatLabel')}</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                className="w-full p-2 bg-white rounded-lg border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                                placeholder="0.0"
+                                                value={formData.waistFlat}
+                                                onChange={(e) => setFormData({ ...formData, waistFlat: e.target.value })}
+                                            />
+                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 pointer-events-none">cm</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1">{t('clothesLengthLabel')}</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                className="w-full p-2 bg-white rounded-lg border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                                placeholder="0.0"
+                                                value={formData.clothesLength}
+                                                onChange={(e) => setFormData({ ...formData, clothesLength: e.target.value })}
+                                            />
+                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 pointer-events-none">cm</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-[10px] font-bold text-gray-500 mb-1">{t('cuffWidthLabel')}</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                step="0.1"
+                                                className="w-full p-2 bg-white rounded-lg border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                                placeholder="0.0"
+                                                value={formData.cuffWidth}
+                                                onChange={(e) => setFormData({ ...formData, cuffWidth: e.target.value })}
+                                            />
+                                            <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 pointer-events-none">cm</span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 

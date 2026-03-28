@@ -5,7 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send } from 'lucide-react';
+import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
@@ -535,16 +535,36 @@ const Gallery = () => {
 
             let matchesSize = true;
             if (filterMySize && plushies.length > 0) {
-                if (!item.plushieHeight) matchesSize = false;
-                else if (sizeFilterPlushieId === 'all') {
-                    matchesSize = plushies.some(myPlushie => {
-                        const myHeight = myPlushie.measurements?.height || 0;
-                        return Math.abs(myHeight - item.plushieHeight) <= 2;
-                    });
+                const checkSizeMatch = (myPlushie) => {
+                    // 1. If clothes have specific measurements, use them (+/- 1cm)
+                    const hasSpecificSizes = item.waistFlat || item.clothesLength || item.cuffWidth;
+                    if (hasSpecificSizes) {
+                        let match = true;
+                        if (item.waistFlat && myPlushie.measurements?.waist) {
+                            if (Math.abs(Number(item.waistFlat) * 2 - Number(myPlushie.measurements.waist)) > 1) match = false;
+                        }
+                        if (item.clothesLength && myPlushie.measurements?.length) {
+                            if (Math.abs(Number(item.clothesLength) - Number(myPlushie.measurements.length)) > 1) match = false;
+                        }
+                        if (item.cuffWidth && myPlushie.measurements?.armGirth) {
+                            if (Math.abs(Number(item.cuffWidth) * 2 - Number(myPlushie.measurements.armGirth)) > 1) match = false;
+                        }
+                        return match;
+                    }
+                    
+                    // 2. Fallback to plushieHeight (+/- 2cm) if no specific clothes sizes
+                    if (item.plushieHeight) {
+                        return Math.abs(Number(myPlushie.measurements?.height || 0) - Number(item.plushieHeight)) <= 2;
+                    }
+                    
+                    return false;
+                };
+
+                if (sizeFilterPlushieId === 'all') {
+                    matchesSize = plushies.some(checkSizeMatch);
                 } else {
                     const selectedPlushie = plushies.find(p => String(p.id) === String(sizeFilterPlushieId));
-                    if (selectedPlushie) matchesSize = Math.abs((selectedPlushie.measurements?.height || 0) - item.plushieHeight) <= 2;
-                    else matchesSize = false;
+                    matchesSize = selectedPlushie ? checkSizeMatch(selectedPlushie) : false;
                 }
             }
 
@@ -601,6 +621,12 @@ const Gallery = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        {sizeFilterPlushieId !== 'all' && (
+                            <div className="mt-2 flex items-center gap-1.5 text-[10px] font-bold text-primary bg-primary/5 px-3 py-1.5 rounded-lg w-fit">
+                                <Search size={12} />
+                                <span>{t('sizeSearchRangeHint')}</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Plushie Filter (My Size) */}
@@ -885,7 +911,35 @@ const Gallery = () => {
                                         </div>
                                     </div>
                                 )}
-
+                                {/* Size Measurements */}
+                                {(selectedItem.waistFlat || selectedItem.clothesLength || selectedItem.cuffWidth) && (
+                                    <div className="bg-gray-50/80 border border-gray-100 p-4 rounded-2xl">
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Tag size={16} className="text-primary" />
+                                            <h4 className="text-xs font-black text-gray-800 uppercase tracking-wider">{t('measurementDetails')}</h4>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {selectedItem.waistFlat && (
+                                                <div className="text-center">
+                                                    <p className="text-[10px] font-bold text-gray-400 mb-1">{t('waistFlatLabel')}</p>
+                                                    <p className="text-lg font-black text-primary leading-none">{selectedItem.waistFlat}<span className="text-[10px] ml-0.5 font-normal">cm</span></p>
+                                                </div>
+                                            )}
+                                            {selectedItem.clothesLength && (
+                                                <div className="text-center">
+                                                    <p className="text-[10px] font-bold text-gray-400 mb-1">{t('clothesLengthLabel')}</p>
+                                                    <p className="text-lg font-black text-primary leading-none">{selectedItem.clothesLength}<span className="text-[10px] ml-0.5 font-normal">cm</span></p>
+                                                </div>
+                                            )}
+                                            {selectedItem.cuffWidth && (
+                                                <div className="text-center">
+                                                    <p className="text-[10px] font-bold text-gray-400 mb-1">{t('cuffWidthLabel')}</p>
+                                                    <p className="text-lg font-black text-primary leading-none">{selectedItem.cuffWidth}<span className="text-[10px] ml-0.5 font-normal">cm</span></p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                                 {/* Comment */}
                                 {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={handleHashtagClick} />}
 

@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid, Tag } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -404,7 +404,10 @@ const Closet = () => {
         isPublic: item.isPublic,
         galleryOnly: item.galleryOnly,
         createdAt: item.createdAt,
-        category: item.category || 'other'
+        category: item.category || 'other',
+        waistFlat: item.waistFlat || '',
+        clothesLength: item.clothesLength || '',
+        cuffWidth: item.cuffWidth || '',
       };
     });
 
@@ -889,7 +892,13 @@ const Closet = () => {
                                     url2: selectedItem.url2 || '',
                                     url3: selectedItem.url3 || '',
                                     patternImage: selectedItem.patternImage || null,
-                                    referenceUrl: selectedItem.referenceUrl || ''
+                                    referenceUrl: selectedItem.referenceUrl || '',
+                                    referencePostUrl: selectedItem.referencePostUrl || '',
+                                    referencedPostId: selectedItem.referencedPostId || '',
+                                    referencedUserName: selectedItem.referencedUserName || '',
+                                    waistFlat: selectedItem.waistFlat || '',
+                                    clothesLength: selectedItem.clothesLength || '',
+                                    cuffWidth: selectedItem.cuffWidth || ''
                                   });
                                 }}
                                 className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
@@ -1075,6 +1084,88 @@ const Closet = () => {
                         )}
                       </div>
 
+                      {/* Size Measurements Section */}
+                      <div className="bg-gray-50/50 p-4 rounded-2xl border border-gray-100/50">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-xs font-bold text-gray-800 flex items-center gap-2 uppercase tracking-wider">
+                            <Tag size={14} className="text-primary" />
+                            <span>{t('sizeInfoTitleRaw')}</span>
+                          </h4>
+                        </div>
+                        
+                        {isEditing ? (
+                          <div className="grid grid-cols-3 gap-3">
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-500 mb-1">{t('waistFlatLabel')}</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  className="w-full p-2 bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                  placeholder="0.0"
+                                  value={editData.waistFlat}
+                                  onChange={(e) => setEditData({ ...editData, waistFlat: e.target.value })}
+                                />
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 pointer-events-none">cm</span>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-500 mb-1">{t('clothesLengthLabel')}</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  className="w-full p-2 bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                  placeholder="0.0"
+                                  value={editData.clothesLength}
+                                  onChange={(e) => setEditData({ ...editData, clothesLength: e.target.value })}
+                                />
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 pointer-events-none">cm</span>
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold text-gray-500 mb-1">{t('cuffWidthLabel')}</label>
+                              <div className="relative">
+                                <input
+                                  type="number"
+                                  step="0.1"
+                                  className="w-full p-2 bg-white rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
+                                  placeholder="0.0"
+                                  value={editData.cuffWidth}
+                                  onChange={(e) => setEditData({ ...editData, cuffWidth: e.target.value })}
+                                />
+                                <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-gray-300 pointer-events-none">cm</span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          (selectedItem.waistFlat || selectedItem.clothesLength || selectedItem.cuffWidth) ? (
+                            <div className="grid grid-cols-3 gap-4">
+                              {selectedItem.waistFlat && (
+                                <div className="text-center">
+                                  <p className="text-[10px] font-bold text-gray-400 mb-1">{t('waistFlatLabel')}</p>
+                                  <p className="text-lg font-black text-primary leading-none">{selectedItem.waistFlat}<span className="text-[10px] ml-0.5 font-normal">cm</span></p>
+                                </div>
+                              )}
+                              {selectedItem.clothesLength && (
+                                <div className="text-center">
+                                  <p className="text-[10px] font-bold text-gray-400 mb-1">{t('clothesLengthLabel')}</p>
+                                  <p className="text-lg font-black text-primary leading-none">{selectedItem.clothesLength}<span className="text-[10px] ml-0.5 font-normal">cm</span></p>
+                                </div>
+                              )}
+                              {selectedItem.cuffWidth && (
+                                <div className="text-center">
+                                  <p className="text-[10px] font-bold text-gray-400 mb-1">{t('cuffWidthLabel')}</p>
+                                  <p className="text-lg font-black text-primary leading-none">{selectedItem.cuffWidth}<span className="text-[10px] ml-0.5 font-normal">cm</span></p>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <p className="text-[10px] text-gray-400 italic text-center py-1">{t('noMeasurementsRecorded') || '記録されたサイズはありません'}</p>
+                          )
+                        )}
+                      </div>
+
                       {/* Purchase Type Section */}
                       <div>
                         <h4 className="text-sm font-bold text-gray-400 uppercase mb-2">{t('purchaseTypeLabel') || '入手方法'}</h4>
@@ -1103,16 +1194,15 @@ const Closet = () => {
                         ) : (
                           selectedItem.purchaseType ? (
                             <span className="inline-flex items-center gap-1.5 text-sm font-bold bg-gray-100 text-gray-600 px-3 py-1.5 rounded-xl">
-                              {selectedItem.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
-                                selectedItem.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
-                                  `🪡 ${t('categoryHandmade')}`}
-                            </span>
-                          ) : (
-                            <span className="text-sm text-gray-400 italic">{t('notSet') || '未設定'}</span>
-                          )
-                        )}
-                      </div>
-                    </div>
+                               {selectedItem.purchaseType === 'online' ? `🌐 ${t('categoryOnline')}` :
+                                 selectedItem.purchaseType === 'retail' ? `🏪 ${t('categoryRetail')}` :
+                                   `🪡 ${t('categoryHandmade')}`}
+                             </span>
+                           ) : (
+                             <span className="text-sm text-gray-400 italic">{t('notSet') || '未設定'}</span>
+                           )
+                         )}
+                       </div>
 
                     {/* Handmade Specific Fields (Edit Mode) */}
                     {isEditing && editData.purchaseType === 'handmade' && (
@@ -1189,11 +1279,59 @@ const Closet = () => {
                             onChange={(e) => setEditData({ ...editData, referenceUrl: e.target.value })}
                           />
                         </div>
+
+                        {/* Reference Gallery Post URL */}
+                        <div>
+                          <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel') || (language === 'jp' ? '参考にした投稿のURL' : 'Reference Post URL')}</label>
+                          <input
+                            type="url"
+                            className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                            placeholder={t('referenceUrlPlaceholder') || (language === 'jp' ? '他の投稿のURLを貼り付け' : 'Paste a link to another post')}
+                            value={editData.referencePostUrl}
+                            onChange={async (e) => {
+                              const url = e.target.value;
+                              const match = url.match(/\/gallery\/post\/([^/?#]+)/);
+                              const postId = match ? match[1] : '';
+
+                              let userName = '';
+                              if (postId && postId.includes('_')) {
+                                try {
+                                  const ownerUid = postId.split('_')[0];
+                                  const userDoc = await getDoc(doc(db, 'users', ownerUid));
+                                  if (userDoc.exists()) {
+                                    userName = userDoc.data().displayName || '';
+                                  }
+                                } catch (err) {
+                                  console.error("Error fetching referenced user:", err);
+                                }
+                              }
+
+                              setEditData({
+                                ...editData,
+                                referencePostUrl: url,
+                                referencedPostId: postId,
+                                referencedUserName: userName
+                              });
+                            }}
+                          />
+                          {editData.referencedPostId && (
+                            <div className="flex items-center justify-between mt-1 px-1">
+                              <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
+                                <span>✅</span> {t('postDetected') || '投稿を検知しました！'}
+                              </p>
+                              {editData.referencedUserName && (
+                                <p className="text-[9px] text-orange-500 font-bold">
+                                  @{editData.referencedUserName}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
 
                     {/* Handmade Specific Fields (View Mode) */}
-                    {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl) && (
+                    {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.referencedPostId) && (
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
                           <span>📖</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
@@ -1225,6 +1363,34 @@ const Closet = () => {
                               </div>
                               <span className="text-orange-300 flex items-center group-hover:translate-x-1 transition-transform">→</span>
                             </a>
+                          </div>
+                        )}
+
+                        {/* Reference Gallery Post Link (Inspired By) */}
+                        {selectedItem.referencedPostId && (
+                          <div className="space-y-2">
+                            <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{t('inspiredBy') || '参考元'}</p>
+                            <Link
+                              to={`/gallery/post/${selectedItem.referencedPostId}`}
+                              className="bg-white border border-orange-100 p-3 rounded-xl flex items-center gap-3 transition-colors hover:bg-orange-100/50 group"
+                            >
+                              <div className="bg-orange-500 text-white p-2 rounded-lg shadow-sm group-hover:scale-110 transition-transform">
+                                <Star size={18} fill="currentColor" />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <span className="text-sm font-bold text-orange-700 truncate block">
+                                  {t('originalPost') || '元の投稿'}
+                                </span>
+                                {selectedItem.referencedUserName && (
+                                  <span className="text-[10px] text-orange-400 font-bold block">
+                                    @{selectedItem.referencedUserName}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="text-orange-300 group-hover:translate-x-1 transition-transform">
+                                <Plus size={14} />
+                              </div>
+                            </Link>
                           </div>
                         )}
                       </div>
@@ -1259,6 +1425,7 @@ const Closet = () => {
                         )
                       )}
                     </div>
+
 
                     {/* Comments Section (Existing Logic kept for owned items) */}
                     {selectedItem.isPublic && !isEditing && (
@@ -1451,6 +1618,7 @@ const Closet = () => {
                         </button>
                       </div>
                     )}
+                    </div>
                   </div>
                 </div>
               </div>

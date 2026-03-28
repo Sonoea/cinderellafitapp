@@ -6,7 +6,7 @@ import { useAuth } from '../context/AuthContext';
 
 const Settings = () => {
     const navigate = useNavigate();
-    const { plushies, closetItems, language, toggleLanguage, userPlan, plushieLimit } = useApp();
+    const { plushies, closetItems, language, toggleLanguage, userPlan, plushieLimit, t } = useApp();
     const { currentUser, logout } = useAuth();
     const [importStatus, setImportStatus] = useState(null);
     const [showImportModal, setShowImportModal] = useState(false);

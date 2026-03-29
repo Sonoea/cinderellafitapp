@@ -177,7 +177,7 @@ const Lookbook = () => {
                                     </span>
                                 </div>
                                 <p className="text-gray-500 text-sm leading-relaxed mb-8 italic">
-                                    {pattern.description || "この型紙から広がる、コミュニティの新しい閃きと創造の記録。"}
+                                    {pattern.description || "一つの型紙から紡がれる、無限の個性と物語の記録。"}
                                 </p>
                                 <Link 
                                     to={`/gallery/post/${pattern.compositeId || pattern.id}`}

@@ -80,7 +80,7 @@ export const translations = {
         storageQuotaExceeded: "Storage full! The image is too large to save. We've tried to compress it, but it's still too big.",
 
         // Shop
-        boutique: "wardrobe",
+        boutique: "closet",
         shopSubtitle: "Enter product URL to check fit for your plushie",
         step1Title: "1. Select Plushie",
         step2Title: "2. Enter Product URL",
@@ -584,7 +584,7 @@ export const translations = {
         storageQuotaExceeded: "保存容量がいっぱいです！画像が大きすぎるため保存できませんでした。",
 
         // Closet Feature
-        items: "マイコーデ",
+        items: "一覧",
         gallery: "ギャラリー",
         plushies: "ぬいぐるみ",
         noItems: "アイテムが見つかりませんでした",
@@ -665,7 +665,7 @@ export const translations = {
         enterNewCategoryName: '新しいコーナー名を入力してください',
         catArchive: "雑貨・保管庫",
         catPattern: "型紙",
-        wardrobeHeader: (name) => `${name}のワードローブ`,
+        wardrobeHeader: (name) => `${name}のクローゼット`,
         plushieItemsCount: (count) => `アイテム数: ${count}`,
         closetHintDefault: "💡アイテムをタップ ➡ 棚をタップ で一瞬で収納できます！(ドラッグもOK)",
         closetHintMoving: "移動中！離すと戻ります ✨",
@@ -808,7 +808,7 @@ export const translations = {
 
 
         // Shop
-        boutique: "ワードローブ判定",
+        boutique: "サイズ判定",
         shopSubtitle: "商品URLを入力して、ぬいぐるみに合うかチェック",
         step1Title: "1. ぬいぐるみを選択",
         step2Title: "2. 商品URLを入力",
@@ -935,11 +935,11 @@ export const translations = {
         estimatedSize: "推定サイズ",
 
         // Wardrobe
-        wardrobeTitle: "ワードローブ",
-        wardrobeTitleEn: "Wardrobe",
+        wardrobeTitle: "クローゼット",
+        wardrobeTitleEn: "Closet",
         topShelf: "トップ・シェルフ",
         topShelfSub: "アクセサリー・バッグ",
-        hangingShelf: "ワードローブ",
+        hangingShelf: "クローゼット",
         hangingShelfSub: "アウター・ドレス",
         bottomShelf: "シューズ・ラック",
         bottomShelfSub: "ボトムス・靴",

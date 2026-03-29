@@ -18,7 +18,7 @@ export const translations = {
         isPatternLabel: "This is a Pattern",
         isPatternDesc: "Allow others to use this as a reference",
         guideTitle: "Usage Guide",
-        guideHeroTitle: "Connecting the World,\nMagic Fit.",
+        guideHeroTitle: "Measure, Connect, Create.\nA Step Ahead in Fit.",
         settingsAndGuide: "Settings & Guide",
         syncDataTitle: "Sync Your Data",
         syncDataDesc: "Login to manage your plushies anywhere",
@@ -405,7 +405,7 @@ export const translations = {
 
         // Guide Extended
         guideTitle: "User Guide",
-        guideHeroTitle: "Connecting the World,\nMagic Fit.",
+        guideHeroTitle: "Measure, Connect, Create.\nA Step Ahead in Fit.",
         guideIntro: "Welcome to CinderellaFit! Connecting wardrobes worldwide, CinderellaFit for plushies. Measure, Connect, Accelerate Inspiration.",
         guideAppealTitle: "Why CinderellaFit?",
         guideAppeal1Title: "Enjoy Plushie Fashion",
@@ -788,7 +788,7 @@ export const translations = {
 
         // Guide Extended
         guideTitle: "使い方ガイド",
-        guideHeroTitle: "世界を繋ぐ、\n魔法のフィット。",
+        guideHeroTitle: "測る、繋がる、創る。\n一歩先のフィット体験を。",
         guideIntro: "世界中のクローゼットを繋ぐ、ぬいぐるみのためのシンデレラフィット。\nインスピレーションを形にし、お着替えの新しい楽しみを広げましょう。",
         guideAppealTitle: "CinderellaFit 3つの魅力",
         guideAppeal1Title: "ファッションを愉しむ「ギャラリー」",

@@ -789,6 +789,7 @@ export const translations = {
         guideTitle: "使い方ガイド",
         guideHeroTitle: "世界を繋ぐ、\n魔法のフィット。",
         guideIntro: "世界中のクローゼットを繋ぐ、ぬいぐるみのためのシンデレラフィット。\nインスピレーションを形にし、お着替えの新しい楽しみを広げましょう。",
+        guideAppealTitle: "CinderellaFit 3つの魅力",
         guideAppeal1Title: "ファッションを愉しむ「ギャラリー」",
         guideAppeal1Desc: "「うちの子」の着こなしやスタイルを世界中にシェア。同じサイズ感のぬいぐるみのオーナー同士で繋がり、新しいコーディネートのヒントを見つけることができます。",
         guideAppeal2Title: "想い出を彩る「デジタル・クローゼット」",

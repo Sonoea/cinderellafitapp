@@ -105,9 +105,40 @@ const GuideStep = ({ number, title, subTitle, desc, icon: Icon, color, tips = []
     </div>
 );
 
+const AppealCard = ({ title, desc, icon: Icon, color }) => (
+    <div className="hover-scale" style={{
+        background: 'rgba(255, 255, 255, 0.7)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderRadius: '32px',
+        padding: '24px',
+        border: '1px solid rgba(255, 255, 255, 0.4)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.02)',
+        flex: 1,
+        minWidth: '240px'
+    }}>
+        <div style={{
+            width: '48px', height: '48px', borderRadius: '16px',
+            background: `${color}11`, color: color,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            marginBottom: '16px'
+        }}>
+            <Icon size={24} strokeWidth={2.5} />
+        </div>
+        <h4 style={{ fontSize: '16px', fontWeight: 950, color: '#111827', marginBottom: '8px' }}>{title}</h4>
+        <p style={{ fontSize: '13px', color: '#6B7280', lineHeight: 1.6 }}>{desc}</p>
+    </div>
+);
+
 const Guide = () => {
     const { t } = useApp();
     const navigate = useNavigate();
+
+    const appeals = [
+        { icon: Sparkles, color: '#4F8A8B', title: t('guideAppeal1Title'), desc: t('guideAppeal1Desc') },
+        { icon: Heart, color: '#8B5CF6', title: t('guideAppeal2Title'), desc: t('guideAppeal2Desc') },
+        { icon: BookOpen, color: '#EC4899', title: t('guideAppeal3Title'), desc: t('guideAppeal3Desc') }
+    ];
 
     const steps = [
         {
@@ -116,11 +147,11 @@ const Guide = () => {
             icon: Ruler,
             title: t('guideStep1Title'),
             subTitle: "すべての物語の始まり",
-            desc: t('guideStep1Desc'),
+            desc: "まずは身長と胴囲を測りましょう！この2つが分かれば、ほとんどの服でサイズ失敗を防げます。こだわり派の方は、首周りや着丈も登録するとさらに精度が上がります。",
             tips: [
                 "『身長と胴囲』だけで、90%以上の服でサイズ違いを防ぐことができます",
                 "ぬいぐるみの最も太い部分（お腹まわりなど）をメジャーを浮かさず測りましょう",
-                "首周りや着丈も登録すると、ボタンの留めやすさまで予測できる『究極のフィット』に繋がります"
+                "多忙な方は『AI計測機能』を使えば写真を撮るだけで自動採寸できます"
             ]
         },
         {
@@ -128,25 +159,25 @@ const Guide = () => {
             color: '#8B5CF6',
             icon: Tag,
             title: t('guideStep2Title'),
-            subTitle: "あなただけの宝物箱（任意）",
-            desc: t('guideStep2Desc'),
+            subTitle: "あなただけの宝物箱",
+            desc: "お気に入りのコーディネートを、自分だけの特別なクローゼットに保存しましょう。サイズ登録だけでなく、大切な「うちの子」の思い出をコレクションして楽しむことができます。",
             tips: [
                 "「サイズ」だけでなく、お気に入りの「写真」と思い出を自分だけの高級ワードローブに残しましょう",
                 "クローゼットに並んだ服は、いつでも自由に着せ替える気分で眺めることができます",
-                "サイズ入力は任意ですので、まずは思い出のコレクションから始めてみてください"
+                "棚をタップしてアイテムを移動させる瞬間は、まるで実際の家具を整理しているような心地よさです"
             ]
         },
         {
             number: 3,
             color: '#F59E0B',
             icon: Share2,
-            title: t('guideStep4Title'),
-            subTitle: "世界中のオーナーと繋がる",
-            desc: t('guideStep4Desc'),
+            title: t('guideStep3Title'),
+            subTitle: "世界中とインスピレーションを循環させる",
+            desc: "自慢の着こなしを「公開」しましょう。特に手作りの場合は、参考にした型紙のURLを貼ることで「製作レポ」として繋がり、他のオーナーさんの創作意欲を刺激します。",
             tips: [
+                "型紙投稿から広がる『みんなの製作レポ』は、コミュニティの新しい楽しみ方です",
                 "購入したショップのURLを貼ることで、他の人がすぐに同じ服を探せます",
-                "『この服は着せるのが大変だった』などのリアルな感想も大切です",
-                "公開設定をONにすることで、あなたのセンスが世界のギャラリーに並びます"
+                "『この服は着せるのが大変だった』などのリアルな感想も大切です"
             ],
             highlight: true
         },
@@ -154,13 +185,13 @@ const Guide = () => {
             number: 4,
             color: '#EC4899',
             icon: Sparkles,
-            title: t('guideStep3Title'),
+            title: t('guideStep4Title'),
             subTitle: "究極のシンデレラフィットを",
-            desc: t('guideStep3Desc'),
+            desc: "ギャラリーで「自分と同じサイズ」フィルターをON！前後±1cmのマッチングで、他の人の着こなしを参考にしながら、失敗しない服選びが可能です。",
             tips: [
                 "ギャラリーの『自分と同じサイズ』フィルターを真っ先に使いましょう",
                 "お気に入りの投稿を見つけたら、参考URLからショップへ飛んで購入できます",
-                "他の人の着こなしを参考に、新しいスタイルに挑戦してみましょう！"
+                "『製作レポ』を見れば、同じ型紙でも生地やアレンジでどう変わるか一目瞭然です"
             ]
         }
     ];
@@ -203,9 +234,9 @@ const Guide = () => {
                 </div>
             </header>
 
-            <div style={{ padding: '40px 20px', maxWidth: '640px', margin: '0 auto' }}>
+            <div style={{ padding: '40px 20px', maxWidth: '800px', margin: '0 auto' }}>
                 {/* Hero */}
-                <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '80px' }}>
                     <div style={{
                         width: '80px', height: '80px', borderRadius: '24px',
                         background: 'linear-gradient(135deg, #4F8A8B, #EC4899)',
@@ -215,16 +246,35 @@ const Guide = () => {
                     }}>
                         <Heart size={40} fill="white" />
                     </div>
-                    <h2 style={{ fontSize: '32px', fontWeight: 950, color: '#111827', marginBottom: '16px', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+                    <h2 style={{ fontSize: '36px', fontWeight: 950, color: '#111827', marginBottom: '16px', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
                         {t('guideHeroTitle') || "世界を繋ぐ、\n魔法のフィット。"}
                     </h2>
-                    <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, maxWidth: '440px', margin: '0 auto', whiteSpace: 'pre-wrap' }}>
-                        {t('guideIntro')}
+                    <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, maxWidth: '540px', margin: '0 auto' }}>
+                        CinderellaFitは、単なるサイズ管理アプリではありません。<br />
+                        それは、あなたの大切な存在との想い出を形にし、<br />
+                        世界中のオーナーとインスピレーションを分かち合う場所です。
                     </p>
                 </div>
 
-                {/* Steps */}
-                <div style={{ position: 'relative' }}>
+                {/* Appeal Section */}
+                <div style={{ marginBottom: '80px' }}>
+                    <h3 style={{ fontSize: '20px', fontWeight: 950, textAlign: 'center', marginBottom: '32px', color: '#111827' }}>
+                        {t('guideAppealTitle')}
+                    </h3>
+                    <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                        {appeals.map((appeal, i) => (
+                            <AppealCard key={i} {...appeal} />
+                        ))}
+                    </div>
+                </div>
+
+                {/* Steps Section */}
+                <div style={{ marginBottom: '32px' }}>
+                    <h3 style={{ fontSize: '20px', fontWeight: 950, textAlign: 'center', marginBottom: '32px', color: '#111827' }}>
+                        HOW TO USE
+                    </h3>
+                </div>
+                <div style={{ position: 'relative', maxWidth: '640px', margin: '0 auto' }}>
                     {steps.map((step) => (
                         <GuideStep key={step.number} {...step} />
                     ))}
@@ -232,10 +282,10 @@ const Guide = () => {
 
                 {/* Final Call */}
                 <div style={{
-                    marginTop: '60px',
-                    padding: '40px',
+                    marginTop: '80px',
+                    padding: '60px 40px',
                     background: 'linear-gradient(145deg, #111827, #1f2937)',
-                    borderRadius: '40px',
+                    borderRadius: '48px',
                     textAlign: 'center',
                     color: 'white',
                     boxShadow: '0 30px 60px rgba(0,0,0,0.15)',
@@ -249,20 +299,22 @@ const Guide = () => {
                     }} />
                     
                     <div style={{ position: 'relative', zIndex: 1 }}>
-                        <h3 style={{ fontSize: '24px', fontWeight: 950, marginBottom: '12px' }}>
+                        <h3 style={{ fontSize: '28px', fontWeight: 950, marginBottom: '16px' }}>
                             準備は整いました！
                         </h3>
-                        <p style={{ fontSize: '15px', opacity: 0.8, lineHeight: 1.7, marginBottom: '32px' }}>
-                            {t('guideFooterTip') || "さあ、あなたとぬいぐるみの新しい物語を始めましょう。"}
+                        <p style={{ fontSize: '16px', opacity: 0.8, lineHeight: 1.7, marginBottom: '40px', maxWidth: '440px', margin: '0 auto 40px' }}>
+                            さあ、あなたとぬいぐるみの<br />
+                            新しい物語をここから始めましょう。
                         </p>
                         <button 
                             onClick={() => navigate('/')}
                             style={{
                                 width: '100%',
+                                maxWidth: '320px',
                                 background: '#fff',
                                 color: '#111827',
                                 padding: '20px',
-                                borderRadius: '20px',
+                                borderRadius: '24px',
                                 fontWeight: 900,
                                 fontSize: '16px',
                                 border: 'none',
@@ -270,7 +322,8 @@ const Guide = () => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                gap: '10px'
+                                gap: '10px',
+                                margin: '0 auto'
                             }}
                             className="hover-scale"
                         >

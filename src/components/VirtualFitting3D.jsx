@@ -1245,7 +1245,7 @@ const VirtualFitting3D = ({
                 <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                     {measurements && Object.entries({
                         [t('身長', 'H')]: measurements.height,
-                        [t('胴囲', 'W')]: measurements.waist,
+                        [t('お腹まわり', 'W')]: measurements.waist,
                         [t('頭', 'Head')]: measurements.head,
                         [t('首', 'Neck')]: measurements.neck,
                         [t('着丈', 'Len')]: measurements.length,

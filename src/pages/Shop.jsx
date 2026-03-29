@@ -144,7 +144,7 @@ const Shop = () => {
 
                     if (sizeInfo.measurements.length) parts.push(`着丈${fmt(sizeInfo.measurements.length)} `);
                     if (sizeInfo.measurements.head) parts.push(`頭囲${fmt(sizeInfo.measurements.head)} `);
-                    if (sizeInfo.measurements.neck) parts.push(`首周り${fmt(sizeInfo.measurements.neck)} `);
+                    if (sizeInfo.measurements.neck) parts.push(`首まわり${fmt(sizeInfo.measurements.neck)} `);
 
                     if (parts.length > 0) {
                         sizeText = parts.join(', ');

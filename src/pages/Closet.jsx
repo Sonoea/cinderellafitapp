@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid, Tag, Archive } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid, Tag, Package } from 'lucide-react';
 import { compressImage } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -536,7 +536,7 @@ const Closet = () => {
                   ? 'bg-white shadow-md text-amber-800 font-black scale-[1.02] border-b-2 border-amber-800/20' 
                   : 'text-gray-400 hover:text-gray-500 hover:bg-white/50'}`}
               >
-                <Archive size={20} strokeWidth={2.5} />
+                <Package size={20} strokeWidth={2.5} />
                 <div className="flex flex-col items-start leading-none gap-0.5">
                   <span className="text-xs font-black tracking-tight">{t('wardrobeTitle') || 'クローゼット'}</span>
                   <span className="text-[9px] opacity-60 font-bold uppercase tracking-widest pt-0.5">{t('viewShelf')}</span>

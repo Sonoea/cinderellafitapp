@@ -127,7 +127,7 @@ const RedCarpetModal = ({ isOpen, onClose, plushieImage, plushieName }) => {
                 await navigator.share({
                     title: language === 'jp' ? 'レッドカーペットデビュー！' : 'Red Carpet Debut!',
                     text: language === 'jp'
-                        ? `${plushieName || 'うちの子'}がレッドカーペットを歩きました✨ #CinderellaFit`
+                        ? `${plushieName || 'お気に入りのぬいぐるみ'}がレッドカーペットを歩きました✨ #CinderellaFit`
                         : `${plushieName || 'My plushie'} walked the red carpet! ✨ #CinderellaFit`,
                     files: [file]
                 });
@@ -138,7 +138,7 @@ const RedCarpetModal = ({ isOpen, onClose, plushieImage, plushieName }) => {
                     await navigator.share({
                         title: language === 'jp' ? 'レッドカーペットデビュー！' : 'Red Carpet Debut!',
                         text: language === 'jp'
-                            ? `${plushieName || 'うちの子'}がレッドカーペットを歩きました✨ #CinderellaFit`
+                            ? `${plushieName || 'お気に入りのぬいぐるみ'}がレッドカーペットを歩きました✨ #CinderellaFit`
                             : `${plushieName || 'My plushie'} walked the red carpet! ✨ #CinderellaFit`,
                     })
                 } catch (e) { }

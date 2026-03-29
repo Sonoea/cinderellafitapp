@@ -134,6 +134,8 @@ export const translations = {
         catAccessory: "Accessories",
         catShoes: "Shoes",
         catBag: "Bags",
+        catBagHand: "Handbags/Pouches",
+        catBagBack: "Backpacks",
         catOther: "Other",
 
         // Comprehensive Subcategories
@@ -657,6 +659,8 @@ export const translations = {
         catAccessory: "アクセサリー・小物",
         catShoes: "靴・シューズ",
         catBag: "バッグ・鞄",
+        catBagHand: "バッグ (手提げ・小物入れ)",
+        catBagBack: "リュック・バックパック",
         catOther: "その他",
 
         // 詳細カテゴリー

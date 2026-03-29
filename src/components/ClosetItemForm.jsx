@@ -25,6 +25,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         url2: '',
         url3: '',
         patternImage: null,
+        patternSource: '', // 'original', 'cinderellafit', or 'external'
         referenceUrl: '',
         referencePostUrl: '', // New: Specifically for another gallery post
         referencedPostId: '', // New: Parsed ID from URL
@@ -415,93 +416,130 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                         <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{t('optional')}</span>
                                     </div>
 
-                                    {/* Pattern Upload */}
+                                    {/* Pattern Source Question */}
                                     <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('uploadPattern')}</label>
-                                        {!formData.patternImage ? (
-                                            <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
-                                                <input type="file" onChange={handlePatternUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
-                                                <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
-                                                <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelectImage')}</p>
-                                            </div>
-                                        ) : (
-                                            <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
-                                                <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
-                                                <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                                    <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
-                                                        {t('change')}
-                                                        <input type="file" onChange={handlePatternUpload} className="hidden" accept="image/*" />
-                                                    </label>
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('patternSourceQuestion')}</label>
+                                        <div className="grid grid-cols-3 gap-2">
+                                            {[
+                                                { id: 'original', icon: '✂️', label: t('patternSourceOriginal') },
+                                                { id: 'cinderellafit', icon: '🔗', label: t('patternSourceCF') },
+                                                { id: 'external', icon: '🌐', label: t('patternSourceExternal') },
+                                            ].map((source) => {
+                                                const isActive = formData.patternSource === source.id;
+                                                return (
+                                                    <button
+                                                        key={source.id}
+                                                        type="button"
+                                                        onClick={() => setFormData({ ...formData, patternSource: isActive ? '' : source.id })}
+                                                        className={`p-2.5 py-3 rounded-xl border-2 transition-all flex flex-col items-center gap-1.5 ${isActive
+                                                            ? 'bg-orange-500 text-white border-orange-500 shadow-lg scale-105'
+                                                            : 'border-orange-100 bg-white text-orange-400 hover:border-orange-300'
+                                                            }`}
+                                                    >
+                                                        <span className="text-lg">{source.icon}</span>
+                                                        <span className="text-[9px] font-bold leading-tight text-center">{source.label}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+
+                                    {/* === Source A: Original Pattern Upload === */}
+                                    {formData.patternSource === 'original' && (
+                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('uploadPattern')}</label>
+                                            {!formData.patternImage ? (
+                                                <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
+                                                    <input type="file" onChange={handlePatternUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                                                    <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
+                                                    <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelectImage')}</p>
                                                 </div>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); setFormData({ ...formData, patternImage: null }); }}
-                                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-sm"
-                                                >
-                                                    <span className="text-[10px] leading-none">✕</span>
-                                                </button>
-                                            </div>
-                                        )}
-                                    </div>
+                                            ) : (
+                                                <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
+                                                    <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                                        <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
+                                                            {t('change')}
+                                                            <input type="file" onChange={handlePatternUpload} className="hidden" accept="image/*" />
+                                                        </label>
+                                                    </div>
+                                                    <button
+                                                        onClick={(e) => { e.stopPropagation(); setFormData({ ...formData, patternImage: null }); }}
+                                                        className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-sm"
+                                                    >
+                                                        <span className="text-[10px] leading-none">✕</span>
+                                                    </button>
+                                                </div>
+                                            )}
+                                            <p className="text-[9px] text-orange-500/70 font-medium px-1">{t('patternSourceOriginalNote')}</p>
+                                        </div>
+                                    )}
 
-                                    {/* Reference URL (General) */}
-                                    <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceLinkLabel')}</label>
-                                        <input
-                                            type="url"
-                                            className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
-                                            placeholder="https://..."
-                                            value={formData.referenceUrl}
-                                            onChange={(e) => setFormData({ ...formData, referenceUrl: e.target.value })}
-                                        />
-                                    </div>
-
-                                    {/* Reference Gallery Post URL */}
-                                    <div>
-                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel')}</label>
-                                        <input
-                                            type="url"
-                                            className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
-                                            placeholder={t('referenceUrlPlaceholder')}
-                                            value={formData.referencePostUrl}
-                                            onChange={async (e) => {
-                                                const url = e.target.value;
-                                                const match = url.match(/\/(gallery\/post|lookbook)\/([^/?#]+)/);
-                                                const postId = match ? match[2] : '';
-                                                
-                                                let userName = '';
-                                                if (postId && postId.includes('_')) {
-                                                    try {
-                                                        const ownerUid = postId.split('_')[0];
-                                                        const userDoc = await getDoc(doc(db, 'users', ownerUid));
-                                                        if (userDoc.exists()) {
-                                                            userName = userDoc.data().displayName || '';
+                                    {/* === Source B: CinderellaFit Post Reference === */}
+                                    {formData.patternSource === 'cinderellafit' && (
+                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel')}</label>
+                                            <input
+                                                type="url"
+                                                className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                                                placeholder={t('referenceUrlPlaceholder')}
+                                                value={formData.referencePostUrl}
+                                                onChange={async (e) => {
+                                                    const url = e.target.value;
+                                                    const match = url.match(/\/(gallery\/post|lookbook)\/([^/?#]+)/);
+                                                    const postId = match ? match[2] : '';
+                                                    
+                                                    let userName = '';
+                                                    if (postId && postId.includes('_')) {
+                                                        try {
+                                                            const ownerUid = postId.split('_')[0];
+                                                            const userDoc = await getDoc(doc(db, 'users', ownerUid));
+                                                            if (userDoc.exists()) {
+                                                                userName = userDoc.data().displayName || '';
+                                                            }
+                                                        } catch (err) {
+                                                            console.error("Error fetching referenced user:", err);
                                                         }
-                                                    } catch (err) {
-                                                        console.error("Error fetching referenced user:", err);
                                                     }
-                                                }
-                                                
-                                                setFormData({ 
-                                                    ...formData, 
-                                                    referencePostUrl: url, 
-                                                    referencedPostId: postId,
-                                                    referencedUserName: userName
-                                                });
-                                            }}
-                                        />
-                                        {formData.referencedPostId && (
-                                            <div className="flex items-center justify-between mt-1 px-1">
-                                                <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
-                                                    <span>✅</span> {t('postDetected')}
-                                                </p>
-                                                {formData.referencedUserName && (
-                                                    <p className="text-[9px] text-orange-500 font-bold">
-                                                        @{formData.referencedUserName}
+                                                    
+                                                    setFormData({ 
+                                                        ...formData, 
+                                                        referencePostUrl: url, 
+                                                        referencedPostId: postId,
+                                                        referencedUserName: userName
+                                                    });
+                                                }}
+                                            />
+                                            {formData.referencedPostId && (
+                                                <div className="flex items-center justify-between mt-1 px-1">
+                                                    <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
+                                                        <span>✅</span> {t('postDetected')}
                                                     </p>
-                                                )}
-                                            </div>
-                                        )}
-                                    </div>
+                                                    {formData.referencedUserName && (
+                                                        <p className="text-[9px] text-orange-500 font-bold">
+                                                            @{formData.referencedUserName}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            )}
+                                            <p className="text-[9px] text-orange-500/70 font-medium px-1">{t('patternSourceCFNote')}</p>
+                                        </div>
+                                    )}
+
+                                    {/* === Source C: External Site Reference === */}
+                                    {formData.patternSource === 'external' && (
+                                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                                            <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceLinkLabel')}</label>
+                                            <input
+                                                type="url"
+                                                className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                                                placeholder="https://..."
+                                                value={formData.referenceUrl}
+                                                onChange={(e) => setFormData({ ...formData, referenceUrl: e.target.value })}
+                                            />
+                                            <p className="text-[9px] text-orange-500/70 font-medium px-1">{t('patternSourceExternalNote')}</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

@@ -517,20 +517,30 @@ const Closet = () => {
               <span className="text-[10px] font-normal text-gray-200">v1.2.7</span>
             </h1>
 
-            <div className="bg-gray-100/80 p-1.5 rounded-2xl flex gap-1.5 w-fit border border-gray-200/30">
+            <div className="bg-gray-100/80 p-1.5 rounded-2xl flex gap-1.5 w-fit border border-gray-200/40 shadow-inner overflow-hidden">
               <button
                 onClick={() => setViewMode('list')}
-                className={`py-2 px-5 rounded-xl flex items-center gap-2.5 transition-all duration-300 ${viewMode === 'list' ? 'bg-white shadow-md text-primary font-extrabold translate-y-[-1px]' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`py-2.5 px-6 rounded-xl flex items-center gap-3 transition-all duration-300 ${viewMode === 'list' 
+                  ? 'bg-white shadow-md text-primary font-black scale-[1.02] border-b-2 border-primary/20' 
+                  : 'text-gray-400 hover:text-gray-500 hover:bg-white/50'}`}
               >
-                <LayoutGrid size={18} strokeWidth={2.5} />
-                <span className="text-xs tracking-tight">{t('items') || 'マイコーデ'}</span>
+                <LayoutGrid size={20} strokeWidth={2.5} />
+                <div className="flex flex-col items-start leading-none gap-0.5">
+                  <span className="text-xs font-black tracking-tight">{t('items') || '一覧'}</span>
+                  <span className="text-[9px] opacity-60 font-bold uppercase tracking-widest pt-0.5">{t('viewAlbum')}</span>
+                </div>
               </button>
               <button
                 onClick={() => setViewMode('shelf')}
-                className={`py-2 px-5 rounded-xl flex items-center gap-2.5 transition-all duration-300 ${viewMode === 'shelf' ? 'bg-white shadow-md text-primary font-extrabold translate-y-[-1px]' : 'text-gray-400 hover:text-gray-600'}`}
+                className={`py-2.5 px-6 rounded-xl flex items-center gap-3 transition-all duration-300 ${viewMode === 'shelf' 
+                  ? 'bg-white shadow-md text-amber-800 font-black scale-[1.02] border-b-2 border-amber-800/20' 
+                  : 'text-gray-400 hover:text-gray-500 hover:bg-white/50'}`}
               >
-                <Library size={18} strokeWidth={2.5} />
-                <span className="text-xs tracking-tight">{t('wardrobeTitle') || 'ワードローブ'}</span>
+                <Archive size={20} strokeWidth={2.5} />
+                <div className="flex flex-col items-start leading-none gap-0.5">
+                  <span className="text-xs font-black tracking-tight">{t('wardrobeTitle') || 'クローゼット'}</span>
+                  <span className="text-[9px] opacity-60 font-bold uppercase tracking-widest pt-0.5">{t('viewShelf')}</span>
+                </div>
               </button>
             </div>
 

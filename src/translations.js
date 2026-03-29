@@ -81,6 +81,8 @@ export const translations = {
 
         // Shop
         boutique: "closet",
+        viewAlbum: "Album",
+        viewShelf: "Shelf",
         shopSubtitle: "Enter product URL to check fit for your plushie",
         step1Title: "1. Select Plushie",
         step2Title: "2. Enter Product URL",
@@ -595,6 +597,8 @@ export const translations = {
 
         // Closet Feature
         items: "一覧",
+        viewAlbum: "アルバム",
+        viewShelf: "お部屋",
         gallery: "ギャラリー",
         plushies: "ぬいぐるみ",
         noItems: "アイテムが見つかりませんでした",

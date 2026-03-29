@@ -250,8 +250,8 @@ const Guide = () => {
                         {t('guideHeroTitle') || "世界を繋ぐ、\n魔法のフィット。"}
                     </h2>
                     <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, maxWidth: '540px', margin: '0 auto' }}>
-                        CinderellaFitは、単なるサイズ管理アプリではありません。<br />
-                        それは、あなたの大切な存在との想い出を形にし、<br />
+                        CinderellaFitは、サイズや洋服の管理という枠組みを超えて、<br />
+                        あなたの大切な存在との想い出を形にし、<br />
                         世界中のオーナーとインスピレーションを分かち合う場所です。
                     </p>
                 </div>

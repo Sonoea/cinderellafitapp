@@ -581,7 +581,7 @@ export const translations = {
         manual: "手入力",
         scanInstruction: "ゆっくり回転させてね...",
         nameLabel: "名前",
-        namePlaceholder: "例：テディ",
+        namePlaceholder: "例：くまさん",
         typeLabel: "種類",
         typePlaceholder: "例：クマ、ウナギ",
         saveProfile: "保存する",

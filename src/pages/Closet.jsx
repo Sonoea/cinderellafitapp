@@ -1581,6 +1581,12 @@ const Closet = () => {
                                 <textarea
                                   value={commentText}
                                   onChange={(e) => setCommentText(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
+                                      e.preventDefault();
+                                      if (commentText.trim()) submitComment(selectedItem.id, selectedItem.userId);
+                                    }
+                                  }}
                                   placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
                                   className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
                                   maxLength={200}

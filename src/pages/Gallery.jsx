@@ -7,6 +7,7 @@ import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2 } from 'lucide-react';
 import { safeHostname, safeDate } from '../utils/formatting';
+import { openPdfFromDataUrl } from '../utils/imageUtils';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
     const [error, setError] = useState(!src || src.includes('placeholder'));
@@ -1093,6 +1094,7 @@ const Gallery = () => {
                                                     {selectedItem.patternImage.startsWith('data:application/pdf') ? (
                                                         <a
                                                             href={selectedItem.patternImage}
+                                                            onClick={(e) => { e.preventDefault(); openPdfFromDataUrl(selectedItem.patternImage); }}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
                                                             className="w-full h-32 flex flex-col items-center justify-center bg-white rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 transition-colors group/pdf no-underline"

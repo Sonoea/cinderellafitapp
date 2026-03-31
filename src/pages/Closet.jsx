@@ -5,7 +5,7 @@ import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid, Tag, Package } from 'lucide-react';
-import { compressImage } from '../utils/imageUtils';
+import { compressImage, openPdfFromDataUrl } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 
@@ -1458,7 +1458,7 @@ const Closet = () => {
                            </label>
                          </div>
                        </div>
-                    )}
+                     )}
 
                     {/* Handmade Specific Fields (View Mode) */}
                     {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.referencedPostId) && (

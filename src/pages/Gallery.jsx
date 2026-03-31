@@ -903,6 +903,19 @@ const Gallery = () => {
                                         <span>{isCopying ? t('linkCopied') : t('copyLink')}</span>
                                     </button>
 
+                                    {currentUser?.uid === selectedItem.userId && (
+                                        <button
+                                            onClick={() => {
+                                                setSelectedItem(null);
+                                                navigate(`/closet?edit=${selectedItem.id.replace('local-', '')}`);
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all active:scale-95 shadow-sm"
+                                        >
+                                            <Edit2 size={16} />
+                                            <span>{t('editItem') || '編集する'}</span>
+                                        </button>
+                                    )}
+
                                     <div className="flex-1"></div>
                                     <span style={{ fontSize: '28px' }}>{['😣', '😊', '😌'][selectedItem.fitRating - 1] || '😊'}</span>
                                 </div>
@@ -1077,7 +1090,20 @@ const Gallery = () => {
                                             <div className="space-y-2">
                                                 <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{t('patternImageLabel')}</p>
                                                 <div className="relative group">
-                                                    <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
+                                                    {selectedItem.patternImage.startsWith('data:application/pdf') ? (
+                                                        <a
+                                                            href={selectedItem.patternImage}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="w-full h-32 flex flex-col items-center justify-center bg-white rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 transition-colors group/pdf no-underline"
+                                                        >
+                                                            <Library size={32} className="text-orange-400 mb-2 group-hover/pdf:scale-110 transition-transform" />
+                                                            <span className="text-sm font-black text-orange-600">{t('pdfPattern')}</span>
+                                                            <span className="text-[10px] text-orange-400 mt-1">{t('clickToOpen')}</span>
+                                                        </a>
+                                                    ) : (
+                                                        <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
+                                                    )}
                                                 </div>
                                             </div>
                                         )}

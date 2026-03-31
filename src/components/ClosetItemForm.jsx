@@ -450,17 +450,70 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('uploadPattern')}</label>
                                             {!formData.patternImage ? (
                                                 <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
-                                                    <input type="file" onChange={handlePatternUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
+                                                    <input
+                                                        type="file"
+                                                        onChange={async (e) => {
+                                                            const file = e.target.files[0];
+                                                            if (file) {
+                                                                if (file.size > 1024 * 1024) {
+                                                                    alert(language === 'jp' ? 'ファイルサイズは1MB以下にしてください' : 'File size must be under 1MB');
+                                                                    return;
+                                                                }
+                                                                try {
+                                                                    if (file.type === 'application/pdf') {
+                                                                        const reader = new FileReader();
+                                                                        reader.onloadend = () => setFormData({ ...formData, patternImage: reader.result });
+                                                                        reader.readAsDataURL(file);
+                                                                    } else {
+                                                                        const compressed = await compressImage(file);
+                                                                        setFormData({ ...formData, patternImage: compressed });
+                                                                    }
+                                                                } catch { alert('Failed to load file'); }
+                                                            }
+                                                        }}
+                                                        className="absolute inset-0 opacity-0 cursor-pointer"
+                                                        accept="image/*,application/pdf"
+                                                    />
                                                     <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
                                                     <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelectImage')}</p>
                                                 </div>
                                             ) : (
                                                 <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
-                                                    <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
+                                                    {formData.patternImage.startsWith('data:application/pdf') ? (
+                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-orange-50 gap-1">
+                                                            <Library size={24} className="text-orange-400" />
+                                                            <span className="text-[9px] font-bold text-orange-600">{t('pdfPattern')}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
+                                                    )}
                                                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                                         <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
                                                             {t('change')}
-                                                            <input type="file" onChange={handlePatternUpload} className="hidden" accept="image/*" />
+                                                            <input
+                                                                type="file"
+                                                                onChange={async (e) => {
+                                                                    const file = e.target.files[0];
+                                                                    if (file) {
+                                                                        if (file.size > 1024 * 1024) {
+                                                                            alert(language === 'jp' ? 'ファイルサイズは1MB以下にしてください' : 'File size must be under 1MB');
+                                                                            return;
+                                                                        }
+                                                                        try {
+                                                                            if (file.type === 'application/pdf') {
+                                                                                const reader = new FileReader();
+                                                                                reader.onloadend = () => setFormData({ ...formData, patternImage: reader.result });
+                                                                                reader.readAsDataURL(file);
+                                                                            } else {
+                                                                                const compressed = await compressImage(file);
+                                                                                setFormData({ ...formData, patternImage: compressed });
+                                                                            }
+                                                                        } catch { alert('Failed to load file'); }
+                                                                    }
+                                                                }}
+                                                                className="absolute inset-0 opacity-0 cursor-pointer"
+                                                                accept="image/*,.pdf,application/pdf"
+                                                            />
                                                         </label>
                                                     </div>
                                                     <button

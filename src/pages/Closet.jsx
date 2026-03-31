@@ -97,6 +97,42 @@ const Closet = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
+ 
+   // Handle external "edit" request from Gallery
+   useEffect(() => {
+     const urlParams = new URLSearchParams(window.location.search);
+     const editId = urlParams.get('edit');
+     if (editId && closetItems.length > 0) {
+       const itemToEdit = closetItems.find(i => String(i.id) === String(editId));
+       if (itemToEdit) {
+         setSelectedItem(itemToEdit);
+         setIsEditing(true);
+         setEditData({
+           fitRating: itemToEdit.fitRating,
+           comment: itemToEdit.comment || '',
+           isPublic: itemToEdit.isPublic,
+           galleryOnly: itemToEdit.galleryOnly || false,
+           purchaseType: itemToEdit.purchaseType || (itemToEdit.patternImage || itemToEdit.referenceUrl ? 'handmade' : 'bought'),
+           category: itemToEdit.category || 'other',
+           url: itemToEdit.url || '',
+           url2: itemToEdit.url2 || '',
+           url3: itemToEdit.url3 || '',
+           patternImage: itemToEdit.patternImage || null,
+           referenceUrl: itemToEdit.referenceUrl || '',
+           referencePostUrl: itemToEdit.referencePostUrl || '',
+           referencedPostId: itemToEdit.referencedPostId || '',
+           referencedUserName: itemToEdit.referencedUserName || '',
+           waistFlat: itemToEdit.waistFlat || '',
+           clothesLength: itemToEdit.clothesLength || '',
+           cuffWidth: itemToEdit.cuffWidth || '',
+           isPattern: itemToEdit.isPattern || false,
+           patternSource: itemToEdit.patternSource || (itemToEdit.referencedPostId ? 'cinderellafit' : (itemToEdit.referenceUrl ? 'external' : 'original'))
+         });
+         // Clear param to avoid re-editing on refresh
+         window.history.replaceState({}, '', window.location.pathname);
+       }
+     }
+   }, [closetItems, window.location.search]);
 
   // Handle deeplink to specific item or add modal
   useEffect(() => {
@@ -907,7 +943,7 @@ const Closet = () => {
                                     comment: selectedItem.comment || '',
                                     isPublic: selectedItem.isPublic,
                                     galleryOnly: selectedItem.galleryOnly || false,
-                                    purchaseType: selectedItem.purchaseType || '',
+                                    purchaseType: selectedItem.purchaseType || (selectedItem.patternImage || selectedItem.referenceUrl ? 'handmade' : 'bought'),
                                     category: selectedItem.category || 'other',
                                     url: selectedItem.url || '',
                                     url2: selectedItem.url2 || '',
@@ -919,7 +955,9 @@ const Closet = () => {
                                     referencedUserName: selectedItem.referencedUserName || '',
                                     waistFlat: selectedItem.waistFlat || '',
                                     clothesLength: selectedItem.clothesLength || '',
-                                    cuffWidth: selectedItem.cuffWidth || ''
+                                    cuffWidth: selectedItem.cuffWidth || '',
+                                    isPattern: selectedItem.isPattern || false,
+                                    patternSource: selectedItem.patternSource || (selectedItem.referencedPostId ? 'cinderellafit' : (selectedItem.referenceUrl ? 'external' : 'original'))
                                   });
                                 }}
                                 className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
@@ -1230,125 +1268,190 @@ const Closet = () => {
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                            <span>🪡</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
-                          </h4>
-                          <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{language === 'jp' ? '任意' : 'Optional'}</span>
-                        </div>
-
-                        {/* Pattern Upload */}
-                        <div>
-                          <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図をアップ' : 'Upload Pattern'}</label>
-                          {!editData.patternImage ? (
-                            <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
-                              <input
-                                type="file"
-                                onChange={async (e) => {
-                                  const file = e.target.files[0];
-                                  if (file) {
-                                    try {
-                                      const compressed = await compressImage(file);
-                                      setEditData({ ...editData, patternImage: compressed });
-                                    } catch { alert('Failed to load image'); }
-                                  }
-                                }}
-                                className="absolute inset-0 opacity-0 cursor-pointer"
-                                accept="image/*"
-                              />
-                              <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
-                              <p className="text-orange-400 font-bold text-[9px]">{language === 'jp' ? 'タップして画像を選択' : 'Tap to select image'}</p>
-                            </div>
-                          ) : (
-                            <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
-                              <img src={editData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
-                              <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
-                                  {language === 'jp' ? '選び直す' : 'Change'}
-                                  <input
-                                    type="file"
-                                    onChange={async (e) => {
-                                      const file = e.target.files[0];
-                                      if (file) {
-                                        try {
-                                          const compressed = await compressImage(file);
-                                          setEditData({ ...editData, patternImage: compressed });
-                                        } catch { alert('Failed to load image'); }
-                                      }
-                                    }}
-                                    className="hidden"
-                                    accept="image/*"
-                                  />
-                                </label>
-                              </div>
-                              <button
-                                onClick={(e) => { e.stopPropagation(); setEditData({ ...editData, patternImage: null }); }}
-                                className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-sm"
-                              >
-                                <span className="text-[10px] leading-none">✕</span>
-                              </button>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Reference URL */}
-                        <div>
-                          <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{language === 'jp' ? '作り方の参考URL' : 'Reference URL'}</label>
-                          <input
-                            type="url"
-                            className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
-                            placeholder="https://..."
-                            value={editData.referenceUrl}
-                            onChange={(e) => setEditData({ ...editData, referenceUrl: e.target.value })}
-                          />
-                        </div>
-
-                        {/* Reference Gallery Post URL */}
-                        <div>
-                          <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel') || (language === 'jp' ? '参考にした投稿のURL' : 'Reference Post URL')}</label>
-                          <input
-                            type="url"
-                            className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
-                            placeholder={t('referenceUrlPlaceholder') || (language === 'jp' ? '他の投稿のURLを貼り付け' : 'Paste a link to another post')}
-                            value={editData.referencePostUrl}
-                            onChange={async (e) => {
-                              const url = e.target.value;
-                              const match = url.match(/\/gallery\/post\/([^/?#]+)/);
-                              const postId = match ? match[1] : '';
-
-                              let userName = '';
-                              if (postId && postId.includes('_')) {
-                                try {
-                                  const ownerUid = postId.split('_')[0];
-                                  const userDoc = await getDoc(doc(db, 'users', ownerUid));
-                                  if (userDoc.exists()) {
-                                    userName = userDoc.data().displayName || '';
-                                  }
-                                } catch (err) {
-                                  console.error("Error fetching referenced user:", err);
-                                }
-                              }
-
-                              setEditData({
-                                ...editData,
-                                referencePostUrl: url,
-                                referencedPostId: postId,
-                                referencedUserName: userName
-                              });
-                            }}
-                          />
-                          {editData.referencedPostId && (
-                            <div className="flex items-center justify-between mt-1 px-1">
-                              <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
-                                <span>✅</span> {t('postDetected') || '投稿を検知しました！'}
-                              </p>
-                              {editData.referencedUserName && (
-                                <p className="text-[9px] text-orange-500 font-bold">
-                                  @{editData.referencedUserName}
-                                </p>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
+                             <span>🪡</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                           </h4>
+                           <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{language === 'jp' ? '任意' : 'Optional'}</span>
+                         </div>
+ 
+                         {/* Pattern Source Choice */}
+                         <div className="space-y-3">
+                           <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('patternSourceLabel')}</label>
+                           <div className="grid grid-cols-3 gap-2">
+                             {[
+                               { id: 'original', label: t('patternSourceOriginal'), icon: '🎨' },
+                               { id: 'cinderellafit', label: t('patternSourceCF'), icon: '🎀' },
+                               { id: 'external', label: t('patternSourceExternal'), icon: '🌐' }
+                             ].map((src) => (
+                               <button
+                                 key={src.id}
+                                 type="button"
+                                 onClick={() => setEditData({ ...editData, patternSource: src.id })}
+                                 className={`p-2 rounded-xl border-2 transition-all flex flex-col items-center gap-1 ${editData.patternSource === src.id
+                                   ? 'bg-orange-500 text-white border-orange-500 shadow-md scale-105'
+                                   : 'bg-white border-orange-100 text-orange-300 grayscale'
+                                   }`}
+                               >
+                                 <span className="text-lg">{src.icon}</span>
+                                 <span className="text-[9px] font-bold leading-tight">{src.label}</span>
+                               </button>
+                             ))}
+                           </div>
+                         </div>
+ 
+                         {/* Conditional Inputs based on Source */}
+                         {editData.patternSource === 'original' && (
+                           <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                             <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図 (画像 or PDF)' : 'Pattern Image or PDF'}</label>
+                             {!editData.patternImage ? (
+                               <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
+                                 <input
+                                   type="file"
+                                   onChange={async (e) => {
+                                     const file = e.target.files[0];
+                                     if (file) {
+                                       if (file.size > 1024 * 1024) {
+                                         alert(t('fileSizeError'));
+                                         return;
+                                       }
+                                       try {
+                                         const compressed = await compressImage(file);
+                                         setEditData({ ...editData, patternImage: compressed });
+                                       } catch { alert('Failed to load file'); }
+                                     }
+                                   }}
+                                   className="absolute inset-0 opacity-0 cursor-pointer"
+                                   accept="image/*,application/pdf"
+                                 />
+                                 <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
+                                 <p className="text-orange-400 font-bold text-[9px]">{language === 'jp' ? 'タップして選択' : 'Tap to select'}</p>
+                               </div>
+                             ) : (
+                               <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
+                                 {editData.patternImage.startsWith('data:application/pdf') ? (
+                                   <div className="w-full h-full flex flex-col items-center justify-center bg-orange-50 gap-1">
+                                     <Library size={24} className="text-orange-400" />
+                                     <span className="text-[9px] font-bold text-orange-600">{t('pdfPattern')}</span>
+                                   </div>
+                                 ) : (
+                                   <img src={editData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
+                                 )}
+                                 <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                   <label className="bg-white/90 text-orange-600 p-1.5 rounded-lg text-[10px] font-bold backdrop-blur-sm cursor-pointer hover:bg-white transition-colors">
+                                     {t('change')}
+                                     <input
+                                       type="file"
+                                       onChange={async (e) => {
+                                         const file = e.target.files[0];
+                                         if (file) {
+                                           if (file.size > 1024 * 1024) {
+                                             alert(t('fileSizeError'));
+                                             return;
+                                           }
+                                           try {
+                                             const compressed = await compressImage(file);
+                                             setEditData({ ...editData, patternImage: compressed });
+                                           } catch { alert('Failed to load file'); }
+                                         }
+                                       }}
+                                       className="hidden"
+                                       accept="image/*,.pdf,application/pdf"
+                                     />
+                                   </label>
+                                 </div>
+                                 <button
+                                   onClick={(e) => { e.stopPropagation(); setEditData({ ...editData, patternImage: null }); }}
+                                   className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-sm"
+                                 >
+                                   <span className="text-[10px] leading-none">✕</span>
+                                 </button>
+                               </div>
+                             )}
+                           </div>
+                         )}
+ 
+                         {editData.patternSource === 'cinderellafit' && (
+                           <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                             <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel') || (language === 'jp' ? '参考にした投稿のURL' : 'Reference Post URL')}</label>
+                             <input
+                               type="url"
+                               className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                               placeholder={t('referenceUrlPlaceholder') || (language === 'jp' ? '他の投稿のURLを貼り付け' : 'Paste a link to another post')}
+                               value={editData.referencePostUrl}
+                               onChange={async (e) => {
+                                 const url = e.target.value;
+                                 const match = url.match(/\/gallery\/post\/([^/?#]+)/);
+                                 const postId = match ? match[1] : '';
+ 
+                                 let userName = '';
+                                 if (postId && postId.includes('_')) {
+                                   try {
+                                     const ownerUid = postId.split('_')[0];
+                                     const userDoc = await getDoc(doc(db, 'users', ownerUid));
+                                     if (userDoc.exists()) {
+                                       userName = userDoc.data().displayName || '';
+                                     }
+                                   } catch (err) {
+                                     console.error("Error fetching referenced user:", err);
+                                   }
+                                 }
+ 
+                                 setEditData({
+                                   ...editData,
+                                   referencePostUrl: url,
+                                   referencedPostId: postId,
+                                   referencedUserName: userName
+                                 });
+                               }}
+                             />
+                             {editData.referencedPostId && (
+                               <div className="flex items-center justify-between mt-1 px-1">
+                                 <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
+                                   <span>✅</span> {t('postDetected') || '投稿を検知しました！'}
+                                 </p>
+                                 {editData.referencedUserName && (
+                                   <p className="text-[9px] text-orange-500 font-bold">
+                                     @{editData.referencedUserName}
+                                   </p>
+                                 )}
+                               </div>
+                             )}
+                           </div>
+                         )}
+ 
+                         {editData.patternSource === 'external' && (
+                           <div className="animate-in fade-in slide-in-from-top-2 duration-200">
+                             <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{language === 'jp' ? '作り方の参考URL' : 'Reference URL'}</label>
+                             <input
+                               type="url"
+                               className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
+                               placeholder="https://..."
+                               value={editData.referenceUrl}
+                               onChange={(e) => setEditData({ ...editData, referenceUrl: e.target.value })}
+                             />
+                           </div>
+                         )}
+ 
+                         {/* isPattern Toggle in Edit Mode */}
+                         <div className="flex items-center justify-between bg-white/50 p-2.5 rounded-xl border border-orange-100">
+                           <div className="flex items-center gap-2">
+                             <div className={`p-1.5 rounded-full ${editData.isPattern ? 'bg-orange-500 text-white' : 'bg-orange-200 text-white'}`}>
+                               <Star size={12} fill={editData.isPattern ? "currentColor" : "none"} />
+                             </div>
+                             <div className="text-[10px]">
+                               <p className="font-bold text-orange-900">{t('isPatternLabel') || 'この投稿を「型紙」として公開'}</p>
+                             </div>
+                           </div>
+                           <label className="relative inline-flex items-center cursor-pointer">
+                             <input
+                               type="checkbox"
+                               className="sr-only peer"
+                               checked={editData.isPattern}
+                               onChange={(e) => setEditData({ ...editData, isPattern: e.target.checked })}
+                             />
+                             <div className="w-9 h-5 bg-orange-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
+                           </label>
+                         </div>
+                       </div>
                     )}
 
                     {/* Handmade Specific Fields (View Mode) */}
@@ -1362,7 +1465,20 @@ const Closet = () => {
                           <div className="space-y-2">
                             <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図' : 'Pattern Image'}</p>
                             <div className="relative group">
-                              <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
+                              {selectedItem.patternImage.startsWith('data:application/pdf') ? (
+                                <a
+                                  href={selectedItem.patternImage}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="w-full h-32 flex flex-col items-center justify-center bg-white rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 transition-colors group/pdf no-underline"
+                                >
+                                  <Library size={32} className="text-orange-400 mb-2 group-hover/pdf:scale-110 transition-transform" />
+                                  <span className="text-sm font-black text-orange-600">{t('pdfPattern')}</span>
+                                  <span className="text-[10px] text-orange-400 mt-1">{t('clickToOpen')}</span>
+                                </a>
+                              ) : (
+                                <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />
+                              )}
                             </div>
                           </div>
                         )}

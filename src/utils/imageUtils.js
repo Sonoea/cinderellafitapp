@@ -2,6 +2,15 @@
 export const compressImage = (file, maxWidth = 800, quality = 0.7) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
+        
+        // Handle PDF files by just converting to Data URL
+        if (file.type === 'application/pdf') {
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = (err) => reject(err);
+            reader.readAsDataURL(file);
+            return;
+        }
+
         reader.readAsDataURL(file);
         reader.onload = (event) => {
             const img = new Image();

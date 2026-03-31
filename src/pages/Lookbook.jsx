@@ -122,7 +122,7 @@ const Lookbook = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white pb-24">
+        <div className="min-h-screen bg-white pb-48">
             <Helmet>
                 <title>{pattern ? `${pattern.itemName} | ${t('lookbook')}` : t('lookbook')} - CinderellaFit</title>
             </Helmet>

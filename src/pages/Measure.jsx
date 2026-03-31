@@ -120,7 +120,7 @@ const Measure = () => {
     };
 
     return (
-        <div className="flex flex-col h-full fade-in pb-20">
+        <div className="flex flex-col h-full fade-in pb-48">
             <h2 className="mb-4">{isEditMode ? t('editPlushie') : t('newMeasurement')}</h2>
 
             <form onSubmit={handleManualSubmit} className="flex flex-col gap-4 bg-white p-6 rounded-2xl shadow-sm fade-in">

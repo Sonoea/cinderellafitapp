@@ -272,7 +272,7 @@ const MapGallery = () => {
     }, [language]);
 
     return (
-        <div className="min-h-screen bg-slate-900 text-white pb-24 overflow-hidden relative">
+        <div className="min-h-screen bg-slate-900 text-white pb-48 overflow-hidden relative">
             <Helmet>
                 <title>{language === 'jp' ? '3D世界地図 | CinderellaFit' : '3D World Globe | CinderellaFit'}</title>
             </Helmet>

@@ -648,7 +648,7 @@ const Home = () => {
             </section>
 
             {/* Footer with Legal Links */}
-            <footer className="mt-8 pb-20 text-center">
+            <footer className="mt-8 pb-48 text-center">
                 <div style={{ width: '40px', height: '1px', background: 'var(--gray-200)', margin: '0 auto 16px' }}></div>
                 <Link
                     to="/legal"

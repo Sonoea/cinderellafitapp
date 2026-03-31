@@ -141,7 +141,7 @@ const Settings = () => {
     };
 
     return (
-        <div className="pb-20">
+        <div className="pb-48">
             {/* Header */}
             <div className="flex items-center gap-3 mb-6">
                 <button

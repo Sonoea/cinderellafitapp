@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock, Star } from 'lucide-react';
+import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock, Star, Library } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { compressImage } from '../utils/imageUtils';

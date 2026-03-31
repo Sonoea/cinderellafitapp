@@ -47,23 +47,28 @@ export const compressImage = (file, maxWidth = 800, quality = 0.7) => {
     });
 };
 
-export const openPdfFromDataUrl = (dataUrl) => {
+export const openPdfFromDataUrl = async (dataUrl) => {
     try {
-        const base64Content = dataUrl.split(',')[1];
-        const binaryContent = atob(base64Content);
-        const bytes = new Uint8Array(binaryContent.length);
-        for (let i = 0; i < binaryContent.length; i++) {
-            bytes[i] = binaryContent.charCodeAt(i);
-        }
-        const blob = new Blob([bytes], { type: 'application/pdf' });
+        // More robust way to convert Data URL to Blob using fetch
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
         const url = URL.createObjectURL(blob);
-        window.open(url, '_blank');
         
-        // Clean up the URL after a delay to avoid memory leaks
-        setTimeout(() => URL.revokeObjectURL(url), 10000);
+        // Open in a new tab
+        const win = window.open(url, '_blank');
+        if (!win || win.closed || typeof win.closed === 'undefined') {
+            // Popup blocker might have blocked it
+            const a = document.createElement('a');
+            a.href = url;
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+            a.click();
+        }
+        
+        // Clean up
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (err) {
         console.error("Error opening PDF:", err);
-        // Fallback to direct navigation if conversion fails
         window.open(dataUrl, '_blank');
     }
 };

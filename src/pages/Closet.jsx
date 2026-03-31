@@ -882,7 +882,14 @@ const Closet = () => {
                           {isEditing ? (
                             <>
                               <button
-                                onClick={() => setEditData({ ...editData, isPublic: !editData.isPublic })}
+                                onClick={() => {
+                                  const newIsPublic = !editData.isPublic;
+                                  setEditData({ 
+                                    ...editData, 
+                                    isPublic: newIsPublic,
+                                    isPattern: newIsPublic ? editData.isPattern : false
+                                  });
+                                }}
                                 className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-bold text-xs transition-all ${editData.isPublic
                                   ? 'text-green-600 bg-green-100 border-2 border-green-400'
                                   : 'text-gray-500 bg-gray-100 border-2 border-gray-300'
@@ -1343,8 +1350,8 @@ const Closet = () => {
                                        onChange={async (e) => {
                                          const file = e.target.files[0];
                                          if (file) {
-                                           if (file.size > 1024 * 1024) {
-                                             alert(language === 'jp' ? 'ファイルサイズは1MB以下にしてください' : 'File size must be under 1MB');
+                                           if (file.size > 700 * 1024) {
+                                             alert(language === 'jp' ? 'ファイルサイズは700KB以下にしてください' : 'File size must be under 700KB');
                                              return;
                                            }
                                            try {
@@ -1447,15 +1454,16 @@ const Closet = () => {
                                <p className="font-bold text-orange-900">{t('isPatternLabel') || 'この投稿を「型紙」として公開'}</p>
                              </div>
                            </div>
-                           <label className="relative inline-flex items-center cursor-pointer">
-                             <input
-                               type="checkbox"
-                               className="sr-only peer"
-                               checked={editData.isPattern}
-                               onChange={(e) => setEditData({ ...editData, isPattern: e.target.checked })}
-                             />
-                             <div className="w-9 h-5 bg-orange-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
-                           </label>
+                            <label className={`relative inline-flex items-center ${!editData.isPublic ? "cursor-not-allowed" : "cursor-pointer"}`}>
+                              <input
+                                type="checkbox"
+                                className="sr-only peer"
+                                checked={editData.isPattern}
+                                disabled={!editData.isPublic}
+                                onChange={(e) => setEditData({ ...editData, isPattern: e.target.checked })}
+                              />
+                              <div className={`w-9 h-5 ${!editData.isPublic ? "bg-gray-100" : "bg-orange-200"} peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[""] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-orange-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600`}></div>
+                            </label>
                          </div>
                        </div>
                      )}

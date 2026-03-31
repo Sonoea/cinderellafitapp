@@ -1330,7 +1330,7 @@ const Closet = () => {
                                  {editData.patternImage.startsWith('data:application/pdf') ? (
                                    <div className="w-full h-full flex flex-col items-center justify-center bg-orange-50 gap-1">
                                      <Library size={24} className="text-orange-400" />
-                                     <span className="text-[9px] font-bold text-orange-600">{t('pdfPattern')}</span>
+                                     <span className="text-[9px] font-bold text-orange-600">{editData.patternFileName || t('pdfPattern')}</span>
                                    </div>
                                  ) : (
                                    <img src={editData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
@@ -1344,12 +1344,18 @@ const Closet = () => {
                                          const file = e.target.files[0];
                                          if (file) {
                                            if (file.size > 1024 * 1024) {
-                                             alert(t('fileSizeError'));
+                                             alert(language === 'jp' ? 'ファイルサイズは1MB以下にしてください' : 'File size must be under 1MB');
                                              return;
                                            }
                                            try {
-                                             const compressed = await compressImage(file);
-                                             setEditData({ ...editData, patternImage: compressed });
+                                             if (file.type === 'application/pdf') {
+                                               const reader = new FileReader();
+                                               reader.onloadend = () => setEditData({ ...editData, patternImage: reader.result, patternFileName: file.name });
+                                               reader.readAsDataURL(file);
+                                             } else {
+                                               const compressed = await compressImage(file);
+                                               setEditData({ ...editData, patternImage: compressed });
+                                             }
                                            } catch { alert('Failed to load file'); }
                                          }
                                        }}
@@ -1359,7 +1365,7 @@ const Closet = () => {
                                    </label>
                                  </div>
                                  <button
-                                   onClick={(e) => { e.stopPropagation(); setEditData({ ...editData, patternImage: null }); }}
+                                   onClick={(e) => { e.stopPropagation(); setEditData({ ...editData, patternImage: null, patternFileName: '' }); }}
                                    className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full shadow-sm"
                                  >
                                    <span className="text-[10px] leading-none">✕</span>
@@ -1473,8 +1479,8 @@ const Closet = () => {
                                   className="w-full h-32 flex flex-col items-center justify-center bg-white rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 transition-colors group/pdf no-underline"
                                 >
                                   <Library size={32} className="text-orange-400 mb-2 group-hover/pdf:scale-110 transition-transform" />
-                                  <span className="text-sm font-black text-orange-600">{t('pdfPattern')}</span>
-                                  <span className="text-[10px] text-orange-400 mt-1">{t('clickToOpen')}</span>
+                                  <span className="text-sm font-black text-orange-600 truncate max-w-full px-4" title={selectedItem.patternFileName}>{selectedItem.patternFileName || t('pdfPattern')}</span>
+                                  <span className="text-[10px] text-orange-400 mt-1 font-bold">{t('clickToOpen')}</span>
                                 </a>
                               ) : (
                                 <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />

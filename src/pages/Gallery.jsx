@@ -1098,8 +1098,8 @@ const Gallery = () => {
                                                             className="w-full h-32 flex flex-col items-center justify-center bg-white rounded-xl border-2 border-dashed border-orange-200 hover:border-orange-400 transition-colors group/pdf no-underline"
                                                         >
                                                             <Library size={32} className="text-orange-400 mb-2 group-hover/pdf:scale-110 transition-transform" />
-                                                            <span className="text-sm font-black text-orange-600">{t('pdfPattern')}</span>
-                                                            <span className="text-[10px] text-orange-400 mt-1">{t('clickToOpen')}</span>
+                                                            <span className="text-sm font-black text-orange-600 truncate max-w-full px-4" title={selectedItem.patternFileName}>{selectedItem.patternFileName || t('pdfPattern')}</span>
+                                                            <span className="text-[10px] text-orange-400 mt-1 font-bold">{t('clickToOpen')}</span>
                                                         </a>
                                                     ) : (
                                                         <img src={selectedItem.patternImage} className="w-full rounded-xl border border-orange-100 shadow-sm transition-transform hover:scale-[1.02] cursor-zoom-in" alt="Pattern" />

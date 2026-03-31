@@ -480,10 +480,11 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             ) : (
                                                 <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
                                                     {formData.patternImage.startsWith('data:application/pdf') ? (
-                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-orange-50 gap-1">
-                                                            <Library size={24} className="text-orange-400" />
-                                                            <span className="text-[9px] font-bold text-orange-600">{t('pdfPattern')}</span>
-                                                        </div>
+                                                        <div className="w-full h-full flex flex-col items-center justify-center bg-orange-50 gap-1 p-2">
+                                                             <Library size={24} className="text-orange-400" />
+                                                             <span className="text-[10px] font-bold text-orange-600 truncate max-w-full px-2" title={formData.patternFileName}>{formData.patternFileName || t('pdfPattern')}</span>
+                                                             <span className="text-[8px] text-orange-400 font-bold uppercase tracking-tighter">PDF DOCUMENT</span>
+                                                         </div>
                                                     ) : (
                                                         <img src={formData.patternImage} alt="Pattern Preview" className="w-full h-full object-cover" />
                                                     )}
@@ -502,7 +503,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                                         try {
                                                                             if (file.type === 'application/pdf') {
                                                                                 const reader = new FileReader();
-                                                                                reader.onloadend = () => setFormData({ ...formData, patternImage: reader.result });
+                                                                                reader.onloadend = () => setFormData({ ...formData, patternImage: reader.result, patternFileName: file.name });
                                                                                 reader.readAsDataURL(file);
                                                                             } else {
                                                                                 const compressed = await compressImage(file);

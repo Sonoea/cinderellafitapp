@@ -725,6 +725,7 @@ a {
   min-height: 0;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  padding-bottom: 120px;
 }
 
 .modal-footer-fixed {

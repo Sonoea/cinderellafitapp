@@ -5,7 +5,8 @@ import { collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, addD
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Heart, MessageCircle, User, Share2, Shirt, ArrowLeft, Send, X, Trash2, LogIn, MapPin, Star } from 'lucide-react';
+import { Heart, MessageCircle, User, Share2, Shirt, ArrowLeft, Send, X, Trash2, LogIn, MapPin, Star, ExternalLink } from 'lucide-react';
+import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 
 const UserAvatar = ({ src, alt, className }) => {
@@ -494,13 +495,14 @@ const UserProfile = () => {
 
             {/* Detail Modal */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
-                    <div className="relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '94vh', display: 'flex', flexDirection: 'column' }}>
-                        <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 transition-colors hover:bg-black/70">
-                            <X size={20} />
-                        </button>
-
-                        <div style={{ overflowY: 'auto', flex: 1 }}>
+                <Portal>
+                    <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
+                        <div className="relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
+                            <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 transition-colors hover:bg-black/70">
+                                <X size={20} />
+                            </button>
+    
+                            <div style={{ overflowY: 'auto', flex: 1, paddingBottom: '160px' }}>
                             <div className="relative overflow-hidden">
                                 <img src={selectedItem.imageUrl} alt="" className="w-full aspect-square object-cover" />
                                 <div className="absolute top-4 left-4 bg-black/40 backdrop-blur-md text-white px-3 py-1 rounded-full text-[10px] font-bold z-10">
@@ -639,8 +641,9 @@ const UserProfile = () => {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            </Portal>
+        )}
+    </div>
     );
 };
 

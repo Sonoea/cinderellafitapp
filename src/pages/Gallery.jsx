@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2 } from 'lucide-react';
+import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
 
@@ -839,13 +840,14 @@ const Gallery = () => {
 
             {/* Detail Modal */}
             {selectedItem && (
-                <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
-                    <div className="modal-responsive relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '94vh', display: 'flex', flexDirection: 'column' }}>
-                        <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm">
-                            <X size={20} />
-                        </button>
-
-                        <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '32px' }}>
+                <Portal>
+                    <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
+                        <div className="modal-responsive relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
+                            <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm">
+                                <X size={20} />
+                            </button>
+    
+                            <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '160px' }}>
                             <div className="relative overflow-hidden bg-gray-50 border-b border-gray-100">
                                 <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
                             </div>
@@ -1206,8 +1208,9 @@ const Gallery = () => {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            </Portal>
+        )}
+    </div>
     );
 };
 

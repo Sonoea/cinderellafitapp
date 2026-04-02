@@ -5,7 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2 } from 'lucide-react';
+import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2, Plus } from 'lucide-react';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
@@ -130,6 +130,9 @@ const Gallery = () => {
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
     const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
+
+    // Pagination
+    const [displayLimit, setDisplayLimit] = useState(12);
 
     // Resolve user profiles
     const resolveUserProfiles = async (uids) => {
@@ -599,6 +602,17 @@ const Gallery = () => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
+    // Reset display limit when filters change
+    useEffect(() => {
+        setDisplayLimit(12);
+    }, [searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, filterHasPattern]);
+
+    const visibleItems = React.useMemo(() => {
+        return filteredItems.slice(0, displayLimit);
+    }, [filteredItems, displayLimit]);
+
+    const hasMore = filteredItems.length > displayLimit;
+
     return (
         <div className="pb-48">
             <Helmet>
@@ -674,8 +688,6 @@ const Gallery = () => {
                             ))}
                         </div>
                     )}
-
-                    {/* Category Filter */}
                     <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                         {[
                             { id: 'all', label: t('allCategories'), icon: '✨' },
@@ -735,106 +747,120 @@ const Gallery = () => {
                         )}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 gap-3 mb-20 fade-in">
-                        {filteredItems.map((post) => (
-                            <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'}`}>
-                                {/* Header - Strict fixed height and tiny fonts for uniformity */}
-                                <div className="p-2 flex items-center justify-between h-[52px] overflow-hidden">
-                                    <div className="flex items-center gap-1.5 overflow-hidden flex-1">
-                                        <div className="relative flex-shrink-0">
-                                            <UserAvatar
-                                                src={post.userIcon}
-                                                className="w-7 h-7"
-                                                alt={post.userName}
-                                                onClick={post.profileSlug ? () => navigate(`/gallery/${post.profileSlug}`) : undefined}
-                                            />
-                                            {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-1 ring-white shadow-sm"><Star size={7} className="text-white fill-white" /></div>}
-                                        </div>
-                                        <div className="overflow-hidden min-w-0">
-                                            <p className="text-[10px] font-bold text-gray-800 truncate leading-tight">
-                                                {post.profileSlug ? (
-                                                    <Link to={`/gallery/${post.profileSlug}`} className="hover:text-primary transition-colors">{post.userName}</Link>
-                                                ) : post.userName}
-                                            </p>
-                                            <div className="flex items-center gap-1 text-[9px] text-gray-400 leading-none mt-0.5">
-                                                <span className="truncate inline-block max-w-full">{post.plushieName}</span>
-                                                {post.plushieHeight && <span className="flex-shrink-0 opacity-70">| {post.plushieHeight}cm</span>}
+                    <>
+                        <div className="grid grid-cols-2 gap-3 mb-8 fade-in">
+                            {visibleItems.map((post) => (
+                                <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'} flex flex-col h-full`}>
+                                    {/* Header */}
+                                    <div className="p-2 flex items-center justify-between h-[52px] overflow-hidden">
+                                        <div className="flex items-center gap-1.5 overflow-hidden flex-1">
+                                            <div className="relative flex-shrink-0">
+                                                <UserAvatar
+                                                    src={post.userIcon}
+                                                    className="w-7 h-7"
+                                                    alt={post.userName}
+                                                    onClick={post.profileSlug ? () => navigate(`/gallery/${post.profileSlug}`) : undefined}
+                                                />
+                                                {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-1 ring-white shadow-sm"><Star size={7} className="text-white fill-white" /></div>}
+                                            </div>
+                                            <div className="overflow-hidden min-w-0">
+                                                <p className="text-[10px] font-bold text-gray-800 truncate leading-tight">
+                                                    {post.profileSlug ? (
+                                                        <Link to={`/gallery/${post.profileSlug}`} className="hover:text-primary transition-colors">{post.userName}</Link>
+                                                    ) : post.userName}
+                                                </p>
+                                                <div className="flex items-center gap-1 text-[9px] text-gray-400 leading-none mt-0.5">
+                                                    <span className="truncate inline-block max-w-full">{post.plushieName}</span>
+                                                    {post.plushieHeight && <span className="flex-shrink-0 opacity-70">| {post.plushieHeight}cm</span>}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    {post.location && (
-                                        <div className="flex items-center gap-0.5 text-[9px] text-blue-400 flex-shrink-0 ml-1 bg-blue-50/50 px-1.5 py-0.5 rounded-full border border-blue-100/50">
-                                            <MapPin size={8} />
-                                            <span className="truncate max-w-[42px] font-medium inline-block align-middle">{post.location}</span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Image */}
-                                <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
-                                    <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
-                                    <div className="absolute" style={{ top: 6, left: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
-                                        {post.date}
-                                    </div>
-                                    {(post.patternImage || post.referenceUrl) && (
-                                        <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
-                                            {t('hasPattern')}
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* Social bar - Explicit height for row alignment */}
-                                <div className="flex items-center justify-between bg-white h-[40px] px-3 border-b border-gray-50">
-                                    <div className="flex items-center gap-3">
-                                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(post.id, post.userId, post.compositeId); }}
-                                            className="flex items-center gap-1 transition-all"
-                                            style={{ color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                                            <Heart size={16} fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
-                                            <span className="font-bold text-[11px]">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
-                                        </button>
-                                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShouldScrollToComments(true); setSelectedItem(post); }}
-                                            className="flex items-center gap-1 text-gray-400 transition-all"
-                                            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                                            <MessageCircle size={16} strokeWidth={2.5} />
-                                            <span className="font-bold text-[11px]">{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
-                                        </button>
-                                    </div>
-                                    <span className="text-base" style={{ lineHeight: 1 }}>
-                                        {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                                    </span>
-                                </div>
-
-                                {/* Content - Fixed height for uniform grid */}
-                                <div className="p-2.5 h-[88px] flex flex-col justify-start bg-white border-t border-gray-50/50">
-                                    <div className="overflow-hidden mb-1.5">
-                                        <h3 className="font-extrabold text-[11px] sm:text-xs text-gray-900 leading-tight truncate">
-                                            {post.itemName}
-                                        </h3>
-                                    </div>
-                                    <div className="flex flex-wrap items-center gap-1.5 overflow-hidden mb-1">
-                                        {post.purchaseType && (
-                                            <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-md whitespace-nowrap flex-shrink-0 border border-gray-200/50">
-                                                {post.purchaseType === 'online' ? `🌐 ${t('onlineShop')}` :
-                                                    post.purchaseType === 'retail' ? `🏪 ${t('retailShop')}` :
-                                                        `🪡 ${t('handmade')}`}
-                                            </span>
+                                        {post.location && (
+                                            <div className="flex items-center gap-0.5 text-[9px] text-blue-400 flex-shrink-0 ml-1 bg-blue-50/50 px-1.5 py-0.5 rounded-full border border-blue-100/50">
+                                                <MapPin size={8} />
+                                                <span className="truncate max-w-[42px] font-medium inline-block align-middle">{post.location}</span>
+                                            </div>
                                         )}
+                                    </div>
+
+                                    {/* Image */}
+                                    <div className="aspect-square bg-gray-50 relative cursor-pointer group overflow-hidden" onClick={() => setSelectedItem(post)}>
+                                        <img src={post.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                        <div className="absolute" style={{ top: 6, left: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
+                                            {post.date}
+                                        </div>
                                         {(post.patternImage || post.referenceUrl) && (
-                                            <span className="text-[9px] font-bold bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded-md whitespace-nowrap border border-orange-100 flex-shrink-0">
+                                            <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
                                                 {t('hasPattern')}
-                                            </span>
+                                            </div>
                                         )}
                                     </div>
-                                    {post.shopName && (
-                                        <div className="mt-auto bg-gray-50 px-2 py-0.5 rounded flex items-center gap-1 text-[9px] text-gray-500 overflow-hidden truncate">
-                                            <Shirt size={9} className="flex-shrink-0" />
-                                            <span className="truncate">{post.shopName}</span>
+
+                                    {/* Social bar */}
+                                    <div className="flex items-center justify-between bg-white h-[40px] px-3 border-b border-gray-50">
+                                        <div className="flex items-center gap-3">
+                                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(post.id, post.userId, post.compositeId); }}
+                                                className="flex items-center gap-1 transition-all"
+                                                style={{ color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                                                <Heart size={16} fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
+                                                <span className="font-bold text-[11px]">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                                            </button>
+                                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShouldScrollToComments(true); setSelectedItem(post); }}
+                                                className="flex items-center gap-1 text-gray-400 transition-all"
+                                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                                                <MessageCircle size={16} strokeWidth={2.5} />
+                                                <span className="font-bold text-[11px]">{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
+                                            </button>
                                         </div>
-                                    )}
+                                        <span className="text-base" style={{ lineHeight: 1 }}>
+                                            {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
+                                        </span>
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="p-2.5 h-[88px] flex flex-col justify-start bg-white border-t border-gray-50/50">
+                                        <div className="overflow-hidden mb-1.5">
+                                            <h3 className="font-extrabold text-[11px] sm:text-xs text-gray-900 leading-tight truncate">
+                                                {post.itemName}
+                                            </h3>
+                                        </div>
+                                        <div className="flex flex-wrap items-center gap-1.5 overflow-hidden mb-1">
+                                            {post.purchaseType && (
+                                                <span className="text-[9px] font-bold bg-gray-100/80 text-gray-500 px-1.5 py-0.5 rounded-md whitespace-nowrap flex-shrink-0 border border-gray-200/50">
+                                                    {post.purchaseType === 'online' ? `🌐 ${t('onlineShop')}` :
+                                                        post.purchaseType === 'retail' ? `🏪 ${t('retailShop')}` :
+                                                            `🪡 ${t('handmade')}`}
+                                                </span>
+                                            )}
+                                            {(post.patternImage || post.referenceUrl) && (
+                                                <span className="text-[9px] font-bold bg-orange-50 text-orange-600 px-1.5 py-0.5 rounded-md whitespace-nowrap border border-orange-100 flex-shrink-0">
+                                                    {t('hasPattern')}
+                                                </span>
+                                            )}
+                                        </div>
+                                        {post.shopName && (
+                                            <div className="mt-auto bg-gray-50 px-2 py-0.5 rounded flex items-center gap-1 text-[9px] text-gray-500 overflow-hidden truncate">
+                                                <Shirt size={9} className="flex-shrink-0" />
+                                                <span className="truncate">{post.shopName}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
+                            ))}
+                        </div>
+
+                        {hasMore && (
+                            <div className="mt-4 mb-20 flex justify-center">
+                                <button
+                                    onClick={() => setDisplayLimit(prev => prev + 12)}
+                                    className="flex items-center gap-2 px-8 py-3 bg-white border-2 border-gray-100 text-gray-600 rounded-full font-black text-sm hover:border-primary/30 hover:text-primary transition-all active:scale-95 shadow-sm"
+                                >
+                                    <Plus size={18} />
+                                    {t('loadMore') || 'もっと見る'}
+                                </button>
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
             </div>
 
@@ -1175,7 +1201,7 @@ const Gallery = () => {
 
                                     {/* Comment input */}
                                     {currentUser ? (
-                                        <div className="flex flex-col gap-2">
+                                        <div className="flex flex-col gap-3">
                                             <textarea
                                                 value={commentText}
                                                 onChange={(e) => setCommentText(e.target.value)}
@@ -1186,16 +1212,22 @@ const Gallery = () => {
                                                     }
                                                 }}
                                                 placeholder={t('commentPlaceholder')}
-                                                className="w-full bg-gray-50 px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
-                                                rows={2}
+                                                className="w-full bg-gray-50 px-4 py-3 rounded-2xl text-base focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200 resize-none"
+                                                rows={4}
                                             />
                                             <button
                                                 onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
                                                 disabled={!commentText.trim() || isSubmittingComment}
-                                                className="self-end flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl disabled:opacity-50 hover:bg-primary/90 transition-colors text-sm font-bold"
+                                                className="w-full flex items-center justify-center gap-2 bg-primary text-white px-6 py-4 rounded-2xl disabled:opacity-50 hover:bg-primary/90 transition-all active:scale-[0.98] text-base font-black shadow-md"
                                             >
-                                                <Send size={14} />
-                                                {t('send')}
+                                                {isSubmittingComment ? (
+                                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                ) : (
+                                                    <>
+                                                        <Send size={18} strokeWidth={3} />
+                                                        {t('send')}
+                                                    </>
+                                                )}
                                             </button>
                                         </div>
                                     ) : (

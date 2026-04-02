@@ -605,7 +605,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     </span>
                                 </div>
                                 <textarea
-                                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                                    className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 h-32 text-sm resize-none"
                                     placeholder={t('commentPlaceholder')}
                                     value={formData.comment}
                                     maxLength={500}

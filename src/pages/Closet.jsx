@@ -1561,7 +1561,7 @@ const Closet = () => {
                             </span>
                           </div>
                           <textarea
-                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-20 text-sm"
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-32 text-sm resize-none"
                             placeholder={t('commentPlaceholder')}
                             value={editData.comment}
                             maxLength={500}
@@ -1706,8 +1706,8 @@ const Closet = () => {
                                 <Plus size={14} /> {t('addCommentLabel') || 'コメントを投稿する'}
                               </span>
                             </div>
-                            <div className="flex gap-2 items-end">
-                              <div className="flex-1 relative group">
+                            <div className="flex flex-col gap-3">
+                              <div className="relative group">
                                 <textarea
                                   value={commentText}
                                   onChange={(e) => setCommentText(e.target.value)}
@@ -1718,11 +1718,11 @@ const Closet = () => {
                                     }
                                   }}
                                   placeholder={t('commentPlaceholder') || 'ここにコメントを入力...'}
-                                  className="w-full p-3 bg-white rounded-xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm h-24 shadow-sm transition-all resize-none"
+                                  className="w-full p-4 bg-white rounded-2xl border border-blue-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-base h-32 shadow-sm transition-all resize-none"
                                   maxLength={200}
                                 />
-                                <div className="absolute bottom-2 right-2 flex items-center gap-2">
-                                  <span className={`text-[9px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
+                                <div className="absolute bottom-3 right-3 flex items-center gap-2">
+                                  <span className={`text-[10px] font-bold ${commentText.length >= 190 ? 'text-red-500' : 'text-blue-300'}`}>
                                     {commentText.length}/200
                                   </span>
                                 </div>
@@ -1730,14 +1730,14 @@ const Closet = () => {
                               <button
                                 onClick={() => submitComment(selectedItem.id, selectedItem.userId)}
                                 disabled={!commentText.trim() || isSubmittingComment}
-                                className="bg-primary text-white p-4 rounded-xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-24 w-14 flex flex-col items-center justify-center gap-2 group active:scale-95"
+                                className="bg-primary text-white p-4 rounded-2xl shadow-lg hover:bg-primary/90 disabled:opacity-50 disabled:grayscale transition-all h-14 w-full flex items-center justify-center gap-3 group active:scale-[0.98]"
                               >
                                 {isSubmittingComment ? (
                                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                                 ) : (
                                   <>
                                     <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                                    <span className="text-[10px] font-bold">送信</span>
+                                    <span className="text-base font-black">送信</span>
                                   </>
                                 )}
                               </button>

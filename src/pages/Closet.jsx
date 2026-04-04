@@ -1444,6 +1444,25 @@ const Closet = () => {
                            </div>
                          )}
  
+                         {/* === Making Instructions === */}
+                         <div className="space-y-2 pt-2 border-t border-orange-100/50">
+                           <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">
+                             {t('makingInstructionsLabel') || '作り方の解説（任意）'}
+                           </label>
+                           <textarea
+                             className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-32 text-sm resize-none"
+                             placeholder={t('makingInstructionsPlaceholder') || '作り方の手順やコツなどを自由に書いてください...'}
+                             value={editData.makingInstructions || ''}
+                             maxLength={1000}
+                             onChange={(e) => setEditData({ ...editData, makingInstructions: e.target.value })}
+                           />
+                           <div className="flex justify-end">
+                             <span className={`text-[9px] font-bold ${(editData.makingInstructions || '').length >= 1000 ? 'text-red-500' : 'text-orange-300'}`}>
+                               {(editData.makingInstructions || '').length}/1000
+                             </span>
+                           </div>
+                         </div>
+
                          {/* isPattern Toggle in Edit Mode */}
                          <div className="flex items-center justify-between bg-white/50 p-2.5 rounded-xl border border-orange-100">
                            <div className="flex items-center gap-2">
@@ -1469,7 +1488,7 @@ const Closet = () => {
                      )}
 
                     {/* Handmade Specific Fields (View Mode) */}
-                    {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.referencedPostId) && (
+                    {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.referencedPostId || selectedItem.makingInstructions) && (
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
                           <span>📖</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
@@ -1514,6 +1533,21 @@ const Closet = () => {
                               </div>
                               <span className="text-orange-300 flex items-center group-hover:translate-x-1 transition-transform">→</span>
                             </a>
+                          </div>
+                        )}
+
+                        {/* Making Instructions Text */}
+                        {selectedItem.makingInstructions && (
+                          <div className="space-y-2 mt-4">
+                            <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider flex items-center gap-1">
+                              <span>📝</span> {t('makingInstructionsLabel') || '作り方の解説'}
+                            </p>
+                            <div className="bg-white p-4 rounded-xl border border-orange-100 shadow-sm relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-1 h-full bg-orange-300"></div>
+                                <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed pl-2 font-medium">
+                                  {selectedItem.makingInstructions}
+                                </p>
+                            </div>
                           </div>
                         )}
 

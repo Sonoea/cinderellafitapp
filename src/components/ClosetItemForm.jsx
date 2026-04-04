@@ -35,6 +35,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
         waistFlat: '',
         clothesLength: '',
         cuffWidth: '',
+        makingInstructions: '',
     });
 
     // Load initial item data if provided (for editing)
@@ -594,6 +595,25 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             <p className="text-[9px] text-orange-500/70 font-medium px-1">{t('patternSourceExternalNote')}</p>
                                         </div>
                                     )}
+
+                                    {/* === Making Instructions === */}
+                                    <div className="space-y-2 pt-2 border-t border-orange-100/50">
+                                        <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">
+                                            {t('makingInstructionsLabel') || '作り方の解説（任意）'}
+                                        </label>
+                                        <textarea
+                                            className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-32 text-sm resize-none"
+                                            placeholder={t('makingInstructionsPlaceholder') || '作り方の手順やコツなどを自由に書いてください...'}
+                                            value={formData.makingInstructions}
+                                            maxLength={1000}
+                                            onChange={(e) => setFormData({ ...formData, makingInstructions: e.target.value })}
+                                        />
+                                        <div className="flex justify-end">
+                                            <span className={`text-[9px] font-bold ${formData.makingInstructions.length >= 1000 ? 'text-red-500' : 'text-orange-300'}`}>
+                                                {formData.makingInstructions.length}/1000
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 

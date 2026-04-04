@@ -1450,7 +1450,7 @@ const Closet = () => {
                              {t('makingInstructionsLabel') || '作り方の解説（任意）'}
                            </label>
                            <textarea
-                             className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-32 text-sm resize-none"
+                             className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-48 text-sm resize-none"
                              placeholder={t('makingInstructionsPlaceholder') || '作り方の手順やコツなどを自由に書いてください...'}
                              value={editData.makingInstructions || ''}
                              maxLength={1000}
@@ -1595,7 +1595,7 @@ const Closet = () => {
                             </span>
                           </div>
                           <textarea
-                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-32 text-sm resize-none"
+                            className="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary/20 h-48 text-sm resize-none"
                             placeholder={t('commentPlaceholder')}
                             value={editData.comment}
                             maxLength={500}

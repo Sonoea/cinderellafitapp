@@ -602,7 +602,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                             {t('makingInstructionsLabel') || '作り方の解説（任意）'}
                                         </label>
                                         <textarea
-                                            className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-32 text-sm resize-none"
+                                            className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-48 text-sm resize-none"
                                             placeholder={t('makingInstructionsPlaceholder') || '作り方の手順やコツなどを自由に書いてください...'}
                                             value={formData.makingInstructions}
                                             maxLength={1000}

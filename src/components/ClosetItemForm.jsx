@@ -242,6 +242,9 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     >
                                         {[
                                             { id: 'other', label: t('catOther'), icon: '✨' },
+                                            { id: 'pattern', label: t('catPattern'), icon: '📖' },
+                                            { id: 'archive', label: t('catArchive'), icon: '💼' },
+                                            { id: 'ethnic', label: t('catEthnic'), icon: '👘' },
                                             { id: 'onepiece', label: t('catOnePiece'), icon: '👗' },
                                             { id: 'sportswear', label: t('catSportswear'), icon: '🎽' },
                                             { id: 'outer', label: t('catCoat'), icon: '🧥' },

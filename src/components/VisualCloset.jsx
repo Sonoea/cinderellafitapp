@@ -443,7 +443,8 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
 
             {/* Floor and Rug */}
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '400px', background: 'repeating-linear-gradient(90deg, #9C6F44, #9C6F44 40px, #8B5A2B 40px, #8B5A2B 42px)', filter: 'perspective(500px) rotateX(60deg)', transformOrigin: 'bottom', opacity: 0.9, zIndex: 0, pointerEvents: 'none' }}></div>
-            <div style={{ position: 'absolute', bottom: '80px', left: '10%', right: '10%', height: '160px', background: '#FFFDF9', borderRadius: '50px', filter: 'blur(3px)', boxShadow: '0 20px 40px rgba(0,0,0,0.3), inset 0 0 30px rgba(200,190,170,0.8)', zIndex: 5, pointerEvents: 'none' }}></div>
+            {/* Added a subtle shadow below the wardrobe instead of the glowing rug */}
+            <div style={{ position: 'absolute', bottom: '180px', left: '15%', right: '15%', height: '40px', background: 'black', borderRadius: '50px', filter: 'blur(15px)', opacity: 0.3, zIndex: 1, pointerEvents: 'none' }}></div>
 
             <WardrobeLogo total={totalCount} t={t} userName={currentUser?.displayName} />
 

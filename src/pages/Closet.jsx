@@ -1350,8 +1350,8 @@ const Closet = () => {
                                        onChange={async (e) => {
                                          const file = e.target.files[0];
                                          if (file) {
-                                           if (file.size > 700 * 1024) {
-                                             alert(language === 'jp' ? 'ファイルサイズは700KB以下にしてください' : 'File size must be under 700KB');
+                                           if (file.size > 400 * 1024) {
+                                             alert(language === 'jp' ? 'クラウドの容量制限のため、ファイルサイズは400KB以下にしてください' : 'File size must be under 400KB due to cloud limits');
                                              return;
                                            }
                                            try {

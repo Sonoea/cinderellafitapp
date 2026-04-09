@@ -15,6 +15,7 @@ import Guide from './pages/Guide';
 import Gallery from './pages/Gallery';
 import UserProfile from './pages/UserProfile';
 import Lookbook from './pages/Lookbook';
+import Notifications from './pages/Notifications';
 // import MapGallery from './pages/MapGallery';
 
 // Lazy load Closet to prevent circular dependency/initialization issues
@@ -73,6 +74,11 @@ function App() {
                 <Route path="/lookbook/:patternId" element={
                   <ErrorBoundary>
                     <Lookbook />
+                  </ErrorBoundary>
+                } />
+                <Route path="/notifications" element={
+                  <ErrorBoundary>
+                    <Notifications />
                   </ErrorBoundary>
                 } />
               </Routes>

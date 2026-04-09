@@ -328,6 +328,26 @@ const Gallery = () => {
                 await deleteDoc(likeRef);
             } else {
                 await setDoc(likeRef, { likedBy: currentUser.uid, createdAt: serverTimestamp() });
+
+                // --- Notification Logic ---
+                if (currentUser.uid !== ownerUid) {
+                    try {
+                        const postMatch = galleryItems.find(p => String(p.id).replace(/^local-/, '') === bareId);
+                        const notifId = `like_${compositeId}_${currentUser.uid}`;
+                        await setDoc(doc(db, 'users', ownerUid, 'notifications', notifId), {
+                            id: notifId,
+                            type: 'like',
+                            senderId: currentUser.uid,
+                            senderName: currentUser.displayName || 'Guest',
+                            senderIcon: currentUser.photoURL || null,
+                            postId: compositeId,
+                            postImage: postMatch?.imageUrl || postMatch?.image || null,
+                            message: '',
+                            read: false,
+                            createdAt: serverTimestamp()
+                        }, { merge: true });
+                    } catch (e) { console.error("Error creating like notification:", e); }
+                }
             }
 
             // 実際のいいね数をサブコレクションから取得してUI更新
@@ -388,6 +408,26 @@ const Gallery = () => {
             const commentData = { userId: currentUser.uid, userName, userIcon, text: commentText.trim(), createdAt: new Date().toISOString() };
             const commentsColRef = collection(db, 'users', ownerUid, 'closetItems', bareId, 'comments');
             await addDoc(commentsColRef, { ...commentData, createdAt: serverTimestamp() });
+
+            // --- Notification Logic ---
+            if (currentUser.uid !== ownerUid) {
+                try {
+                    const postMatch = galleryItems.find(p => String(p.id).replace(/^local-/, '') === bareId);
+                    const notifId = `comment_${compositeId}_${Date.now()}`;
+                    await setDoc(doc(db, 'users', ownerUid, 'notifications', notifId), {
+                        id: notifId,
+                        type: 'comment',
+                        senderId: currentUser.uid,
+                        senderName: userName,
+                        senderIcon: userIcon,
+                        postId: compositeId,
+                        postImage: postMatch?.imageUrl || postMatch?.image || null,
+                        message: commentText.trim(),
+                        read: false,
+                        createdAt: serverTimestamp()
+                    });
+                } catch (e) { console.error("Error creating comment notification:", e); }
+            }
 
             // Sync commentCount from actual subcollection count
             const allComments = await getDocs(commentsColRef);

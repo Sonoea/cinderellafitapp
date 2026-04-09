@@ -1,12 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Camera, Shirt, ShoppingBag, Users, Globe } from 'lucide-react';
-
+import { Home, Camera, Shirt, ShoppingBag, Users, Globe, Bell } from 'lucide-react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
+import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 
 const BottomNav = () => {
     const { t } = useApp();
     const location = useLocation();
+
+    const { currentUser } = useAuth();
+    const [unreadCount, setUnreadCount] = useState(0);
+
+    useEffect(() => {
+        if (!currentUser) {
+            setUnreadCount(0);
+            return;
+        }
+
+        const q = query(
+            collection(db, 'users', currentUser.uid, 'notifications'),
+            where('read', '==', false)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setUnreadCount(snapshot.size);
+        });
+
+        return () => unsubscribe();
+    }, [currentUser]);
 
     // Hide on fitting room
     if (location.pathname === '/fitting-room') return null;
@@ -16,6 +39,7 @@ const BottomNav = () => {
         { to: '/closet?add=true', icon: Camera, label: t('addNewOutfit') || '登録' },
         { to: '/closet', icon: Shirt, label: t('navCloset') },
         { to: '/gallery', icon: Users, label: t('navGallery') || (t('language') === 'jp' ? 'ギャラリー' : 'Gallery') },
+        { to: '/notifications', icon: Bell, label: t('navNotifications') || 'お知らせ' },
     ];
 
     return (
@@ -65,10 +89,24 @@ const BottomNav = () => {
                                 marginBottom: '1px',
                                 transition: 'background 0.2s'
                             }} />
-                            {React.createElement(icon, {
-                                size: 22,
-                                strokeWidth: isActive ? 2.5 : 1.8
-                            })}
+                            <div style={{ position: 'relative' }}>
+                                {React.createElement(icon, {
+                                    size: 22,
+                                    strokeWidth: isActive ? 2.5 : 1.8
+                                })}
+                                {to === '/notifications' && unreadCount > 0 && (
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '-2px',
+                                        right: '-2px',
+                                        width: '8px',
+                                        height: '8px',
+                                        backgroundColor: '#ef4444',
+                                        borderRadius: '50%',
+                                        border: '1.5px solid white'
+                                    }} />
+                                )}
+                            </div>
                             <span style={{
                                 color: isActive ? 'var(--primary)' : 'var(--gray-300)',
                                 fontWeight: isActive ? 700 : 500

@@ -60,6 +60,11 @@ export const translations = {
         discover: "News & Updates",
         newArrival: "📢 CinderellaFit News",
         newArrivalBody: (name) => `New items added to the community gallery! Check out ${name}'s latest outfit.`,
+        // Notifications
+        navNotifications: "Notifications",
+        noNotifications: "No notifications yet.",
+        notificationLike: "liked your post.",
+        notificationComment: "commented on your post:",
 
         // Measure
         newMeasurement: "New Measurement",
@@ -606,6 +611,12 @@ export const translations = {
         measurementDetails: "サイズ詳細",
         imageUploadError: "画像のアップロードに失敗しました。もう一度試すか、小さい画像を使ってください。",
         storageQuotaExceeded: "保存容量がいっぱいです！画像が大きすぎるため保存できませんでした。",
+
+        // Notifications
+        navNotifications: "お知らせ",
+        noNotifications: "まだお知らせはありません。",
+        notificationLike: "さんがあなたの投稿にいいねしました。",
+        notificationComment: "さんがあなたの投稿にコメントしました:",
 
         // Closet Feature
         items: "一覧",

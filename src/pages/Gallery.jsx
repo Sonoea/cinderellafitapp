@@ -654,7 +654,7 @@ const Gallery = () => {
     const hasMore = filteredItems.length > displayLimit;
 
     return (
-        <div className="pb-48">
+        <div style={{ paddingBottom: '160px' }}>
             <Helmet>
                 <title>{t('everyonesGallery')} | CinderellaFit</title>
                 <meta name="description" content={t('galleryMetaDesc')} />
@@ -898,6 +898,15 @@ const Gallery = () => {
                                     <Plus size={18} />
                                     {t('loadMore') || 'もっと見る'}
                                 </button>
+                            </div>
+                        )}
+                        {!hasMore && filteredItems.length > 0 && (
+                            <div className="mt-8 mb-8 text-center flex items-center justify-center gap-2">
+                                <div className="h-px bg-gray-200 flex-1 max-w-[40px]"></div>
+                                <p className="text-[10px] font-bold text-gray-400 tracking-wider">
+                                    {t('noMoreItems') || 'これ以上アイテムはありません'}
+                                </p>
+                                <div className="h-px bg-gray-200 flex-1 max-w-[40px]"></div>
                             </div>
                         )}
                     </>

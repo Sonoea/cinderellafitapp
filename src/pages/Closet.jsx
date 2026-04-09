@@ -1076,6 +1076,9 @@ const Closet = () => {
                               { id: 'shoes', label: t('catShoes'), icon: '👟' },
                               { id: 'bag', label: t('catBag'), icon: '👜' },
                               { id: 'accessory', label: t('catAccessory'), icon: '🎀' },
+                              { id: 'pattern', label: t('catPattern'), icon: '📖' },
+                              { id: 'archive', label: t('catArchive'), icon: '💼' },
+                              { id: 'ethnic', label: t('catEthnic'), icon: '👘' },
                               { id: 'other', label: t('catOther'), icon: '✨' }
                             ].map((cat) => (
                               <button
@@ -1104,6 +1107,9 @@ const Closet = () => {
                                 { id: 'shoes', label: t('catShoes'), icon: '👟' },
                                 { id: 'bag', label: t('catBag'), icon: '👜' },
                                 { id: 'accessory', label: t('catAccessory'), icon: '🎀' },
+                                { id: 'pattern', label: t('catPattern'), icon: '📖' },
+                                { id: 'archive', label: t('catArchive'), icon: '💼' },
+                                { id: 'ethnic', label: t('catEthnic'), icon: '👘' },
                                 { id: 'other', label: t('catOther'), icon: '✨' }
                               ].find(c => c.id === (selectedItem.category || 'other'));
                               return `${cat?.icon} ${cat?.label}`;

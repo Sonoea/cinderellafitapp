@@ -401,23 +401,52 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
         const finalLabel = label;
         const isHover = dragOverZone === zone;
         const isEmpty = myItems.length === 0;
+        const isSelectedMode = !!selectedPlacingItem;
+        const isSuccess = successZone === zone;
 
         return (
             <div
                 ref={el => shelfRefs.current[zone] = el}
-                onClick={() => setOpenShelf({ cats, label: finalLabel })}
+                onClick={() => {
+                    if (isSelectedMode) {
+                        handlePlaceToShelf(cats[0], zone, finalLabel);
+                    } else {
+                        setOpenShelf({ cats, label: finalLabel });
+                    }
+                }}
                 style={{
                     flex: '0 0 50px',
-                    backgroundColor: isHover ? '#FDF8ED' : '#FDFBF7',
-                    border: isHover ? '2px solid #D4AF37' : '1px solid #EAE3D9',
+                    backgroundColor: isHover || (isSelectedMode && isHover) ? '#FDF8ED' : '#FDFBF7',
+                    border: isHover || (isSelectedMode && isHover) ? '2px solid #D4AF37' : '1px solid #EAE3D9',
                     borderRadius: '4px',
                     display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    boxShadow: isHover ? 'inset 0 0 15px rgba(212,175,55,0.1), 0 5px 15px rgba(212,175,55,0.2)' : 'inset 0 -5px 10px rgba(0,0,0,0.03), 0 5px 10px rgba(0,0,0,0.05)',
+                    boxShadow: isHover || (isSelectedMode && isHover) ? 'inset 0 0 15px rgba(212,175,55,0.1), 0 5px 15px rgba(212,175,55,0.2)' : 'inset 0 -5px 10px rgba(0,0,0,0.03), 0 5px 10px rgba(0,0,0,0.05)',
                     position: 'relative', overflow: 'hidden', height: '60px', marginTop: 'auto', cursor: 'pointer',
                     transition: 'all 0.2s', filter: isHover ? 'brightness(1.02)' : 'none'
                 }}>
                 <div style={{ position: 'absolute', inset: '4px', border: '1px solid rgba(212,175,55,0.3)', backgroundColor: '#FAF7F2', borderRadius: '2px' }}></div>
                 
+                {isSelectedMode && (
+                    <div style={{
+                        position: 'absolute', inset: '2px', background: 'rgba(61, 122, 127, 0.15)', backdropFilter: 'blur(3px)',
+                        borderRadius: '2px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                        color: '#3D7A7F', zIndex: 120, border: '2px dashed rgba(61, 122, 127, 0.5)'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Plus size={16} strokeWidth={5} />
+                            <div style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.1em' }}>PLACE</div>
+                        </div>
+                    </div>
+                )}
+                
+                {isSuccess && (
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 150 }}>
+                        <div style={{ animation: 'firework 1s ease-out forwards', opacity: 1, color: '#3D7A7F' }}>
+                            <Sparkles size={48} fill="#3D7A7F" />
+                        </div>
+                    </div>
+                )}
+
                 {/* Horizontal Drawer Handle */}
                 <div style={{ width: '40px', height: '5px', background: 'linear-gradient(to bottom, #FFDF73, #D4AF37, #AA8C2C)', borderRadius: '3px', zIndex: 2, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}></div>
                 

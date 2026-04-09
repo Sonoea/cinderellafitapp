@@ -291,7 +291,7 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                             color: '#3D7A7F', zIndex: 120, border: '2px dashed rgba(61, 122, 127, 0.5)'
                         }}>
                             <Plus size={isSmall ? 18 : 32} strokeWidth={5} />
-                            <div style={{ fontSize: isSmall ? '9px' : '12px', fontWeight: '900', marginTop: '4px', letterSpacing: '0.1em' }}>PLACE</div>
+                            <div style={{ fontSize: isSmall ? '9px' : '12px', fontWeight: '900', marginTop: '4px', letterSpacing: '0.1em' }}>{t('placeAction')}</div>
                         </div>
                     )}
 
@@ -434,7 +434,7 @@ const VisualCloset = ({ items = [], onSelectItem, updateClosetItem, t }) => {
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Plus size={16} strokeWidth={5} />
-                            <div style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.1em' }}>PLACE</div>
+                            <div style={{ fontSize: '10px', fontWeight: '900', letterSpacing: '0.1em' }}>{t('placeAction')}</div>
                         </div>
                     </div>
                 )}

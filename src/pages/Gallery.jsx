@@ -133,6 +133,7 @@ const Gallery = () => {
 
     // Pagination
     const [displayLimit, setDisplayLimit] = useState(12);
+    const loaderRef = useRef(null);
 
     // Resolve user profiles
     const resolveUserProfiles = async (uids) => {
@@ -653,6 +654,26 @@ const Gallery = () => {
 
     const hasMore = filteredItems.length > displayLimit;
 
+    // Infinite Scroll Observer
+    useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+            const target = entries[0];
+            if (target.isIntersecting && hasMore) {
+                setDisplayLimit(prev => prev + 12);
+            }
+        }, { root: null, rootMargin: '0px', threshold: 0.1 });
+
+        if (loaderRef.current) {
+            observer.observe(loaderRef.current);
+        }
+
+        return () => {
+            if (loaderRef.current) {
+                observer.unobserve(loaderRef.current);
+            }
+        };
+    }, [hasMore, loaderRef]);
+
     return (
         <div style={{ paddingBottom: '160px' }}>
             <Helmet>
@@ -890,14 +911,11 @@ const Gallery = () => {
                         </div>
 
                         {hasMore && (
-                            <div className="mt-4 mb-20 flex justify-center">
-                                <button
-                                    onClick={() => setDisplayLimit(prev => prev + 12)}
-                                    className="flex items-center gap-2 px-8 py-3 bg-white border-2 border-gray-100 text-gray-600 rounded-full font-black text-sm hover:border-primary/30 hover:text-primary transition-all active:scale-95 shadow-sm"
-                                >
-                                    <Plus size={18} />
-                                    {t('loadMore') || 'もっと見る'}
-                                </button>
+                            <div ref={loaderRef} className="mt-4 mb-20 flex justify-center py-4">
+                                <div className="flex items-center gap-2 px-8 py-3 bg-white text-gray-400 rounded-full font-bold text-xs shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
+                                    <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
+                                    {t('loadMore') || '読み込み中...'}
+                                </div>
                             </div>
                         )}
                         {!hasMore && filteredItems.length > 0 && (

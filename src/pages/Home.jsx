@@ -59,7 +59,6 @@ const Home = () => {
 
     // Gallery Latest Feed
     const [latestPosts, setLatestPosts] = useState([]);
-    const [patternPosts, setPatternPosts] = useState([]);
 
     useEffect(() => {
         const fetchLatest = async () => {
@@ -87,9 +86,7 @@ const Home = () => {
                             plushieName: data.plushieName || '',
                             location: data.location || '',
                             userId: data.userId,
-                            imageUrl: data.imageUrl || data.image || '',
-                            patternImage: data.patternImage || null,
-                            referenceUrl: data.referenceUrl || null
+                            imageUrl: data.imageUrl || data.image || ''
                         });
                     } catch (e) { /* skip */ }
                 });
@@ -121,8 +118,8 @@ const Home = () => {
 
                 setLatestPosts(validItems.slice(0, 5));
 
-                // Fetch latest user profiles for these items (fetch 25 to get enough patterns)
-                const topItems = validItems.slice(0, 25);
+                // Fetch latest user profiles for these items
+                const topItems = validItems.slice(0, 5);
                 try {
                     const { doc, getDoc } = await import('firebase/firestore');
                     const itemsWithProfiles = await Promise.all(topItems.map(async (item) => {
@@ -141,16 +138,9 @@ const Home = () => {
                         } catch (e) { /* ignore */ }
                         return item;
                     }));
-                    
-                    // Set pattern posts
-                    const patterns = itemsWithProfiles.filter(item => item.patternImage || item.referenceUrl);
-                    setPatternPosts(patterns.slice(0, 8));
-                    
-                    // For the latest feed, we only want 5 items to keep it compact
-                    setLatestPosts(itemsWithProfiles.slice(0, 5));
+                    setLatestPosts(itemsWithProfiles);
                 } catch (e) {
-                    setLatestPosts(topItems.slice(0, 5));
-                    setPatternPosts(topItems.filter(i => i.patternImage || i.referenceUrl).slice(0, 8));
+                    setLatestPosts(topItems);
                 }
             } catch (err) {
                 console.warn("Latest gallery fetch error:", err);
@@ -233,166 +223,185 @@ const Home = () => {
                 </div>
             </header>
 
-            {/* Dynamic Home Area (Hero for Guest / Dashboard for Users) */}
-            {!currentUser ? (
-                <div className="mb-4 rounded-3xl overflow-hidden relative" style={{
-                    background: 'linear-gradient(135deg, #FFF0E6 0%, #FAFAFA 100%)',
-                    boxShadow: '0 8px 24px rgba(212, 164, 144, 0.2)',
-                    border: '1px solid rgba(255,255,255,0.8)'
-                }}>
-                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#E8956A 1px, transparent 1px)', backgroundSize: '16px 16px' }}></div>
-                    <div className="p-6 relative z-10 text-center">
-                        <div className="w-16 h-16 mx-auto mb-3 bg-white rounded-2xl flex items-center justify-center shadow-sm" style={{ border: '2px solid #FDF3EE' }}>
-                            <span className="text-3xl">🧸</span>
-                        </div>
-                        <h2 style={{ fontSize: '16px', fontWeight: '800', color: 'var(--primary-dark)', marginBottom: '8px', lineHeight: '1.4' }}>
-                            {t('heroTitleGuest') || 'うちの子専用のクローゼットを作ろう'}
-                        </h2>
-                        <p style={{ fontSize: '11px', color: 'var(--text-light)', marginBottom: '16px', lineHeight: '1.5' }}>
-                            {t('heroDescGuest') || '型紙をみんなでシェアして、\n新しいお洋服作りをもっと楽しく！'}
-                        </p>
-                        <div className="flex flex-col gap-2">
-                            <Link to="/login" className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl font-bold transition-all shadow-md active:scale-95" style={{ backgroundColor: 'var(--primary)', color: 'white', fontSize: '13px' }}>
-                                <LogIn size={15} />
-                                {t('login') || 'Login / Sign Up'}
-                            </Link>
-                            <Link to="/gallery" className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold transition-all active:scale-95 bg-white" style={{ color: 'var(--primary)', fontSize: '12px', border: '1px solid var(--gray-200)' }}>
-                                <Globe size={14} />
-                                {t('tryGalleryGuest') || 'まずはログインせずにギャラリーを見る'}
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="grid grid-cols-2 gap-2 mb-4">
-                    <Link to="/closet?add=true" className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl hover-scale bg-white" style={{ border: '1px solid var(--gray-200)', boxShadow: 'var(--shadow-sm)' }}>
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--secondary-light) 0%, #F5EDE9 100%)' }}>
-                            <span className="text-xl">👕</span>
-                        </div>
-                        <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>{t('actionRecordOutfit') || '今日のコーデを記録'}</span>
-                    </Link>
-                    <Link to="/measure" className="flex flex-col items-center justify-center gap-2 p-3 rounded-2xl hover-scale bg-white" style={{ border: '1px solid var(--gray-200)', boxShadow: 'var(--shadow-sm)' }}>
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(135deg, var(--primary-light) 0%, #E8F4F5 100%)' }}>
-                            <span className="text-xl">📏</span>
-                        </div>
-                        <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>{t('actionMeasureSize') || '新しいサイズを測る'}</span>
-                    </Link>
-                </div>
-            )}
-
-            {/* 🌟 Pattern Library */}
-            {patternPosts.length > 0 && (
-                <section className="mb-4">
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', padding: '0 2px' }}>
-                        <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px', letterSpacing: '-0.01em' }}>
-                            <span>🌟</span>
-                            {t('patternLibraryTitle') || 'みんなの型紙ライブラリ'}
-                        </h3>
-                    </div>
-                    <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '-6px', marginBottom: '10px', paddingLeft: '2px' }}>{t('patternLibraryDesc') || '人気の型紙をチェック！'}</p>
-                    
-                    <div className="overflow-x-auto hide-scrollbar pb-2" style={{ margin: '0 -16px', padding: '0 16px' }}>
-                        <div className="flex gap-3" style={{ width: 'max-content' }}>
-                            {patternPosts.map((post) => (
-                                <Link key={post.id} to={`/gallery/post/${post.userId}_${post.id}`} className="block relative rounded-2xl overflow-hidden hover-scale shadow-sm" style={{ width: '130px', height: '180px', border: '1px solid var(--gray-200)', flexShrink: 0 }}>
-                                    <img src={post.imageUrl} alt={post.itemName} className="w-full h-full object-cover" />
-                                    <div className="absolute inset-x-0 bottom-0 p-2" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}>
-                                        <p className="text-white text-[10px] font-bold truncate leading-tight mb-0.5">{post.itemName}</p>
-                                        <div className="flex items-center gap-1">
-                                            {post.userIcon && !post.userIcon.includes('placeholder') ? (
-                                                <img src={post.userIcon} className="w-4 h-4 rounded-full border border-white" alt="" />
-                                            ) : (
-                                                <div className="w-4 h-4 rounded-full border border-white bg-gray-200 flex items-center justify-center" ><Users size={8} className="text-gray-500" /></div>
-                                            )}
-                                            <span className="text-white text-[8px] font-medium truncate opacity-90">{post.userName}</span>
-                                        </div>
-                                    </div>
-                                    <div className="absolute animate-bounce-subtle flex items-center justify-center shadow-md bg-white border border-gray-100" style={{ top: 6, right: 6, width: '22px', height: '22px', borderRadius: '50%', color: 'var(--secondary)' }}>
-                                        <span className="text-[12px]">🎁</span>
-                                    </div>
-                                </Link>
-                            ))}
-                        </div>
-                    </div>
-                </section>
-            )}
-
-            {/* How to Use - Quick Guide (Moved down, and maybe less prominent for logged in users) */}
+            {/* Login Banner for Non-Logged-In Users */}
             {!currentUser && (
-                <Link to="/guide" className="block rounded-2xl p-4 mb-4 hover-scale" style={{
-                    background: 'white',
-                    boxShadow: 'var(--shadow-sm)',
-                    border: '1px solid var(--gray-200)'
-                }}>
-                    {/* ... (keep inside the block) */}
-                    <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', marginBottom: '14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px', letterSpacing: '-0.01em' }}>
-                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <span style={{ fontSize: '14px' }}>📖</span>
-                            {t('easy3Steps')}
-                        </span>
-                        <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '600' }}>
-                            {t('details')} →
-                        </span>
-                    </h3>
-                    <div className="flex justify-between gap-2">
-                        <div className="flex-1 text-center">
-                            <div style={{ width: '48px', height: '48px', margin: '0 auto 8px', borderRadius: '14px', background: 'linear-gradient(145deg, #F5EDE9 0%, #EEDED8 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>🧸</div>
-                            <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>{t('step1TitleRaw')}</p>
-                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>{t('step1DescRaw')}</p>
-                        </div>
-                        <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
-                        <div className="flex-1 text-center">
-                            <div style={{ width: '48px', height: '48px', margin: '0 auto 8px', borderRadius: '14px', background: 'linear-gradient(145deg, var(--primary-light) 0%, #D5ECEE 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>👗</div>
-                            <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>{t('step2TitleRaw')}</p>
-                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>{t('step2DescRaw')}</p>
-                        </div>
-                        <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
-                        <div className="flex-1 text-center">
-                            <div style={{ width: '48px', height: '48px', margin: '0 auto 8px', borderRadius: '14px', background: 'linear-gradient(145deg, #E8F5F0 0%, #D4EDE5 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>✨</div>
-                            <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>{t('step3TitleRaw')}</p>
-                            <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>{t('step3DescRaw')}</p>
-                        </div>
-                    </div>
-                </Link>
-            )}
-
-            {/* My Closet Feature Highlight */}
-            {currentUser && (
-                <Link
-                    to="/closet"
-                    className="block rounded-2xl p-2 mb-4 hover-scale"
+                <div
+                    className="rounded-2xl p-2 shadow-sm mb-2"
                     style={{
-                        background: 'linear-gradient(135deg, var(--secondary-light) 0%, var(--primary-light) 100%)',
-                        border: '1px solid var(--gray-200)',
-                        boxShadow: 'var(--shadow-sm)'
+                        background: 'linear-gradient(135deg, #4F8A8B 0%, #F4A261 100%)',
+                        boxShadow: '0 2px 8px rgba(79, 138, 139, 0.2)'
                     }}
                 >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <div
+                            className="w-6 h-6 rounded-full flex items-center justify-center"
+                            style={{ background: 'rgba(255, 255, 255, 0.2)' }}
+                        >
+                            <Sparkles size={14} style={{ color: 'white' }} />
+                        </div>
+                        <div className="flex-1">
+                            <h3 style={{ color: 'white', fontWeight: '700', fontSize: '12px', marginBottom: '0' }}>
+                                {t('syncDataTitle')}
+                            </h3>
+                            <p style={{ color: 'rgba(255, 255, 255, 0.95)', fontSize: '10px' }}>
+                                {t('syncDataDesc')}
+                            </p>
+                        </div>
+                    </div>
+                    <Link
+                        to="/login"
+                        className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl font-bold transition-all"
+                        style={{
+                            backgroundColor: 'white',
+                            color: '#4F8A8B',
+                            fontWeight: '700',
+                            fontSize: '12px'
+                        }}
+                    >
+                        <LogIn size={14} />
+                        {t('login') || 'Login / Sign Up'}
+                    </Link>
+                </div>
+            )}
+
+            {/* How to Use - Quick Guide */}
+            <Link to="/guide" className="block rounded-2xl p-4 mb-4 hover-scale" style={{
+                background: 'white',
+                boxShadow: 'var(--shadow-sm)',
+                border: '1px solid var(--gray-200)'
+            }}>
+                <h3 style={{
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    color: 'var(--text-main)',
+                    marginBottom: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '8px',
+                    letterSpacing: '-0.01em'
+                }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '14px' }}>📖</span>
+                        {t('easy3Steps')}
+                    </span>
+                    <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '600' }}>
+                        {t('details')} →
+                    </span>
+                </h3>
+                <div className="flex justify-between gap-2">
+                    <div className="flex-1 text-center">
                         <div style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '8px',
-                            background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                            width: '48px',
+                            height: '48px',
+                            margin: '0 auto 8px',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(145deg, #F5EDE9 0%, #EEDED8 100%)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '14px',
-                            boxShadow: '0 2px 4px rgba(61, 122, 127, 0.2)'
+                            fontSize: '22px'
+                        }}>
+                            🧸
+                        </div>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
+                            {t('step1TitleRaw')}
+                        </p>
+                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
+                            {t('step1DescRaw')}
+                        </p>
+                    </div>
+                    <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
+                    <div className="flex-1 text-center">
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            margin: '0 auto 8px',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(145deg, var(--primary-light) 0%, #D5ECEE 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px'
                         }}>
                             👗
                         </div>
-                        <div className="flex-1">
-                            <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                {t('myCloset')}
-                            </h3>
-                            <p style={{ fontSize: '9px', color: 'var(--text-light)', marginTop: '0' }}>
-                                {t('closetTabHelp')}
-                            </p>
-                        </div>
-                        <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
+                            {t('step2TitleRaw')}
+                        </p>
+                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
+                            {t('step2DescRaw')}
+                        </p>
                     </div>
-                </Link>
-            )}
+                    <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
+                    <div className="flex-1 text-center">
+                        <div style={{
+                            width: '48px',
+                            height: '48px',
+                            margin: '0 auto 8px',
+                            borderRadius: '14px',
+                            background: 'linear-gradient(145deg, #E8F5F0 0%, #D4EDE5 100%)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '22px'
+                        }}>
+                            ✨
+                        </div>
+                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
+                            {t('step3TitleRaw')}
+                        </p>
+                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
+                            {t('step3DescRaw')}
+                        </p>
+                    </div>
+                </div>
+            </Link>
+
+            {/* My Closet Feature Highlight */}
+            <Link
+                to="/closet"
+                className="block rounded-2xl p-2 mb-2 hover-scale"
+                style={{
+                    background: 'linear-gradient(135deg, var(--secondary-light) 0%, var(--primary-light) 100%)',
+                    border: '1px solid var(--gray-200)',
+                    boxShadow: 'var(--shadow-sm)'
+                }}
+            >
+                <div className="flex items-center gap-2">
+                    <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '8px',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '14px',
+                        boxShadow: '0 2px 4px rgba(61, 122, 127, 0.2)'
+                    }}>
+                        👗
+                    </div>
+                    <div className="flex-1">
+                        <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            {t('myCloset')}
+                            <span style={{
+                                fontSize: '8px',
+                                fontWeight: '700',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                padding: '1px 5px',
+                                borderRadius: '20px',
+                                letterSpacing: '0.02em'
+                            }}>NEW</span>
+                        </h3>
+                        <p style={{ fontSize: '9px', color: 'var(--text-light)', marginTop: '0' }}>
+                            {t('closetTabHelp')}
+                        </p>
+                    </div>
+                    <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
+                </div>
+            </Link>
 
             {/* 🔔 Latest Gallery Feed - Public for all users */}
             {

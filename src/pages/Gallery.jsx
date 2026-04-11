@@ -851,21 +851,8 @@ const Gallery = () => {
                                             {post.date}
                                         </div>
                                         {(post.patternImage || post.referenceUrl) && (
-                                            <div className="absolute animate-bounce-subtle flex items-center gap-1" style={{ 
-                                                top: 6, right: 6, 
-                                                background: 'linear-gradient(135deg, #FF6B6B, #EE5253)', 
-                                                boxShadow: '0 4px 12px rgba(238, 82, 83, 0.4), inset 0 1px 1px rgba(255,255,255,0.4)', 
-                                                color: '#fff', 
-                                                fontSize: '10px', 
-                                                fontWeight: '800', 
-                                                padding: '4px 10px', 
-                                                borderRadius: '12px', 
-                                                zIndex: 10, 
-                                                border: '1px solid rgba(255,255,255,0.6)',
-                                                letterSpacing: '0.02em',
-                                                textShadow: '0 1px 2px rgba(0,0,0,0.2)'
-                                            }}>
-                                                <span className="text-[12px]">🎁</span> {t('premiumPatternBadge') || t('hasPattern')}
+                                            <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
+                                                {t('hasPattern')}
                                             </div>
                                         )}
                                     </div>

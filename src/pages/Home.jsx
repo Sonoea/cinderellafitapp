@@ -86,7 +86,9 @@ const Home = () => {
                             plushieName: data.plushieName || '',
                             location: data.location || '',
                             userId: data.userId,
-                            imageUrl: data.imageUrl || data.image || ''
+                            imageUrl: data.imageUrl || data.image || '',
+                            patternImage: data.patternImage || null,
+                            referenceUrl: data.referenceUrl || null
                         });
                     } catch (e) { /* skip */ }
                 });
@@ -116,10 +118,10 @@ const Home = () => {
                 // And exclude specific '誰か' entries if they exist in DB
                 const validItems = uniqueItems.filter(item => item.userName !== '誰か');
 
-                setLatestPosts(validItems.slice(0, 5));
+                setLatestPosts(validItems.slice(0, 6));
 
                 // Fetch latest user profiles for these items
-                const topItems = validItems.slice(0, 5);
+                const topItems = validItems.slice(0, 6);
                 try {
                     const { doc, getDoc } = await import('firebase/firestore');
                     const itemsWithProfiles = await Promise.all(topItems.map(async (item) => {
@@ -138,6 +140,7 @@ const Home = () => {
                         } catch (e) { /* ignore */ }
                         return item;
                     }));
+                    
                     setLatestPosts(itemsWithProfiles);
                 } catch (e) {
                     setLatestPosts(topItems);
@@ -223,315 +226,228 @@ const Home = () => {
                 </div>
             </header>
 
-            {/* Login Banner for Non-Logged-In Users */}
+            {/* Sync Data Banner (Deployed Version) */}
             {!currentUser && (
-                <div
-                    className="rounded-2xl p-2 shadow-sm mb-2"
-                    style={{
-                        background: 'linear-gradient(135deg, #4F8A8B 0%, #F4A261 100%)',
-                        boxShadow: '0 2px 8px rgba(79, 138, 139, 0.2)'
-                    }}
-                >
-                    <div className="flex items-center gap-2 mb-1.5">
-                        <div
-                            className="w-6 h-6 rounded-full flex items-center justify-center"
-                            style={{ background: 'rgba(255, 255, 255, 0.2)' }}
-                        >
-                            <Sparkles size={14} style={{ color: 'white' }} />
+                <div className="mb-4 p-4 relative overflow-hidden" style={{
+                    background: 'linear-gradient(135deg, #509291 0%, #D89868 100%)',
+                    borderRadius: '24px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                }}>
+                    <div className="relative z-10">
+                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '16px' }}>
+                            <span style={{ fontSize: '18px', color: 'white', marginTop: '2px' }}>✨</span>
+                            <div>
+                                <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'white', marginBottom: '4px', letterSpacing: '0.02em' }}>
+                                    デバイス間でデータを同期
+                                </h3>
+                                <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.9)', fontWeight: '600' }}>
+                                    ログインして、どこからでもぬいぐるみを管理
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex-1">
-                            <h3 style={{ color: 'white', fontWeight: '700', fontSize: '12px', marginBottom: '0' }}>
-                                {t('syncDataTitle')}
-                            </h3>
-                            <p style={{ color: 'rgba(255, 255, 255, 0.95)', fontSize: '10px' }}>
-                                {t('syncDataDesc')}
-                            </p>
-                        </div>
+                        
+                        <Link to="/login" className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-bold transition-all active:scale-95 shadow-sm bg-white" style={{ color: '#509291', fontSize: '14px' }}>
+                            <LogIn size={16} strokeWidth={2.5} />
+                            ログイン
+                        </Link>
                     </div>
-                    <Link
-                        to="/login"
-                        className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl font-bold transition-all"
-                        style={{
-                            backgroundColor: 'white',
-                            color: '#4F8A8B',
-                            fontWeight: '700',
-                            fontSize: '12px'
-                        }}
-                    >
-                        <LogIn size={14} />
-                        {t('login') || 'Login / Sign Up'}
-                    </Link>
                 </div>
             )}
 
-            {/* How to Use - Quick Guide */}
-            <Link to="/guide" className="block rounded-2xl p-4 mb-4 hover-scale" style={{
-                background: 'white',
-                boxShadow: 'var(--shadow-sm)',
-                border: '1px solid var(--gray-200)'
-            }}>
-                <h3 style={{
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    color: 'var(--text-main)',
-                    marginBottom: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '8px',
-                    letterSpacing: '-0.01em'
+            {/* Easy 3 Steps (Deployed Version) */}
+            {!currentUser && (
+                <Link to="/guide" className="block rounded-[24px] p-5 mb-4 hover-scale" style={{
+                    background: 'white', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', border: '1px solid var(--gray-200)'
                 }}>
-                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '14px' }}>📖</span>
-                        {t('easy3Steps')}
-                    </span>
-                    <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '600' }}>
-                        {t('details')} →
-                    </span>
-                </h3>
-                <div className="flex justify-between gap-2">
-                    <div className="flex-1 text-center">
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            margin: '0 auto 8px',
-                            borderRadius: '14px',
-                            background: 'linear-gradient(145deg, #F5EDE9 0%, #EEDED8 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '22px'
-                        }}>
-                            🧸
+                    <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', letterSpacing: '-0.01em' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '16px' }}>📖</span>
+                            かんたん3ステップ
+                        </span>
+                        <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '700' }}>詳しく見る →</span>
+                    </h3>
+                    <div className="flex justify-between items-start gap-1">
+                        <div className="flex-1 text-center">
+                            <div style={{ width: '56px', height: '56px', margin: '0 auto 12px', borderRadius: '16px', background: '#F5E6E0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>🧸</div>
+                            <p style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '4px' }}>{t('step1TitleRaw')}</p>
+                            <p style={{ fontSize: '9.5px', color: 'var(--text-light)', fontWeight: '500' }}>{t('step1DescRaw')}</p>
                         </div>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {t('step1TitleRaw')}
-                        </p>
-                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {t('step1DescRaw')}
-                        </p>
-                    </div>
-                    <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
-                    <div className="flex-1 text-center">
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            margin: '0 auto 8px',
-                            borderRadius: '14px',
-                            background: 'linear-gradient(145deg, var(--primary-light) 0%, #D5ECEE 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '22px'
-                        }}>
-                            👗
+                        <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px', marginTop: '20px' }}>➔</div>
+                        <div className="flex-1 text-center">
+                            <div style={{ width: '56px', height: '56px', margin: '0 auto 12px', borderRadius: '16px', background: '#CBEBE3', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>👗</div>
+                            <p style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '4px' }}>{t('step2TitleRaw')}</p>
+                            <p style={{ fontSize: '9.5px', color: 'var(--text-light)', fontWeight: '500' }}>{t('step2DescRaw')}</p>
                         </div>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {t('step2TitleRaw')}
-                        </p>
-                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {t('step2DescRaw')}
-                        </p>
-                    </div>
-                    <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px' }}>→</div>
-                    <div className="flex-1 text-center">
-                        <div style={{
-                            width: '48px',
-                            height: '48px',
-                            margin: '0 auto 8px',
-                            borderRadius: '14px',
-                            background: 'linear-gradient(145deg, #E8F5F0 0%, #D4EDE5 100%)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '22px'
-                        }}>
-                            ✨
+                        <div className="flex items-center" style={{ color: 'var(--gray-300)', fontSize: '16px', marginTop: '20px' }}>➔</div>
+                        <div className="flex-1 text-center">
+                            <div style={{ width: '56px', height: '56px', margin: '0 auto 12px', borderRadius: '16px', background: '#DFF2E2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px' }}>✨</div>
+                            <p style={{ fontSize: '12px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '4px' }}>{t('step3TitleRaw')}</p>
+                            <p style={{ fontSize: '9.5px', color: 'var(--text-light)', fontWeight: '500' }}>{t('step3DescRaw')}</p>
                         </div>
-                        <p style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)' }}>
-                            {t('step3TitleRaw')}
-                        </p>
-                        <p style={{ fontSize: '10px', color: 'var(--text-light)', marginTop: '2px' }}>
-                            {t('step3DescRaw')}
-                        </p>
                     </div>
-                </div>
-            </Link>
+                </Link>
+            )}
 
-            {/* My Closet Feature Highlight */}
-            <Link
-                to="/closet"
-                className="block rounded-2xl p-2 mb-2 hover-scale"
-                style={{
+            {/* My Closet (Logged in users) */}
+            {currentUser && (
+                <Link to="/closet" className="block rounded-2xl p-2 mb-4 hover-scale" style={{
                     background: 'linear-gradient(135deg, var(--secondary-light) 0%, var(--primary-light) 100%)',
-                    border: '1px solid var(--gray-200)',
-                    boxShadow: 'var(--shadow-sm)'
-                }}
-            >
-                <div className="flex items-center gap-2">
-                    <div style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '14px',
-                        boxShadow: '0 2px 4px rgba(61, 122, 127, 0.2)'
-                    }}>
-                        👗
-                    </div>
-                    <div className="flex-1">
-                        <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-dark)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            {t('myCloset')}
-                            <span style={{
-                                fontSize: '8px',
-                                fontWeight: '700',
-                                background: 'var(--primary)',
-                                color: 'white',
-                                padding: '1px 5px',
-                                borderRadius: '20px',
-                                letterSpacing: '0.02em'
-                            }}>NEW</span>
-                        </h3>
-                        <p style={{ fontSize: '9px', color: 'var(--text-light)', marginTop: '0' }}>
-                            {t('closetTabHelp')}
-                        </p>
-                    </div>
-                    <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
-                </div>
-            </Link>
-
-            {/* 🔔 Latest Gallery Feed - Public for all users */}
-            {
-                latestPosts.length > 0 && (
-                    <section className="mb-2">
-                        <div style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            marginBottom: '6px'
-                        }}>
-                            <h3 style={{
-                                fontSize: '12px',
-                                fontWeight: '700',
-                                color: 'var(--text-main)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                                letterSpacing: '-0.01em'
-                            }}>
-                                <span>🔔</span>
-                                {t('latestOutfits')}
-                            </h3>
-                            <Link
-                                to="/gallery"
-                                style={{
-                                    fontSize: '10px',
-                                    fontWeight: '600',
-                                    color: 'var(--primary)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '2px'
-                                }}
-                            >
-                                {t('seeAll')}
-                                <span>→</span>
-                            </Link>
+                    border: '1px solid var(--gray-200)', boxShadow: 'var(--shadow-sm)'
+                }}>
+                    <div className="flex items-center gap-2">
+                        <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', boxShadow: '0 2px 4px rgba(61, 122, 127, 0.2)' }}>👗</div>
+                        <div className="flex-1">
+                            <h3 style={{ fontSize: '12px', fontWeight: '700', color: 'var(--primary-dark)' }}>{t('myCloset')}</h3>
+                            <p style={{ fontSize: '9px', color: 'var(--text-light)', marginTop: '0' }}>{t('closetTabHelp')}</p>
                         </div>
-                        <div className="rounded-2xl overflow-hidden stagger-in" style={{
-                            background: 'white',
-                            boxShadow: 'var(--shadow-sm)',
-                            border: '1px solid var(--gray-200)'
+                        <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
+                    </div>
+                </Link>
+            )}
+
+            {/* みんなの最新コーデ — Split-Flap Display */}
+            {latestPosts.length > 0 && (
+                <section className="mb-4">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span>✨</span>
+                            {t('latestOutfits')}
+                        </h3>
+                        <Link to="/gallery" style={{ fontSize: '10px', fontWeight: '600', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                            {t('seeAll')} <span>→</span>
+                        </Link>
+                    </div>
+
+                    <div style={{
+                        background: 'white',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        boxShadow: '0 8px 24px rgba(61,122,127,0.08), inset 0 1px 0 rgba(255,255,255,1)',
+                        border: '1px solid var(--gray-200)'
+                    }}>
+                        {/* Header */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '48px 40px 1fr 1.4fr 40px',
+                            gap: '3px',
+                            padding: '8px 6px 5px',
+                            background: 'var(--primary-light)'
                         }}>
-                            {latestPosts.map((post, index) => (
-                                <Link
-                                    key={post.id}
-                                    to="/gallery"
-                                    className="flex items-center gap-2 px-3 py-1.5 transition-all"
-                                    style={{
-                                        borderBottom: index < latestPosts.length - 1 ? '1px solid var(--gray-100)' : 'none',
-                                        fontFamily: '"Inter", sans-serif'
-                                    }}
-                                    onMouseEnter={e => e.currentTarget.style.backgroundColor = 'rgba(232, 244, 245, 0.6)'}
-                                    onMouseLeave={e => e.currentTarget.style.backgroundColor = 'transparent'}
-                                >
-                                    <div className="flex-shrink-0 relative" style={{ overflow: 'visible' }}>
-                                        {post.userIcon && !post.userIcon.includes('placeholder') ? (
-                                            <img src={post.userIcon} alt="" style={{
-                                                width: '24px',
-                                                height: '24px',
-                                                borderRadius: '8px',
-                                                objectFit: 'cover',
-                                                border: '1px solid var(--gray-200)'
-                                            }} />
-                                        ) : (
-                                            <div style={{
-                                                width: '24px',
-                                                height: '24px',
-                                                borderRadius: '8px',
-                                                background: 'linear-gradient(135deg, var(--primary-light) 0%, var(--secondary-light) 100%)',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center'
-                                            }}>
-                                                <Users size={12} style={{ color: 'var(--primary)' }} />
-                                            </div>
-                                        )}
-                                        {/* Circular location flag next to icon */}
-                                        <div style={{
-                                            position: 'absolute',
-                                            top: '0',
-                                            right: '0',
-                                            width: '15px',
-                                            height: '15px',
-                                            background: 'white',
-                                            borderRadius: '50%',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            zIndex: 50,
-                                            border: '1px solid var(--gray-200)',
-                                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                            fontSize: '10px',
-                                            lineHeight: 1,
-                                            transform: 'translate(25%, -25%)'
-                                        }}>
-                                            {getLocationFlag(post.location)}
-                                        </div>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '4px' }}>
-                                            <span className="font-semibold text-main" style={{ fontSize: '11px' }}>{post.userName}</span>
-                                            {post.location && (
-                                                <span style={{ 
-                                                    fontSize: '9px', 
-                                                    color: 'var(--text-light)', 
-                                                    background: 'var(--gray-50)', 
-                                                    padding: '1px 5px', 
-                                                    borderRadius: '4px',
-                                                    border: '1px solid var(--gray-100)'
-                                                }}>
-                                                    @{post.location}
-                                                </span>
-                                            )}
-                                        </div>
-                                        <p style={{ color: 'var(--text-main)', fontSize: '11px', lineHeight: '1.4' }}>
-                                            {t('sharedAction')}
-                                            <span className="font-semibold" style={{ color: 'var(--primary)' }}>{post.itemName}</span>
-                                            {t('sharedSuffix')}
-                                        </p>
-                                    </div>
-                                    <span style={{ fontSize: '9px', color: 'var(--text-light)', flexShrink: 0, whiteSpace: 'nowrap', fontWeight: 400 }}>
-                                        {formatRelativeTime(post.createdAt)}
-                                    </span>
-                                </Link>
+                            {['投稿日', '', 'ユーザー', 'コーデ', '到着'].map((label, i) => (
+                                <span key={i} style={{ fontSize: '8px', fontWeight: '700', color: 'var(--primary-dark)', letterSpacing: '0.08em', fontFamily: '"Hiragino Kaku Gothic ProN", "SF Mono", monospace', paddingLeft: '2px', textAlign: i === 4 ? 'center' : 'left' }}>{label}</span>
                             ))}
                         </div>
-                    </section>
-                )
-            }
+
+                        {/* Rows */}
+                        {latestPosts.filter(p => p.imageUrl).slice(0, 6).map((post, index) => (
+                            <Link
+                                key={post.id}
+                                to="/gallery"
+                                className="block"
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '48px 40px 1fr 1.4fr 40px',
+                                    gap: '3px',
+                                    padding: '4px 6px',
+                                    alignItems: 'center',
+                                    borderBottom: '1px solid var(--gray-100)',
+                                    animation: `splitFlapIn 0.4s ease-out ${index * 0.1}s both`
+                                }}
+                                onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-light)'}
+                                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                            >
+                                {/* Time cell */}
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <span style={{
+                                        fontSize: '10px', fontWeight: '700', color: 'var(--primary)',
+                                        fontFamily: '"SF Mono", "Menlo", monospace',
+                                        background: 'var(--gray-50)',
+                                        padding: '3px 4px',
+                                        borderRadius: '3px',
+                                        border: '1px solid var(--gray-200)',
+                                        display: 'block',
+                                        textAlign: 'center',
+                                        width: '100%',
+                                        position: 'relative',
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                    }}>{formatRelativeTime(post.createdAt)}</span>
+                                </div>
+
+                                {/* Photo thumbnail */}
+                                <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                    <img src={post.imageUrl} alt="" style={{
+                                        width: '36px', height: '36px',
+                                        borderRadius: '4px',
+                                        objectFit: 'cover',
+                                        border: '1px solid var(--gray-200)',
+                                        boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+                                    }} />
+                                </div>
+
+                                {/* User cell */}
+                                <div className="flex items-center gap-1.5 min-w-0" style={{
+                                    background: 'white',
+                                    padding: '5px 6px',
+                                    borderRadius: '3px',
+                                    border: '1px solid var(--gray-200)',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                }}>
+                                    {/* Flap center line */}
+                                    <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--gray-100)' }} />
+                                    {post.userIcon && !post.userIcon.includes('placeholder') ? (
+                                        <img src={post.userIcon} alt="" style={{ width: '16px', height: '16px', borderRadius: '3px', objectFit: 'cover', flexShrink: 0, position: 'relative', zIndex: 1 }} />
+                                    ) : (
+                                        <div style={{ width: '16px', height: '16px', borderRadius: '3px', background: 'var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1 }}>
+                                            <Users size={9} style={{ color: 'var(--text-light)' }} />
+                                        </div>
+                                    )}
+                                    <span className="truncate" style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)', fontFamily: '"SF Mono", "Menlo", monospace', position: 'relative', zIndex: 1 }}>{post.userName}</span>
+                                </div>
+
+                                {/* Outfit cell */}
+                                <div style={{
+                                    background: 'white',
+                                    padding: '5px 6px',
+                                    borderRadius: '3px',
+                                    border: '1px solid var(--gray-200)',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    minWidth: 0,
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                }}>
+                                    <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--gray-100)' }} />
+                                    <span className="truncate block" style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)', fontFamily: '"SF Mono", "Menlo", monospace', position: 'relative', zIndex: 1 }}>{post.itemName}</span>
+                                </div>
+
+                                {/* Destination (country) cell */}
+                                <div style={{
+                                    background: 'white',
+                                    padding: '5px 4px',
+                                    borderRadius: '3px',
+                                    border: '1px solid var(--gray-200)',
+                                    textAlign: 'center',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                }}>
+                                    <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--gray-100)' }} />
+                                    <span style={{ fontSize: '18px', lineHeight: 1, position: 'relative', zIndex: 1 }}>{getLocationFlag(post.location)}</span>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+
+                    <style>{`
+                        @keyframes splitFlapIn {
+                            0% { transform: perspective(600px) rotateX(-90deg); opacity: 0; transform-origin: top center; }
+                            70% { transform: perspective(600px) rotateX(5deg); transform-origin: top center; }
+                            100% { transform: perspective(600px) rotateX(0deg); opacity: 1; transform-origin: top center; }
+                        }
+                    `}</style>
+                </section>
+            )}
 
 
 

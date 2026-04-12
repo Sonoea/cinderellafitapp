@@ -328,13 +328,13 @@ const Home = () => {
                         {/* Header */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: '48px 40px 1fr 1.4fr 40px',
+                            gridTemplateColumns: '44px 40px 1fr 1fr 48px 36px',
                             gap: '3px',
                             padding: '8px 6px 5px',
                             background: 'var(--primary-light)'
                         }}>
-                            {['投稿日', '', 'ユーザー', 'コーデ', '到着'].map((label, i) => (
-                                <span key={i} style={{ fontSize: '8px', fontWeight: '700', color: 'var(--primary-dark)', letterSpacing: '0.08em', fontFamily: '"Hiragino Kaku Gothic ProN", "SF Mono", monospace', paddingLeft: '2px', textAlign: i === 4 ? 'center' : 'left' }}>{label}</span>
+                            {[t('boardHeaderArrival'), '', t('boardHeaderUser'), t('boardHeaderOutfit'), t('boardHeaderRemarks'), '📍'].map((label, i) => (
+                                <span key={i} style={{ fontSize: '8px', fontWeight: '700', color: 'var(--primary-dark)', letterSpacing: '0.08em', fontFamily: '"Hiragino Kaku Gothic ProN", "SF Mono", monospace', paddingLeft: '2px', textAlign: i === 5 ? 'center' : 'left' }}>{label}</span>
                             ))}
                         </div>
 
@@ -346,7 +346,7 @@ const Home = () => {
                                 className="block"
                                 style={{
                                     display: 'grid',
-                                    gridTemplateColumns: '48px 40px 1fr 1.4fr 40px',
+                                    gridTemplateColumns: '44px 40px 1fr 1fr 48px 36px',
                                     gap: '3px',
                                     padding: '4px 6px',
                                     alignItems: 'center',
@@ -418,7 +418,27 @@ const Home = () => {
                                     boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                                 }}>
                                     <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--gray-100)' }} />
-                                    <span className="truncate block" style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)', fontFamily: '"SF Mono", "Menlo", monospace', position: 'relative', zIndex: 1 }}>{post.itemName}</span>
+                                    <span className="truncate block" style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-main)', fontFamily: '"SF Mono", "Menlo", monospace', position: 'relative', zIndex: 1 }}>
+                                        {post.itemName}
+                                    </span>
+                                </div>
+
+                                {/* Remarks (Pattern) cell */}
+                                <div style={{
+                                    background: (post.patternImage || post.referenceUrl) ? 'linear-gradient(135deg, #f97316, #ea580c)' : 'var(--gray-50)',
+                                    padding: '5px 2px',
+                                    borderRadius: '3px',
+                                    border: (post.patternImage || post.referenceUrl) ? '1px solid #c2410c' : '1px solid var(--gray-200)',
+                                    position: 'relative',
+                                    overflow: 'hidden',
+                                    minWidth: 0,
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.02)',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: (post.patternImage || post.referenceUrl) ? 'rgba(0,0,0,0.2)' : 'var(--gray-200)' }} />
+                                    <span className="block truncate" style={{ fontSize: '9px', fontWeight: '800', color: (post.patternImage || post.referenceUrl) ? 'white' : 'var(--gray-300)', fontFamily: '"Hiragino Kaku Gothic ProN", sans-serif', position: 'relative', zIndex: 1 }}>
+                                        {(post.patternImage || post.referenceUrl) ? t('boardPatternAvailable') : t('boardPatternNone')}
+                                    </span>
                                 </div>
 
                                 {/* Destination (country) cell */}

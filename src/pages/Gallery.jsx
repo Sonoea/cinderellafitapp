@@ -851,18 +851,8 @@ const Gallery = () => {
                                             {post.date}
                                         </div>
                                         {(post.patternImage || post.referenceUrl) && (
-                                            <div className="absolute" style={{ 
-                                                top: 6, right: 6, 
-                                                background: 'rgba(0,0,0,0.45)', 
-                                                backdropFilter: 'blur(4px)', 
-                                                color: '#fff', 
-                                                fontSize: '9px', 
-                                                fontWeight: 700, 
-                                                padding: '2px 7px', 
-                                                borderRadius: '20px', 
-                                                zIndex: 10
-                                            }}>
-                                                📐 {t('premiumPatternBadge') || t('hasPattern')}
+                                            <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
+                                                {t('hasPattern')}
                                             </div>
                                         )}
                                     </div>

@@ -100,7 +100,7 @@ const Closet = () => {
  
    // Handle external "edit" request from Gallery
    useEffect(() => {
-     const urlParams = new URLSearchParams(window.location.search);
+     const urlParams = new URLSearchParams(location.search);
      const editId = urlParams.get('edit');
      if (editId && closetItems.length > 0) {
        const itemToEdit = closetItems.find(i => String(i.id) === String(editId));
@@ -108,6 +108,8 @@ const Closet = () => {
          setSelectedItem(itemToEdit);
          setIsEditing(true);
          setEditData({
+           name: itemToEdit.name || itemToEdit.itemName || '',
+           location: itemToEdit.location || '',
            fitRating: itemToEdit.fitRating,
            comment: itemToEdit.comment || '',
            isPublic: itemToEdit.isPublic,
@@ -128,11 +130,11 @@ const Closet = () => {
            isPattern: itemToEdit.isPattern || false,
            patternSource: itemToEdit.patternSource || (itemToEdit.referencedPostId ? 'cinderellafit' : (itemToEdit.referenceUrl ? 'external' : 'original'))
          });
-         // Clear param to avoid re-editing on refresh
-         window.history.replaceState({}, '', window.location.pathname);
+         // Clean up URL
+         navigate('/closet', { replace: true });
        }
      }
-   }, [closetItems, window.location.search]);
+   }, [closetItems, location.search]);
 
   // Handle deeplink to specific item or add modal
   useEffect(() => {
@@ -946,6 +948,8 @@ const Closet = () => {
                                 onClick={() => {
                                   setIsEditing(true);
                                   setEditData({
+                                    name: selectedItem.name || selectedItem.itemName || '',
+                                    location: selectedItem.location || '',
                                     fitRating: selectedItem.fitRating,
                                     comment: selectedItem.comment || '',
                                     isPublic: selectedItem.isPublic,
@@ -1060,6 +1064,38 @@ const Closet = () => {
                             </div>
                           )
                         )}
+                      </div>
+
+                       {/* Item Name & Location */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('itemName')}</label>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-gray-700"
+                              placeholder={t('itemNamePlaceholder')}
+                              value={editData.name}
+                              onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                            />
+                          ) : (
+                            <p className="text-lg font-black text-gray-800">{selectedItem.itemName || selectedItem.name}</p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('placeShop') || (language === 'jp' ? '場所・ショップ' : 'Location / Shop')}</label>
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-gray-700"
+                              placeholder={t('locationPlaceholder') || (language === 'jp' ? '購入店など' : 'e.g. Shop name')}
+                              value={editData.location}
+                              onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                            />
+                          ) : (
+                            <p className="text-sm font-bold text-gray-600">{selectedItem.location || '-'}</p>
+                          )}
+                        </div>
                       </div>
 
                       {/* Category */}

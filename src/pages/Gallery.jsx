@@ -126,9 +126,12 @@ const Gallery = () => {
     const [filterHasPattern, setFilterHasPattern] = useState(false);
     const { postId } = useParams();
     const [isCopying, setIsCopying] = useState(false);
+    const { updateClosetItem } = useApp();
 
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editData, setEditData] = useState({ name: '', location: '', comment: '' });
     const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
 
     // Pagination
@@ -513,6 +516,7 @@ const Gallery = () => {
             const item = publicItems.find(i => i.id === postId || i.compositeId === postId);
             if (item) {
                 setSelectedItem(item);
+                setIsEditing(false);
             } else {
                 // If not in publicItems, try fetching directly
                 const fetchSinglePost = async () => {
@@ -936,7 +940,10 @@ const Gallery = () => {
                 <Portal>
                     <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
                         <div className="modal-responsive relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
-                            <button onClick={() => setSelectedItem(null)} className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm">
+                            <button
+                                onClick={() => { setSelectedItem(null); setIsEditing(false); }}
+                                className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full z-10 hover:bg-black/70 backdrop-blur-sm shadow-lg"
+                            >
                                 <X size={20} />
                             </button>
     
@@ -1002,8 +1009,12 @@ const Gallery = () => {
                                     {currentUser?.uid === selectedItem.userId && (
                                         <button
                                             onClick={() => {
-                                                setSelectedItem(null);
-                                                navigate(`/closet?edit=${selectedItem.id.replace('local-', '')}`);
+                                                setIsEditing(true);
+                                                setEditData({
+                                                    name: selectedItem.itemName || selectedItem.name || '',
+                                                    location: selectedItem.location || '',
+                                                    comment: selectedItem.comment || ''
+                                                });
                                             }}
                                             className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all active:scale-95 shadow-sm"
                                         >
@@ -1114,8 +1125,70 @@ const Gallery = () => {
                                         </div>
                                     </div>
                                 )}
-                                {/* Comment */}
-                                {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={handleHashtagClick} />}
+                                {/* Edit Fields */}
+                                {isEditing ? (
+                                    <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('itemName')}</label>
+                                            <input
+                                                type="text"
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-gray-800 text-sm"
+                                                value={editData.name}
+                                                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('location') || '場所'}</label>
+                                            <input
+                                                type="text"
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-gray-800 text-sm"
+                                                value={editData.location}
+                                                onChange={(e) => setEditData({ ...editData, location: e.target.value })}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('commentLabel')}</label>
+                                            <textarea
+                                                className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm text-gray-700 min-h-[100px]"
+                                                value={editData.comment}
+                                                onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2 pt-2">
+                                            <button
+                                                onClick={() => setIsEditing(false)}
+                                                className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50"
+                                            >
+                                                {t('cancel')}
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    const bareId = selectedItem.id.replace('local-', '');
+                                                    await updateClosetItem(bareId, {
+                                                        name: editData.name,
+                                                        location: editData.location,
+                                                        comment: editData.comment
+                                                    });
+                                                    setSelectedItem({
+                                                        ...selectedItem,
+                                                        itemName: editData.name,
+                                                        location: editData.location,
+                                                        comment: editData.comment
+                                                    });
+                                                    setIsEditing(false);
+                                                }}
+                                                className="flex-1 py-3 px-4 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:bg-primary-dark transition-all"
+                                            >
+                                                {t('save')}
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        {/* Comment */}
+                                        {selectedItem.comment && <ExpandableText text={selectedItem.comment} maxLength={200} t={t} onHashtagClick={handleHashtagClick} />}
+                                    </>
+                                )}
 
                                 {/* Shop info */}
                                 {/* Shop info */}

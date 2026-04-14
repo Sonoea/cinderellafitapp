@@ -96,7 +96,7 @@ const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSen
 
 const Gallery = () => {
     const { currentUser } = useAuth();
-    const { t, language, plushies = [] } = useApp();
+    const { t, language, plushies = [], updateClosetItem } = useApp();
     const navigate = useNavigate();
 
     // Gallery data
@@ -126,7 +126,6 @@ const Gallery = () => {
     const [filterHasPattern, setFilterHasPattern] = useState(false);
     const { postId } = useParams();
     const [isCopying, setIsCopying] = useState(false);
-    const { updateClosetItem } = useApp();
 
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
@@ -1175,6 +1174,17 @@ const Gallery = () => {
                                                         location: editData.location,
                                                         comment: editData.comment
                                                     });
+
+                                                    // Update the list as well so it's reflected in the grid
+                                                    setPublicItems(prev => prev.map(item => 
+                                                        item.id === selectedItem.id ? { 
+                                                            ...item, 
+                                                            itemName: editData.name,
+                                                            location: editData.location,
+                                                            comment: editData.comment 
+                                                        } : item
+                                                    ));
+
                                                     setIsEditing(false);
                                                 }}
                                                 className="flex-1 py-3 px-4 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:bg-primary-dark transition-all"

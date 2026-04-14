@@ -403,15 +403,17 @@ export const AppProvider = ({ children }) => {
   };
 
   const updateClosetItem = async (id, updates) => {
+    // 1. Update local state if the item exists there
     const newItems = closetItems.map(item => String(item.id) === String(id) ? { ...item, ...updates } : item);
     setClosetItems(newItems);
 
     if (currentUser) {
       try {
-        const updatedItem = newItems.find(i => String(i.id) === String(id));
-        if (updatedItem) {
-          await setDoc(doc(db, "users", currentUser.uid, "closetItems", String(id)), updatedItem, { merge: true });
-        }
+        // 2. Perform merge update in Firestore using the ID directly
+        // This ensures it works even if the item isn't in 'closetItems' yet (e.g. editing from Gallery)
+        const itemRef = doc(db, "users", currentUser.uid, "closetItems", String(id));
+        await setDoc(itemRef, updates, { merge: true });
+        console.log(`[AppContext] Item ${id} updated in Firestore.`);
       } catch (e) {
         console.error("Error updating closet item in Firestore: ", e);
         alert("クラウドへの保存に失敗しました。");

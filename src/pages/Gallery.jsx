@@ -130,6 +130,7 @@ const Gallery = () => {
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState({ name: '', location: '', comment: '' });
     const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
 
@@ -1153,43 +1154,54 @@ const Gallery = () => {
                                                 onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
                                             />
                                         </div>
-                                        <div className="flex gap-2 pt-2">
+                                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex gap-2 z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom-4 duration-300">
                                             <button
+                                                disabled={isSaving}
                                                 onClick={() => setIsEditing(false)}
-                                                className="flex-1 py-3 px-4 rounded-xl border border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50"
+                                                className="flex-1 py-3.5 px-4 rounded-2xl border border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all"
                                             >
                                                 {t('cancel')}
                                             </button>
                                             <button
+                                                disabled={isSaving}
                                                 onClick={async () => {
-                                                    const bareId = selectedItem.id.replace('local-', '');
-                                                    await updateClosetItem(bareId, {
-                                                        name: editData.name,
-                                                        location: editData.location,
-                                                        comment: editData.comment
-                                                    });
-                                                    setSelectedItem({
-                                                        ...selectedItem,
-                                                        itemName: editData.name,
-                                                        location: editData.location,
-                                                        comment: editData.comment
-                                                    });
-
-                                                    // Update the list as well so it's reflected in the grid
-                                                    setPublicItems(prev => prev.map(item => 
-                                                        item.id === selectedItem.id ? { 
-                                                            ...item, 
+                                                    if (!selectedItem?.id) return;
+                                                    setIsSaving(true);
+                                                    try {
+                                                        const bareId = selectedItem.id.toString().replace('local-', '');
+                                                        await updateClosetItem(bareId, {
+                                                            name: editData.name,
+                                                            location: editData.location,
+                                                            comment: editData.comment
+                                                        });
+                                                        
+                                                        setSelectedItem({
+                                                            ...selectedItem,
                                                             itemName: editData.name,
                                                             location: editData.location,
-                                                            comment: editData.comment 
-                                                        } : item
-                                                    ));
+                                                            comment: editData.comment
+                                                        });
 
-                                                    setIsEditing(false);
+                                                        setPublicItems(prev => prev.map(item => 
+                                                            item.id === selectedItem.id ? { 
+                                                                ...item, 
+                                                                itemName: editData.name,
+                                                                location: editData.location,
+                                                                comment: editData.comment 
+                                                            } : item
+                                                        ));
+
+                                                        setIsEditing(false);
+                                                    } catch (error) {
+                                                        console.error("[Gallery] Save failed:", error);
+                                                        alert(t('saveError') || "保存に失敗しました。");
+                                                    } finally {
+                                                        setIsSaving(false);
+                                                    }
                                                 }}
-                                                className="flex-1 py-3 px-4 rounded-xl bg-primary text-white font-bold text-sm shadow-md hover:bg-primary-dark transition-all"
+                                                className={`flex-1 py-3.5 px-4 rounded-2xl bg-primary text-white font-bold text-sm shadow-lg transition-all active:scale-95 ${isSaving ? 'opacity-50 cursor-wait' : 'hover:bg-primary-dark hover:shadow-primary/20'}`}
                                             >
-                                                {t('save')}
+                                                {isSaving ? (t('saving') || '保存中...') : (t('save') || '保存')}
                                             </button>
                                         </div>
                                     </div>

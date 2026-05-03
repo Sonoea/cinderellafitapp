@@ -1129,6 +1129,26 @@ const Gallery = () => {
                                 {/* Edit Fields */}
                                 {isEditing ? (
                                     <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
+                                        <div className="bg-orange-50/80 p-3 rounded-xl border border-orange-100 flex items-center justify-between">
+                                            <div className="text-[10px] text-orange-800 font-bold leading-tight">
+                                                {language === 'jp' ? (
+                                                    <>型紙URLやその他の詳細項目を<br/>編集する場合はクローゼットへ</>
+                                                ) : (
+                                                    <>Edit advanced fields like pattern URLs<br/>in your Closet</>
+                                                )}
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    const editId = selectedItem.id.toString().replace('local-', '');
+                                                    setSelectedItem(null);
+                                                    navigate(`/closet?edit=${editId}`);
+                                                }}
+                                                className="bg-orange-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap shadow-sm hover:bg-orange-600 transition-colors"
+                                            >
+                                                {language === 'jp' ? '詳細編集へ' : 'Advanced Edit'}
+                                            </button>
+                                        </div>
+
                                         <div>
                                             <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('itemName')}</label>
                                             <input

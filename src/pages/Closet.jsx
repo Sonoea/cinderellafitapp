@@ -1312,12 +1312,12 @@ const Closet = () => {
                          )}
                        </div>
 
-                    {/* Handmade Specific Fields (Edit Mode) */}
-                    {isEditing && editData.purchaseType === 'handmade' && (
+                    {/* Handmade / Pattern Specific Fields (Edit Mode) */}
+                    {isEditing && (
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                             <span>🪡</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                             <span>📖</span> {language === 'jp' ? '型紙・参考資料' : 'Pattern & Reference'}
                            </h4>
                            <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{language === 'jp' ? '任意' : 'Optional'}</span>
                          </div>
@@ -1529,11 +1529,11 @@ const Closet = () => {
                        </div>
                      )}
 
-                    {/* Handmade Specific Fields (View Mode) */}
+                    {/* Pattern / Reference Specific Fields (View Mode) */}
                     {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.referencedPostId || selectedItem.makingInstructions) && (
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                          <span>📖</span> {language === 'jp' ? 'ハンドメイド資料' : 'Handmade Materials'}
+                          <span>📖</span> {language === 'jp' ? '型紙・参考資料' : 'Pattern & Reference Materials'}
                         </h4>
 
                         {selectedItem.patternImage && (

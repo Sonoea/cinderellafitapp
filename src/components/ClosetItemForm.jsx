@@ -410,12 +410,12 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 </div>
                             </div>
 
-                            {/* Handmade Specific Fields (Conditional) */}
-                            {formData.purchaseType === 'handmade' && (
+                            {/* Pattern / Reference Specific Fields */}
+                            {true && (
                                 <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                                            <span>🪡</span> {t('handmadeMaterials')}
+                                            <span>📖</span> {t('handmadeMaterials') || '型紙・参考資料'}
                                         </h4>
                                         <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{t('optional')}</span>
                                     </div>

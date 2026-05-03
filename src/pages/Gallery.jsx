@@ -336,7 +336,7 @@ const Gallery = () => {
                 // --- Notification Logic ---
                 if (currentUser.uid !== ownerUid) {
                     try {
-                        const postMatch = galleryItems.find(p => String(p.id).replace(/^local-/, '') === bareId);
+                        const postMatch = publicItems.find(p => String(p.id).replace(/^local-/, '') === bareId);
                         const notifId = `like_${compositeId}_${currentUser.uid}`;
                         await setDoc(doc(db, 'users', ownerUid, 'notifications', notifId), {
                             id: notifId,
@@ -416,7 +416,8 @@ const Gallery = () => {
             // --- Notification Logic ---
             if (currentUser.uid !== ownerUid) {
                 try {
-                    const postMatch = galleryItems.find(p => String(p.id).replace(/^local-/, '') === bareId);
+                    const compositeId = `${ownerUid}_${bareId}`;
+                    const postMatch = publicItems.find(p => String(p.id).replace(/^local-/, '') === bareId);
                     const notifId = `comment_${compositeId}_${Date.now()}`;
                     await setDoc(doc(db, 'users', ownerUid, 'notifications', notifId), {
                         id: notifId,
@@ -437,9 +438,9 @@ const Gallery = () => {
             const allComments = await getDocs(commentsColRef);
             await updateDoc(doc(db, 'users', ownerUid, 'closetItems', bareId), { commentCount: allComments.size });
 
-            const compositeId = `${ownerUid}_${bareId}`;
-            setItemComments(prev => ({ ...prev, [compositeId]: [...(prev[compositeId] || []), { ...commentData, id: Date.now().toString() }] }));
-            setItemCommentCounts(prev => ({ ...prev, [compositeId]: allComments.size }));
+            const compositeId_forSync = `${ownerUid}_${bareId}`;
+            setItemComments(prev => ({ ...prev, [compositeId_forSync]: [...(prev[compositeId_forSync] || []), { ...commentData, id: Date.now().toString() }] }));
+            setItemCommentCounts(prev => ({ ...prev, [compositeId_forSync]: allComments.size }));
             setCommentText('');
         } catch (e) {
             console.error("Error submitting comment:", e);

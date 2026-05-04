@@ -130,6 +130,7 @@ const AppealCard = ({ title, desc, icon: Icon, color }) => (
     </div>
 );
 
+const Guide = () => {
     const { t, language } = useApp();
     const navigate = useNavigate();
 

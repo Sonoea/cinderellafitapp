@@ -238,17 +238,17 @@ const Home = () => {
                             <span style={{ fontSize: '18px', color: 'white', marginTop: '2px' }}>✨</span>
                             <div>
                                 <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'white', marginBottom: '4px', letterSpacing: '0.02em' }}>
-                                    デバイス間でデータを同期
+                                    {t('syncDataTitle')}
                                 </h3>
                                 <p style={{ fontSize: '11px', color: 'rgba(255,255,255,0.9)', fontWeight: '600' }}>
-                                    ログインして、どこからでもぬいぐるみを管理
+                                    {t('syncDataDesc')}
                                 </p>
                             </div>
                         </div>
                         
                         <Link to="/login" className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full font-bold transition-all active:scale-95 shadow-sm bg-white" style={{ color: '#509291', fontSize: '14px' }}>
                             <LogIn size={16} strokeWidth={2.5} />
-                            ログイン
+                            {t('login')}
                         </Link>
                     </div>
                 </div>
@@ -262,9 +262,9 @@ const Home = () => {
                     <h3 style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', letterSpacing: '-0.01em' }}>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '16px' }}>📖</span>
-                            かんたん3ステップ
+                            {t('easy3Steps')}
                         </span>
-                        <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '700' }}>詳しく見る →</span>
+                        <span style={{ fontSize: '11px', color: 'var(--primary)', fontWeight: '700' }}>{t('details')} →</span>
                     </h3>
                     <div className="flex justify-between items-start gap-1">
                         <div className="flex-1 text-center">

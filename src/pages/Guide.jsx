@@ -130,8 +130,7 @@ const AppealCard = ({ title, desc, icon: Icon, color }) => (
     </div>
 );
 
-const Guide = () => {
-    const { t } = useApp();
+    const { t, language } = useApp();
     const navigate = useNavigate();
 
     const appeals = [
@@ -146,12 +145,18 @@ const Guide = () => {
             color: '#4F8A8B',
             icon: Ruler,
             title: t('guideStep1Title'),
-            subTitle: "すべての物語の始まり",
-            desc: "身長とお腹まわりが分かれば、多くの服でサイズ選びの目安になります。こだわりたい時は、首まわりや着丈も加えてさらに精度を高めましょう。",
-            tips: [
+            subTitle: language === 'jp' ? "すべての物語の始まり" : "Where every story begins",
+            desc: language === 'jp' 
+                ? "身長とお腹まわりが分かれば、多くの服でサイズ選びの目安になります。こだわりたい時は、首まわりや着丈も加えてさらに精度を高めましょう。"
+                : "Knowing the height and waist gives a good baseline for choosing clothes. For more precision, add neck and length measurements.",
+            tips: language === 'jp' ? [
                 "『身長・お腹まわり』の2項目だけでも、基本的なサイズ判定が可能です",
                 "ぬいぐるみの最もふっくらな部分（お腹まわり等）を、メジャーを浮かさず測るのがコツです",
                 "お手持ちの予備の服を測って、そのサイズをご自身のぬいぐるみの項目に入力するのもおすすめです"
+            ] : [
+                "Just 'Height and Waist' are enough for basic size checking",
+                "Measure the plumpest part (like the belly) keeping the tape snug",
+                "Measuring clothes you already own and using those dimensions is also a great idea"
             ]
         },
         {
@@ -159,12 +164,18 @@ const Guide = () => {
             color: '#8B5CF6',
             icon: Tag,
             title: t('guideStep2Title'),
-            subTitle: "あなただけの宝物箱",
-            desc: "お気に入りのコーディネートを、自分だけの特別なクローゼットに保存しましょう。うちのぬいぐるみとの思い出を、美しくコレクションして楽しむことができます。",
-            tips: [
+            subTitle: language === 'jp' ? "あなただけの宝物箱" : "Your personal treasure box",
+            desc: language === 'jp'
+                ? "お気に入りのコーディネートを、自分だけの特別なクローゼットに保存しましょう。うちのぬいぐるみとの思い出を、美しくコレクションして楽しむことができます。"
+                : "Save your favorite outfits in a special digital closet. Beautifully collect and enjoy the memories made with your plushie.",
+            tips: language === 'jp' ? [
                 "お気に入りの写真と思い出を、自分だけの特別なクローゼットに大切に残しましょう",
                 "クローゼットに並んだ服は、いつでも自由に着せ替える気分で眺めることができます",
                 "棚をタップしてアイテムを移動させる瞬間は、まるで実際の家具を整理しているような心地よさです"
+            ] : [
+                "Keep your favorite photos and memories safe in your own digital closet",
+                "Browsing your closet feels just like picking an outfit for the day",
+                "Tapping and moving items on the shelf gives the satisfying feeling of organizing real furniture"
             ]
         },
         {
@@ -172,12 +183,18 @@ const Guide = () => {
             color: '#F59E0B',
             icon: Share2,
             title: t('guideStep3Title'),
-            subTitle: "世界中とインスピレーションを循環させる",
-            desc: "一つの型紙から無限の「個性」と「物語」が紡がれます。 型紙と作品が繋がることで、アイデアが循環し、次の一着への創造力を刺激する。 手から手へと想いが広がる新しいコミュニティを目指しています。",
-            tips: [
+            subTitle: language === 'jp' ? "世界中とインスピレーションを循環させる" : "Circulate inspiration worldwide",
+            desc: language === 'jp'
+                ? "一つの型紙から無限の「個性」と「物語」が紡がれます。 型紙と作品が繋がることで、アイデアが循環し、次の一着への創造力を刺激する。 手から手へと想いが広がる新しいコミュニティを目指しています。"
+                : "Infinite personalities and stories are woven from a single pattern. Connecting patterns and creations sparks inspiration. We aim for a community where ideas spread from hand to hand.",
+            tips: language === 'jp' ? [
                 "型紙投稿から広がる『みんなの製作レポート』は、コミュニティの新しい楽しみ方です",
                 "購入したショップのURLを貼ることで、他の人がすぐに同じ服を探せます",
                 "『この服は着せるのが大変だった』などのリアルな感想も大切です"
+            ] : [
+                "The 'Production Reports' growing from a single pattern offer a new way to enjoy the community",
+                "Linking the shop URL where you bought an outfit helps others find it easily",
+                "Honest reviews like 'this was hard to put on' are also very helpful"
             ],
             highlight: true
         },
@@ -186,12 +203,18 @@ const Guide = () => {
             color: '#EC4899',
             icon: Sparkles,
             title: t('guideStep4Title'),
-            subTitle: "究極のシンデレラフィットを",
-            desc: "ギャラリーで「自分と同じサイズ」フィルターをON！前後±1cmのマッチングで、他のぬいぐるみの着こなしを参考にしながら、失敗しない服選びが可能です。",
-            tips: [
+            subTitle: language === 'jp' ? "究極のシンデレラフィットを" : "Find the ultimate perfect fit",
+            desc: language === 'jp'
+                ? "ギャラリーで「自分と同じサイズ」フィルターをON！前後±1cmのマッチングで、他のぬいぐるみの着こなしを参考にしながら、失敗しない服選びが可能です。"
+                : "Turn on the 'Same Size' filter in the Gallery! With a ±1cm match, you can confidently choose clothes by seeing what fits similar plushies.",
+            tips: language === 'jp' ? [
                 "ギャラリーの『自分と同じサイズ』フィルターを使いましょう",
                 "お気に入りの投稿を見つけたら、参考URLからショップへ飛んで購入してもいいでしょう",
                 "『製作レポート』を見れば、同じ型紙でも生地やアレンジでどう変わるか参考になります"
+            ] : [
+                "Make use of the 'Same Size' filter in the Gallery",
+                "When you find a post you love, you can jump straight to the shop from the reference URL",
+                "Looking at 'Production Reports' shows how different fabrics change the same pattern"
             ]
         }
     ];
@@ -247,12 +270,22 @@ const Guide = () => {
                         <Heart size={40} fill="white" />
                     </div>
                     <h2 style={{ fontSize: '36px', fontWeight: 950, color: '#111827', marginBottom: '16px', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
-                        {t('guideHeroTitle') || "世界を繋ぐ、\n魔法のフィット。"}
+                        {t('guideHeroTitle')}
                     </h2>
                     <p style={{ fontSize: '16px', color: '#6B7280', lineHeight: 1.6, maxWidth: '540px', margin: '0 auto' }}>
-                        CinderellaFitは、サイズや洋服の管理という枠組みを超えて、<br />
-                        あなたの大切な存在との想い出を形にし、<br />
-                        世界中のオーナーとインスピレーションを分かち合う場所です。
+                        {language === 'jp' ? (
+                            <>
+                                CinderellaFitは、サイズや洋服の管理という枠組みを超えて、<br />
+                                あなたの大切な存在との想い出を形にし、<br />
+                                世界中のオーナーとインスピレーションを分かち合う場所です。
+                            </>
+                        ) : (
+                            <>
+                                Beyond managing sizes and clothes, CinderellaFit is<br />
+                                a place to shape memories with your precious ones<br />
+                                and share inspiration with owners worldwide.
+                            </>
+                        )}
                     </p>
                 </div>
 
@@ -300,11 +333,20 @@ const Guide = () => {
                     
                     <div style={{ position: 'relative', zIndex: 1 }}>
                         <h3 style={{ fontSize: '28px', fontWeight: 950, marginBottom: '16px' }}>
-                            準備は整いました！
+                            {language === 'jp' ? '準備は整いました！' : 'You are all set!'}
                         </h3>
                         <p style={{ fontSize: '16px', opacity: 0.8, lineHeight: 1.7, marginBottom: '40px', maxWidth: '440px', margin: '0 auto 40px' }}>
-                            さあ、あなたとぬいぐるみの<br />
-                            新しい物語をここから始めましょう。
+                            {language === 'jp' ? (
+                                <>
+                                    さあ、あなたとぬいぐるみの<br />
+                                    新しい物語をここから始めましょう。
+                                </>
+                            ) : (
+                                <>
+                                    Let's begin a new story<br />
+                                    with your plushie right here.
+                                </>
+                            )}
                         </p>
                         <button 
                             onClick={() => navigate('/')}
@@ -327,7 +369,7 @@ const Guide = () => {
                             }}
                             className="hover-scale"
                         >
-                            ホームへ戻る
+                            {language === 'jp' ? 'ホームへ戻る' : 'Return to Home'}
                             <ChevronRight size={20} />
                         </button>
                     </div>

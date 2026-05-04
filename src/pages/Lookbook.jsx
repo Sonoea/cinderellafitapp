@@ -177,7 +177,7 @@ const Lookbook = () => {
                                     </span>
                                 </div>
                                 <p className="text-gray-500 text-sm leading-relaxed mb-8 italic">
-                                    {pattern.description || "一つの型紙から無限の「個性」と「物語」が紡がれます。 型紙と作品が繋がることで、アイデアが循環し、次の一着への創造力を刺激する。 手から手へと想いが広がる新しいコミュニティを目指しています。"}
+                                    {pattern.description || t('lookbookDesc')}
                                 </p>
                                 <Link 
                                     to={`/gallery/post/${pattern.compositeId || pattern.id}`}
@@ -235,8 +235,8 @@ const Lookbook = () => {
                     <div className="py-20 text-center bg-gray-50 rounded-[3rem] border-2 border-dashed border-gray-100">
                         <Camera size={40} className="mx-auto text-gray-200 mb-4" />
                         <p className="text-gray-400 font-bold text-sm">
-                            まだこの型紙からの閃きはありません。<br />
-                            あなたが最初の一歩を刻みませんか？
+                            {t('lookbookEmpty1')}<br />
+                            {t('lookbookEmpty2')}
                         </p>
                     </div>
                 )}

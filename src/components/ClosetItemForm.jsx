@@ -415,7 +415,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                 <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                                     <div className="flex items-center justify-between">
                                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                                            <span>📖</span> {t('handmadeMaterials') || '型紙・参考資料'}
+                                            <span>📖</span> {t('patternAndRef')}
                                         </h4>
                                         <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{t('optional')}</span>
                                     </div>
@@ -460,7 +460,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                             const file = e.target.files[0];
                                                             if (file) {
                                                                 if (file.size > 400 * 1024) {
-                                                                    alert(language === 'jp' ? 'クラウドの容量制限のため、ファイルサイズは400KB以下にしてください' : 'File size must be under 400KB due to cloud limits');
+                                                                    alert(t('errFileSizeCloud'));
                                                                     return;
                                                                 }
                                                                 try {
@@ -501,7 +501,7 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                                                     const file = e.target.files[0];
                                                                     if (file) {
                                                                         if (file.size > 400 * 1024) {
-                                                                            alert(language === 'jp' ? 'クラウドの容量制限のため、ファイルサイズは400KB以下にしてください' : 'File size must be under 400KB due to cloud limits');
+                                                                            alert(t('errFileSizeCloud'));
                                                                             return;
                                                                         }
                                                                         try {
@@ -602,11 +602,11 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     {/* === Making Instructions === */}
                                     <div className="space-y-2 pt-2 border-t border-orange-100/50">
                                         <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">
-                                            {t('makingInstructionsLabel') || '作り方の解説（任意）'}
+                                            {t('makingInstructionsLabel')}
                                         </label>
                                         <textarea
                                             className="w-full p-3 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 h-48 text-sm resize-none"
-                                            placeholder={t('makingInstructionsPlaceholder') || '作り方の手順やコツなどを自由に書いてください...'}
+                                            placeholder={t('makingInstructionsPlaceholder')}
                                             value={formData.makingInstructions}
                                             maxLength={1000}
                                             onChange={(e) => setFormData({ ...formData, makingInstructions: e.target.value })}

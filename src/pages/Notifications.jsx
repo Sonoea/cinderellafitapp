@@ -82,10 +82,10 @@ const Notifications = () => {
         const diffHours = Math.floor(diffMins / 60);
         const diffDays = Math.floor(diffHours / 24);
 
-        if (diffMins < 1) return t('justNow') || 'たった今';
-        if (diffMins < 60) return `${diffMins} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffMins).replace('{unit}', 'm') : '分前'}`;
-        if (diffHours < 24) return `${diffHours} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffHours).replace('{unit}', 'h') : '時間前'}`;
-        return `${diffDays} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffDays).replace('{unit}', 'd') : '日前'}`;
+        if (diffMins < 1) return t('justNow');
+        if (diffMins < 60) return `${diffMins} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffMins).replace('{unit}', 'm') : 'm ago'}`;
+        if (diffHours < 24) return `${diffHours} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffHours).replace('{unit}', 'h') : 'h ago'}`;
+        return `${diffDays} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffDays).replace('{unit}', 'd') : 'd ago'}`;
     };
 
     if (loading) {
@@ -103,7 +103,7 @@ const Notifications = () => {
             <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md pt-6 pb-4 px-4 border-b border-gray-100 flex items-center justify-between shadow-sm">
                 <h1 className="text-xl font-black text-gray-800 flex items-center gap-2 tracking-tight">
                     <Bell size={24} className="text-primary" />
-                    {t('navNotifications') || 'お知らせ'}
+                    {t('navNotifications')}
                 </h1>
                 {hasUnread && (
                     <button 
@@ -111,7 +111,7 @@ const Notifications = () => {
                         className="text-xs font-bold text-gray-400 hover:text-gray-600 flex items-center gap-1 transition-colors"
                     >
                         <CheckCircle2 size={14} />
-                        すべて既読にする
+                        {t('markAllAsRead')}
                     </button>
                 )}
             </div>
@@ -123,7 +123,7 @@ const Notifications = () => {
                             <Bell size={32} className="text-gray-300" />
                         </div>
                         <p className="font-bold text-sm tracking-wide">
-                            {t('noNotifications') || 'まだお知らせはありません。'}
+                            {t('noNotifications')}
                         </p>
                     </div>
                 ) : (
@@ -162,8 +162,8 @@ const Notifications = () => {
                                     <span className="font-bold mr-1">{notif.senderName || t('guest')}</span>
                                     <span className="text-gray-600">
                                         {notif.type === 'like' 
-                                            ? (t('notificationLike') || 'さんがあなたの投稿にいいねしました。')
-                                            : (t('notificationComment') || 'さんがあなたの投稿にコメントしました:')
+                                            ? t('notificationLike')
+                                            : t('notificationComment')
                                         }
                                     </span>
                                 </p>

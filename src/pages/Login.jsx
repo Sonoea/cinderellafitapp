@@ -7,7 +7,7 @@ import { useApp } from '../context/AppContext';
 const Login = () => {
     const navigate = useNavigate();
     const { login, signup, loginWithGoogle } = useAuth();
-    const { language } = useApp();
+    const { language, t } = useApp();
     const [isSignup, setIsSignup] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -22,13 +22,13 @@ const Login = () => {
 
         // Validation
         if (isSignup && password !== confirmPassword) {
-            setError(language === 'jp' ? 'パスワードが一致しません' : 'Passwords do not match');
+            setError(t('errPasswordMatch'));
             setLoading(false);
             return;
         }
 
         if (password.length < 6) {
-            setError(language === 'jp' ? 'パスワードは6文字以上である必要があります' : 'Password must be at least 6 characters');
+            setError(t('errPasswordLength'));
             setLoading(false);
             return;
         }
@@ -44,10 +44,10 @@ const Login = () => {
             if (result.success) {
                 navigate('/');
             } else {
-                setError(result.error || (language === 'jp' ? '認証に失敗しました' : 'Authentication failed'));
+                setError(result.error || t('errAuthFailed'));
             }
         } catch {
-            setError(language === 'jp' ? '予期しないエラーが発生しました' : 'An unexpected error occurred');
+            setError(t('errUnexpected'));
         }
 
         setLoading(false);
@@ -62,10 +62,10 @@ const Login = () => {
             if (result.success) {
                 navigate('/');
             } else {
-                setError(result.error || (language === 'jp' ? 'Googleログインに失敗しました' : 'Google login failed'));
+                setError(result.error || t('errGoogleLogin'));
             }
         } catch {
-            setError(language === 'jp' ? '予期しないエラーが発生しました' : 'An unexpected error occurred');
+            setError(t('errUnexpected'));
         }
 
         setLoading(false);
@@ -80,7 +80,7 @@ const Login = () => {
                         CinderellaFit
                     </h1>
                     <p className="text-gray-600">
-                        {language === 'jp' ? 'ぬいぐるみのシンデレラフィット' : 'The perfect fit for your plushie'}
+                        {t('loginSubTitle')}
                     </p>
                 </div>
 
@@ -93,14 +93,14 @@ const Login = () => {
                             className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!isSignup ? 'bg-white shadow-sm text-primary' : 'text-gray-400'
                                 }`}
                         >
-                            <span>{language === 'jp' ? 'ログイン' : 'Login'}</span>
+                            <span>{t('login')}</span>
                         </button>
                         <button
                             onClick={() => setIsSignup(true)}
                             className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${isSignup ? 'bg-white shadow-sm text-primary' : 'text-gray-400'
                                 }`}
                         >
-                            <span>{language === 'jp' ? '新規登録' : 'Sign Up'}</span>
+                            <span>{t('signup')}</span>
                         </button>
                     </div>
 
@@ -116,14 +116,14 @@ const Login = () => {
                             <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                             <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                         </svg>
-                        <span>{language === 'jp' ? 'Googleでログイン' : 'Continue with Google'}</span>
+                        <span>{t('continueGoogle')}</span>
                     </button>
 
                     {/* Divider */}
                     <div className="flex items-center gap-3 mb-6">
                         <div className="flex-1 h-px bg-gray-200"></div>
                         <span className="text-xs text-gray-400 font-bold uppercase">
-                            {language === 'jp' ? 'または' : 'or'}
+                            {t('orText')}
                         </span>
                         <div className="flex-1 h-px bg-gray-200"></div>
                     </div>
@@ -133,7 +133,7 @@ const Login = () => {
                         {/* Email */}
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">
-                                {language === 'jp' ? 'メールアドレス' : 'Email'}
+                                {t('emailLabel')}
                             </label>
                             <div className="relative">
                                 <input
@@ -142,7 +142,7 @@ const Login = () => {
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
                                     className="w-full px-4 py-4 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
-                                    placeholder={language === 'jp' ? 'example@email.com' : 'your@email.com'}
+                                    placeholder={t('emailPlaceholder')}
                                 />
                             </div>
                         </div>
@@ -150,7 +150,7 @@ const Login = () => {
                         {/* Password */}
                         <div>
                             <label className="block text-sm font-bold text-gray-700 mb-2">
-                                {language === 'jp' ? 'パスワード' : 'Password'}
+                                {t('passwordLabel')}
                             </label>
                             <div className="relative">
                                 <input
@@ -159,7 +159,7 @@ const Login = () => {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                     className="w-full px-4 py-4 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
-                                    placeholder={language === 'jp' ? '6文字以上' : 'At least 6 characters'}
+                                    placeholder={t('passwordPlaceholder')}
                                 />
                             </div>
                         </div>
@@ -168,7 +168,7 @@ const Login = () => {
                         {isSignup && (
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                                    {language === 'jp' ? 'パスワード確認' : 'Confirm Password'}
+                                    {t('confirmPasswordLabel')}
                                 </label>
                                 <div className="relative">
                                     <input
@@ -177,7 +177,7 @@ const Login = () => {
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
                                         className="w-full px-4 py-4 bg-gray-50 rounded-xl border border-transparent focus:bg-white focus:border-primary outline-none transition-all"
-                                        placeholder={language === 'jp' ? 'もう一度入力' : 'Re-enter password'}
+                                        placeholder={t('confirmPasswordPlaceholder')}
                                     />
                                 </div>
                             </div>
@@ -202,10 +202,7 @@ const Login = () => {
                                 <>
                                     {isSignup ? <UserPlus size={20} /> : <LogIn size={20} />}
                                     <span>
-                                        {isSignup
-                                            ? (language === 'jp' ? '新規登録' : 'Sign Up')
-                                            : (language === 'jp' ? 'ログイン' : 'Login')
-                                        }
+                                        {isSignup ? t('signup') : t('login')}
                                     </span>
                                 </>
                             )}
@@ -218,7 +215,7 @@ const Login = () => {
                     onClick={() => navigate('/')}
                     className="w-full mt-4 py-3 text-sm font-bold text-gray-500 hover:text-gray-700 transition-colors"
                 >
-                    <span>{language === 'jp' ? 'ログインせずに続ける（ゲストモード）' : 'Continue as Guest'}</span>
+                    <span>{t('continueGuest')}</span>
                 </button>
             </div>
         </div>

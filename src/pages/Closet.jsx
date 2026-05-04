@@ -189,7 +189,7 @@ const Closet = () => {
 
   const toggleLike = async (itemId, ownerUid, existingCompositeId) => {
     if (!currentUser) {
-      alert("ログインが必要です");
+      alert(t('errLoginRequired'));
       return;
     }
     if (!itemId || !ownerUid) return;
@@ -268,7 +268,7 @@ const Closet = () => {
       setCommentText('');
     } catch (e) {
       console.error("Error submitting comment:", e);
-      alert("コメントの送信に失敗しました");
+      alert(t('errCommentSend'));
     } finally {
       setIsSubmittingComment(false);
     }
@@ -298,7 +298,7 @@ const Closet = () => {
       }));
     } catch (e) {
       console.error("Error deleting comment:", e);
-      alert("コメントの削除に失敗しました");
+      alert(t('errCommentDelete'));
     }
   };
 
@@ -326,7 +326,7 @@ const Closet = () => {
       setEditingCommentText('');
     } catch (e) {
       console.error("Error updating comment:", e);
-      alert("コメントの更新に失敗しました");
+      alert(t('errCommentUpdate'));
     } finally {
       setIsUpdatingComment(false);
     }
@@ -335,7 +335,7 @@ const Closet = () => {
   // Toggle heart reaction on a comment
   const toggleCommentHeart = async (itemId, ownerUid, commentId) => {
     if (!currentUser) {
-      alert("ログインが必要です");
+      alert(t('errLoginRequired'));
       return;
     }
     const bareId = String(itemId).replace(/^local-/, '');
@@ -543,7 +543,7 @@ const Closet = () => {
               {closetItems.some(i => i.galleryOnly) && (
                 <p className="text-orange-500 font-bold flex items-center gap-1 mt-1">
                   <span>⚠️</span>
-                  <span>ギャラリーのみに表示中のアイテムが {closetItems.filter(i => i.galleryOnly).length} 件あります</span>
+                  <span>{t('galleryOnlyCount')(closetItems.filter(i => i.galleryOnly).length)}</span>
                 </p>
               )}
             </div>
@@ -683,7 +683,7 @@ const Closet = () => {
                         className="bg-white text-primary border border-primary/20 px-6 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-primary/5 transition-all flex items-center gap-2"
                       >
                         <X size={14} />
-                        {t('categoryAll') || 'すべて'}を表示する
+                        {t('showAllCategory')(t('categoryAll') || 'すべて')}
                       </button>
                     ) : (
                       <button
@@ -758,12 +758,12 @@ const Closet = () => {
                                     <button
                                       onClick={(e) => {
                                         e.stopPropagation();
-                                        if (window.confirm('この写真をマイコーデから非表示にし、ギャラリーのみに表示しますか？')) {
+                                        if (window.confirm(t('hideFromClosetConfirm'))) {
                                           updateClosetItem(item.id.replace('local-', ''), { galleryOnly: true });
                                         }
                                       }}
                                       className="bg-black/50 text-white p-1.5 rounded-full backdrop-blur-sm hover:bg-red-500/70 transition-colors"
-                                      title="マイコーデから非表示"
+                                      title={t('hideFromClosetTitle')}
                                     >
                                       <EyeOff size={12} />
                                     </button>
@@ -909,7 +909,7 @@ const Closet = () => {
                                     }`}
                                 >
                                   <Users size={12} />
-                                  {editData.galleryOnly ? (t('galleryOnlyLabel') || 'ギャラリー専用') : (t('showInMyCloset') || 'マイコーデに表示')}
+                                  {editData.galleryOnly ? t('galleryOnlyLabel') : t('showInMyCloset')}
                                 </button>
                               )}
                             </>
@@ -974,7 +974,7 @@ const Closet = () => {
                                 className="bg-blue-50 text-blue-500 hover:bg-blue-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-blue-200"
                               >
                                 <Edit2 size={14} />
-                                <span>編集する</span>
+                                <span>{t('editItemLabel')}</span>
                               </button>
                             )}
                             <button
@@ -988,7 +988,7 @@ const Closet = () => {
                               className="bg-red-50 text-red-400 hover:bg-red-100 px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-all font-bold text-xs border border-red-200"
                             >
                               <Trash2 size={14} />
-                              <span>削除</span>
+                              <span>{t('deleteLabel')}</span>
                             </button>
                           </div>
                         )}
@@ -1001,7 +1001,7 @@ const Closet = () => {
                           <div className="space-y-3 bg-gray-50 p-4 rounded-xl border border-gray-200">
                             <h4 className="text-sm font-bold text-gray-400 uppercase flex items-center gap-2">
                               <Link size={14} />
-                              <span>商品URL（最大3つ）</span>
+                              <span>{t('productUrlsMax')}</span>
                             </h4>
                             <input
                               type="url"
@@ -1083,7 +1083,7 @@ const Closet = () => {
                           )}
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('placeShop') || (language === 'jp' ? '場所・ショップ' : 'Location / Shop')}</label>
+                          <label className="block text-xs font-bold text-gray-400 uppercase mb-2">{t('placeShop')}</label>
                           {isEditing ? (
                             <input
                               type="text"
@@ -1317,7 +1317,7 @@ const Closet = () => {
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                             <span>📖</span> {language === 'jp' ? '型紙・参考資料' : 'Pattern & Reference'}
+                             <span>📖</span> {t('patternAndRef')}
                            </h4>
                            <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-2 py-0.5 rounded-full">{language === 'jp' ? '任意' : 'Optional'}</span>
                          </div>
@@ -1350,7 +1350,7 @@ const Closet = () => {
                          {/* Conditional Inputs based on Source */}
                          {editData.patternSource === 'original' && (
                            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                             <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図 (画像 or PDF)' : 'Pattern Image or PDF'}</label>
+                             <label className="block text-[10px] font-bold text-orange-700/70 mb-2 uppercase tracking-wider">{t('patternImagePdf')}</label>
                              {!editData.patternImage ? (
                                <div className="w-full h-16 bg-white/80 rounded-xl border-2 border-dashed border-orange-200 flex flex-col items-center justify-center relative overflow-hidden group hover:border-orange-400 transition-colors cursor-pointer">
                                  <input
@@ -1372,7 +1372,7 @@ const Closet = () => {
                                    accept="image/*,application/pdf"
                                  />
                                  <Camera size={16} className="text-orange-300 mb-1 group-hover:text-orange-500 transition-colors" />
-                                 <p className="text-orange-400 font-bold text-[9px]">{language === 'jp' ? 'タップして選択' : 'Tap to select'}</p>
+                                 <p className="text-orange-400 font-bold text-[9px]">{t('tapToSelect')}</p>
                                </div>
                              ) : (
                                <div className="w-full h-24 bg-white rounded-xl overflow-hidden relative shadow-sm border border-orange-100">
@@ -1393,7 +1393,7 @@ const Closet = () => {
                                          const file = e.target.files[0];
                                          if (file) {
                                            if (file.size > 400 * 1024) {
-                                             alert(language === 'jp' ? 'クラウドの容量制限のため、ファイルサイズは400KB以下にしてください' : 'File size must be under 400KB due to cloud limits');
+                                             alert(t('errFileSizeCloud'));
                                              return;
                                            }
                                            try {
@@ -1426,11 +1426,11 @@ const Closet = () => {
  
                          {editData.patternSource === 'cinderellafit' && (
                            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                             <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel') || (language === 'jp' ? '参考にした投稿のURL' : 'Reference Post URL')}</label>
+                             <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlLabel')}</label>
                              <input
                                type="url"
                                className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
-                               placeholder={t('referenceUrlPlaceholder') || (language === 'jp' ? '他の投稿のURLを貼り付け' : 'Paste a link to another post')}
+                               placeholder={t('referenceUrlPlaceholder')}
                                value={editData.referencePostUrl}
                                onChange={async (e) => {
                                  const url = e.target.value;
@@ -1461,7 +1461,7 @@ const Closet = () => {
                              {editData.referencedPostId && (
                                <div className="flex items-center justify-between mt-1 px-1">
                                  <p className="text-[9px] text-green-600 font-bold flex items-center gap-1">
-                                   <span>✅</span> {t('postDetected') || '投稿を検知しました！'}
+                                   <span>✅</span> {t('postDetected')}
                                  </p>
                                  {editData.referencedUserName && (
                                    <p className="text-[9px] text-orange-500 font-bold">
@@ -1475,7 +1475,7 @@ const Closet = () => {
  
                          {editData.patternSource === 'external' && (
                            <div className="animate-in fade-in slide-in-from-top-2 duration-200">
-                             <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{language === 'jp' ? '作り方の参考URL' : 'Reference URL'}</label>
+                             <label className="block text-[10px] font-bold text-orange-700/70 mb-1 uppercase tracking-wider">{t('referenceUrlExternal')}</label>
                              <input
                                type="url"
                                className="w-full p-2.5 bg-white rounded-xl border border-orange-100 focus:outline-none focus:ring-2 focus:ring-orange-200 text-sm"
@@ -1533,12 +1533,12 @@ const Closet = () => {
                     {!isEditing && (selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.referencedPostId || selectedItem.makingInstructions) && (
                       <div className="p-4 bg-orange-50/50 rounded-2xl border border-orange-100 space-y-4">
                         <h4 className="text-xs font-black text-orange-600 uppercase flex items-center gap-2">
-                          <span>📖</span> {language === 'jp' ? '型紙・参考資料' : 'Pattern & Reference Materials'}
+                          <span>📖</span> {t('patternAndRef')}
                         </h4>
 
                         {selectedItem.patternImage && (
                           <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '型紙・製作図' : 'Pattern Image'}</p>
+                            <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{t('patternImagePdf')}</p>
                             <div className="relative group">
                               {selectedItem.patternImage.startsWith('data:application/pdf') ? (
                                 <a
@@ -1560,7 +1560,7 @@ const Closet = () => {
 
                         {selectedItem.referenceUrl && (
                           <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{language === 'jp' ? '作り方の参考' : 'Reference Link'}</p>
+                            <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider">{t('referenceUrlExternal')}</p>
                             <a
                               href={selectedItem.referenceUrl}
                               target="_blank"
@@ -1627,7 +1627,7 @@ const Closet = () => {
                     <div>
                       <h4 className="text-sm font-black text-gray-400 uppercase mb-2 flex items-center gap-2">
                         <Star size={14} className="text-yellow-400 fill-yellow-400" />
-                        <span>投稿者のひとこと（アイテム説明）</span>
+                        <span>{t('authorComment')}</span>
                       </h4>
                       {isEditing ? (
                         <div className="space-y-1">

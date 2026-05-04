@@ -919,7 +919,7 @@ const Gallery = () => {
                             <div ref={loaderRef} className="mt-4 mb-20 flex justify-center py-4">
                                 <div className="flex items-center gap-2 px-8 py-3 bg-white text-gray-400 rounded-full font-bold text-xs shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
                                     <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
-                                    {t('loadMore') || '読み込み中...'}
+                                    {t('loadMoreLabel')}
                                 </div>
                             </div>
                         )}
@@ -927,7 +927,7 @@ const Gallery = () => {
                             <div className="mt-8 mb-8 text-center flex items-center justify-center gap-2">
                                 <div className="h-px bg-gray-200 flex-1 max-w-[40px]"></div>
                                 <p className="text-[10px] font-bold text-gray-400 tracking-wider">
-                                    {t('noMoreItems') || 'これ以上アイテムはありません'}
+                                    {t('noMoreItemsLabel')}
                                 </p>
                                 <div className="h-px bg-gray-200 flex-1 max-w-[40px]"></div>
                             </div>
@@ -1020,7 +1020,7 @@ const Gallery = () => {
                                             className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all active:scale-95 shadow-sm"
                                         >
                                             <Edit2 size={16} />
-                                            <span>{t('editItem') || '編集する'}</span>
+                                            <span>{t('editItemLabel')}</span>
                                         </button>
                                     )}
 
@@ -1131,11 +1131,7 @@ const Gallery = () => {
                                     <div className="space-y-4 mt-4 animate-in fade-in slide-in-from-top-2">
                                         <div className="bg-orange-50/80 p-3 rounded-xl border border-orange-100 flex items-center justify-between">
                                             <div className="text-[10px] text-orange-800 font-bold leading-tight">
-                                                {language === 'jp' ? (
-                                                    <>型紙URLやその他の詳細項目を<br/>編集する場合はクローゼットへ</>
-                                                ) : (
-                                                    <>Edit advanced fields like pattern URLs<br/>in your Closet</>
-                                                )}
+                                                <>{t('editDetailsInfo').split('\n').map((line, i) => <React.Fragment key={i}>{line}<br/></React.Fragment>)}</>
                                             </div>
                                             <button
                                                 onClick={() => {
@@ -1145,7 +1141,7 @@ const Gallery = () => {
                                                 }}
                                                 className="bg-orange-500 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg whitespace-nowrap shadow-sm hover:bg-orange-600 transition-colors"
                                             >
-                                                {language === 'jp' ? '詳細編集へ' : 'Advanced Edit'}
+                                                {t('advancedEdit')}
                                             </button>
                                         </div>
 
@@ -1159,7 +1155,7 @@ const Gallery = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('location') || '場所'}</label>
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('locationLabel')}</label>
                                             <input
                                                 type="text"
                                                 className="w-full p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 font-bold text-gray-800 text-sm"
@@ -1215,14 +1211,14 @@ const Gallery = () => {
                                                         setIsEditing(false);
                                                     } catch (error) {
                                                         console.error("[Gallery] Save failed:", error);
-                                                        alert(t('saveError') || "保存に失敗しました。");
+                                                        alert(t('saveError'));
                                                     } finally {
                                                         setIsSaving(false);
                                                     }
                                                 }}
                                                 className={`flex-1 py-3.5 px-4 rounded-2xl bg-primary text-white font-bold text-sm shadow-lg transition-all active:scale-95 ${isSaving ? 'opacity-50 cursor-wait' : 'hover:bg-primary-dark hover:shadow-primary/20'}`}
                                             >
-                                                {isSaving ? (t('saving') || '保存中...') : (t('save') || '保存')}
+                                                {isSaving ? t('saving') : t('saveLabel')}
                                             </button>
                                         </div>
                                     </div>
@@ -1345,7 +1341,7 @@ const Gallery = () => {
                                         {selectedItem.makingInstructions && (
                                             <div className="space-y-2 mt-4">
                                                 <p className="text-[10px] font-bold text-orange-700/70 uppercase tracking-wider flex items-center gap-1">
-                                                    <span>📝</span> {t('makingInstructionsLabel') || '作り方の解説'}
+                                                    <span>📝</span> {t('makingInstructionsLabel')}
                                                 </p>
                                                 <div className="bg-white p-4 rounded-xl border border-orange-100 shadow-sm relative overflow-hidden group">
                                                     <div className="absolute top-0 left-0 w-1 h-full bg-orange-300"></div>

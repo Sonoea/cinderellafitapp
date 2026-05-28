@@ -1051,18 +1051,21 @@ const Gallery = () => {
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => {
+                                            window.alert("ボタンが押されました！ ID: " + selectedItem.userId);
                                             if (!selectedItem.userId) {
                                                 window.alert("エラー: 投稿者のIDが見つかりません。");
                                                 return;
                                             }
                                             toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId);
                                         }}
-                                        className={`flex items-center justify-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 min-w-[80px] ${(itemLikes[selectedItem.compositeId]?.isLiked)
+                                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 min-w-[100px] ${(itemLikes[selectedItem.compositeId]?.isLiked)
                                             ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
                                             : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'}`}
                                     >
                                         <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className={(itemLikes[selectedItem.compositeId]?.isLiked) ? "text-white" : "text-pink-500"} />
-                                        <span className={(itemLikes[selectedItem.compositeId]?.isLiked) ? "text-white" : "text-pink-500"}>{String(itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0)}</span>
+                                        <span className={(itemLikes[selectedItem.compositeId]?.isLiked) ? "text-white" : "text-pink-500"}>
+                                            いいね {String(itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0)}
+                                        </span>
                                     </button>
                                     
                                     <button

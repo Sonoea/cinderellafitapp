@@ -5,7 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2, Plus } from 'lucide-react';
+import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2, Plus, Scissors, Camera } from 'lucide-react';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
@@ -131,7 +131,7 @@ const Gallery = () => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-    const [editData, setEditData] = useState({ name: '', location: '', comment: '' });
+    const [editData, setEditData] = useState({ name: '', location: '', comment: '', url: '', url2: '', url3: '' });
     const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
 
     // Pagination
@@ -659,6 +659,11 @@ const Gallery = () => {
 
     const hasMore = filteredItems.length > displayLimit;
 
+    // Pattern pickup items (for pattern discovery section)
+    const patternPickupItems = React.useMemo(() => {
+        return processedItems.filter(item => !!(item.patternImage || item.referenceUrl || item.isPattern)).slice(0, 8);
+    }, [processedItems]);
+
     // Infinite Scroll Observer
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
@@ -701,6 +706,35 @@ const Gallery = () => {
                             {t('login')}
                         </Link>
                     )}
+                </div>
+
+                {/* Weekly Theme Banner (Gallery) */}
+                <div className="mb-3 rounded-2xl p-3 relative overflow-hidden group border border-orange-100/50" style={{
+                    background: 'linear-gradient(135deg, #fffaf0 0%, #fff1f2 100%)',
+                    boxShadow: '0 4px 12px rgba(249, 115, 22, 0.05)'
+                }}>
+                    <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full opacity-10 blur-xl"></div>
+                    <div className="relative z-10 flex items-center justify-between">
+                        <div>
+                            <div className="flex items-center gap-1.5 mb-1">
+                                <span className="text-sm">🎯</span>
+                                <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-1.5 py-0.5 rounded-full">{t('themeOfTheWeek')}</span>
+                            </div>
+                            <p className="text-sm font-black text-gray-800 tracking-tight" style={{ textShadow: '0 1px 1px rgba(255,255,255,0.8)' }}>
+                                {t('themeSummer')}
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => {
+                                setSearchTerm(t('themeSummer'));
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-white rounded-lg text-[10px] font-bold text-orange-600 border border-orange-200 shadow-sm hover:bg-orange-50 active:scale-95 transition-all"
+                        >
+                            <Search size={12} />
+                            見る
+                        </button>
+                    </div>
                 </div>
 
                 {/* Search & Filters */}
@@ -784,6 +818,42 @@ const Gallery = () => {
                 </div>
             </div>
 
+            {/* Pattern Pickup Section */}
+            {patternPickupItems.length > 0 && (
+                <div className="px-4 mt-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-black text-gray-800 flex items-center gap-1.5">
+                            {t('patternPickupTitle')}
+                        </h3>
+                        <button
+                            onClick={() => { setFilterHasPattern(true); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                            className="text-[10px] font-bold text-orange-500 flex items-center gap-1 hover:underline"
+                        >
+                            {t('patternPickupSeeAll')} <ArrowRight size={10} />
+                        </button>
+                    </div>
+                    <div className="flex gap-3 overflow-x-auto pb-3 no-scrollbar -mx-1 px-1" style={{ scrollSnapType: 'x mandatory' }}>
+                        {patternPickupItems.map((item) => (
+                            <div
+                                key={`pattern-${item.compositeId}`}
+                                className="flex-shrink-0 w-[140px] rounded-2xl overflow-hidden bg-white border border-orange-100 shadow-sm cursor-pointer group transition-all hover:shadow-md hover:border-orange-200"
+                                style={{ scrollSnapAlign: 'start' }}
+                                onClick={() => setSelectedItem(item)}
+                            >
+                                <div className="aspect-square relative overflow-hidden">
+                                    <img src={item.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
+                                    <div className="absolute bottom-2 left-2 right-2">
+                                        <p className="text-white text-[10px] font-bold truncate drop-shadow-md">{item.itemName}</p>
+                                        <p className="text-white/80 text-[8px] font-medium truncate">@{item.userName}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             <div className="px-4 mt-4">
                 {isLoading ? (
                     <div className="text-center py-16">
@@ -855,32 +925,24 @@ const Gallery = () => {
                                         <div className="absolute" style={{ top: 6, left: 6, background: 'rgba(0,0,0,0.45)', backdropFilter: 'blur(4px)', color: '#fff', fontSize: '9px', fontWeight: 700, padding: '2px 7px', borderRadius: '20px' }}>
                                             {post.date}
                                         </div>
+                                        
+                                        {/* Reaction Overlay */}
+                                        <div className="absolute bottom-2 left-2 flex items-center gap-1.5 z-10">
+                                            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md text-white px-2 py-1 rounded-full text-[10px] font-bold shadow-lg">
+                                                <Heart size={10} fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"} className={itemLikes[post.compositeId]?.isLiked ? 'text-pink-400' : ''} />
+                                                <span>{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1 bg-black/60 backdrop-blur-md text-white px-2 py-1 rounded-full text-[10px] font-bold shadow-lg">
+                                                <MessageCircle size={10} />
+                                                <span>{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
+                                            </div>
+                                        </div>
+
                                         {(post.patternImage || post.referenceUrl) && (
                                             <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
                                                 {t('hasPattern')}
                                             </div>
                                         )}
-                                    </div>
-
-                                    {/* Social bar */}
-                                    <div className="flex items-center justify-between bg-white h-[40px] px-3 border-b border-gray-50">
-                                        <div className="flex items-center gap-3">
-                                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleLike(post.id, post.userId, post.compositeId); }}
-                                                className="flex items-center gap-1 transition-all"
-                                                style={{ color: (itemLikes[post.compositeId]?.isLiked) ? '#ec4899' : '#9ca3af', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                                                <Heart size={16} fill={(itemLikes[post.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={2.5} />
-                                                <span className="font-bold text-[11px]">{itemLikes[post.compositeId]?.count ?? post.likes ?? 0}</span>
-                                            </button>
-                                            <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShouldScrollToComments(true); setSelectedItem(post); }}
-                                                className="flex items-center gap-1 text-gray-400 transition-all"
-                                                style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-                                                <MessageCircle size={16} strokeWidth={2.5} />
-                                                <span className="font-bold text-[11px]">{Math.max(0, itemComments[post.compositeId]?.length || itemCommentCounts[post.compositeId] || 0)}</span>
-                                            </button>
-                                        </div>
-                                        <span className="text-base" style={{ lineHeight: 1 }}>
-                                            {['😣', '😊', '😌'][post.fitRating - 1] || '😊'}
-                                        </span>
                                     </div>
 
                                     {/* Content */}
@@ -988,13 +1050,19 @@ const Gallery = () => {
                                 {/* Like button */}
                                 <div className="flex items-center gap-3">
                                     <button
-                                        onClick={() => toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId)}
-                                        className={`flex items-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 ${(itemLikes[selectedItem.compositeId]?.isLiked)
+                                        onClick={() => {
+                                            if (!selectedItem.userId) {
+                                                window.alert("エラー: 投稿者のIDが見つかりません。");
+                                                return;
+                                            }
+                                            toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId);
+                                        }}
+                                        className={`flex items-center justify-center gap-3 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 min-w-[80px] ${(itemLikes[selectedItem.compositeId]?.isLiked)
                                             ? 'bg-pink-500 text-white shadow-lg ring-4 ring-pink-100'
                                             : 'bg-pink-50 text-pink-500 hover:bg-pink-100 border border-pink-200'}`}
                                     >
-                                        <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} />
-                                        <span>{itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0}</span>
+                                        <Heart size={20} fill={(itemLikes[selectedItem.compositeId]?.isLiked) ? "currentColor" : "none"} strokeWidth={3} className={(itemLikes[selectedItem.compositeId]?.isLiked) ? "text-white" : "text-pink-500"} />
+                                        <span className={(itemLikes[selectedItem.compositeId]?.isLiked) ? "text-white" : "text-pink-500"}>{String(itemLikes[selectedItem.compositeId]?.count ?? selectedItem.likes ?? 0)}</span>
                                     </button>
                                     
                                     <button
@@ -1014,7 +1082,10 @@ const Gallery = () => {
                                                 setEditData({
                                                     name: selectedItem.itemName || selectedItem.name || '',
                                                     location: selectedItem.location || '',
-                                                    comment: selectedItem.comment || ''
+                                                    comment: selectedItem.comment || '',
+                                                    url: selectedItem.url || '',
+                                                    url2: selectedItem.url2 || '',
+                                                    url3: selectedItem.url3 || ''
                                                 });
                                             }}
                                             className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200 transition-all active:scale-95 shadow-sm"
@@ -1097,6 +1168,26 @@ const Gallery = () => {
                                     </button>
                                 )}
 
+                                {/* "Try making with this pattern" Button */}
+                                {(selectedItem.patternImage || selectedItem.referenceUrl || selectedItem.isPattern) && currentUser && selectedItem.userId !== currentUser?.uid && (
+                                    <button
+                                        onClick={() => {
+                                            setSelectedItem(null);
+                                            navigate(`/closet?add=true&ref=${selectedItem.compositeId}`);
+                                        }}
+                                        className="w-full mt-3 flex items-center justify-center gap-3 py-4 rounded-2xl font-black text-sm transition-all active:scale-[0.98] shadow-md hover:shadow-lg"
+                                        style={{
+                                            background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                                            color: 'white',
+                                            border: 'none',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Scissors size={18} />
+                                        <span>{t('tryMakeWithPattern')}</span>
+                                    </button>
+                                )}
+
                                 {/* Size Measurements */}
                                 {(selectedItem.waistFlat || selectedItem.clothesLength || selectedItem.cuffWidth) && (
                                     <div className="bg-gray-50/80 border border-gray-100 p-4 rounded-2xl mt-4">
@@ -1171,6 +1262,33 @@ const Gallery = () => {
                                                 onChange={(e) => setEditData({ ...editData, comment: e.target.value })}
                                             />
                                         </div>
+                                        {/* URL Edit Fields */}
+                                        <div className="space-y-2">
+                                            <label className="block text-[10px] font-bold text-gray-400 uppercase mb-1">{t('productUrlsMax')}</label>
+                                            {['url', 'url2', 'url3'].map((key, idx) => (
+                                                (editData[key] || idx === 0) && (
+                                                    <div key={key} className="flex items-center gap-2">
+                                                        <input
+                                                            type="url"
+                                                            className="flex-1 p-3 bg-gray-50 rounded-xl border border-gray-100 focus:outline-none focus:ring-2 focus:ring-primary/20 font-medium text-gray-800 text-xs"
+                                                            value={editData[key]}
+                                                            onChange={(e) => setEditData({ ...editData, [key]: e.target.value })}
+                                                            placeholder={`URL ${idx + 1}`}
+                                                        />
+                                                        {editData[key] && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setEditData({ ...editData, [key]: '' })}
+                                                                className="w-9 h-9 rounded-xl bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-100 hover:text-red-600 transition-colors active:scale-90 border border-red-100 flex-shrink-0"
+                                                                title="URLを削除"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )
+                                            ))}
+                                        </div>
                                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex gap-2 z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom-4 duration-300">
                                             <button
                                                 disabled={isSaving}
@@ -1187,16 +1305,22 @@ const Gallery = () => {
                                                     try {
                                                         const bareId = selectedItem.id.toString().replace('local-', '');
                                                         await updateClosetItem(bareId, {
-                                                            name: editData.name,
+                                                            itemName: editData.name,
                                                             location: editData.location,
-                                                            comment: editData.comment
+                                                            comment: editData.comment,
+                                                            url: editData.url || '',
+                                                            url2: editData.url2 || '',
+                                                            url3: editData.url3 || ''
                                                         });
                                                         
                                                         setSelectedItem({
                                                             ...selectedItem,
                                                             itemName: editData.name,
                                                             location: editData.location,
-                                                            comment: editData.comment
+                                                            comment: editData.comment,
+                                                            url: editData.url,
+                                                            url2: editData.url2,
+                                                            url3: editData.url3
                                                         });
 
                                                         setPublicItems(prev => prev.map(item => 
@@ -1204,7 +1328,10 @@ const Gallery = () => {
                                                                 ...item, 
                                                                 itemName: editData.name,
                                                                 location: editData.location,
-                                                                comment: editData.comment 
+                                                                comment: editData.comment,
+                                                                url: editData.url,
+                                                                url2: editData.url2,
+                                                                url3: editData.url3
                                                             } : item
                                                         ));
 
@@ -1436,6 +1563,7 @@ const Gallery = () => {
                 </div>
             </Portal>
         )}
+
     </div>
     );
 };

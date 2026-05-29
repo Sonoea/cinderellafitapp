@@ -4,7 +4,7 @@ import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid, Tag, Package } from 'lucide-react';
+import { Edit2, Trash2, Plus, Shirt, Users, User, Heart, Share2, MessageCircle, Lock, Unlock, X, Camera, Star, MapPin, Search, Ruler, EyeOff, Send, LogOut, ExternalLink, Library, LayoutGrid, Tag, Package, PartyPopper } from 'lucide-react';
 import { compressImage, openPdfFromDataUrl } from '../utils/imageUtils';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
@@ -97,6 +97,9 @@ const Closet = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
+  const [showPostComplete, setShowPostComplete] = useState(false);
+  const [refCompositeId, setRefCompositeId] = useState(null);
+  const [initialTheme, setInitialTheme] = useState(null);
  
    // Handle external "edit" request from Gallery
    useEffect(() => {
@@ -144,6 +147,18 @@ const Closet = () => {
 
     if (shouldAdd) {
       setShowAddModal(true);
+      // Check for ref parameter (from "try making with this pattern" button)
+      const refParam = params.get('ref');
+      if (refParam) {
+        setRefCompositeId(refParam);
+      }
+      
+      // Check for theme parameter (from "Theme Challenge" button)
+      const themeParam = params.get('theme');
+      if (themeParam) {
+        setInitialTheme(themeParam);
+      }
+
       // Clean up URL
       navigate('/closet', { replace: true });
     }
@@ -543,7 +558,7 @@ const Closet = () => {
               {closetItems.some(i => i.galleryOnly) && (
                 <p className="text-orange-500 font-bold flex items-center gap-1 mt-1">
                   <span>⚠️</span>
-                  <span>{t('galleryOnlyCount')(closetItems.filter(i => i.galleryOnly).length)}</span>
+                  <span>{t('galleryOnlyCount', closetItems.filter(i => i.galleryOnly).length)}</span>
                 </p>
               )}
             </div>
@@ -683,7 +698,7 @@ const Closet = () => {
                         className="bg-white text-primary border border-primary/20 px-6 py-2.5 rounded-xl text-xs font-bold shadow-sm hover:bg-primary/5 transition-all flex items-center gap-2"
                       >
                         <X size={14} />
-                        {t('showAllCategory')(t('categoryAll') || 'すべて')}
+                        {t('showAllCategory', t('categoryAll') || 'すべて')}
                       </button>
                     ) : (
                       <button
@@ -808,15 +823,23 @@ const Closet = () => {
         showAddModal && (
           <Portal>
             <AddItemModal
-              onClose={() => setShowAddModal(false)}
+              onClose={() => { setShowAddModal(false); setRefCompositeId(null); setInitialTheme(null); }}
               onSave={async (item) => {
                 await addClosetItem(item);
                 setShowAddModal(false);
+                setRefCompositeId(null);
+                setInitialTheme(null);
+                // Show post completion modal
+                if (item.isPublic) {
+                  setShowPostComplete(true);
+                }
               }}
               plushies={plushies}
               initialPlushieId={activePlushieId === 'all' ? undefined : activePlushieId}
               t={t}
               fitLabels={fitLabels}
+              initialRefCompositeId={refCompositeId}
+              initialTheme={initialTheme}
             />
           </Portal>
         )
@@ -1841,7 +1864,17 @@ const Closet = () => {
                         </button>
                         <button
                           onClick={() => {
-                            updateClosetItem(selectedItem.id.replace('local-', ''), editData);
+                            const finalEditData = { ...editData };
+                            // Force clear old shopUrl to allow deleting urls
+                            finalEditData.shopUrl = '';
+                            
+                            if (finalEditData.purchaseType !== 'handmade') {
+                                finalEditData.patternImage = null;
+                                finalEditData.referenceUrl = '';
+                                finalEditData.referencePostUrl = '';
+                                finalEditData.referencedPostId = '';
+                            }
+                            updateClosetItem(selectedItem.id.replace('local-', ''), finalEditData);
                             setSelectedItem({ ...selectedItem, ...editData });
                             setIsEditing(false);
                           }}
@@ -1859,6 +1892,128 @@ const Closet = () => {
           </Portal>
         )
       }
+      {/* === POST COMPLETE MODAL === */}
+      {showPostComplete && (
+        <Portal>
+          <div
+            style={{
+              position: 'fixed', inset: 0, zIndex: 9999,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'rgba(0,0,0,0.5)',
+              backdropFilter: 'blur(8px)',
+              animation: 'fadeIn 0.3s ease-out'
+            }}
+            onClick={() => setShowPostComplete(false)}
+          >
+            <div
+              style={{
+                background: 'white',
+                borderRadius: '28px',
+                padding: '40px 32px 32px',
+                maxWidth: '320px',
+                width: '90%',
+                textAlign: 'center',
+                boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
+                animation: 'celebrateIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Confetti-like decorations */}
+              <div style={{ position: 'relative' }}>
+                <div style={{ fontSize: '56px', marginBottom: '16px', animation: 'bounceEmoji 0.6s ease-out' }}>🎉</div>
+                {/* Floating confetti dots */}
+                {[...Array(12)].map((_, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      width: `${4 + Math.random() * 6}px`,
+                      height: `${4 + Math.random() * 6}px`,
+                      borderRadius: '50%',
+                      background: ['#f97316', '#3D7A7F', '#ec4899', '#eab308', '#8b5cf6', '#22c55e'][i % 6],
+                      top: `${-20 + Math.random() * 80}px`,
+                      left: `${Math.random() * 100}%`,
+                      opacity: 0,
+                      animation: `confettiFall 1.5s ease-out ${i * 0.08}s forwards`
+                    }}
+                  />
+                ))}
+              </div>
+
+              <h3 style={{ fontSize: '22px', fontWeight: '900', color: '#1f2937', marginBottom: '8px' }}>
+                {t('postCompleteTitle')}
+              </h3>
+              <p style={{ fontSize: '13px', color: '#6b7280', marginBottom: '28px', lineHeight: 1.5 }}>
+                {t('postCompleteMessage')}
+              </p>
+
+              <button
+                onClick={() => {
+                  setShowPostComplete(false);
+                  navigate('/gallery');
+                }}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(135deg, #3D7A7F 0%, #509291 50%, #E8956A 100%)',
+                  color: 'white',
+                  fontWeight: '800',
+                  fontSize: '14px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(61, 122, 127, 0.3)',
+                  marginBottom: '12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                <Users size={18} />
+                {t('postCompleteViewGallery')}
+              </button>
+
+              <button
+                onClick={() => setShowPostComplete(false)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  background: 'transparent',
+                  color: '#9ca3af',
+                  fontWeight: '600',
+                  fontSize: '13px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
+              >
+                {t('postCompleteContinue')}
+              </button>
+            </div>
+          </div>
+
+          <style>{`
+            @keyframes fadeIn {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes celebrateIn {
+              from { transform: scale(0.5) translateY(40px); opacity: 0; }
+              to { transform: scale(1) translateY(0); opacity: 1; }
+            }
+            @keyframes bounceEmoji {
+              0% { transform: scale(0); }
+              50% { transform: scale(1.3); }
+              100% { transform: scale(1); }
+            }
+            @keyframes confettiFall {
+              0% { opacity: 1; transform: translateY(-30px) rotate(0deg); }
+              100% { opacity: 0; transform: translateY(60px) rotate(360deg); }
+            }
+          `}</style>
+        </Portal>
+      )}
     </div >
   );
 };

@@ -82,10 +82,10 @@ const Notifications = () => {
         const diffHours = Math.floor(diffMins / 60);
         const diffDays = Math.floor(diffHours / 24);
 
-        if (diffMins < 1) return t('justNow');
-        if (diffMins < 60) return `${diffMins} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffMins).replace('{unit}', 'm') : 'm ago'}`;
-        if (diffHours < 24) return `${diffHours} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffHours).replace('{unit}', 'h') : 'h ago'}`;
-        return `${diffDays} ${t('timeAgo') ? t('timeAgo').replace('{time}', diffDays).replace('{unit}', 'd') : 'd ago'}`;
+        if (diffMins < 1) return t('justNow') || 'just now';
+        if (diffMins < 60) return t('timeAgo', diffMins, t('unitMinute') || 'm');
+        if (diffHours < 24) return t('timeAgo', diffHours, t('unitHour') || 'h');
+        return t('timeAgo', diffDays, t('unitDay') || 'd');
     };
 
     if (loading) {

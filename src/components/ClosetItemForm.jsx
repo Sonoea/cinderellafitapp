@@ -1,24 +1,25 @@
 import React, { useState, useEffect, useContext, useRef } from 'react';
-import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock, Star, Library } from 'lucide-react';
+import { Camera, MapPin, Link, AlertCircle, ShoppingBag, ArrowDownCircle, Tag, Lock, Unlock, Star, Library, ChevronDown } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { useAuth } from '../context/AuthContext';
 import { compressImage } from '../utils/imageUtils';
 import { db } from '../firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
 
-const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel }) => {
+const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCancel, initialRefCompositeId, initialTheme }) => {
     const { currentUser } = useAuth();
     const { customCategoryNames } = useContext(AppContext);
     const scrollContainerRef = useRef(null);
     const [image, setImage] = useState(null);
     const [showUrl2, setShowUrl2] = useState(false);
     const [showUrl3, setShowUrl3] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
     const [formData, setFormData] = useState({
         name: '',
         url: '',
         plushieId: initialPlushieId || plushies[0]?.id || '',
         fitRating: 2,
-        comment: '',
+        comment: initialTheme ? `#${t(initialTheme)} ` : '', // Initialize with theme hashtag if provided
         location: '',
         purchaseType: '',
         isPublic: true, // Default to public as requested
@@ -55,6 +56,29 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
             // So for now, just initializing state is enough.
         }
     }, []);
+
+    // Sync initialTheme to comment if it arrives late
+    useEffect(() => {
+        if (initialTheme && !formData.comment) {
+            setFormData(prev => ({
+                ...prev,
+                comment: `#${t(initialTheme)} `
+            }));
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [initialTheme]);
+
+    // Pre-fill reference info from pattern ("try making with this pattern" flow)
+    useEffect(() => {
+        if (initialRefCompositeId) {
+            setFormData(prev => ({
+                ...prev,
+                referencedPostId: initialRefCompositeId,
+                patternSource: 'cinderellafit',
+                purchaseType: 'handmade'
+            }));
+        }
+    }, [initialRefCompositeId]);
 
     // Ensure scroll area is focused for keyboard scroll
     useEffect(() => {
@@ -150,8 +174,90 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                         )}
                     </div>
 
-                    {/* 2. Form Fields (Always Visible) */}
-                    <div className={`space-y-4 transition-opacity duration-300 ${!image ? '' : ''} `}>
+                    {/* Quick Save Section - Always visible right after photo */}
+                    {image && (
+                        <div className="space-y-3">
+                            {/* Public/Private Toggle */}
+                            <div className={`flex items-center justify-between bg-blue-50 p-3 rounded-xl ${!currentUser ? 'opacity-60 grayscale' : ''}`}>
+                                <div className="flex items-center gap-2">
+                                    <div className={`p-2 rounded-full ${formData.isPublic ? 'bg-blue-500 text-white' : 'bg-gray-300 text-white'}`}>
+                                        {formData.isPublic ? <Unlock size={16} /> : <Lock size={16} />}
+                                    </div>
+                                    <div className="text-xs">
+                                        <p className="font-bold text-gray-800">{formData.isPublic ? t('publicGallery') : t('privateOnly')}</p>
+                                        <p className="text-gray-500">{formData.isPublic ? t('visibleToEveryone') : t('visibleToYou')}</p>
+                                    </div>
+                                </div>
+                                <label className="relative inline-flex items-center cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        className="sr-only peer"
+                                        checked={formData.isPublic}
+                                        disabled={!currentUser}
+                                        onChange={(e) => {
+                                            const newIsPublic = e.target.checked;
+                                            setFormData({ 
+                                                ...formData, 
+                                                isPublic: newIsPublic,
+                                                isPattern: newIsPublic ? formData.isPattern : false 
+                                            });
+                                        }}
+                                    />
+                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                                </label>
+                            </div>
+                            {!currentUser && (
+                                <p className="text-[10px] text-red-500 font-bold text-center">※ {t('loginToShare')}</p>
+                            )}
+
+                            {/* Quick Save Button */}
+                            <button
+                                onClick={handleSaveWrapper}
+                                disabled={isSaving}
+                                style={{
+                                    width: '100%',
+                                    backgroundColor: isSaving ? '#E5E7EB' : '#3D7A7F',
+                                    color: isSaving ? '#9CA3AF' : '#FFFFFF',
+                                    fontWeight: 'bold',
+                                    padding: '16px',
+                                    borderRadius: '16px',
+                                    fontSize: '18px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    gap: '8px',
+                                    boxShadow: isSaving ? 'none' : '0 8px 24px rgba(61, 122, 127, 0.25)',
+                                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                                    transition: 'all 0.2s',
+                                    opacity: isSaving ? 0.7 : 1,
+                                    border: 'none'
+                                }}
+                            >
+                                <span style={{ fontSize: '24px' }}>{isSaving ? '⏳' : '✨'}</span>
+                                <span>{isSaving ? t('saving') : t('saveToCloset')}</span>
+                            </button>
+
+                            {/* Expand Details Accordion */}
+                            <button
+                                type="button"
+                                onClick={() => setShowDetails(!showDetails)}
+                                className="w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors"
+                            >
+                                <ChevronDown
+                                    size={16}
+                                    className={`transition-transform duration-300 ${showDetails ? 'rotate-180' : ''}`}
+                                />
+                                <span>{showDetails ? (t('readLess') || '閉じる') : (t('quickPostExpand') || 'もっと詳しく入力する')}</span>
+                                <ChevronDown
+                                    size={16}
+                                    className={`transition-transform duration-300 ${showDetails ? 'rotate-180' : ''}`}
+                                />
+                            </button>
+                        </div>
+                    )}
+
+                    {/* 2. Detailed Form Fields (Collapsible) */}
+                    <div className={`transition-all duration-300 overflow-hidden ${image && showDetails ? 'opacity-100' : 'opacity-0 h-0 pointer-events-none'}`} style={image && showDetails ? { marginTop: '1rem' } : { margin: 0 }}>
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-gray-700 mb-1">{t('itemName')}</label>
@@ -687,43 +793,40 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                                     <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                                 </label>
                             </div>
-                            {!currentUser && (
-                                <p className="text-[10px] text-red-500 font-bold text-center mt-1">
-                                    ※ {t('loginToShare')}
-                                </p>
-                            )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Footer */}
-            <div className="modal-footer-fixed p-4 pb-4" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
-                <button
-                    onClick={handleSaveWrapper}
-                    disabled={!image || isSaving}
-                    style={{
-                        width: '100%',
-                        backgroundColor: (image && !isSaving) ? '#3D7A7F' : '#E5E7EB',
-                        color: (image && !isSaving) ? '#FFFFFF' : '#9CA3AF',
-                        fontWeight: 'bold',
-                        padding: '16px',
-                        borderRadius: '16px',
-                        fontSize: '18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '8px',
-                        boxShadow: (image && !isSaving) ? '0 8px 24px rgba(61, 122, 127, 0.25)' : 'none',
-                        cursor: (image && !isSaving) ? 'pointer' : 'not-allowed',
-                        transition: 'all 0.2s',
-                        opacity: isSaving ? 0.7 : 1
-                    }}
-                >
-                    <span style={{ fontSize: '24px' }}>{isSaving ? '⏳' : '✨'}</span>
-                    <span>{isSaving ? t('saving') : (image ? t('saveToCloset') : t('choosePhotoFirst'))}</span>
-                </button>
-            </div>
+            {/* Footer - only shown when details open and no image yet */}
+            {!image && (
+                <div className="modal-footer-fixed p-4 pb-4" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+                    <button
+                        onClick={handleSaveWrapper}
+                        disabled={!image || isSaving}
+                        style={{
+                            width: '100%',
+                            backgroundColor: '#E5E7EB',
+                            color: '#9CA3AF',
+                            fontWeight: 'bold',
+                            padding: '16px',
+                            borderRadius: '16px',
+                            fontSize: '18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: 'none',
+                            cursor: 'not-allowed',
+                            transition: 'all 0.2s',
+                            border: 'none'
+                        }}
+                    >
+                        <span style={{ fontSize: '24px' }}>📷</span>
+                        <span>{t('choosePhotoFirst')}</span>
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

@@ -601,6 +601,38 @@ export const translations = {
         confirmPasswordLabel: "Confirm Password",
         confirmPasswordPlaceholder: "Re-enter password",
         continueGuest: "Continue as Guest",
+
+        // Engagement & Pattern Discovery
+        fabPostButton: "I want to post too! ✨",
+        patternPickupTitle: "📖 Everyone's Patterns — Try making one!",
+        patternPickupSeeAll: "See all patterns",
+        patternPickupCount: (n) => `${n} creations`,
+        tryMakeWithPattern: "✂️ Try making with this pattern",
+        tryMakeWithPatternShort: "Try making this",
+        postCompleteTitle: "🎉 Posted!",
+        postCompleteMessage: "Your outfit has been saved to the closet.",
+        postCompleteViewGallery: "View in Gallery",
+        postCompleteContinue: "Continue",
+        quickPostExpand: "Add more details",
+        
+        // Weekly Theme Challenge
+        themeOfTheWeek: "This Week's Theme",
+        themeChallenge: "Theme Challenge",
+        themeJoinButton: "Post with this theme",
+        themeSummer: "My favorite summer outfit 🌻",
+        themeColorful: "Colorful outfits 🌈",
+        themePattern: "I made this with a pattern! 📖",
+        themeFirst: "My first outfit 🎀",
+        themeHoliday: "Holiday outfits 🏖️",
+        themeHandmade: "Handmade show-off 🧵",
+        themeDress: "Dress collection 👗",
+        themeEvent: "Seasonal event outfits 🎃",
+
+        homePatternTitle: "📖 Trending Patterns",
+        homePatternDesc: "Popular patterns shared by the community",
+        homePatternMore: "See more patterns",
+        patternCardViewDetail: "View Details",
+        patternCardMadeCount: (n) => `${n} made`,
     },
     jp: {
         // Nav
@@ -1214,5 +1246,37 @@ export const translations = {
         confirmPasswordLabel: "パスワード確認",
         confirmPasswordPlaceholder: "もう一度入力",
         continueGuest: "ログインせずに続ける（ゲストモード）",
+
+        // 投稿促進 & 型紙発見
+        fabPostButton: "わたしも投稿する ✨",
+        patternPickupTitle: "📖 みんなの型紙 — 作ってみよう！",
+        patternPickupSeeAll: "型紙をもっと見る",
+        patternPickupCount: (n) => `${n}件の作例`,
+        tryMakeWithPattern: "✂️ この型紙で作ってみる",
+        tryMakeWithPatternShort: "作ってみる",
+        postCompleteTitle: "🎉 投稿完了！",
+        postCompleteMessage: "コーデがクローゼットに保存されました。",
+        postCompleteViewGallery: "ギャラリーで見る",
+        postCompleteContinue: "続ける",
+        quickPostExpand: "もっと詳しく入力する",
+
+        // Weekly Theme Challenge
+        themeOfTheWeek: "今週のテーマ",
+        themeChallenge: "テーマチャレンジ",
+        themeJoinButton: "このテーマで投稿する",
+        themeSummer: "お気に入りの夏コーデ 🌻",
+        themeColorful: "カラフルコーデ 🌈",
+        themePattern: "型紙で作ったよ！ 📖",
+        themeFirst: "初めてのお洋服 🎀",
+        themeHoliday: "おでかけコーデ 🏖️",
+        themeHandmade: "ハンドメイド自慢 🧵",
+        themeDress: "ワンピース特集 👗",
+        themeEvent: "季節のイベントコーデ 🎃",
+
+        homePatternTitle: "📖 注目の型紙",
+        homePatternDesc: "みんながシェアした人気の型紙",
+        homePatternMore: "型紙をもっと見る",
+        patternCardViewDetail: "詳しく見る",
+        patternCardMadeCount: (n) => `${n}件の作例`,
     }
 };

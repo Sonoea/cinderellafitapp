@@ -3,7 +3,7 @@ import Portal from './Portal';
 import ClosetItemForm from './ClosetItemForm';
 import { X } from 'lucide-react';
 
-const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabels }) => {
+const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabels, initialRefCompositeId, initialTheme }) => {
     // Body Scroll Lock
     useEffect(() => {
         const originalStyle = window.getComputedStyle(document.body).overflow;
@@ -37,6 +37,8 @@ const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabel
                             initialPlushieId={initialPlushieId}
                             t={t}
                             fitLabels={fitLabels}
+                            initialRefCompositeId={initialRefCompositeId}
+                            initialTheme={initialTheme}
                             onSave={(item) => {
                                 onSave(item);
                                 onClose();

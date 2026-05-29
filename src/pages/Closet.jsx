@@ -475,15 +475,36 @@ const Closet = () => {
         matchesFit = item.fitRating === activeFitRating;
       }
 
-      // Filter out Gallery Only items from the Closet View?
-      // Usually yes, unless we want to see them too. 
-      // User said "remove gallery tab", so we focus on Closet.
-      // Usually "Gallery Only" means "Hidden from Closet".
+      // Exclude gallery-only items from the main closet view
+      // They will be shown in a separate section below
       if (item.galleryOnly) return false;
 
       return matchesPlushie && matchesFit;
     });
   }, [closetItems, activePlushieId, activeFitRating, currentUser, firestoreUserName, firestorePhotoURL, t]);
+
+  // Separate list of gallery-only items (always unfiltered by plushie/fit)
+  const galleryOnlyItems = useMemo(() => {
+    if (!currentUser) return [];
+    const userPhoto = firestorePhotoURL || currentUser?.photoURL || '';
+    return closetItems
+      .filter(item => item.galleryOnly)
+      .map(item => {
+        const compositeId = `${currentUser.uid}_${String(item.id).replace('local-', '')}`;
+        return {
+          id: item.id,
+          userName: firestoreUserName || currentUser?.displayName || t('guest'),
+          userIcon: userPhoto,
+          imageUrl: item.image,
+          itemName: item.name,
+          isPublic: item.isPublic,
+          galleryOnly: item.galleryOnly,
+          createdAt: item.createdAt,
+          date: safeDate(item.createdAt),
+          compositeId,
+        };
+      });
+  }, [closetItems, currentUser, firestoreUserName, firestorePhotoURL, t]);
 
   const fitLabels = t('fitLabelsShort') || ['Tight', 'Snug', 'Good', 'Loose', 'Perf'];
   const fullFitLabels = t('fitLabels') || ['Too Tight', 'Tight', 'Good', 'Loose', 'Perfect'];
@@ -559,6 +580,7 @@ const Closet = () => {
                 <p className="text-orange-500 font-bold flex items-center gap-1 mt-1">
                   <span>⚠️</span>
                   <span>{t('galleryOnlyCount', closetItems.filter(i => i.galleryOnly).length)}</span>
+                  <span className="text-[10px] font-normal ml-1">({t('restoreToCloset')}↓)</span>
                 </p>
               )}
             </div>
@@ -816,7 +838,49 @@ const Closet = () => {
             })()}
           </div>
         </div>
-      </div >
+      </div>
+
+      {/* === GALLERY-ONLY ITEMS SECTION === */}
+        {galleryOnlyItems.length > 0 && (
+          <div className="px-4 mt-6 mb-8">
+            <div className="bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-200/60 rounded-2xl p-4 shadow-sm">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg">📦</span>
+                <h3 className="font-black text-sm text-orange-800">{t('galleryOnlyItemsSection')}</h3>
+                <span className="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold">{galleryOnlyItems.length}</span>
+              </div>
+              <p className="text-[11px] text-orange-600/80 mb-3">{t('galleryOnlyItemsDesc')}</p>
+              <div className="grid grid-cols-3 gap-2">
+                {galleryOnlyItems.map(item => (
+                  <div key={item.id} className="relative bg-white rounded-xl overflow-hidden shadow-sm border border-orange-100 group">
+                    <div className="relative w-full bg-gray-100" style={{ paddingBottom: '100%' }}>
+                      <img src={item.imageUrl} alt={item.itemName} className="absolute inset-0 w-full h-full object-cover opacity-70" />
+                      <div className="absolute inset-0 bg-orange-900/10"></div>
+                      <div className="absolute top-1.5 left-1.5 bg-orange-500 text-white px-1.5 py-0.5 rounded-full text-[8px] font-bold flex items-center gap-0.5">
+                        <Users size={8} />
+                        {t('galleryOnlyLabel')}
+                      </div>
+                    </div>
+                    <div className="p-1.5">
+                      <h4 className="font-bold text-[10px] truncate text-gray-700">{item.itemName || 'Untitled'}</h4>
+                      <button
+                        onClick={() => {
+                          if (window.confirm(t('restoreToClosetConfirm'))) {
+                            updateClosetItem(String(item.id).replace('local-', ''), { galleryOnly: false });
+                          }
+                        }}
+                        className="w-full mt-1 bg-orange-500 hover:bg-orange-600 text-white text-[9px] font-bold py-1 px-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                      >
+                        <Shirt size={10} />
+                        {t('restoreToCloset')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
       {/* === ADD ITEM MODAL === */}
       {

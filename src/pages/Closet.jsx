@@ -486,20 +486,46 @@ const Closet = () => {
   // Separate list of gallery-only items (always unfiltered by plushie/fit)
   const galleryOnlyItems = useMemo(() => {
     if (!currentUser) return [];
+    const myUid = currentUser.uid;
+    const effectiveDisplayName = firestoreUserName || currentUser?.displayName || t('guest');
     const userPhoto = firestorePhotoURL || currentUser?.photoURL || '';
+
     return closetItems
       .filter(item => item.galleryOnly)
       .map(item => {
-        const compositeId = `${currentUser.uid}_${String(item.id).replace('local-', '')}`;
+        const id = item.id;
+        const bareId = String(id).replace(/^local-/, '');
+        const compositeId = myUid ? `${myUid}_${bareId}` : `guest_${bareId}`;
+
         return {
           ...item,
-          id: item.id,
-          userName: firestoreUserName || currentUser?.displayName || t('guest'),
+          id: `local-${item.id}`,
+          userId: myUid,
+          userName: effectiveDisplayName,
           userIcon: userPhoto,
+          plushieId: item.plushieId,
+          plushieName: item.plushieName || 'My Plushie',
+          plushieHeight: item.plushieHeight || 0,
+          location: item.location,
           imageUrl: item.image,
           itemName: item.name,
+          purchaseType: item.purchaseType || '',
+          shopName: safeHostname(item.url),
+          fitRating: item.fitRating || '',
+          comment: item.comment,
+          patternImage: item.patternImage || null,
+          referenceUrl: item.referenceUrl || '',
           date: safeDate(item.createdAt),
+          likes: item.likes || 0,
+          isOwn: true,
           compositeId,
+          isPublic: item.isPublic,
+          galleryOnly: item.galleryOnly,
+          createdAt: item.createdAt,
+          category: item.category || 'other',
+          waistFlat: item.waistFlat || '',
+          clothesLength: item.clothesLength || '',
+          cuffWidth: item.cuffWidth || '',
         };
       });
   }, [closetItems, currentUser, firestoreUserName, firestorePhotoURL, t]);

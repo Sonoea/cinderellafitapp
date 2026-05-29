@@ -852,7 +852,11 @@ const Closet = () => {
               <p className="text-[11px] text-orange-600/80 mb-3">{t('galleryOnlyItemsDesc')}</p>
               <div className="grid grid-cols-3 gap-2">
                 {galleryOnlyItems.map(item => (
-                  <div key={item.id} className="relative bg-white rounded-xl overflow-hidden shadow-sm border border-orange-100 group">
+                  <div 
+                    key={item.id} 
+                    onClick={() => setSelectedItem(item)}
+                    className="relative bg-white rounded-xl overflow-hidden shadow-sm border border-orange-100 group cursor-pointer active:scale-95 transition-transform"
+                  >
                     <div className="relative w-full bg-gray-100" style={{ paddingBottom: '100%' }}>
                       <img src={item.imageUrl} alt={item.itemName} className="absolute inset-0 w-full h-full object-cover opacity-70" />
                       <div className="absolute inset-0 bg-orange-900/10"></div>

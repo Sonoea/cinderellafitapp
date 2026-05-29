@@ -492,14 +492,12 @@ const Closet = () => {
       .map(item => {
         const compositeId = `${currentUser.uid}_${String(item.id).replace('local-', '')}`;
         return {
+          ...item,
           id: item.id,
           userName: firestoreUserName || currentUser?.displayName || t('guest'),
           userIcon: userPhoto,
           imageUrl: item.image,
           itemName: item.name,
-          isPublic: item.isPublic,
-          galleryOnly: item.galleryOnly,
-          createdAt: item.createdAt,
           date: safeDate(item.createdAt),
           compositeId,
         };

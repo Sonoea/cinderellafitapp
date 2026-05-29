@@ -1000,3 +1000,37 @@ a {
 .aspect-square {
   aspect-ratio: 1 / 1;
 }
+
+/* Custom utility overrides for like buttons */
+.bg-pink-50 {
+  background-color: #fdf2f8 !important;
+}
+.bg-pink-100 {
+  background-color: #fce7f3 !important;
+}
+.bg-pink-500 {
+  background-color: #ec4899 !important;
+}
+.text-pink-500 {
+  color: #ec4899 !important;
+}
+.text-pink-400 {
+  color: #f472b6 !important;
+}
+.border-pink-200 {
+  border-color: #fbcfe8 !important;
+}
+.ring-pink-100 {
+  box-shadow: 0 0 0 4px #fce7f3 !important;
+}
+.px-5 {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
+}
+.py-2\.5 {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+}
+.min-w-\[100px\] {
+  min-width: 100px !important;
+}

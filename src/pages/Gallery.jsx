@@ -1051,11 +1051,7 @@ const Gallery = () => {
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => {
-                                            window.alert("ボタンが押されました！ ID: " + selectedItem.userId);
-                                            if (!selectedItem.userId) {
-                                                window.alert("エラー: 投稿者のIDが見つかりません。");
-                                                return;
-                                            }
+                                            if (!selectedItem.userId) return;
                                             toggleLike(selectedItem.id, selectedItem.userId, selectedItem.compositeId);
                                         }}
                                         className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full font-black text-sm transition-all active:scale-90 min-w-[100px] ${(itemLikes[selectedItem.compositeId]?.isLiked)

@@ -1288,11 +1288,12 @@ const Gallery = () => {
                                                 )
                                             ))}
                                         </div>
-                                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white/90 backdrop-blur-md border-t border-gray-100 flex gap-2 z-30 shadow-[0_-10px_20px_rgba(0,0,0,0.05)] animate-in slide-in-from-bottom-4 duration-300">
+                                        {/* Save/Cancel - sticky footer for edit mode */}
+                                        <div className="sticky bottom-0 left-0 right-0 p-4 bg-white border-t-2 border-primary/20 flex gap-3 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.15)]">
                                             <button
                                                 disabled={isSaving}
                                                 onClick={() => setIsEditing(false)}
-                                                className="flex-1 py-3.5 px-4 rounded-2xl border border-gray-200 text-gray-500 font-bold text-sm hover:bg-gray-50 active:scale-95 transition-all"
+                                                className="flex-1 py-4 px-4 rounded-2xl border-2 border-gray-300 text-gray-600 font-black text-base hover:bg-gray-50 active:scale-95 transition-all"
                                             >
                                                 {t('cancel')}
                                             </button>
@@ -1342,9 +1343,9 @@ const Gallery = () => {
                                                         setIsSaving(false);
                                                     }
                                                 }}
-                                                className={`flex-1 py-3.5 px-4 rounded-2xl bg-primary text-white font-bold text-sm shadow-lg transition-all active:scale-95 ${isSaving ? 'opacity-50 cursor-wait' : 'hover:bg-primary-dark hover:shadow-primary/20'}`}
+                                                className={`flex-[2] py-4 px-4 rounded-2xl bg-primary text-white font-black text-base shadow-lg transition-all active:scale-95 ${isSaving ? 'opacity-50 cursor-wait' : 'hover:brightness-110 hover:shadow-xl'}`}
                                             >
-                                                {isSaving ? t('saving') : t('saveLabel')}
+                                                {isSaving ? t('saving') : `💾 ${t('saveLabel')}`}
                                             </button>
                                         </div>
                                     </div>
@@ -1480,8 +1481,8 @@ const Gallery = () => {
                                     </div>
                                 )}
 
-                                {/* Comments Section */}
-                                <div ref={commentsRef}>
+                                {/* Comments Section - hidden during edit mode */}
+                                {!isEditing && <div ref={commentsRef}>
                                     <h4 className="font-bold text-sm text-gray-600 mb-3 flex items-center gap-2">
                                         <MessageCircle size={16} />
                                         {t('commentsTitle')}
@@ -1555,7 +1556,7 @@ const Gallery = () => {
                                             {t('loginToComment')}
                                         </Link>
                                     )}
-                                </div>
+                                </div>}
                             </div>
                         </div>
                     </div>

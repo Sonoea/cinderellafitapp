@@ -120,7 +120,7 @@ const Gallery = () => {
     // Filter state
     const [searchParams] = useSearchParams();
     const [searchTerm, setSearchTerm] = useState(searchParams.get('search') || '');
-    const [filterMySize, setFilterMySize] = useState(false);
+
     const [sizeFilterPlushieId, setSizeFilterPlushieId] = useState('all');
     const [filterCategory, setFilterCategory] = useState('all');
     const [filterHasPattern, setFilterHasPattern] = useState(false);
@@ -653,7 +653,7 @@ const Gallery = () => {
 
             return matchesSearch && matchesSize && matchesCategory && matchesPatternFilter;
         });
-    }, [processedItems, searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, filterHasPattern, plushies]);
+    }, [processedItems, searchTerm, sizeFilterPlushieId, filterCategory, filterHasPattern, plushies]);
 
     // Hashtag click handler: close modal + search by tag
     const handleHashtagClick = (tag) => {
@@ -665,7 +665,7 @@ const Gallery = () => {
     // Reset display limit when filters change
     useEffect(() => {
         setDisplayLimit(12);
-    }, [searchTerm, filterMySize, sizeFilterPlushieId, filterCategory, filterHasPattern]);
+    }, [searchTerm, sizeFilterPlushieId, filterCategory, filterHasPattern]);
 
     const visibleItems = React.useMemo(() => {
         return filteredItems.slice(0, displayLimit);
@@ -829,6 +829,15 @@ const Gallery = () => {
                             <span className="whitespace-nowrap">{t('hasPatternFilter')}</span>
                         </button>
                     </div>
+                    
+                    {/* Active Filters Summary & Count */}
+                    {(searchTerm || sizeFilterPlushieId !== 'all' || filterCategory !== 'all' || filterHasPattern) && (
+                        <div className="flex justify-between items-center px-1 pt-1.5 mt-1 border-t border-gray-100">
+                            <span className="text-[11px] text-primary font-bold">
+                                {filteredItems.length} {t('resultsCount')}
+                            </span>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -889,7 +898,7 @@ const Gallery = () => {
                         </p>
                         {(searchTerm || sizeFilterPlushieId !== 'all' || filterCategory !== 'all' || filterHasPattern) && (
                             <button
-                                onClick={() => { setSearchTerm(''); setFilterMySize(false); setSizeFilterPlushieId('all'); setFilterCategory('all'); setFilterHasPattern(false); }}
+                                onClick={() => { setSearchTerm(''); setSizeFilterPlushieId('all'); setFilterCategory('all'); setFilterHasPattern(false); }}
                                 className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"
                             >
                                 {t('resetFiltersBtn')}

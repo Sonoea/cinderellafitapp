@@ -1945,12 +1945,12 @@ const Closet = () => {
                       </div>
                     )}
 
-                    {/* Save / Cancel Buttons */}
+                    {/* Save / Cancel Buttons - Sticky Footer */}
                     {isEditing && (
-                      <div className="flex gap-3 mt-2">
+                      <div className="sticky bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-gray-100 flex gap-3 z-50 shadow-[0_-10px_30px_rgba(0,0,0,0.1)] mt-8 -mx-6 -mb-6 pb-8 px-6">
                         <button
                           onClick={() => setIsEditing(false)}
-                          className="flex-1 py-4 rounded-xl border-2 border-gray-200 text-gray-500 font-bold text-base hover:bg-gray-50 transition-colors"
+                          className="flex-1 py-4 px-4 rounded-2xl border-2 border-gray-300 text-gray-600 font-black text-base hover:bg-gray-50 active:scale-95 transition-all"
                         >
                           {t('cancel') || 'キャンセル'}
                         </button>
@@ -1970,9 +1970,9 @@ const Closet = () => {
                             setSelectedItem({ ...selectedItem, ...editData });
                             setIsEditing(false);
                           }}
-                          className="flex-1 py-4 rounded-xl bg-primary text-white font-bold text-base shadow-md hover:opacity-90 transition-all active:scale-95"
+                          className="flex-[2] py-4 px-4 rounded-2xl bg-primary text-white font-black text-base shadow-lg transition-all active:scale-95 hover:brightness-110 hover:shadow-xl"
                         >
-                          ✓ {t('save') || '保存'}
+                          {t('save') ? `💾 ${t('save')}` : '💾 保存'}
                         </button>
                       </div>
                     )}

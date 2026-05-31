@@ -183,6 +183,7 @@ const Gallery = () => {
                             ...data, userId: ownerUid, imageUrl,
                             itemName: data.itemName || data.name || t('untitled'),
                             plushieName: data.plushieName || data.plushie || '',
+                            plushieHeight: Number(data.plushieHeight) || 0,
                             userName: data.userName || null,
                             userIcon: data.userIcon || '',
                             purchaseType: data.purchaseType || '',
@@ -190,6 +191,12 @@ const Gallery = () => {
                             referenceUrl: data.referenceUrl || '',
                             shopName: safeHostname(data.url || data.shopUrl),
                             date: safeDate(data.createdAt),
+                            // Size measurement fields for filtering
+                            waistFlat: data.waistFlat || '',
+                            clothesLength: data.clothesLength || '',
+                            cuffWidth: data.cuffWidth || '',
+                            fitRating: data.fitRating || '',
+                            category: data.category || 'other',
                         });
                     } catch (err) { console.warn("Skipping invalid gallery item:", docSnap.id, err); }
                 });
@@ -597,38 +604,45 @@ const Gallery = () => {
                 (item.comment && item.comment.toLowerCase().includes(searchTerm.toLowerCase()));
 
             let matchesSize = true;
-            if (filterMySize && plushies.length > 0) {
+            const sizeFilterActive = sizeFilterPlushieId !== 'all';
+            if (sizeFilterActive && plushies.length > 0) {
                 const checkSizeMatch = (myPlushie) => {
+                    if (!myPlushie?.measurements) return false;
+                    const myHeight = Number(myPlushie.measurements.height || 0);
+                    
                     // 1. If clothes have specific measurements, use them (+/- 1cm)
                     const hasSpecificSizes = item.waistFlat || item.clothesLength || item.cuffWidth;
                     if (hasSpecificSizes) {
                         let match = true;
-                        if (item.waistFlat && myPlushie.measurements?.waist) {
+                        let hasAnyComparison = false;
+                        if (item.waistFlat && myPlushie.measurements.waist) {
+                            hasAnyComparison = true;
                             if (Math.abs(Number(item.waistFlat) * 2 - Number(myPlushie.measurements.waist)) > 1) match = false;
                         }
-                        if (item.clothesLength && myPlushie.measurements?.length) {
+                        if (item.clothesLength && myPlushie.measurements.length) {
+                            hasAnyComparison = true;
                             if (Math.abs(Number(item.clothesLength) - Number(myPlushie.measurements.length)) > 1) match = false;
                         }
-                        if (item.cuffWidth && myPlushie.measurements?.armGirth) {
+                        if (item.cuffWidth && myPlushie.measurements.armGirth) {
+                            hasAnyComparison = true;
                             if (Math.abs(Number(item.cuffWidth) * 2 - Number(myPlushie.measurements.armGirth)) > 1) match = false;
                         }
-                        return match;
+                        // If we had specific sizes but none matched any plushie measurement fields,
+                        // fall through to plushieHeight comparison
+                        if (hasAnyComparison) return match;
                     }
                     
-                    // 2. Fallback to plushieHeight (+/- 2cm) if no specific clothes sizes
-                    if (item.plushieHeight) {
-                        return Math.abs(Number(myPlushie.measurements?.height || 0) - Number(item.plushieHeight)) <= 2;
+                    // 2. Fallback to plushieHeight (+/- 2cm)
+                    const itemHeight = Number(item.plushieHeight);
+                    if (itemHeight > 0 && myHeight > 0) {
+                        return Math.abs(myHeight - itemHeight) <= 2;
                     }
                     
                     return false;
                 };
 
-                if (sizeFilterPlushieId === 'all') {
-                    matchesSize = plushies.some(checkSizeMatch);
-                } else {
-                    const selectedPlushie = plushies.find(p => String(p.id) === String(sizeFilterPlushieId));
-                    matchesSize = selectedPlushie ? checkSizeMatch(selectedPlushie) : false;
-                }
+                const selectedPlushie = plushies.find(p => String(p.id) === String(sizeFilterPlushieId));
+                matchesSize = selectedPlushie ? checkSizeMatch(selectedPlushie) : false;
             }
 
             let matchesCategory = true;
@@ -869,11 +883,11 @@ const Gallery = () => {
                         <div className="text-4xl">🔍</div>
                         <p className="font-black text-gray-800">{t('noItemsFound')}</p>
                         <p className="text-xs text-gray-400 mt-1">
-                            {(searchTerm || filterMySize || filterCategory !== 'all' || filterHasPattern)
+                            {(searchTerm || sizeFilterPlushieId !== 'all' || filterCategory !== 'all' || filterHasPattern)
                                 ? t('changeFilterHint')
                                 : t('noPostsYet')}
                         </p>
-                        {(searchTerm || filterMySize || filterCategory !== 'all' || filterHasPattern) && (
+                        {(searchTerm || sizeFilterPlushieId !== 'all' || filterCategory !== 'all' || filterHasPattern) && (
                             <button
                                 onClick={() => { setSearchTerm(''); setFilterMySize(false); setSizeFilterPlushieId('all'); setFilterCategory('all'); setFilterHasPattern(false); }}
                                 className="text-xs font-bold text-primary bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 mt-2"

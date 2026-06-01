@@ -823,8 +823,8 @@ const Gallery = () => {
                         <button
                             onClick={() => setFilterHasPattern(!filterHasPattern)}
                             className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterHasPattern
-                                ? 'bg-orange-500 text-white border-orange-500 shadow-sm'
-                                : 'bg-white text-orange-400 border-orange-200'}`}
+                                ? 'bg-accent text-white border-accent shadow-sm'
+                                : 'bg-white text-gray-500 border-gray-200'}`}
                         >
                             <span className="whitespace-nowrap">{t('hasPatternFilter')}</span>
                         </button>

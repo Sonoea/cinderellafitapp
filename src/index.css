@@ -319,6 +319,10 @@ a {
   color: var(--secondary);
 }
 
+.text-accent {
+  color: var(--accent);
+}
+
 .text-gray-300 {
   color: var(--gray-300);
 }
@@ -353,6 +357,14 @@ a {
 
 .bg-primary {
   background-color: var(--primary);
+}
+
+.bg-accent {
+  background-color: var(--accent);
+}
+
+.bg-accent-light {
+  background-color: rgba(232, 149, 106, 0.1);
 }
 
 .bg-gray-50 {
@@ -484,6 +496,14 @@ a {
 
 .border-black {
   border-color: black;
+}
+
+.border-primary {
+  border-color: var(--primary);
+}
+
+.border-accent {
+  border-color: var(--accent);
 }
 
 .border-gray-200 {

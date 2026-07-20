@@ -183,7 +183,7 @@ const Shop = () => {
                 // Proxy external image for VirtualFitting (bypass CORS)
                 if (data.product?.image) {
                     try {
-                        const proxyRes = await fetch(`${API_BASE} /api/proxy - image ? url = ${encodeURIComponent(data.product.image)} `);
+                        const proxyRes = await fetch(`${API_BASE}/api/proxy-image?url=${encodeURIComponent(data.product.image)}`);
                         const proxyData = await proxyRes.json();
                         if (proxyData.success && proxyData.dataUri) {
                             setProduct(prev => ({ ...prev, image: proxyData.dataUri }));

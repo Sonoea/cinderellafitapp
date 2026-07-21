@@ -9,6 +9,7 @@ import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, 
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
+import { getWeeklyThemeKey } from '../utils/weeklyTheme';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
     const [error, setError] = useState(!src || src.includes('placeholder'));
@@ -98,6 +99,7 @@ const Gallery = () => {
     const { currentUser } = useAuth();
     const { t, language, plushies = [], updateClosetItem } = useApp();
     const navigate = useNavigate();
+    const weeklyThemeKey = getWeeklyThemeKey();
 
     // Gallery data
     const [publicItems, setPublicItems] = useState([]);
@@ -723,30 +725,48 @@ const Gallery = () => {
                 </div>
 
                 {/* Weekly Theme Banner (Gallery) */}
-                <div className="mb-3 rounded-2xl p-3 relative overflow-hidden group border border-orange-100/50" style={{
+                <div className="mb-3" style={{
+                    borderRadius: '20px',
+                    padding: '12px',
                     background: 'linear-gradient(135deg, #fffaf0 0%, #fff1f2 100%)',
-                    boxShadow: '0 4px 12px rgba(249, 115, 22, 0.05)'
+                    border: '1px solid rgba(249,115,22,0.15)',
+                    boxShadow: '0 4px 12px rgba(249, 115, 22, 0.08)'
                 }}>
-                    <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-gradient-to-br from-orange-400 to-pink-500 rounded-full opacity-10 blur-xl"></div>
-                    <div className="relative z-10 flex items-center justify-between">
-                        <div>
-                            <div className="flex items-center gap-1.5 mb-1">
-                                <span className="text-sm">🎯</span>
-                                <span className="text-[9px] font-bold text-orange-400 bg-orange-100/50 px-1.5 py-0.5 rounded-full">{t('themeOfTheWeek')}</span>
-                            </div>
-                            <p className="text-sm font-black text-gray-800 tracking-tight" style={{ textShadow: '0 1px 1px rgba(255,255,255,0.8)' }}>
-                                {t('themeSummer')}
-                            </p>
-                        </div>
-                        <button 
+                    <div className="flex items-center justify-between gap-2">
+                        <button
                             onClick={() => {
-                                setSearchTerm(t('themeSummer'));
+                                setSearchTerm(t(weeklyThemeKey));
                                 window.scrollTo({ top: 0, behavior: 'smooth' });
                             }}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-white rounded-lg text-[10px] font-bold text-orange-600 border border-orange-200 shadow-sm hover:bg-orange-50 active:scale-95 transition-all"
+                            className="min-w-0"
+                            style={{ textAlign: 'left', flex: 1 }}
                         >
-                            <Search size={12} />
-                            見る
+                            <div className="flex items-center gap-1" style={{ marginBottom: '4px' }}>
+                                <span style={{ fontSize: '14px' }}>🎯</span>
+                                <span style={{ fontSize: '9px', fontWeight: '700', color: '#ea580c', background: 'rgba(249,115,22,0.12)', padding: '2px 6px', borderRadius: '20px' }}>
+                                    {t('themeOfTheWeek')}
+                                </span>
+                            </div>
+                            <p className="truncate" style={{ fontSize: '14px', fontWeight: '800', color: '#1f2937', letterSpacing: '-0.01em' }}>
+                                {t(weeklyThemeKey)}
+                            </p>
+                        </button>
+                        <button
+                            onClick={() => navigate(`/closet?add=true&theme=${weeklyThemeKey}`)}
+                            className="flex items-center gap-1"
+                            style={{
+                                flexShrink: 0,
+                                padding: '7px 12px',
+                                borderRadius: '10px',
+                                background: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)',
+                                color: 'white',
+                                fontSize: '10px',
+                                fontWeight: '700',
+                                boxShadow: '0 2px 6px rgba(236,72,153,0.25)'
+                            }}
+                        >
+                            <Camera size={12} />
+                            {t('themeJoinButton')}
                         </button>
                     </div>
                 </div>

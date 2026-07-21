@@ -5,6 +5,7 @@ import { Plus, Globe, LogIn, Sparkles, Settings, Pencil, Users } from 'lucide-re
 import { Link, useNavigate } from 'react-router-dom';
 import { collectionGroup, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { getWeeklyThemeKey } from '../utils/weeklyTheme';
 
 // Helper to get country flag from location string
 const getLocationFlag = (location) => {
@@ -56,9 +57,11 @@ const Home = () => {
     const { plushies, t, toggleLanguage, language, plushieLimit, canAddPlushie, userAddedPlushieCount } = useApp();
     const { currentUser } = useAuth();
     const navigate = useNavigate();
+    const weeklyThemeKey = getWeeklyThemeKey();
 
     // Gallery Latest Feed
     const [latestPosts, setLatestPosts] = useState([]);
+    const [trendingPatterns, setTrendingPatterns] = useState([]);
 
     useEffect(() => {
         const fetchLatest = async () => {
@@ -77,18 +80,23 @@ const Home = () => {
                         // Filter out items without any identification (at least userId or userName should exist)
                         if (!data.userName && !data.userIcon && !data.userId) return;
 
+                        const ownerUid = doc.ref.parent.parent.id;
                         items.push({
                             id: doc.id,
+                            compositeId: `${ownerUid}_${doc.id}`.replace(/local-/g, ''),
                             userName: data.userName || t('guestUser'),
                             itemName: data.itemName || data.name || t('clothing'),
                             createdAt: data.createdAt || '',
                             userIcon: data.userIcon || '',
                             plushieName: data.plushieName || '',
                             location: data.location || '',
-                            userId: data.userId,
+                            userId: data.userId || ownerUid,
                             imageUrl: data.imageUrl || data.image || '',
                             patternImage: data.patternImage || null,
-                            referenceUrl: data.referenceUrl || null
+                            referenceUrl: data.referenceUrl || null,
+                            isPattern: !!data.isPattern,
+                            referencedPostId: data.referencedPostId || '',
+                            likes: Number(data.likes) || 0,
                         });
                     } catch (e) { /* skip */ }
                 });
@@ -119,6 +127,19 @@ const Home = () => {
                 const validItems = uniqueItems.filter(item => item.userName !== '誰か');
 
                 setLatestPosts(validItems.slice(0, 6));
+
+                // Trending Patterns: rank patterns by how many other posts were made from them
+                const remixCounts = {};
+                validItems.forEach(item => {
+                    if (item.referencedPostId) {
+                        remixCounts[item.referencedPostId] = (remixCounts[item.referencedPostId] || 0) + 1;
+                    }
+                });
+                const patternCandidates = validItems
+                    .filter(item => (item.isPattern || item.patternImage) && item.imageUrl)
+                    .map(item => ({ ...item, madeCount: remixCounts[item.compositeId] || 0 }))
+                    .sort((a, b) => (b.madeCount - a.madeCount) || (b.likes - a.likes) || (getTime(b.createdAt) - getTime(a.createdAt)));
+                setTrendingPatterns(patternCandidates.slice(0, 6));
 
                 // Fetch latest user profiles for these items
                 const topItems = validItems.slice(0, 6);
@@ -225,6 +246,45 @@ const Home = () => {
                     </Link>
                 </div>
             </header>
+
+            {/* Weekly Theme Challenge Banner */}
+            <Link
+                to={currentUser ? `/closet?add=true&theme=${weeklyThemeKey}` : '/login'}
+                className="block mb-4 hover-scale"
+                style={{
+                    borderRadius: '20px',
+                    padding: '12px',
+                    background: 'linear-gradient(135deg, #fffaf0 0%, #fff1f2 100%)',
+                    border: '1px solid rgba(249,115,22,0.15)',
+                    boxShadow: '0 4px 12px rgba(249, 115, 22, 0.08)'
+                }}
+            >
+                <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-1" style={{ marginBottom: '4px' }}>
+                            <span style={{ fontSize: '14px' }}>🎯</span>
+                            <span style={{ fontSize: '9px', fontWeight: '700', color: '#ea580c', background: 'rgba(249,115,22,0.12)', padding: '2px 6px', borderRadius: '20px' }}>
+                                {t('themeOfTheWeek')}
+                            </span>
+                        </div>
+                        <p className="truncate" style={{ fontSize: '14px', fontWeight: '800', color: 'var(--text-main)', letterSpacing: '-0.01em' }}>
+                            {t(weeklyThemeKey)}
+                        </p>
+                    </div>
+                    <span className="flex items-center" style={{
+                        flexShrink: 0,
+                        padding: '7px 12px',
+                        borderRadius: '10px',
+                        background: 'linear-gradient(135deg, #f97316 0%, #ec4899 100%)',
+                        color: 'white',
+                        fontSize: '10px',
+                        fontWeight: '700',
+                        boxShadow: '0 2px 6px rgba(236,72,153,0.25)'
+                    }}>
+                        {t('themeJoinButton')}
+                    </span>
+                </div>
+            </Link>
 
             {/* Sync Data Banner (Deployed Version) */}
             {!currentUser && (
@@ -469,7 +529,45 @@ const Home = () => {
                 </section>
             )}
 
+            {/* Trending Patterns */}
+            {trendingPatterns.length > 0 && (
+                <section className="mb-4">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                        <h3 style={{ fontSize: '13px', fontWeight: '700', color: 'var(--text-main)' }}>
+                            {t('homePatternTitle')}
+                        </h3>
+                        <Link to="/gallery" style={{ fontSize: '10px', fontWeight: '600', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '2px' }}>
+                            {t('homePatternMore')} <span>→</span>
+                        </Link>
+                    </div>
+                    <p style={{ fontSize: '10px', color: 'var(--text-light)', marginBottom: '10px' }}>{t('homePatternDesc')}</p>
 
+                    <div style={{ display: 'flex', gap: '10px', overflowX: 'auto', paddingBottom: '4px' }}>
+                        {trendingPatterns.map(p => (
+                            <Link
+                                key={p.compositeId}
+                                to={`/lookbook/${p.compositeId}`}
+                                style={{
+                                    flex: '0 0 118px',
+                                    background: 'white',
+                                    borderRadius: '14px',
+                                    overflow: 'hidden',
+                                    border: '1px solid var(--gray-200)',
+                                    boxShadow: '0 4px 12px rgba(0,0,0,0.04)'
+                                }}
+                            >
+                                <div style={{ width: '118px', height: '118px', background: 'var(--gray-50)' }}>
+                                    <img src={p.imageUrl} alt={p.itemName} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                </div>
+                                <div style={{ padding: '8px' }}>
+                                    <p className="truncate" style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-main)' }}>{p.itemName}</p>
+                                    <p style={{ fontSize: '9px', fontWeight: '800', color: '#ea580c', marginTop: '2px' }}>{t('patternCardMadeCount', p.madeCount)}</p>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </section>
+            )}
 
             {/* Featured Plushie Card */}
             <section>

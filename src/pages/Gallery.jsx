@@ -97,7 +97,7 @@ const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSen
 
 const Gallery = () => {
     const { currentUser } = useAuth();
-    const { t, language, plushies = [], updateClosetItem } = useApp();
+    const { t, language, plushies = [], updateClosetItem, deleteClosetItem } = useApp();
     const navigate = useNavigate();
     const weeklyThemeKey = getWeeklyThemeKey();
 
@@ -1135,6 +1135,22 @@ const Gallery = () => {
                                         >
                                             <Edit2 size={16} />
                                             <span>{t('editItemLabel')}</span>
+                                        </button>
+                                    )}
+
+                                    {currentUser?.uid === selectedItem.userId && (
+                                        <button
+                                            onClick={async () => {
+                                                if (!window.confirm(t('deleteConfirm'))) return;
+                                                const bareId = selectedItem.id.toString().replace('local-', '');
+                                                await deleteClosetItem(bareId);
+                                                setPublicItems(prev => prev.filter(item => item.id !== selectedItem.id));
+                                                setSelectedItem(null);
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 transition-all active:scale-95 shadow-sm"
+                                        >
+                                            <Trash2 size={16} />
+                                            <span>{t('deleteLabel')}</span>
                                         </button>
                                     )}
 

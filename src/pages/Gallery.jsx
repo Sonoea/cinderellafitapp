@@ -186,6 +186,7 @@ const Gallery = () => {
                             itemName: data.itemName || data.name || t('untitled'),
                             plushieName: data.plushieName || data.plushie || '',
                             plushieHeight: Number(data.plushieHeight) || 0,
+                            plushieImage: data.plushieImage || '',
                             userName: data.userName || null,
                             userIcon: data.userIcon || '',
                             purchaseType: data.purchaseType || '',
@@ -935,9 +936,9 @@ const Gallery = () => {
                                         <div className="flex items-center gap-1.5 overflow-hidden flex-1">
                                             <div className="relative flex-shrink-0">
                                                 <UserAvatar
-                                                    src={post.userIcon}
+                                                    src={post.plushieImage || post.userIcon}
                                                     className="w-7 h-7"
-                                                    alt={post.userName}
+                                                    alt={post.plushieName || post.userName}
                                                     onClick={post.profileSlug ? () => navigate(`/gallery/${post.profileSlug}`) : undefined}
                                                 />
                                                 {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-1 ring-white shadow-sm"><Star size={7} className="text-white fill-white" /></div>}
@@ -1079,7 +1080,7 @@ const Gallery = () => {
 
                                 {/* User info */}
                                 <div className="flex items-center gap-3 pt-2 border-t border-gray-50">
-                                    <UserAvatar src={selectedItem.userIcon} className="w-10 h-10 shadow-sm" alt={selectedItem.userName} />
+                                    <UserAvatar src={selectedItem.plushieImage || selectedItem.userIcon} className="w-10 h-10 shadow-sm" alt={selectedItem.plushieName || selectedItem.userName} />
                                     <div>
                                         <p className="font-bold text-gray-800 leading-none mb-1">
                                             {selectedItem.profileSlug ? (

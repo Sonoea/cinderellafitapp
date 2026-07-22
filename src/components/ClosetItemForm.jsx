@@ -135,7 +135,8 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                 image,
                 ...formData,
                 plushieName: selectedPlushie ? selectedPlushie.name : t('notSet'),
-                plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0
+                plushieHeight: selectedPlushie && selectedPlushie.measurements ? selectedPlushie.measurements.height : 0,
+                plushieImage: selectedPlushie ? selectedPlushie.image : ''
             });
         } catch (error) {
             console.error("Error during save:", error);
@@ -209,33 +210,6 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                             {!currentUser && (
                                 <p className="text-[10px] text-red-500 font-bold text-center">※ {t('loginToShare')}</p>
                             )}
-
-                            {/* Quick Save Button */}
-                            <button
-                                onClick={handleSaveWrapper}
-                                disabled={isSaving}
-                                style={{
-                                    width: '100%',
-                                    backgroundColor: isSaving ? '#E5E7EB' : '#3D7A7F',
-                                    color: isSaving ? '#9CA3AF' : '#FFFFFF',
-                                    fontWeight: 'bold',
-                                    padding: '16px',
-                                    borderRadius: '16px',
-                                    fontSize: '18px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '8px',
-                                    boxShadow: isSaving ? 'none' : '0 8px 24px rgba(61, 122, 127, 0.25)',
-                                    cursor: isSaving ? 'not-allowed' : 'pointer',
-                                    transition: 'all 0.2s',
-                                    opacity: isSaving ? 0.7 : 1,
-                                    border: 'none'
-                                }}
-                            >
-                                <span style={{ fontSize: '24px' }}>{isSaving ? '⏳' : '✨'}</span>
-                                <span>{isSaving ? t('saving') : t('saveToCloset')}</span>
-                            </button>
 
                             {/* Expand Details Accordion */}
                             <button
@@ -798,12 +772,12 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                 </div>
             </div>
 
-            {/* Footer - only shown when details open and no image yet */}
-            {!image && (
-                <div className="modal-footer-fixed p-4 pb-4" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.05)' }}>
+            {/* Sticky Footer Save Button */}
+            <div className="modal-footer-fixed p-4 pb-4" style={{ boxShadow: '0 -4px 20px rgba(0,0,0,0.08)' }}>
+                {!image ? (
                     <button
                         onClick={handleSaveWrapper}
-                        disabled={!image || isSaving}
+                        disabled={true}
                         style={{
                             width: '100%',
                             backgroundColor: '#E5E7EB',
@@ -825,8 +799,34 @@ const ClosetItemForm = ({ plushies, initialPlushieId, t, fitLabels, onSave, onCa
                         <span style={{ fontSize: '24px' }}>📷</span>
                         <span>{t('choosePhotoFirst')}</span>
                     </button>
-                </div>
-            )}
+                ) : (
+                    <button
+                        onClick={handleSaveWrapper}
+                        disabled={isSaving}
+                        style={{
+                            width: '100%',
+                            backgroundColor: isSaving ? '#E5E7EB' : '#3D7A7F',
+                            color: isSaving ? '#9CA3AF' : '#FFFFFF',
+                            fontWeight: 'bold',
+                            padding: '16px',
+                            borderRadius: '16px',
+                            fontSize: '18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '8px',
+                            boxShadow: isSaving ? 'none' : '0 8px 24px rgba(61, 122, 127, 0.25)',
+                            cursor: isSaving ? 'not-allowed' : 'pointer',
+                            transition: 'all 0.2s',
+                            opacity: isSaving ? 0.7 : 1,
+                            border: 'none'
+                        }}
+                    >
+                        <span style={{ fontSize: '24px' }}>{isSaving ? '⏳' : '✨'}</span>
+                        <span>{isSaving ? t('saving') : t('saveToCloset')}</span>
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

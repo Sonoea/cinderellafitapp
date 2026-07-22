@@ -89,6 +89,7 @@ const Home = () => {
                             createdAt: data.createdAt || '',
                             userIcon: data.userIcon || '',
                             plushieName: data.plushieName || '',
+                            plushieImage: data.plushieImage || '',
                             location: data.location || '',
                             userId: data.userId || ownerUid,
                             imageUrl: data.imageUrl || data.image || '',
@@ -456,8 +457,11 @@ const Home = () => {
                                 }}>
                                     {/* Flap center line */}
                                     <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--gray-100)' }} />
-                                    {post.userIcon && !post.userIcon.includes('placeholder') ? (
-                                        <img src={post.userIcon} alt="" style={{ width: '16px', height: '16px', borderRadius: '3px', objectFit: 'cover', flexShrink: 0, position: 'relative', zIndex: 1 }} />
+                                    {(() => {
+                                        const icon = post.plushieImage || post.userIcon;
+                                        return icon && !icon.includes('placeholder');
+                                    })() ? (
+                                        <img src={post.plushieImage || post.userIcon} alt="" style={{ width: '16px', height: '16px', borderRadius: '3px', objectFit: 'cover', flexShrink: 0, position: 'relative', zIndex: 1 }} />
                                     ) : (
                                         <div style={{ width: '16px', height: '16px', borderRadius: '3px', background: 'var(--gray-100)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, position: 'relative', zIndex: 1 }}>
                                             <Users size={9} style={{ color: 'var(--text-light)' }} />

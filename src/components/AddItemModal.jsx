@@ -31,20 +31,18 @@ const AddItemModal = ({ onClose, onSave, plushies, initialPlushieId, t, fitLabel
                     </div>
 
                     {/* Reused Form */}
-                    <div className="modal-content-wrapper">
-                        <ClosetItemForm
-                            plushies={plushies}
-                            initialPlushieId={initialPlushieId}
-                            t={t}
-                            fitLabels={fitLabels}
-                            initialRefCompositeId={initialRefCompositeId}
-                            initialTheme={initialTheme}
-                            onSave={(item) => {
-                                onSave(item);
-                                onClose();
-                            }}
-                        />
-                    </div>
+                    <ClosetItemForm
+                        plushies={plushies}
+                        initialPlushieId={initialPlushieId}
+                        t={t}
+                        fitLabels={fitLabels}
+                        initialRefCompositeId={initialRefCompositeId}
+                        initialTheme={initialTheme}
+                        onSave={(item) => {
+                            onSave(item);
+                            onClose();
+                        }}
+                    />
                 </div>
             </div>
         </Portal>

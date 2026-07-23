@@ -112,6 +112,7 @@ a {
 /* Desktop: Make container look like a phone */
 @media (min-width: 520px) {
   .container {
+    max-width: 640px;
     min-height: calc(100vh - 40px);
     margin: 20px auto;
     border-radius: 32px;

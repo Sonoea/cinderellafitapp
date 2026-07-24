@@ -47,12 +47,31 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                             </span>
                         </div>
 
-                        {/* Floor line */}
-                        <div style={{ position: 'absolute', bottom: '54px', left: 0, right: 0, height: '2px', background: 'rgba(255,255,255,0.15)' }} />
+                        {/* Floor line + reflective sheen */}
+                        <div style={{ position: 'absolute', bottom: '54px', left: 0, right: 0, height: '2px', background: 'rgba(255,255,255,0.25)' }} />
                         <div style={{
                             position: 'absolute', bottom: 0, left: 0, right: 0, height: '54px',
-                            background: 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%)'
+                            background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)'
                         }} />
+
+                        {/* Grounding shadow — tracks the same horizontal path but stays flat on
+                            the floor, so the figure reads as walking ON the stage instead of
+                            floating in front of it */}
+                        <div
+                            key={`shadow-${replayKey}`}
+                            style={{
+                                position: 'absolute',
+                                bottom: '46px',
+                                width: '130px',
+                                height: '20px',
+                                animation: 'runwayTransitX 4.5s linear forwards',
+                            }}
+                        >
+                            <div style={{
+                                width: '70%', height: '100%', margin: '0 auto',
+                                background: 'radial-gradient(ellipse, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.15) 45%, transparent 75%)',
+                            }} />
+                        </div>
 
                         {/* Walking plushie */}
                         <div
@@ -63,7 +82,7 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                                 bottom: '58px',
                                 width: '130px',
                                 height: '130px',
-                                animation: 'runwayTransitX 4.5s linear forwards, runwayBounce 0.45s ease-in-out infinite',
+                                animation: 'runwayTransitX 4.5s linear forwards, runwayBounce 0.4s ease-in-out infinite',
                             }}
                         >
                             <img
@@ -71,7 +90,7 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                                 alt={itemName || plushieName || ''}
                                 style={{
                                     width: '100%', height: '100%', objectFit: 'contain',
-                                    filter: 'drop-shadow(0 14px 10px rgba(0,0,0,0.45))'
+                                    filter: 'drop-shadow(0 6px 6px rgba(0,0,0,0.35))'
                                 }}
                             />
                         </div>
@@ -110,8 +129,8 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                     to { left: 62%; }
                 }
                 @keyframes runwayBounce {
-                    0%, 100% { transform: translateY(0) rotate(-4deg); }
-                    50% { transform: translateY(-16px) rotate(4deg); }
+                    0%, 100% { transform: translateY(0) rotate(-2deg); }
+                    50% { transform: translateY(-10px) rotate(2deg); }
                 }
             `}</style>
         </Portal>

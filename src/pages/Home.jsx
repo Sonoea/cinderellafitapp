@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { collectionGroup, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { getWeeklyThemeKey } from '../utils/weeklyTheme';
+import RunwayShowcase from '../components/RunwayShowcase';
 
 // Helper to get country flag from location string
 const getLocationFlag = (location) => {
@@ -364,6 +365,17 @@ const Home = () => {
                         <div style={{ color: 'var(--gray-300)', fontSize: '14px' }}>→</div>
                     </div>
                 </Link>
+            )}
+
+            {/* New Arrivals Runway — auto-advancing showcase of the 5 latest posts */}
+            {latestPosts.filter(p => p.imageUrl).length > 0 && (
+                <section className="mb-4">
+                    <RunwayShowcase
+                        items={latestPosts.filter(p => p.imageUrl).slice(0, 5)}
+                        t={t}
+                        onItemClick={(item) => navigate('/gallery')}
+                    />
+                </section>
             )}
 
             {/* みんなの最新コーデ — Split-Flap Display */}

@@ -622,6 +622,7 @@ export const translations = {
         runwayButton: "🚶 Walk the runway",
         runwayTitle: "Runway Debut",
         runwayReplay: "Replay",
+        runwayShowcaseTitle: "New Arrivals Runway",
 
         // Weekly Theme Challenge
         themeOfTheWeek: "This Week's Theme",
@@ -1283,6 +1284,7 @@ export const translations = {
         runwayButton: "🚶 ランウェイを歩く",
         runwayTitle: "ランウェイデビュー",
         runwayReplay: "もう一度",
+        runwayShowcaseTitle: "新着ランウェイ",
 
         // Weekly Theme Challenge
         themeOfTheWeek: "今週のテーマ",

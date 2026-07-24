@@ -11,7 +11,7 @@ import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
 import { getWeeklyThemeKey } from '../utils/weeklyTheme';
 import { detectThemeFromComment } from '../utils/magazineThemeStyles';
-import MagazineView from '../components/MagazineView';
+import MagazineCoverHero from '../components/MagazineCoverHero';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
     const [error, setError] = useState(!src || src.includes('placeholder'));
@@ -134,7 +134,6 @@ const Gallery = ({ embedded = false } = {}) => {
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
-    const [showMagazine, setShowMagazine] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState({ name: '', location: '', comment: '', url: '', url2: '', url3: '' });
     const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
@@ -1064,7 +1063,20 @@ const Gallery = ({ embedded = false } = {}) => {
     
                             <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '160px' }}>
                             <div className="relative overflow-hidden bg-gray-50 border-b border-gray-100">
-                                <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
+                                {(() => {
+                                    const detectedTheme = detectThemeFromComment(selectedItem.comment);
+                                    return detectedTheme ? (
+                                        <MagazineCoverHero
+                                            imageUrl={selectedItem.imageUrl || selectedItem.image}
+                                            itemName={selectedItem.itemName || selectedItem.name}
+                                            plushieName={selectedItem.plushieName}
+                                            comment={selectedItem.comment}
+                                            themeKey={detectedTheme}
+                                        />
+                                    ) : (
+                                        <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
+                                    );
+                                })()}
                             </div>
 
                             <div className="p-6 sm:p-8 space-y-6">
@@ -1125,15 +1137,6 @@ const Gallery = ({ embedded = false } = {}) => {
                                         <Share2 size={16} />
                                         <span>{isCopying ? t('linkCopied') : t('copyLink')}</span>
                                     </button>
-
-                                    {detectThemeFromComment(selectedItem.comment) && (
-                                        <button
-                                            onClick={() => setShowMagazine(true)}
-                                            className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-gray-900 text-white hover:bg-black transition-all active:scale-95 shadow-sm"
-                                        >
-                                            <span>{t('magazineButton')}</span>
-                                        </button>
-                                    )}
 
                                     {currentUser?.uid === selectedItem.userId && (
                                         <button
@@ -1639,17 +1642,6 @@ const Gallery = ({ embedded = false } = {}) => {
                     </div>
                 </div>
             </Portal>
-        )}
-
-        {showMagazine && selectedItem && (
-            <MagazineView
-                imageUrl={selectedItem.imageUrl || selectedItem.image}
-                itemName={selectedItem.itemName || selectedItem.name}
-                plushieName={selectedItem.plushieName}
-                comment={selectedItem.comment}
-                themeKey={detectThemeFromComment(selectedItem.comment)}
-                onClose={() => setShowMagazine(false)}
-            />
         )}
 
     </div>

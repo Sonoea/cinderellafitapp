@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Camera, Shirt, ShoppingBag, Users, Globe, Bell } from 'lucide-react';
+import { Home, Camera, Shirt, ShoppingBag, Globe, Bell } from 'lucide-react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
@@ -34,11 +34,13 @@ const BottomNav = () => {
     // Hide on fitting room
     if (location.pathname === '/fitting-room') return null;
 
+    // Gallery no longer has its own tab — its browsing/search experience is
+    // embedded directly on Home now, so a separate tab would just show the
+    // same feed again with a different header.
     const navItems = [
         { to: '/', icon: Home, label: t('navHome') },
         { to: '/closet?add=true', icon: Camera, label: t('addNewOutfit') || '登録' },
         { to: '/closet', icon: Shirt, label: t('navCloset') },
-        { to: '/gallery', icon: Users, label: t('navGallery') || (t('language') === 'jp' ? 'ギャラリー' : 'Gallery') },
         { to: '/notifications', icon: Bell, label: t('navNotifications') || 'お知らせ' },
     ];
 

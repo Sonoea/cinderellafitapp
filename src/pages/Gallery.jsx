@@ -95,7 +95,7 @@ const ExpandableText = ({ text, maxLength = 90, onHashtagClick, showOnlyFirstSen
     );
 };
 
-const Gallery = () => {
+const Gallery = ({ embedded = false } = {}) => {
     const { currentUser } = useAuth();
     const { t, language, plushies = [], updateClosetItem, deleteClosetItem } = useApp();
     const navigate = useNavigate();
@@ -712,6 +712,7 @@ const Gallery = () => {
             </Helmet>
             {/* Header */}
             <div className="sticky top-0 bg-background/95 backdrop-blur z-10 pt-4 pb-3 px-4 shadow-sm">
+                {!embedded && (
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="text-2xl font-black flex items-center gap-2">
                         <Users size={22} className="text-primary" />
@@ -724,8 +725,11 @@ const Gallery = () => {
                         </Link>
                     )}
                 </div>
+                )}
 
-                {/* Weekly Theme Banner (Gallery) */}
+                {/* Weekly Theme Banner (Gallery) — hidden when embedded in Home,
+                    which already shows its own copy of this banner up top */}
+                {!embedded && (
                 <div className="mb-3" style={{
                     borderRadius: '20px',
                     padding: '12px',
@@ -771,6 +775,7 @@ const Gallery = () => {
                         </button>
                     </div>
                 </div>
+                )}
 
                 {/* Search & Filters */}
                 <div className="space-y-3">

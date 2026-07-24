@@ -30,7 +30,7 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
 
                     <div style={{
                         position: 'relative',
-                        height: '340px',
+                        height: '260px',
                         overflow: 'hidden',
                         borderRadius: '24px',
                         background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%)',

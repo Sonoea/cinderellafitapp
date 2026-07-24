@@ -26,7 +26,7 @@ const RunwayShowcase = ({ items, t, onItemClick }) => {
     return (
         <div style={{
             position: 'relative',
-            height: '220px',
+            height: '170px',
             overflow: 'hidden',
             borderRadius: '20px',
             background: 'linear-gradient(180deg, #1a1a2e 0%, #16213e 55%, #0f3460 100%)',

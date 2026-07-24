@@ -13,6 +13,7 @@ import Settings from './pages/Settings';
 import Login from './pages/Login';
 import Guide from './pages/Guide';
 import Gallery from './pages/Gallery';
+import MyPlushies from './pages/MyPlushies';
 import UserProfile from './pages/UserProfile';
 import Lookbook from './pages/Lookbook';
 import Notifications from './pages/Notifications';
@@ -37,6 +38,11 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/measure" element={<Measure />} />
+                <Route path="/plushies" element={
+                  <ErrorBoundary>
+                    <MyPlushies />
+                  </ErrorBoundary>
+                } />
                 <Route path="/closet" element={
                   <ErrorBoundary>
                     <Suspense fallback={<LoadingFallback />}>

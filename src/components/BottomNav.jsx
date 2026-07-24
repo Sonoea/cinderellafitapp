@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Home, Camera, Shirt, ShoppingBag, Globe, Bell } from 'lucide-react';
+import { Home, Camera, Shirt, ShoppingBag, Globe, Bell, PawPrint } from 'lucide-react';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
@@ -36,11 +36,13 @@ const BottomNav = () => {
 
     // Gallery no longer has its own tab — its browsing/search experience is
     // embedded directly on Home now, so a separate tab would just show the
-    // same feed again with a different header.
+    // same feed again with a different header. My Plushies took the freed-up
+    // slot instead, since stacking it on Home made that page too crowded.
     const navItems = [
         { to: '/', icon: Home, label: t('navHome') },
         { to: '/closet?add=true', icon: Camera, label: t('addNewOutfit') || '登録' },
         { to: '/closet', icon: Shirt, label: t('navCloset') },
+        { to: '/plushies', icon: PawPrint, label: t('myFriends') },
         { to: '/notifications', icon: Bell, label: t('navNotifications') || 'お知らせ' },
     ];
 

@@ -1070,7 +1070,6 @@ const Gallery = ({ embedded = false } = {}) => {
                                             imageUrl={selectedItem.imageUrl || selectedItem.image}
                                             itemName={selectedItem.itemName || selectedItem.name}
                                             plushieName={selectedItem.plushieName}
-                                            comment={selectedItem.comment}
                                             themeKey={detectedTheme}
                                         />
                                     ) : (

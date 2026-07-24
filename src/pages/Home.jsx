@@ -184,13 +184,11 @@ const Home = () => {
                 </Link>
             )}
 
-            {/* Gallery — the main browsing/search experience now lives directly on
-                Home instead of a separate tab, so there's one screen instead of two
-                that show mostly the same feed. */}
-            <Gallery embedded />
-
-            {/* Featured Plushie Card */}
-            <section>
+            {/* Featured Plushie Card — kept above the Gallery feed (not below
+                it) since adding/managing your own plushie is core setup, not
+                something that should require scrolling past the whole
+                community feed to reach. */}
+            <section className="mb-4">
                 <div className="flex justify-between items-end mb-2">
                     <div>
                         <h3>{t('myFriends')}</h3>
@@ -300,6 +298,11 @@ const Home = () => {
                     )}
                 </div>
             </section>
+
+            {/* Gallery — the main browsing/search experience now lives directly on
+                Home instead of a separate tab, so there's one screen instead of two
+                that show mostly the same feed. */}
+            <Gallery embedded />
 
             {/* Footer with Legal Links */}
             <footer className="mt-8 pb-48 text-center">

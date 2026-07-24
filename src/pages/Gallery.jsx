@@ -7,6 +7,7 @@ import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2, Plus, Scissors, Camera } from 'lucide-react';
 import Portal from '../components/Portal';
+import RunwayView from '../components/RunwayView';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
 import { getWeeklyThemeKey } from '../utils/weeklyTheme';
@@ -132,6 +133,7 @@ const Gallery = () => {
     // Detail modal
     const [selectedItem, setSelectedItem] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
+    const [showRunway, setShowRunway] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [editData, setEditData] = useState({ name: '', location: '', comment: '', url: '', url2: '', url3: '' });
     const [shouldScrollToComments, setShouldScrollToComments] = useState(false);
@@ -1118,6 +1120,13 @@ const Gallery = () => {
                                         <span>{isCopying ? t('linkCopied') : t('copyLink')}</span>
                                     </button>
 
+                                    <button
+                                        onClick={() => setShowRunway(true)}
+                                        className="flex items-center gap-2 px-4 py-2.5 rounded-full font-bold text-xs bg-gray-900 text-white hover:bg-black transition-all active:scale-95 shadow-sm"
+                                    >
+                                        <span>{t('runwayButton')}</span>
+                                    </button>
+
                                     {currentUser?.uid === selectedItem.userId && (
                                         <button
                                             onClick={() => {
@@ -1622,6 +1631,16 @@ const Gallery = () => {
                     </div>
                 </div>
             </Portal>
+        )}
+
+        {showRunway && selectedItem && (
+            <RunwayView
+                imageUrl={selectedItem.imageUrl || selectedItem.image}
+                itemName={selectedItem.itemName || selectedItem.name}
+                plushieName={selectedItem.plushieName}
+                onClose={() => setShowRunway(false)}
+                t={t}
+            />
         )}
 
     </div>

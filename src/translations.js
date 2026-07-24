@@ -619,7 +619,10 @@ export const translations = {
         postCompleteViewGallery: "View in Gallery",
         postCompleteContinue: "Continue",
         quickPostExpand: "Add more details",
-        
+        runwayButton: "🚶 Walk the runway",
+        runwayTitle: "Runway Debut",
+        runwayReplay: "Replay",
+
         // Weekly Theme Challenge
         themeOfTheWeek: "This Week's Theme",
         themeChallenge: "Theme Challenge",
@@ -1277,6 +1280,9 @@ export const translations = {
         postCompleteViewGallery: "ギャラリーで見る",
         postCompleteContinue: "続ける",
         quickPostExpand: "もっと詳しく入力する",
+        runwayButton: "🚶 ランウェイを歩く",
+        runwayTitle: "ランウェイデビュー",
+        runwayReplay: "もう一度",
 
         // Weekly Theme Challenge
         themeOfTheWeek: "今週のテーマ",

@@ -10,8 +10,8 @@ import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
 import { getWeeklyThemeKey } from '../utils/weeklyTheme';
-import { detectThemeFromComment } from '../utils/magazineThemeStyles';
-import MagazineCoverHero from '../components/MagazineCoverHero';
+import { detectThemeFromComment } from '../utils/themeBadgeStyles';
+import ThemeBadge from '../components/ThemeBadge';
 
 const UserAvatar = ({ src, alt, className, onClick, style }) => {
     const [error, setError] = useState(!src || src.includes('placeholder'));
@@ -936,7 +936,10 @@ const Gallery = ({ embedded = false } = {}) => {
                 ) : (
                     <>
                         <div className="grid grid-cols-2 gap-3 mb-8 fade-in">
-                            {visibleItems.map((post) => (
+                            {visibleItems.map((post) => {
+                                const postTheme = detectThemeFromComment(post.comment);
+                                const hasPattern = post.patternImage || post.referenceUrl;
+                                return (
                                 <div key={post.compositeId} className={`bg-white rounded-xl shadow-sm overflow-hidden ${post.isOwn ? 'border-2 border-primary/30 ring-1 ring-primary/10' : 'border border-gray-100'} flex flex-col h-full`}>
                                     {/* Header */}
                                     <div className="p-2 flex items-center justify-between h-[52px] overflow-hidden">
@@ -989,8 +992,14 @@ const Gallery = ({ embedded = false } = {}) => {
                                             </div>
                                         </div>
 
-                                        {(post.patternImage || post.referenceUrl) && (
-                                            <div className="absolute animate-bounce-subtle" style={{ top: 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
+                                        {postTheme && (
+                                            <div className="absolute" style={{ top: 6, right: 6, zIndex: 11 }}>
+                                                <ThemeBadge themeKey={postTheme} size={32} />
+                                            </div>
+                                        )}
+
+                                        {hasPattern && (
+                                            <div className="absolute animate-bounce-subtle" style={{ top: postTheme ? 42 : 6, right: 6, background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 12px rgba(234, 88, 12, 0.4)', color: '#fff', fontSize: '9px', fontBasis: 'bold', padding: '3px 8px', borderRadius: '8px', zIndex: 10, border: '1px solid rgba(255,255,255,0.3)' }}>
                                                 {t('hasPattern')}
                                             </div>
                                         )}
@@ -1025,7 +1034,8 @@ const Gallery = ({ embedded = false } = {}) => {
                                         )}
                                     </div>
                                 </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
                         {hasMore && (
@@ -1063,18 +1073,14 @@ const Gallery = ({ embedded = false } = {}) => {
     
                             <div style={{ overflowY: 'auto', flex: 1, WebkitOverflowScrolling: 'touch', paddingBottom: '160px' }}>
                             <div className="relative overflow-hidden bg-gray-50 border-b border-gray-100">
+                                <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
                                 {(() => {
                                     const detectedTheme = detectThemeFromComment(selectedItem.comment);
                                     return detectedTheme ? (
-                                        <MagazineCoverHero
-                                            imageUrl={selectedItem.imageUrl || selectedItem.image}
-                                            itemName={selectedItem.itemName || selectedItem.name}
-                                            plushieName={selectedItem.plushieName}
-                                            themeKey={detectedTheme}
-                                        />
-                                    ) : (
-                                        <img src={selectedItem.imageUrl || selectedItem.image} alt="" className="w-full aspect-square object-cover" />
-                                    );
+                                        <div className="absolute" style={{ top: 12, right: 12 }}>
+                                            <ThemeBadge themeKey={detectedTheme} size={48} />
+                                        </div>
+                                    ) : null;
                                 })()}
                             </div>
 

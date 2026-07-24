@@ -40,6 +40,23 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                         <div style={{ position: 'absolute', top: 0, left: '10%', width: '160px', height: '100%', background: 'radial-gradient(ellipse at top, rgba(255,255,255,0.18), transparent 70%)' }} />
                         <div style={{ position: 'absolute', top: 0, left: '55%', width: '160px', height: '100%', background: 'radial-gradient(ellipse at top, rgba(255,255,255,0.14), transparent 70%)' }} />
 
+                        {/* Paparazzi flashes — sells "this is a big event" far more than a
+                            static dark box does. Staggered delays so they pop unpredictably. */}
+                        {[
+                            { top: '18%', left: '20%', delay: '0.4s' },
+                            { top: '30%', left: '78%', delay: '1.3s' },
+                            { top: '15%', left: '55%', delay: '2.1s' },
+                            { top: '35%', left: '35%', delay: '2.9s' },
+                            { top: '20%', left: '88%', delay: '3.7s' },
+                        ].map((f, i) => (
+                            <div key={i} style={{
+                                position: 'absolute', top: f.top, left: f.left,
+                                width: '10px', height: '10px', borderRadius: '50%',
+                                background: 'white', zIndex: 1,
+                                animation: `paparazziFlash 1.6s ease-out ${f.delay} infinite`,
+                            }} />
+                        ))}
+
                         {/* Title */}
                         <div style={{ position: 'absolute', top: '14px', left: 0, right: 0, textAlign: 'center', zIndex: 2 }}>
                             <span style={{ fontSize: '10px', fontWeight: '800', letterSpacing: '0.15em', color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>
@@ -47,11 +64,15 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                             </span>
                         </div>
 
-                        {/* Floor line + reflective sheen */}
-                        <div style={{ position: 'absolute', bottom: '54px', left: 0, right: 0, height: '2px', background: 'rgba(255,255,255,0.25)' }} />
+                        {/* Red carpet floor */}
                         <div style={{
-                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '54px',
-                            background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, transparent 100%)'
+                            position: 'absolute', bottom: 0, left: 0, right: 0, height: '58px',
+                            background: 'linear-gradient(180deg, #7a0d24 0%, #4a0716 100%)',
+                        }} />
+                        <div style={{ position: 'absolute', bottom: '58px', left: 0, right: 0, height: '3px', background: 'rgba(255,215,150,0.5)' }} />
+                        <div style={{
+                            position: 'absolute', bottom: '58px', left: 0, right: 0, height: '58px',
+                            background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%)'
                         }} />
 
                         {/* Grounding shadow — tracks the same horizontal path but stays flat on
@@ -90,7 +111,10 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                                 alt={itemName || plushieName || ''}
                                 style={{
                                     width: '100%', height: '100%', objectFit: 'contain',
-                                    filter: 'drop-shadow(0 6px 6px rgba(0,0,0,0.35))'
+                                    borderRadius: '50%',
+                                    filter: 'drop-shadow(0 6px 6px rgba(0,0,0,0.35))',
+                                    maskImage: 'radial-gradient(circle, black 60%, transparent 85%)',
+                                    WebkitMaskImage: 'radial-gradient(circle, black 60%, transparent 85%)',
                                 }}
                             />
                         </div>
@@ -131,6 +155,11 @@ const RunwayView = ({ imageUrl, itemName, plushieName, onClose, t }) => {
                 @keyframes runwayBounce {
                     0%, 100% { transform: translateY(0) rotate(-2deg); }
                     50% { transform: translateY(-10px) rotate(2deg); }
+                }
+                @keyframes paparazziFlash {
+                    0%, 88%, 100% { opacity: 0; transform: scale(1); }
+                    90% { opacity: 0.9; transform: scale(2.5); }
+                    94% { opacity: 0; transform: scale(3.5); }
                 }
             `}</style>
         </Portal>

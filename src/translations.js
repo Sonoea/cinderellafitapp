@@ -620,6 +620,10 @@ export const translations = {
         postCompleteContinue: "Continue",
         quickPostExpand: "Add more details",
         
+        // Tansu Hero (latest posts showcase on Home)
+        tansuTitle: "Fresh from the Tansu",
+        tansuSubtitle: "Tap a drawer",
+
         // Weekly Theme Challenge
         themeOfTheWeek: "This Week's Theme",
         themeChallenge: "Theme Challenge",
@@ -1277,6 +1281,10 @@ export const translations = {
         postCompleteViewGallery: "ギャラリーで見る",
         postCompleteContinue: "続ける",
         quickPostExpand: "もっと詳しく入力する",
+
+        // Tansu Hero (latest posts showcase on Home)
+        tansuTitle: "たんすの最新お披露目",
+        tansuSubtitle: "引き出しをタップ",
 
         // Weekly Theme Challenge
         themeOfTheWeek: "今週のテーマ",

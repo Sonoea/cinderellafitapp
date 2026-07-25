@@ -5,6 +5,7 @@ import { Globe, LogIn, Sparkles, Settings, Users } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getWeeklyThemeKey } from '../utils/weeklyTheme';
 import Gallery from './Gallery';
+import TansuHero from '../components/TansuHero';
 
 const Home = () => {
     const { t, toggleLanguage, language } = useApp();
@@ -104,6 +105,10 @@ const Home = () => {
                     </span>
                 </div>
             </Link>
+
+            {/* Tansu Hero — playful showcase of the newest posts, above the
+                plain Gallery grid below */}
+            <TansuHero />
 
             {/* Sync Data Banner (Deployed Version) */}
             {!currentUser && (

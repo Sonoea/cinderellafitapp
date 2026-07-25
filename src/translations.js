@@ -623,7 +623,6 @@ export const translations = {
         // Tansu Hero (latest posts showcase on Home)
         tansuTitle: "Fresh in the Tansu",
         tansuSubtitle: "Tap a drawer",
-        tansuPatternLabel: "New Patterns",
 
         // Weekly Theme Challenge
         themeOfTheWeek: "This Week's Theme",
@@ -1286,7 +1285,6 @@ export const translations = {
         // Tansu Hero (latest posts showcase on Home)
         tansuTitle: "たんすの新着",
         tansuSubtitle: "引き出しをタップ",
-        tansuPatternLabel: "新着型紙",
 
         // Weekly Theme Challenge
         themeOfTheWeek: "今週のテーマ",

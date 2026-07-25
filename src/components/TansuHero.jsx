@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collectionGroup, query, where, getDocs, limit } from 'firebase/firestore';
-import { Scissors } from 'lucide-react';
 import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { detectThemeFromComment } from '../utils/themeBadgeStyles';
+import { getLocationFlag } from '../utils/formatting';
 import ThemeBadge from './ThemeBadge';
 
 // Procedural wood-grain noise (SVG feTurbulence, stretched so the streaks
@@ -92,6 +92,13 @@ const Drawer = ({ item, tilt, compact, onOpen }) => {
                         <ThemeBadge themeKey={theme} size={compact ? 14 : 20} />
                     </div>
                 )}
+                <div style={{
+                    position: 'absolute', bottom: '-4px', left: '-4px',
+                    fontSize: compact ? '11px' : '13px', lineHeight: 1,
+                    filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.5))',
+                }}>
+                    {getLocationFlag(item.location)}
+                </div>
             </div>
             <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: compact ? '9.5px' : '11px', fontWeight: '700', color: '#fbf3e4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -114,14 +121,11 @@ const Drawer = ({ item, tilt, compact, onOpen }) => {
 // sitting above the plain Gallery grid on Home — a more playful front door
 // into the same data, not a separate feed. Drawers open straight into that
 // post's detail view via the existing /gallery/post/:postId deep link that
-// Gallery.jsx already handles. A pattern box sits on top of the cabinet,
-// like an accessory box on a real tansu, showing the newest posts that
-// include a sewing pattern.
+// Gallery.jsx already handles.
 const TansuHero = () => {
     const { t } = useApp();
     const navigate = useNavigate();
     const [latest, setLatest] = useState([]);
-    const [patterns, setPatterns] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -143,8 +147,8 @@ const TansuHero = () => {
                         itemName: data.itemName || data.name || t('untitled'),
                         plushieName: data.plushieName || data.plushie || '',
                         comment: data.comment || '',
+                        location: data.location || '',
                         createdAt: data.createdAt,
-                        hasPattern: !!(data.patternImage || data.referenceUrl || data.isPattern),
                     });
                 });
                 const getTime = (val) => {
@@ -154,10 +158,7 @@ const TansuHero = () => {
                     return isNaN(d.getTime()) ? 0 : d.getTime();
                 };
                 items.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
-                if (!cancelled) {
-                    setLatest(items.slice(0, 5));
-                    setPatterns(items.filter(i => i.hasPattern).slice(0, 5));
-                }
+                if (!cancelled) setLatest(items.slice(0, 5));
             } catch (err) {
                 console.warn('TansuHero: failed to load latest items', err);
             } finally {
@@ -198,46 +199,6 @@ const TansuHero = () => {
                 {/* Corner metal guards (kado-gane) */}
                 <div style={{ position: 'absolute', top: '6px', left: '6px', width: '11px', height: '11px', background: 'linear-gradient(135deg, #4a4a4a, #131110)', clipPath: 'polygon(0 0, 100% 0, 0 100%)', boxShadow: '0 1px 1px rgba(0,0,0,0.5)' }} />
                 <div style={{ position: 'absolute', top: '6px', right: '6px', width: '11px', height: '11px', background: 'linear-gradient(225deg, #4a4a4a, #131110)', clipPath: 'polygon(100% 0, 100% 100%, 0 0)', boxShadow: '0 1px 1px rgba(0,0,0,0.5)' }} />
-
-                {/* Pattern box — a small accessory box sitting on top of the
-                    cabinet, showing the newest posts that include a pattern */}
-                {patterns.length > 0 && (
-                    <div style={{
-                        position: 'relative', overflow: 'hidden',
-                        marginBottom: '12px',
-                        borderRadius: '4px',
-                        background: 'linear-gradient(180deg, #9c6b3a 0%, #7a5226 100%)',
-                        boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.25)',
-                        padding: '8px 8px 7px',
-                    }}>
-                        <Grain opacity={0.3} size="120px 120px" />
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px' }}>
-                            <Scissors size={10} style={{ color: '#f3ead9' }} strokeWidth={2.5} />
-                            <span style={{ fontSize: '9px', fontWeight: '800', color: '#f3ead9', letterSpacing: '0.04em' }}>
-                                {t('tansuPatternLabel')}
-                            </span>
-                        </div>
-                        <div style={{ position: 'relative', display: 'flex', gap: '6px', overflowX: 'auto' }} className="no-scrollbar">
-                            {patterns.map((p) => (
-                                <div
-                                    key={p.compositeId}
-                                    onClick={() => openPost(p.compositeId)}
-                                    style={{
-                                        flexShrink: 0, width: '44px', height: '44px', borderRadius: '5px', overflow: 'hidden',
-                                        cursor: 'pointer',
-                                        backgroundColor: '#fbf6ea',
-                                        backgroundImage: 'linear-gradient(rgba(234,145,80,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(234,145,80,0.25) 1px, transparent 1px)',
-                                        backgroundSize: '6px 6px',
-                                        border: '1px solid #f3d9b8',
-                                        padding: '2px',
-                                    }}
-                                >
-                                    <img src={p.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '3px' }} />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
 
                 {/* Nameplate */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', position: 'relative' }}>

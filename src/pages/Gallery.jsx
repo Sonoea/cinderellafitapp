@@ -782,11 +782,11 @@ const Gallery = ({ embedded = false } = {}) => {
                 {/* Search & Filters */}
                 <div className="space-y-3">
                     <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={19} />
                         <input
                             type="text"
-                            className="w-full bg-gray-50 pl-12 pr-4 py-2.5 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
-                            style={{ paddingLeft: '48px' }}
+                            className="w-full bg-gray-50 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/20 border border-gray-200"
+                            style={{ paddingLeft: '52px', paddingRight: '16px', paddingTop: '13px', paddingBottom: '13px', fontSize: '15px' }}
                             placeholder={t('gallerySearchPlaceholder')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -804,9 +804,10 @@ const Gallery = ({ embedded = false } = {}) => {
                         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                             <button
                                 onClick={() => setSizeFilterPlushieId('all')}
-                                className={`flex-shrink-0 px-4 py-1.5 rounded-full text-[11px] font-bold transition-all border ${sizeFilterPlushieId === 'all'
+                                className={`rounded-full font-bold transition-all border ${sizeFilterPlushieId === 'all'
                                     ? 'bg-gray-800 text-white border-gray-800'
                                     : 'bg-white text-gray-500 border-gray-200'}`}
+                                style={{ padding: '9px 20px', fontSize: '13px', flexShrink: 0, whiteSpace: 'nowrap' }}
                             >
                                 {t('all')}
                             </button>
@@ -814,18 +815,19 @@ const Gallery = ({ embedded = false } = {}) => {
                                 <button
                                     key={p.id}
                                     onClick={() => setSizeFilterPlushieId(String(p.id))}
-                                    className={`flex-shrink-0 pl-1 pr-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${String(sizeFilterPlushieId) === String(p.id)
+                                    className={`rounded-full font-bold flex items-center transition-all border ${String(sizeFilterPlushieId) === String(p.id)
                                         ? 'bg-primary text-white border-primary shadow-sm'
                                         : 'bg-white text-gray-500 border-gray-200'}`}
+                                    style={{ padding: '6px 18px 6px 6px', fontSize: '13px', gap: '8px', flexShrink: 0, whiteSpace: 'nowrap' }}
                                 >
-                                    <div className="w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-gray-100 border border-gray-100">
+                                    <div className="rounded-full overflow-hidden bg-gray-100 border border-gray-100" style={{ width: '28px', height: '28px', flexShrink: 0 }}>
                                         {p.image ? (
                                             <img src={p.image} alt="" className="w-full h-full object-cover" />
                                         ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-[10px]">🧸</div>
+                                            <div className="w-full h-full flex items-center justify-center" style={{ fontSize: '13px' }}>🧸</div>
                                         )}
                                     </div>
-                                    <span className="whitespace-nowrap">{p.name} {t('size')}</span>
+                                    <span>{p.name} {t('size')}</span>
                                 </button>
                             ))}
                         </div>
@@ -840,21 +842,23 @@ const Gallery = ({ embedded = false } = {}) => {
                             <button
                                 key={cat.id}
                                 onClick={() => setFilterCategory(cat.id)}
-                                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterCategory === cat.id
+                                className={`rounded-full font-bold flex items-center transition-all border ${filterCategory === cat.id
                                     ? 'bg-primary text-white border-primary shadow-sm'
                                     : 'bg-white text-gray-400 border-gray-200'}`}
+                                style={{ padding: '9px 16px', fontSize: '13px', gap: '7px', flexShrink: 0, whiteSpace: 'nowrap' }}
                             >
-                                <span>{cat.icon}</span>
-                                <span className="whitespace-nowrap">{cat.label}</span>
+                                <span style={{ fontSize: '14px' }}>{cat.icon}</span>
+                                <span>{cat.label}</span>
                             </button>
                         ))}
                         <button
                             onClick={() => setFilterHasPattern(!filterHasPattern)}
-                            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold flex items-center gap-1.5 transition-all border ${filterHasPattern
+                            className={`rounded-full font-bold flex items-center transition-all border ${filterHasPattern
                                 ? 'bg-accent text-white border-accent shadow-sm'
                                 : 'bg-white text-gray-500 border-gray-200'}`}
+                            style={{ padding: '9px 16px', fontSize: '13px', gap: '7px', flexShrink: 0, whiteSpace: 'nowrap' }}
                         >
-                            <span className="whitespace-nowrap">{t('hasPatternFilter')}</span>
+                            <span>{t('hasPatternFilter')}</span>
                         </button>
                     </div>
                     

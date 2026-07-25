@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collectionGroup, query, where, getDocs, limit } from 'firebase/firestore';
+import { Scissors } from 'lucide-react';
 import { db } from '../firebase/config';
 import { useApp } from '../context/AppContext';
 import { detectThemeFromComment } from '../utils/themeBadgeStyles';
@@ -20,15 +21,107 @@ const WOOD_GRAIN_URI = `data:image/svg+xml;utf8,${encodeURIComponent(
     </svg>`
 )}`;
 
-// A small "tansu" (Japanese chest of drawers) showcase for the newest 5
-// public posts, sitting above the plain Gallery grid on Home — a more
-// playful front door into the same data, not a separate feed. Each drawer
-// opens straight into that post's detail view via the existing
-// /gallery/post/:postId deep link that Gallery.jsx already handles.
+// A round black iron medallion plate ("ja-gane") with a hanging ring pull —
+// the circular hardware real tansu chests wear, rather than a Western
+// side-mounted knob or capsule handle.
+const IronPull = ({ size = 24 }) => (
+    <div style={{
+        position: 'relative', width: `${size}px`, height: `${size}px`, flexShrink: 0,
+        borderRadius: '50%',
+        background: 'radial-gradient(circle at 35% 30%, #565656, #1c1a18 75%)',
+        border: '1px solid #0a0805',
+        boxShadow: '0 2px 3px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.15)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+    }}>
+        <div style={{
+            width: `${Math.round(size * 0.46)}px`, height: `${Math.round(size * 0.46)}px`, borderRadius: '50%',
+            border: '2px solid #d8d2c4', opacity: 0.7,
+        }} />
+    </div>
+);
+
+// Fibrous wood texture layer, meant to be dropped inside any
+// `position: relative; overflow: hidden` wood-toned element.
+const Grain = ({ opacity = 0.5, size = '200px 200px' }) => (
+    <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: `url("${WOOD_GRAIN_URI}")`,
+        backgroundSize: size,
+        mixBlendMode: 'overlay',
+        opacity,
+        pointerEvents: 'none',
+    }} />
+);
+
+// A single drawer face. `compact` is used for the paired (half-width)
+// drawers — a smaller photo/text/pull so two fit side by side without the
+// unnaturally wide single-column bars the first version had.
+const Drawer = ({ item, tilt, compact, onOpen }) => {
+    const theme = detectThemeFromComment(item.comment);
+    return (
+        <div
+            onClick={onOpen}
+            className="hover-scale"
+            style={{
+                position: 'relative', overflow: 'hidden',
+                display: 'flex',
+                alignItems: 'center',
+                gap: compact ? '6px' : '10px',
+                background: 'linear-gradient(180deg, #b8823f 0%, #96692f 55%, #7a5226 100%)',
+                borderRadius: '3px',
+                padding: compact ? '6px' : '7px 10px',
+                cursor: 'pointer',
+                height: '100%',
+                minWidth: 0,
+                boxShadow: [
+                    'inset 0 2px 3px rgba(0,0,0,0.5)',
+                    'inset 0 -2px 2px rgba(0,0,0,0.3)',
+                    'inset 0 1px 0 rgba(255,255,255,0.12)',
+                    '0 3px 5px rgba(0,0,0,0.35)',
+                ].join(', '),
+            }}
+        >
+            <Grain opacity={0.3} size="140px 140px" />
+            <div style={{ position: 'relative', width: compact ? '34px' : '44px', height: compact ? '34px' : '44px', flexShrink: 0, transform: `rotate(${tilt}deg)` }}>
+                <img src={item.imageUrl} alt="" style={{
+                    width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px',
+                    border: '2px solid #f3ead9', boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+                }} />
+                {theme && (
+                    <div style={{ position: 'absolute', top: '-6px', right: '-6px' }}>
+                        <ThemeBadge themeKey={theme} size={compact ? 14 : 20} />
+                    </div>
+                )}
+            </div>
+            <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: compact ? '9.5px' : '11px', fontWeight: '700', color: '#fbf3e4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {item.itemName}
+                </p>
+                {!compact && item.plushieName && (
+                    <p style={{ fontSize: '9px', color: 'rgba(251,243,228,0.6)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {item.plushieName}
+                    </p>
+                )}
+            </div>
+            <div style={{ position: 'relative' }}>
+                <IronPull size={compact ? 18 : 24} />
+            </div>
+        </div>
+    );
+};
+
+// A small "tansu" (Japanese chest of drawers) showcase for the newest posts,
+// sitting above the plain Gallery grid on Home — a more playful front door
+// into the same data, not a separate feed. Drawers open straight into that
+// post's detail view via the existing /gallery/post/:postId deep link that
+// Gallery.jsx already handles. A pattern box sits on top of the cabinet,
+// like an accessory box on a real tansu, showing the newest posts that
+// include a sewing pattern.
 const TansuHero = () => {
     const { t } = useApp();
     const navigate = useNavigate();
     const [latest, setLatest] = useState([]);
+    const [patterns, setPatterns] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -51,6 +144,7 @@ const TansuHero = () => {
                         plushieName: data.plushieName || data.plushie || '',
                         comment: data.comment || '',
                         createdAt: data.createdAt,
+                        hasPattern: !!(data.patternImage || data.referenceUrl || data.isPattern),
                     });
                 });
                 const getTime = (val) => {
@@ -60,7 +154,10 @@ const TansuHero = () => {
                     return isNaN(d.getTime()) ? 0 : d.getTime();
                 };
                 items.sort((a, b) => getTime(b.createdAt) - getTime(a.createdAt));
-                if (!cancelled) setLatest(items.slice(0, 5));
+                if (!cancelled) {
+                    setLatest(items.slice(0, 5));
+                    setPatterns(items.filter(i => i.hasPattern).slice(0, 5));
+                }
             } catch (err) {
                 console.warn('TansuHero: failed to load latest items', err);
             } finally {
@@ -73,38 +170,7 @@ const TansuHero = () => {
     if (!isLoading && latest.length === 0) return null;
 
     const tilts = [-4, 3, -3, 4, -2];
-
-    // A round black iron medallion plate ("ja-gane") with a hanging ring
-    // pull — the circular hardware real tansu chests wear, rather than a
-    // Western side-mounted knob or capsule handle.
-    const IronPull = () => (
-        <div style={{
-            position: 'relative', width: '24px', height: '24px', flexShrink: 0,
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 35% 30%, #565656, #1c1a18 75%)',
-            border: '1px solid #0a0805',
-            boxShadow: '0 2px 3px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.15)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-            <div style={{
-                width: '11px', height: '11px', borderRadius: '50%',
-                border: '2px solid #d8d2c4', opacity: 0.7,
-            }} />
-        </div>
-    );
-
-    // Fibrous wood texture layer, meant to be dropped inside any
-    // `position: relative; overflow: hidden` wood-toned element.
-    const Grain = ({ opacity = 0.5, size = '200px 200px' }) => (
-        <div style={{
-            position: 'absolute', inset: 0,
-            backgroundImage: `url("${WOOD_GRAIN_URI}")`,
-            backgroundSize: size,
-            mixBlendMode: 'overlay',
-            opacity,
-            pointerEvents: 'none',
-        }} />
-    );
+    const openPost = (compositeId) => navigate(`/gallery/post/${compositeId}`);
 
     return (
         <div className="mb-4" style={{ padding: '0 2px 10px' }}>
@@ -133,6 +199,46 @@ const TansuHero = () => {
                 <div style={{ position: 'absolute', top: '6px', left: '6px', width: '11px', height: '11px', background: 'linear-gradient(135deg, #4a4a4a, #131110)', clipPath: 'polygon(0 0, 100% 0, 0 100%)', boxShadow: '0 1px 1px rgba(0,0,0,0.5)' }} />
                 <div style={{ position: 'absolute', top: '6px', right: '6px', width: '11px', height: '11px', background: 'linear-gradient(225deg, #4a4a4a, #131110)', clipPath: 'polygon(100% 0, 100% 100%, 0 0)', boxShadow: '0 1px 1px rgba(0,0,0,0.5)' }} />
 
+                {/* Pattern box — a small accessory box sitting on top of the
+                    cabinet, showing the newest posts that include a pattern */}
+                {patterns.length > 0 && (
+                    <div style={{
+                        position: 'relative', overflow: 'hidden',
+                        marginBottom: '12px',
+                        borderRadius: '4px',
+                        background: 'linear-gradient(180deg, #9c6b3a 0%, #7a5226 100%)',
+                        boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.25)',
+                        padding: '8px 8px 7px',
+                    }}>
+                        <Grain opacity={0.3} size="120px 120px" />
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '6px' }}>
+                            <Scissors size={10} style={{ color: '#f3ead9' }} strokeWidth={2.5} />
+                            <span style={{ fontSize: '9px', fontWeight: '800', color: '#f3ead9', letterSpacing: '0.04em' }}>
+                                {t('tansuPatternLabel')}
+                            </span>
+                        </div>
+                        <div style={{ position: 'relative', display: 'flex', gap: '6px', overflowX: 'auto' }} className="no-scrollbar">
+                            {patterns.map((p) => (
+                                <div
+                                    key={p.compositeId}
+                                    onClick={() => openPost(p.compositeId)}
+                                    style={{
+                                        flexShrink: 0, width: '44px', height: '44px', borderRadius: '5px', overflow: 'hidden',
+                                        cursor: 'pointer',
+                                        backgroundColor: '#fbf6ea',
+                                        backgroundImage: 'linear-gradient(rgba(234,145,80,0.25) 1px, transparent 1px), linear-gradient(90deg, rgba(234,145,80,0.25) 1px, transparent 1px)',
+                                        backgroundSize: '6px 6px',
+                                        border: '1px solid #f3d9b8',
+                                        padding: '2px',
+                                    }}
+                                >
+                                    <img src={p.imageUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '3px' }} />
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
                 {/* Nameplate */}
                 <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px', position: 'relative' }}>
                     <div style={{
@@ -153,56 +259,20 @@ const TansuHero = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                {/* Drawers — pairs side by side, with the odd one out as a
+                    single wide drawer at the bottom, like a real tansu
+                    rather than one unnaturally wide bar per post */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: '7px' }}>
                     {latest.map((item, i) => {
-                        const theme = detectThemeFromComment(item.comment);
+                        const isWide = latest.length % 2 === 1 && i === latest.length - 1;
                         return (
-                            <div
-                                key={item.compositeId}
-                                onClick={() => navigate(`/gallery/post/${item.compositeId}`)}
-                                className="hover-scale"
-                                style={{
-                                    position: 'relative', overflow: 'hidden',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    background: 'linear-gradient(180deg, #b8823f 0%, #96692f 55%, #7a5226 100%)',
-                                    borderRadius: '3px',
-                                    padding: '7px 10px',
-                                    cursor: 'pointer',
-                                    boxShadow: [
-                                        'inset 0 2px 3px rgba(0,0,0,0.5)',
-                                        'inset 0 -2px 2px rgba(0,0,0,0.3)',
-                                        'inset 0 1px 0 rgba(255,255,255,0.12)',
-                                        '0 3px 5px rgba(0,0,0,0.35)',
-                                    ].join(', '),
-                                }}
-                            >
-                                <Grain opacity={0.3} size="140px 140px" />
-                                <div style={{ position: 'relative', width: '44px', height: '44px', flexShrink: 0, transform: `rotate(${tilts[i % tilts.length]}deg)` }}>
-                                    <img src={item.imageUrl} alt="" style={{
-                                        width: '100%', height: '100%', objectFit: 'cover', borderRadius: '5px',
-                                        border: '2px solid #f3ead9', boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
-                                    }} />
-                                    {theme && (
-                                        <div style={{ position: 'absolute', top: '-6px', right: '-6px' }}>
-                                            <ThemeBadge themeKey={theme} size={20} />
-                                        </div>
-                                    )}
-                                </div>
-                                <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-                                    <p style={{ fontSize: '11px', fontWeight: '700', color: '#fbf3e4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                        {item.itemName}
-                                    </p>
-                                    {item.plushieName && (
-                                        <p style={{ fontSize: '9px', color: 'rgba(251,243,228,0.6)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                            {item.plushieName}
-                                        </p>
-                                    )}
-                                </div>
-                                <div style={{ position: 'relative' }}>
-                                    <IronPull />
-                                </div>
+                            <div key={item.compositeId} style={isWide ? { gridColumn: '1 / -1' } : undefined}>
+                                <Drawer
+                                    item={item}
+                                    tilt={tilts[i % tilts.length]}
+                                    compact={!isWide}
+                                    onOpen={() => openPost(item.compositeId)}
+                                />
                             </div>
                         );
                     })}

@@ -891,16 +891,48 @@ const Gallery = ({ embedded = false } = {}) => {
                         {patternPickupItems.map((item) => (
                             <div
                                 key={`pattern-${item.compositeId}`}
-                                className="flex-shrink-0 w-[140px] rounded-2xl overflow-hidden bg-white border border-orange-100 shadow-sm cursor-pointer group transition-all hover:shadow-md hover:border-orange-200"
-                                style={{ scrollSnapAlign: 'start' }}
+                                className="flex-shrink-0 cursor-pointer group transition-all"
+                                style={{
+                                    width: '148px',
+                                    scrollSnapAlign: 'start',
+                                    borderRadius: '14px',
+                                    overflow: 'hidden',
+                                    backgroundColor: '#fbf6ea',
+                                    backgroundImage: 'linear-gradient(rgba(234,145,80,0.22) 1px, transparent 1px), linear-gradient(90deg, rgba(234,145,80,0.22) 1px, transparent 1px)',
+                                    backgroundSize: '8px 8px',
+                                    border: '1px solid #f3d9b8',
+                                    boxShadow: '0 2px 6px rgba(0,0,0,0.06)',
+                                }}
                                 onClick={() => setSelectedItem(item)}
                             >
-                                <div className="aspect-square relative overflow-hidden">
-                                    <img src={item.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent" />
-                                    <div className="absolute bottom-2 left-2 right-2">
-                                        <p className="text-white text-[10px] font-bold truncate drop-shadow-md">{item.itemName}</p>
-                                        <p className="text-white/80 text-[8px] font-medium truncate">@{item.userName}</p>
+                                {/* Perforated tear edge, like a sheet of dressmaking pattern paper */}
+                                <div style={{
+                                    height: '7px',
+                                    backgroundImage: 'radial-gradient(circle, #ffffff 1.6px, transparent 1.6px)',
+                                    backgroundSize: '9px 100%',
+                                    backgroundPosition: '4px 50%',
+                                }} />
+
+                                <div style={{ padding: '6px' }}>
+                                    <div className="aspect-square relative overflow-hidden" style={{ borderRadius: '10px' }}>
+                                        <img src={item.imageUrl} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                                        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.55), rgba(0,0,0,0.05) 45%, transparent 65%)' }} />
+                                        <div className="absolute bottom-2 left-2 right-2">
+                                            <p className="text-white text-[10px] font-bold truncate drop-shadow-md">{item.itemName}</p>
+                                            <p className="text-white/80 text-[8px] font-medium truncate">@{item.userName}</p>
+                                        </div>
+                                        {/* Scissors tag, like a fabric swatch clipped to the paper */}
+                                        <div style={{
+                                            position: 'absolute', top: '-2px', left: '-2px',
+                                            background: '#fff', color: '#ea580c',
+                                            borderRadius: '0 0 8px 0',
+                                            padding: '3px 6px 4px 4px',
+                                            display: 'flex', alignItems: 'center', gap: '2px',
+                                            boxShadow: '1px 1px 3px rgba(0,0,0,0.15)',
+                                        }}>
+                                            <Scissors size={9} strokeWidth={2.5} />
+                                            <span style={{ fontSize: '8px', fontWeight: 800 }}>{t('hasPattern')}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

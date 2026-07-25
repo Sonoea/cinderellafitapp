@@ -74,22 +74,21 @@ const TansuHero = () => {
 
     const tilts = [-4, 3, -3, 4, -2];
 
-    // A recessed black-iron drawer pull ("hikite") sunk into a carved
-    // hollow, centered on the drawer face — the hardware real tansu chests
-    // use in place of a Western side-mounted knob.
+    // A round black iron medallion plate ("ja-gane") with a hanging ring
+    // pull — the circular hardware real tansu chests wear, rather than a
+    // Western side-mounted knob or capsule handle.
     const IronPull = () => (
         <div style={{
-            position: 'relative', width: '30px', height: '18px', flexShrink: 0,
-            borderRadius: '9px',
-            background: 'radial-gradient(ellipse at 50% 35%, rgba(0,0,0,0.5), rgba(0,0,0,0.15) 70%)',
-            boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.6)',
+            position: 'relative', width: '24px', height: '24px', flexShrink: 0,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle at 35% 30%, #565656, #1c1a18 75%)',
+            border: '1px solid #0a0805',
+            boxShadow: '0 2px 3px rgba(0,0,0,0.45), inset 0 1px 1px rgba(255,255,255,0.15)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
             <div style={{
-                width: '18px', height: '10px', borderRadius: '6px',
-                border: '2.5px solid #2b2b2b',
-                background: 'linear-gradient(155deg, #5a5a5a, #1c1a18)',
-                boxShadow: '0 1px 1px rgba(255,255,255,0.15) inset',
+                width: '11px', height: '11px', borderRadius: '50%',
+                border: '2px solid #d8d2c4', opacity: 0.7,
             }} />
         </div>
     );
@@ -114,19 +113,19 @@ const TansuHero = () => {
             <div style={{
                 position: 'relative', overflow: 'hidden',
                 height: '14px', margin: '0 -4px',
-                borderRadius: '8px 8px 0 0',
-                background: 'linear-gradient(180deg, #6b4426 0%, #3c2414 100%)',
-                boxShadow: '0 3px 4px rgba(0,0,0,0.45)',
-                borderTop: '1px solid rgba(255,255,255,0.18)',
+                borderRadius: '4px 4px 0 0',
+                background: 'linear-gradient(180deg, #c9944f 0%, #93662f 100%)',
+                boxShadow: '0 3px 4px rgba(0,0,0,0.35)',
+                borderTop: '1px solid rgba(255,255,255,0.25)',
             }}>
-                <Grain opacity={0.35} size="160px 160px" />
+                <Grain opacity={0.3} size="160px 160px" />
             </div>
 
             <div style={{
                 position: 'relative', overflow: 'hidden',
                 padding: '14px 10px 10px',
-                background: 'linear-gradient(160deg, #5b3a20 0%, #3c2414 55%, #23140a 100%)',
-                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.05)',
+                background: 'linear-gradient(160deg, #c9944f 0%, #a3702f 55%, #7d5424 100%)',
+                boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
             }}>
                 <Grain opacity={0.45} />
 
@@ -167,8 +166,8 @@ const TansuHero = () => {
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '10px',
-                                    background: 'linear-gradient(180deg, #8a5a34 0%, #6b4326 55%, #5c391f 100%)',
-                                    borderRadius: '5px',
+                                    background: 'linear-gradient(180deg, #b8823f 0%, #96692f 55%, #7a5226 100%)',
+                                    borderRadius: '3px',
                                     padding: '7px 10px',
                                     cursor: 'pointer',
                                     boxShadow: [
@@ -212,8 +211,8 @@ const TansuHero = () => {
 
             {/* Feet */}
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0 10px' }}>
-                <div style={{ width: '14px', height: '9px', background: 'linear-gradient(180deg, #3c2414, #1c110a)', clipPath: 'polygon(15% 0, 85% 0, 100% 100%, 0 100%)' }} />
-                <div style={{ width: '14px', height: '9px', background: 'linear-gradient(180deg, #3c2414, #1c110a)', clipPath: 'polygon(15% 0, 85% 0, 100% 100%, 0 100%)' }} />
+                <div style={{ width: '14px', height: '9px', background: 'linear-gradient(180deg, #7a5226, #3c2414)', clipPath: 'polygon(15% 0, 85% 0, 100% 100%, 0 100%)' }} />
+                <div style={{ width: '14px', height: '9px', background: 'linear-gradient(180deg, #7a5226, #3c2414)', clipPath: 'polygon(15% 0, 85% 0, 100% 100%, 0 100%)' }} />
             </div>
         </div>
     );

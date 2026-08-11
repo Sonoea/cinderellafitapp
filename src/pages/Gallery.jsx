@@ -499,52 +499,56 @@ const Gallery = ({ embedded = false } = {}) => {
         }
     }, [selectedItem, shouldScrollToComments]);
 
-    // Deep link handling: Open specific post if postId is in URL
+    // Deep link handling: if the target post is already in the loaded list,
+    // open it straight away.
     useEffect(() => {
         if (postId && !selectedItem && publicItems.length > 0) {
             const item = publicItems.find(i => i.id === postId || i.compositeId === postId);
             if (item) {
                 setSelectedItem(item);
                 setIsEditing(false);
-            } else {
-                // If not in publicItems, try fetching directly
-                const fetchSinglePost = async () => {
-                    try {
-                        // Extract ownerUid if it's a compositeId (e.g. uid_id)
-                        let targetId = postId;
-                        let ownerUid = null;
-                        if (postId.includes('_')) {
-                            [ownerUid, targetId] = postId.split('_');
-                        }
-
-                        if (ownerUid) {
-                            const docRef = doc(db, 'users', ownerUid, 'closetItems', targetId);
-                            const docSnap = await getDoc(docRef);
-                            if (docSnap.exists()) {
-                                const data = docSnap.data();
-                                const uDoc = await getDoc(doc(db, 'users', ownerUid));
-                                const userData = uDoc.data() || {};
-                                setSelectedItem({
-                                    id: docSnap.id,
-                                    compositeId: postId,
-                                    ...data,
-                                    userId: ownerUid,
-                                    imageUrl: data.imageUrl || data.image,
-                                    userName: userData.displayName || data.userName,
-                                    userIcon: userData.photoURL || data.userIcon,
-                                    profileSlug: userData.profileSlug,
-                                    date: safeDate(data.createdAt),
-                                });
-                            }
-                        }
-                    } catch (e) {
-                        console.error("Error fetching single post for deep link:", e);
-                    }
-                };
-                fetchSinglePost();
             }
         }
     }, [postId, publicItems]);
+
+    // Deep link handling: fetch the target post directly (2 doc reads),
+    // independent of the 300-item public gallery fetch above — a
+    // notification or shared link used to force visitors through the full
+    // list load (and its loading-spinner flash) before the post could open.
+    useEffect(() => {
+        if (!postId || selectedItem || !postId.includes('_')) return;
+        let cancelled = false;
+        const [ownerUid, targetId] = postId.split('_');
+
+        const fetchSinglePost = async () => {
+            try {
+                const docRef = doc(db, 'users', ownerUid, 'closetItems', targetId);
+                const docSnap = await getDoc(docRef);
+                if (cancelled || !docSnap.exists()) return;
+                const data = docSnap.data();
+                const uDoc = await getDoc(doc(db, 'users', ownerUid));
+                if (cancelled) return;
+                const userData = uDoc.data() || {};
+                setSelectedItem(prev => prev || {
+                    id: docSnap.id,
+                    compositeId: postId,
+                    ...data,
+                    userId: ownerUid,
+                    imageUrl: data.imageUrl || data.image,
+                    userName: userData.displayName || data.userName,
+                    userIcon: userData.photoURL || data.userIcon,
+                    profileSlug: userData.profileSlug,
+                    date: safeDate(data.createdAt),
+                });
+                setIsEditing(false);
+            } catch (e) {
+                console.error("Error fetching single post for deep link:", e);
+            }
+        };
+        fetchSinglePost();
+
+        return () => { cancelled = true; };
+    }, [postId]);
 
     const handleCopyLink = (item) => {
         const url = `${window.location.origin}/gallery/post/${item.compositeId || item.id}`;
@@ -958,9 +962,9 @@ const Gallery = ({ embedded = false } = {}) => {
                                         <div className="flex items-center gap-1.5 overflow-hidden flex-1">
                                             <div className="relative flex-shrink-0">
                                                 <UserAvatar
-                                                    src={post.plushieImage || post.userIcon}
+                                                    src={post.userIcon || post.plushieImage}
                                                     className="w-7 h-7"
-                                                    alt={post.plushieName || post.userName}
+                                                    alt={post.userName || post.plushieName}
                                                     onClick={post.profileSlug ? () => navigate(`/gallery/${post.profileSlug}`) : undefined}
                                                 />
                                                 {post.isOwn && <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-primary rounded-full flex items-center justify-center ring-1 ring-white shadow-sm"><Star size={7} className="text-white fill-white" /></div>}
@@ -1074,7 +1078,7 @@ const Gallery = ({ embedded = false } = {}) => {
             {/* Detail Modal */}
             {selectedItem && (
                 <Portal>
-                    <div className="fixed inset-0 bg-black/60 z-modal flex items-center justify-center p-2 sm:p-4 backdrop-blur-sm" onClick={() => setSelectedItem(null)}>
+                    <div className="fixed inset-0 bg-black/70 z-modal flex items-center justify-center p-2 sm:p-4" onClick={() => setSelectedItem(null)}>
                         <div className="modal-responsive relative shadow-2xl bg-white rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()} style={{ maxWidth: '480px', width: '100%', maxHeight: '92dvh', display: 'flex', flexDirection: 'column' }}>
                             <button
                                 onClick={() => { setSelectedItem(null); setIsEditing(false); }}
@@ -1117,7 +1121,7 @@ const Gallery = ({ embedded = false } = {}) => {
 
                                 {/* User info */}
                                 <div className="flex items-center gap-3 pt-2 border-t border-gray-50">
-                                    <UserAvatar src={selectedItem.plushieImage || selectedItem.userIcon} className="w-10 h-10 shadow-sm" alt={selectedItem.plushieName || selectedItem.userName} />
+                                    <UserAvatar src={selectedItem.userIcon || selectedItem.plushieImage} className="w-10 h-10 shadow-sm" alt={selectedItem.userName || selectedItem.plushieName} />
                                     <div>
                                         <p className="font-bold text-gray-800 leading-none mb-1">
                                             {selectedItem.profileSlug ? (

@@ -5,26 +5,14 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Link, useNavigate, useSearchParams, useParams } from 'react-router-dom';
-import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, User, LogIn, Send, Tag, Ruler, Library, Edit2, Plus, Scissors, Camera } from 'lucide-react';
+import { Share2, Heart, MessageCircle, MoreHorizontal, X, MapPin, Star, Filter, Search, Shirt, ArrowRight, ExternalLink, Trash2, Users, LogIn, Send, Tag, Ruler, Library, Edit2, Plus, Scissors, Camera } from 'lucide-react';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate, getLocationFlag } from '../utils/formatting';
 import { openPdfFromDataUrl } from '../utils/imageUtils';
 import { getWeeklyThemeKey } from '../utils/weeklyTheme';
 import { detectThemeFromComment } from '../utils/themeBadgeStyles';
 import ThemeBadge from '../components/ThemeBadge';
-
-const UserAvatar = ({ src, alt, className, onClick, style }) => {
-    const [error, setError] = useState(!src || src.includes('placeholder'));
-    useEffect(() => { setError(!src || src.includes('placeholder')); }, [src]);
-    if (error) {
-        return (
-            <div onClick={onClick} className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`} style={{ ...(onClick ? { cursor: 'pointer' } : {}), ...style }}>
-                <User size={20} />
-            </div>
-        );
-    }
-    return <img src={src} alt={alt} className={`object-cover rounded-full ${className}`} onError={() => setError(true)} onClick={onClick} style={{ ...(onClick ? { cursor: 'pointer' } : {}), ...style }} />;
-};
+import UserAvatar from '../components/UserAvatar';
 
 // Render text with clickable hashtags
 const renderTextWithHashtags = (text, onHashtagClick) => {

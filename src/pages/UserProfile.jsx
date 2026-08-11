@@ -5,22 +5,10 @@ import { collection, query, where, getDocs, doc, getDoc, setDoc, deleteDoc, addD
 import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
-import { Heart, MessageCircle, User, Share2, Shirt, ArrowLeft, Send, X, Trash2, LogIn, MapPin, Star, ExternalLink } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Shirt, ArrowLeft, Send, X, Trash2, LogIn, MapPin, Star, ExternalLink } from 'lucide-react';
 import Portal from '../components/Portal';
 import { safeHostname, safeDate } from '../utils/formatting';
-
-const UserAvatar = ({ src, alt, className }) => {
-    const [error, setError] = useState(!src || src.includes('placeholder'));
-    useEffect(() => { setError(!src || src.includes('placeholder')); }, [src]);
-    if (error) {
-        return (
-            <div className={`flex items-center justify-center bg-gray-100 text-gray-400 rounded-full ${className}`}>
-                <User size={20} />
-            </div>
-        );
-    }
-    return <img src={src} alt={alt} className={`object-cover rounded-full ${className}`} onError={() => setError(true)} />;
-};
+import UserAvatar from '../components/UserAvatar';
 
 // Render text with clickable hashtags
 const renderTextWithHashtags = (text, onHashtagClick) => {

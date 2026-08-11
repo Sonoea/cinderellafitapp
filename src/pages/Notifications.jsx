@@ -5,6 +5,7 @@ import { db } from '../firebase/config';
 import { useAuth } from '../context/AuthContext';
 import { useApp } from '../context/AppContext';
 import { Bell, Heart, MessageCircle, CheckCircle2 } from 'lucide-react';
+import UserAvatar from '../components/UserAvatar';
 
 const Notifications = () => {
     const { t } = useApp();
@@ -138,11 +139,10 @@ const Notifications = () => {
                             }`}
                         >
                             <div className="relative flex-shrink-0 mt-0.5">
-                                <img 
-                                    src={notif.senderIcon || '/default-avatar.png'} 
-                                    alt={notif.senderName} 
-                                    className="w-10 h-10 rounded-full shadow-sm object-cover bg-gray-100" 
-                                    onError={(e) => { e.target.onerror = null; e.target.src = '/default-avatar.png'; }}
+                                <UserAvatar
+                                    src={notif.senderIcon}
+                                    alt={notif.senderName}
+                                    className="w-10 h-10 shadow-sm"
                                 />
                                 <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm">
                                     {notif.type === 'like' ? (

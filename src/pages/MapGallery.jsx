@@ -189,7 +189,7 @@ const GlobeScene = ({ posts, onSelect, selectedPost }) => {
                                     style={{ width: '24px', height: '24px' }}
                                 >
                                     <img
-                                        src={post.imageUrl || '/placeholder-plushie.png'}
+                                        src={post.imageUrl || '/unae-san.png'}
                                         alt=""
                                         className="w-full h-full object-cover"
                                     />
